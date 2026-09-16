@@ -4,6 +4,11 @@
  */
 import { firstTextField } from "../shared/htmlSources.ts";
 import {
+  IMPORT_BATCH_CHUNK,
+  IMPORT_BATCH_TIMEOUT,
+  IMPORT_RATE_FLOOR,
+} from "../shared/importBatch.ts";
+import {
   ADMIN_ROLE,
   isPeopleTable,
   loginFor,
@@ -677,6 +682,7 @@ export async function bootstrap() {
   await ensurePeopleTables();
   await convertPersonColumns();
 
+  await ensureBatchSettings();
   await fillRelationDisplayFields();
   await relaxRequiredRelations();
   await closeDataCollections();
@@ -696,6 +702,76 @@ export async function bootstrap() {
     });
     console.log(`  + constructor "${config.adminEmail}"`);
   }
+}
+
+/** Una regla de limite de PocketBase, de las que se ven en su consola. */
+interface PbRateRule {
+  label: string;
+  audience?: string;
+  duration?: number;
+  maxRequests?: number;
+}
+
+/** Lo que se lee de los ajustes de la instalacion. El resto no se toca. */
+interface PbSettingsShape {
+  batch?: { enabled?: boolean; maxRequests?: number; timeout?: number };
+  rateLimits?: { enabled?: boolean; rules?: PbRateRule[] };
+}
+
+/**
+ * Deja la instalacion de PocketBase en condiciones de aceptar una importacion.
+ *
+ * Nada de esto estaba en el repo, y se notaba en las dos puntas: la API de
+ * lote viene apagada de fabrica --una instalacion nueva no podia importar ni
+ * una fila-- y las reglas de limite de fabrica cuentan cada fila del lote como
+ * un pedido suyo, asi que una instalacion con el lote encendido a mano se caia
+ * siempre en la fila 21 con un 429 ("Too Many Requests") envuelto en un 400 que
+ * no decia de donde venia. Lo que necesita el importador esta dicho en
+ * `shared/importBatch.ts`.
+ *
+ * Solo sube techos, nunca los baja, y no toca ninguna regla que no estorbe: las
+ * de las claves --que son las que protegen de verdad-- se quedan como esten, y
+ * el limite global sigue existiendo, solo que con sitio para tres tramos.
+ * Idempotente: en el arranque siguiente no hay nada que cambiar y no se escribe.
+ */
+async function ensureBatchSettings(): Promise<void> {
+  const current = await pb<PbSettingsShape>("/api/settings");
+  const patch: Record<string, unknown> = {};
+
+  const batch = current.batch ?? {};
+  const wanted = {
+    enabled: true,
+    maxRequests: Math.max(batch.maxRequests ?? 0, IMPORT_BATCH_CHUNK),
+    timeout: Math.max(batch.timeout ?? 0, IMPORT_BATCH_TIMEOUT),
+  };
+  if (
+    batch.enabled !== true ||
+    batch.maxRequests !== wanted.maxRequests ||
+    batch.timeout !== wanted.timeout
+  ) {
+    patch.batch = { ...batch, ...wanted };
+  }
+
+  /*
+   * Las reglas viajan en una lista, asi que se manda entera: lo que no se
+   * cambia va tal como estaba. Una regla que no exista no se inventa --no
+   * estar es no tener limite, que es justo lo que queremos-- y una que ya de
+   * mas margen del que pedimos se queda con el suyo.
+   */
+  const rules = current.rateLimits?.rules ?? [];
+  const raised: string[] = [];
+  const next = rules.map((rule) => {
+    const floor = IMPORT_RATE_FLOOR[rule.label];
+    if (floor === undefined || (rule.maxRequests ?? 0) >= floor) return rule;
+    raised.push(rule.label);
+    return { ...rule, maxRequests: floor };
+  });
+  if (raised.length) patch.rateLimits = { ...current.rateLimits, rules: next };
+
+  if (!Object.keys(patch).length) return;
+  await pb("/api/settings", { method: "PATCH", body: JSON.stringify(patch) });
+  if (patch.batch) console.log("  ~ API de lote de PocketBase lista para importar");
+  if (raised.length) console.log(`  ~ limite subido en ${raised.join(", ")}`);
 }
 
 /**

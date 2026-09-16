@@ -1522,6 +1522,24 @@
             <Button size="sm" onclick={clearSearch}>Quitar la busqueda</Button>
           {/snippet}
         </EmptyState>
+      {:else if table.fields.length === 0}
+        <!--
+          Una tabla recien creada no tiene ni una columna, asi que lo primero no
+          es una fila --seria una fila sin nada que escribir-- sino decir que
+          guarda la tabla. El mismo dialogo que abre "Añadir columna" de la
+          barra, puesto donde se esta mirando.
+        -->
+        <EmptyState
+          title="Esta tabla no tiene columnas"
+          description="Di qué guarda: crea la primera columna, o importa un archivo y se crean con él."
+        >
+          {#snippet icon()}<Icon name="table" size={20} />{/snippet}
+          {#snippet action()}
+            <Button size="sm" variant="secondary" onclick={() => (columnModal = {})}>
+              <Icon name="plus" size={14} /> Primera columna
+            </Button>
+          {/snippet}
+        </EmptyState>
       {:else}
         <EmptyState
           title="La tabla está vacía"

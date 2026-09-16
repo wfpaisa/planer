@@ -29,5 +29,35 @@
 {#if children}
   <Toast {kind} {duration}>{@render children()}</Toast>
 {:else if message}
-  <Toast {kind} {duration} key={message}>{message}</Toast>
+  <!--
+    El mensaje puede traer dos renglones: `errorMessage` pone arriba lo que hay
+    que arreglar y debajo lo que dijo la API para llegar ahi --su codigo, su
+    estado, su cuerpo cuando no se reconoce--. El de abajo se dibuja mas
+    apagado: se lee si hace falta y se copia siempre, pero no compite con el de
+    arriba. Partirlo aqui y no en `errorMessage` es lo que deja el mensaje
+    siendo una cadena para todo el panel.
+  -->
+  {@const cut = message.indexOf("\n")}
+  <Toast {kind} {duration} key={message}>
+    <span class="note-message">{cut < 0 ? message : message.slice(0, cut)}</span>
+    {#if cut >= 0}
+      <span class="note-detail">{message.slice(cut + 1)}</span>
+    {/if}
+  </Toast>
 {/if}
+
+<style>
+  .note-message {
+    display: block;
+  }
+
+  .note-detail {
+    display: block;
+    margin-top: var(--sp-4);
+    white-space: pre-line;
+    opacity: 0.75;
+    /* Un detalle sin espacios --un JSON, el nombre de una coleccion-- no puede
+       desbordar el aviso, que tiene ancho tope. */
+    overflow-wrap: anywhere;
+  }
+</style>

@@ -417,10 +417,20 @@ export async function wipeApps(req: Request) {
 /* Tablas                                                               */
 /* ------------------------------------------------------------------ */
 
-const DEFAULT_FIELDS: FieldDef[] = [
-  { name: "nombre", label: "Nombre", type: "text", required: true },
-  { name: "notas", label: "Notas", type: "longtext" },
-];
+/*
+ * Una tabla nueva nace sin ninguna columna.
+ *
+ * Antes nacia con "Nombre" --obligatoria-- y "Notas", que casi nunca eran las
+ * columnas que se querian: se borraban las dos y se escribian las de verdad, o
+ * se quedaban ahi de adorno. Y la obligatoria hacia dano: importar un archivo
+ * que no traia nombres dejaba cada fila sin ese dato y la base rechazaba la
+ * importacion entera (ver `findRequiredGaps` en `web/src/lib/importPlan.ts`).
+ *
+ * Sin columnas no hay callejon sin salida: "Añadir columna" vive en la barra de
+ * la cuadricula, la tabla vacia manda ahi, e importar un archivo crea las
+ * columnas que el archivo traiga. Quien si necesita columnas el primer dia es
+ * la tabla de personas, y las suyas las pone `PEOPLE_DEFAULT_FIELDS`.
+ */
 
 export async function createTable(req: Request, appId: string) {
   const me = await requireBuilder(req);
@@ -430,12 +440,11 @@ export async function createTable(req: Request, appId: string) {
   const label = (input.label ?? "").trim() || "Tabla";
   const name = await uniqueTableName(app.id, label);
   const dataCollection = dataCollectionName(app.slug, name);
-  const requested = input.fields?.length ? input.fields : DEFAULT_FIELDS;
 
   const { fields } = await createDataCollection({
     dataCollection,
     appId: app.id,
-    fields: requested,
+    fields: input.fields ?? [],
   });
 
   const count = await listRecords(INTERNAL.tables, {

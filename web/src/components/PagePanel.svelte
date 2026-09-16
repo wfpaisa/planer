@@ -18,7 +18,7 @@
   import IconPicker from "./IconPicker.svelte";
   import OmniPanel from "./OmniPanel.svelte";
   import PageAccessPicker from "./PageAccessPicker.svelte";
-  import { Button, ConfirmDialog, ErrorNote, Field, Input, Switch } from "./ui";
+  import { Button, ConfirmDialog, ErrorNote, Field, Input } from "./ui";
 
   let {
     app,
@@ -134,39 +134,57 @@
 {/snippet}
 
 <!--
-  La zona de borrar: dice que se va a borrar y que no vuelve, y el boton al
-  lado. Antes era un boton ancho y solo: lo destructivo no deberia ser lo mas
-  grande del panel ni lo primero que se encuentra la mano.
+  La zona de borrar: su propia tarjeta, con el titulo diciendo que se va a
+  borrar y que no vuelve, y el boton en el renglon de abajo. Es la misma pieza
+  con la que se borra la aplicacion --misma tarjeta, mismo sitio del boton-- y
+  se lee igual porque es lo mismo que se hace; lo que no comparte es la
+  confirmacion, que alli obliga a escribir el nombre. Borrar una pagina se
+  deshace rehaciendola; borrar la aplicacion no se deshace de ninguna manera.
+
+  Lo destructivo no es lo mas grande del panel ni lo primero que se encuentra
+  la mano: va al final y no ocupa el ancho entero.
 -->
 {#snippet dangerZone()}
-  <div class="section-page-panel-delete">
-    <div class="copy-page-panel-delete">
-      <p class="label-page-panel-home">Borrar {thing}</p>
-      <p class="hint-page-panel-home">
+  <section class="section-page-panel-delete card card-solid">
+    <header class="card-head">
+      <div class="head-page-panel-delete">
+        <h3 class="title-page-panel-delete card-title">Borrar {thing}</h3>
+        <p class="description-page-panel-delete card-sub">
+          {#if page.separator}
+            Se borra el título del grupo. Las páginas que agrupa se quedan donde están. Esta acción
+            no se puede deshacer.
+          {:else}
+            Se borran la página, lo que tenga escrito y las conversaciones con la inteligencia
+            artificial que se hicieron en ella. Esta acción no se puede deshacer.
+          {/if}
+        </p>
+      </div>
+    </header>
+
+    <div class="card-body row-page-panel-delete">
+      <p class="label-page-panel-delete">
         {#if page.isHome}
           La página de inicio no se borra: la aplicación siempre necesita una. Marca antes otra como
           inicio.
-        {:else if page.separator}
-          Se borra el título del grupo. Las páginas que agrupa se quedan donde están.
         {:else}
-          Se borra la página con lo que tenga escrito. No se puede deshacer.
+          Borrar <strong>{page.name}</strong>
+          {page.separator ? "y dejar sus páginas donde están." : "y todo lo que tiene."}
         {/if}
       </p>
-    </div>
 
-    {#if !page.isHome}
-      <Button
-        variant="ghost"
-        buttonClass="btn-delete-page-panel"
-        class="btn-danger"
-        onclick={() => (deleting = true)}
-        disabled={busy}
-        aria-label={`Borrar ${thing} "${page.name}"`}
-      >
-        <Icon name="trash" size={14} /> Borrar
-      </Button>
-    {/if}
-  </div>
+      {#if !page.isHome}
+        <Button
+          variant="danger"
+          buttonClass="btn-delete-page-panel"
+          onclick={() => (deleting = true)}
+          disabled={busy}
+          aria-label={`Borrar ${thing} "${page.name}"`}
+        >
+          <Icon name="trash" size={14} /> Borrar {thing}
+        </Button>
+      {/if}
+    </div>
+  </section>
 {/snippet}
 
 <OmniPanel
@@ -191,40 +209,47 @@
     <div class="form-page-panel flex flex-col gap-4">
       <ErrorNote message={error} />
 
+      <!--
+        El inicio se marca pegado al nombre y no en una fila propia: es otra
+        cosa que decir de esta pagina, no un ajuste con su parrafo. Pegado
+        --`join` del catalogo-- porque lo que hace se lee del nombre que tiene
+        al lado: esta es la que abre la aplicacion.
+
+        La de inicio no se puede desmarcar: la aplicacion siempre necesita una,
+        y se cambia marcando otra. Mientras el cambio no se guarda si se puede
+        deshacer, que es volver a dejar de inicio a la que ya lo era.
+
+        En la que ya es el inicio el boton se queda marcado y el clic no hace
+        nada, pero no va `disabled`: un boton apagado no recibe al raton, y con
+        el se iria el globo que explica justo por que no se puede apagar. Lo
+        dice `aria-disabled`, que se lee sin dejar de oir al raton.
+      -->
       <div class="row-page-panel-name">
         <IconPicker value={icon} onChange={(next) => (icon = next)} />
         <div class="field-page-panel-name">
           <Field label="Nombre">
-            <Input bind:value={name} />
+            <div class="join join-page-panel-name">
+              <Input bind:value={name} />
+              <Button
+                variant={isHome ? "secondary" : "default"}
+                buttonClass="btn-home-page-panel"
+                aria-pressed={isHome}
+                aria-disabled={page.isHome}
+                tip={page.isHome
+                  ? "Esta página ya es el inicio; la aplicación siempre necesita una."
+                  : "Quien entre a la aplicación llegará aquí primero."}
+                onclick={() => {
+                  if (!page.isHome) isHome = !isHome;
+                }}
+              >
+                <Icon name="home-11" size={14} /> Página de inicio
+              </Button>
+            </div>
           </Field>
         </div>
       </div>
 
       {@render access()}
-
-      <div class="row-page-panel-home">
-        <div>
-          <p class="label-page-panel-home">Usar como inicio</p>
-          <p class="hint-page-panel-home">
-            {page.isHome
-              ? "Esta página ya es el inicio; la aplicación siempre necesita una."
-              : "Quien entre a la aplicación llegará aquí primero."}
-          </p>
-        </div>
-        <!--
-          La de inicio no se puede desmarcar: la aplicacion siempre necesita una,
-          y se cambia marcando otra. El interruptor va enlazado y la correccion
-          vuelve por el mismo enlace, para que lo que se ve y lo que vale sean lo
-          mismo.
-        -->
-        <Switch
-          bind:checked={isHome}
-          onchange={() => {
-            if (page.isHome) isHome = true;
-          }}
-        />
-      </div>
-
       {@render dangerZone()}
     </div>
   {/if}
@@ -260,43 +285,52 @@
       }
     }
 
-    & .row-page-panel-home,
+    /* El nombre cede el ancho y el boton se queda con el suyo: la costura
+       solo se ve recta si el nombre es lo que encoge. */
+    & .join-page-panel-name :global(.btn-home-page-panel) {
+      flex: none;
+      white-space: nowrap;
+    }
+
+    /* La caja, el titulo y el subtitulo son `.card`, `.card-title` y
+       `.card-sub` del catalogo, como en los ajustes de la aplicacion. Aqui
+       solo el tamano: dentro de un panel que ya tiene su titulo, el de la
+       seccion va un escalon por debajo. */
     & .section-page-panel-delete {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--sp-16);
-      border-top: var(--border-width) solid var(--border);
-      padding-top: var(--sp-16);
-    }
+      & .head-page-panel-delete {
+        min-width: 0;
+      }
 
-    & .label-page-panel-home {
-      font-size: var(--text-sm);
-      line-height: var(--text-sm--line-height);
-      font-weight: 500;
-      color: var(--text-primary);
-    }
+      & .title-page-panel-delete {
+        font-size: var(--text-sm);
+        font-weight: 600;
+      }
 
-    & .hint-page-panel-home {
-      font-size: var(--text-xs);
-      line-height: var(--text-xs--line-height);
-      color: var(--text-muted);
-    }
+      & .description-page-panel-delete {
+        font-size: var(--text-xs);
+        line-height: var(--text-xs--line-height);
+      }
 
-    /* El texto cede el ancho y el boton se queda con el suyo: sin esto la
-       explicacion lo empuja y "Borrar" sale partido en dos lineas. */
-    & .copy-page-panel-delete {
-      min-width: 0;
-      flex: 1;
-    }
+      /* El texto cede el ancho y el boton se queda con el suyo: sin esto la
+         explicacion lo empuja y "Borrar" sale partido en dos lineas. */
+      & .row-page-panel-delete {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-16);
+      }
 
-    & .section-page-panel-delete :global(.btn-delete-page-panel) {
-      flex-shrink: 0;
-      height: 2.25rem;
-      min-height: 2.25rem;
-      font-size: var(--text-sm);
-      line-height: var(--text-sm--line-height);
-      font-weight: 500;
+      & .label-page-panel-delete {
+        min-width: 0;
+        flex: 1;
+        font-size: var(--text-sm);
+        line-height: var(--text-sm--line-height);
+        color: var(--text-secondary);
+      }
+
+      & :global(.btn-delete-page-panel) {
+        flex-shrink: 0;
+      }
     }
   }
 </style>

@@ -218,7 +218,12 @@
     }
   }
 
+  /* Arriba y no estiradas: la ayuda debajo del enlace hace su columna mas
+     alta, y estiradas la otra se descolgaria. Asi las dos etiquetas y los dos
+     campos empiezan a la misma altura. */
   .settings-identity-grid {
+    align-items: start;
+
     @media (min-width: 40rem) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }

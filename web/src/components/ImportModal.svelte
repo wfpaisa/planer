@@ -11,6 +11,7 @@
   `lib/importPlan.ts`: aqui esta lo que se ve y lo que se escribe.
 -->
 <script lang="ts">
+  import { IMPORT_BATCH_CHUNK } from "@shared/importBatch";
   import { isPeopleTable } from "@shared/people";
   import { type Match, relationCellValues } from "@shared/relations";
   import { type FieldType, isRelationField, type TableRecord } from "@shared/types";
@@ -44,7 +45,7 @@
     type SaveMode,
     SEPARATORS,
   } from "../lib/importPlan";
-  import { errorMessage, patch, pb } from "../lib/pb";
+  import { errorMessage, isRateLimited, patch, pb } from "../lib/pb";
   import { getPeople } from "../lib/people.svelte";
   import {
     buildPeopleRows,
@@ -390,6 +391,8 @@ Bruno,bruno@example.com,2023-11-15`;
   /** Cuantas filas y en que columnas, para contarlo en el aviso sin repetir. */
   const requiredBlankRows = $derived(new Set(requiredBlank.map((i) => i.row)));
   const requiredBlankColumns = $derived(new Set(requiredBlank.map((i) => i.column)));
+  /** Los nombres de las columnas que faltan, ya juntos: se dicen dos veces. */
+  const requiredMissingNames = $derived(requiredMissing.map((f) => f.label).join(", "));
 
   /**
    * Todo lo que se pinta en rojo en la grilla: lo exigido a mano y lo que exige
@@ -909,21 +912,43 @@ Bruno,bruno@example.com,2023-11-15`;
       /** Las filas del archivo que no llegaron a la tabla, por su sitio en el. */
       const leftover = new Set<number>(conError);
       let parado = -1;
-      for (let i = 0; i < requests.length; i += 200) {
-        const chunk = requests.slice(i, i + 200);
-        const res = await fetch("/pb/api/batch", {
-          method: "POST",
-          headers: { "content-type": "application/json", authorization: pb.authStore.token },
-          // `row` es solo nuestro --dice de que fila del archivo sale cada
-          // pedido-- y la API de lote rechaza lo que no conoce: se queda aqui.
-          body: JSON.stringify({
-            requests: chunk.map(({ method, url, body }) => ({ method, url, body })),
-          }),
-        });
+      for (let i = 0; i < requests.length; i += IMPORT_BATCH_CHUNK) {
+        const chunk = requests.slice(i, i + IMPORT_BATCH_CHUNK);
+        const enviar = () =>
+          fetch("/pb/api/batch", {
+            method: "POST",
+            headers: { "content-type": "application/json", authorization: pb.authStore.token },
+            // `row` es solo nuestro --dice de que fila del archivo sale cada
+            // pedido-- y la API de lote rechaza lo que no conoce: se queda aqui.
+            body: JSON.stringify({
+              requests: chunk.map(({ method, url, body }) => ({ method, url, body })),
+            }),
+          });
+
+        let res = await enviar();
+        /*
+         * Un tramo que se paso de rapido se vuelve a intentar entero.
+         *
+         * Se puede porque el lote es una transaccion: del tramo que fallo no
+         * entro ni una fila, asi que repetirlo no duplica nada. El limite lo
+         * pone PocketBase por ventana de segundos (ver `IMPORT_RATE_FLOOR` en
+         * `shared/importBatch.ts`), de modo que esperar es todo lo que hay que
+         * hacer; se espera un poco mas en cada intento y se abandona al tercero
+         * para no quedarse dando vueltas en una instalacion con el limite muy
+         * abajo.
+         */
+        let body: unknown = null;
+        for (let intento = 1; intento <= 2 && !res.ok; intento++) {
+          body = await res.json().catch(() => null);
+          if (!isRateLimited(body)) break;
+          await new Promise((listo) => setTimeout(listo, intento * 2000));
+          res = await enviar();
+          body = null;
+        }
         if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
+          const detalle = body ?? (await res.json().catch(() => ({})));
           throw new Error(
-            errorMessage({ message: `La API de lote respondio ${res.status}`, response: body }),
+            errorMessage({ message: `La API de lote respondio ${res.status}`, response: detalle }),
           );
         }
         const data = (await res.json()) as Record<string, { status: number }>;
@@ -1268,12 +1293,10 @@ Bruno,bruno@example.com,2023-11-15`;
             </strong>
             {#if requiredMissing.length > 0}
               Ninguna columna del archivo va a
-              <b class="import-required-strong">
-                {requiredMissing.map((f) => f.label).join(", ")}
-              </b>,
+              <b class="import-required-strong">{requiredMissingNames}</b>,
               {requiredMissing.length === 1 ? "obligatoria" : "obligatorias"} en {table.label}: cada
-              fila nueva se quedaría sin ese dato y la base rechaza la importación completa. Manda
-              ahí una columna desde su encabezado, o quítale lo de obligatoria en la tabla.
+              fila nueva se quedaría sin ese dato y la importación se rechaza entera. Manda ahí una
+              columna desde su encabezado, o quítale lo de obligatoria a esa columna de la tabla.
             {/if}
             {#if requiredBlank.length > 0}
               {requiredBlankRows.size}
@@ -1765,7 +1788,7 @@ Bruno,bruno@example.com,2023-11-15`;
               : "Faltan datos obligatorios: no se puede importar así."
             : requiredUnmet
               ? requiredMissing.length > 0
-                ? `Nada va a ${requiredMissing.map((f) => f.label).join(", ")}, que la tabla exige.`
+                ? `Nada va a ${requiredMissingNames}, que la tabla exige.`
                 : "Hay celdas vacías en una columna obligatoria de la tabla."
               : nothingMapped
                 ? "Todas las columnas están ignoradas: no hay nada que guardar."

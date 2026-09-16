@@ -1,3 +1,4 @@
+import { MAX_IMPORT_ROWS } from "@shared/importBatch";
 import {
   keyCandidates,
   type Lookup,
@@ -15,14 +16,13 @@ import { type FieldDef, isRelationField, type TableRecord } from "@shared/types"
  * listas.
  */
 
-/** Cuantas filas de datos se pueden importar de una vez. */
-export const MAX_IMPORT_ROWS = 5000;
-
 /** Una tabla recien leida: nombres de columna y celdas como texto. */
 export interface ParsedTable {
   columns: string[];
   rows: string[][];
 }
+
+export { MAX_IMPORT_ROWS };
 
 export type ParseResult = { ok: true; data: ParsedTable } | { ok: false; error: string };
 

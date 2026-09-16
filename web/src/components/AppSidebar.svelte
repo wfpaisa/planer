@@ -35,26 +35,27 @@
   construyendo: ya estan en el encabezado.
 -->
 <script lang="ts" module>
-  import { pageIsAdminOnly, pageIsLimited } from "@shared/pages";
+  import { pageIsLimited } from "@shared/pages";
   import { ADMIN_ROLE } from "@shared/people";
   import type { PageRecord } from "@shared/types";
 
   /**
-   * Los roles que abren una pagina, contados en una linea.
+   * A quien se le abrio una pagina, en una linea.
    *
-   * Con `admin` y nada mas no hay roles que enumerar: es la pagina que todavia
-   * no ve nadie, y el globo lo dice con palabras en vez de con el nombre del
-   * rol --que ahi no significaria nada para quien lo lea--.
+   * No se lee con el raton: es el nombre del sello para quien no lo ve. En
+   * pantalla el icono se explica solo, y un globo aqui no cabe --a la derecha
+   * tapa el boton de los ajustes, y arriba o abajo, las filas vecinas--.
    *
-   * `admin` no se nombra cuando hay otros roles: lo lleva toda pagina limitada
-   * --se lo pone `withPageAdmin`-- asi que repetirlo en cada globo no distingue
-   * una pagina de otra y tapa lo unico que se venia a leer, que es a quien se
-   * le abrio. La pagina de todos no llega hasta aqui: no lleva sello.
+   * `admin` no entra en la cuenta: lo lleva toda pagina limitada --se lo pone
+   * `withPageAdmin`-- asi que nombrarlo no distingue una pagina de otra. Sin el
+   * no queda nadie en la pagina que solo ve quien construye, y esa se cuenta
+   * con palabras: el nombre `admin` no significaria nada para quien lo lea. La
+   * pagina de todos no llega hasta aqui: no lleva sello.
    */
   export function accessLabel(page: PageRecord): string {
-    if (pageIsAdminOnly(page)) return "Solo quien construye la aplicación";
     const roles = (page.roles ?? []).filter((r) => r !== ADMIN_ROLE);
-    return `Solo: ${roles.join(", ")}`;
+    if (!roles.length) return "Solo quien construye la aplicación";
+    return `Pueden ver: ${roles.join(", ")}`;
   }
 
   export interface SidebarBuilder {
@@ -283,14 +284,16 @@
   Solo se dibuja la excepcion --tener roles marcados--, y con el icono con el
   que los roles se reconocen en todas partes. La pagina que abre cualquiera es
   la norma y no lleva sello: en una lista, un icono repetido en todas las
-  lineas no dice nada y le quita fuerza al que si. Los roles viajan en el globo
-  de la casa, que es lo que convierte un icono pequeno en algo que se puede
-  leer.
+  lineas no dice nada y le quita fuerza al que si.
+
+  Sin globo: el sello se retira al pasar el raton --le deja el hueco al boton
+  de los ajustes-- asi que ir a senalarlo es justo lo que lo hace desaparecer,
+  y colgarlo de la fila entera tapa lo de al lado. Los roles se leen donde se
+  marcan, en los ajustes de la pagina.
 -->
 {#snippet accessMark(page: PageRecord)}
   {#if pageIsLimited(page)}
-    {@const label = accessLabel(page)}
-    <span role="img" data-tip={label} data-tip-side="right" aria-label={label}>
+    <span role="img" aria-label={accessLabel(page)}>
       <Icon name={ROLE_ICON} size={18} />
     </span>
   {/if}
