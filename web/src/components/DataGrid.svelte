@@ -170,6 +170,8 @@
   /** Lo que hay escrito en el campo "Filas por pagina": se aplica solo al dar Enter. */
   let pageSizeText = $derived(String(pageSize));
   let loading = $state(true);
+  /** Mientras se vuelve a pedir todo a mano, desde el boton de refrescar. */
+  let refreshing = $state(false);
   let error = $state("");
   /** Lo que hay que saber de la ultima exportacion. No es un error. */
   let exportWarning = $state("");
@@ -405,6 +407,36 @@
     void onlyOrphans;
     void load();
   });
+
+  /**
+   * Vuelve a pedir todo lo que esta pantalla ensena de la tabla.
+   *
+   * La grilla se pide sola cuando cambia algo de aqui --la busqueda, el orden,
+   * la pagina--, pero no se entera de lo que pasa fuera: una columna que la IA
+   * acaba de anadir, una fila que alguien escribio desde su navegador. Eso se
+   * arreglaba recargando el sitio entero, que es volver a entrar en la
+   * aplicacion para leer una tabla.
+   *
+   * Va en este orden: primero las columnas, porque las filas se leen contra
+   * ellas --una columna nueva llegaria sin sitio donde pintarse--, y al final
+   * los enlaces sin dueno, que se cuentan sobre la tabla entera.
+   */
+  async function refresh() {
+    if (refreshing) return;
+    refreshing = true;
+    try {
+      await onSchemaChange();
+      // Las celdas de persona de cualquier tabla leen esta lista; quien acaba
+      // de ser invitado no esta en ella y su enlace se pinta como roto.
+      if (isPeople) await builder.reloadPeople();
+      await load();
+      orphans = await loadOrphans(table).catch(() => []);
+    } catch (err) {
+      error = errorMessage(err);
+    } finally {
+      refreshing = false;
+    }
+  }
 
   /**
    * El estado intermedio de la casilla "todos" no es un atributo: se pone sobre
@@ -983,6 +1015,24 @@
     >
       <Icon name="plus" size={16} />
       <span class="grid-db-add-column-label">Añadir columna</span>
+    </Button>
+
+    <!--
+      Traer lo de fuera sin recargar el sitio: columnas, filas y enlaces sin
+      dueno. Va sin etiqueta --el icono se lee solo, y la barra ya aprieta-- y
+      mientras trabaja gira, que es lo que hace `is-loading` en el sistema.
+    -->
+    <Button
+      size="sm"
+      variant="ghost"
+      buttonClass="btn-refresh-table"
+      onclick={refresh}
+      disabled={refreshing}
+      tip="Refrescar los datos"
+      aria-label="Refrescar los datos"
+      class={cx("grid-db-tool-action", refreshing && "is-loading")}
+    >
+      <Icon name="arrow-reload-horizontal" size={16} />
     </Button>
 
     <!--
