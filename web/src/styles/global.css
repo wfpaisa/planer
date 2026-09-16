@@ -315,7 +315,7 @@ body,
   --aura-padding: 0.125rem;
   --aura-radius: var(--radius-field);
   padding: var(--aura-padding);
-  border-radius: calc(var(--aura-padding) + var(--aura-radius));
+  border-radius: calc(var(--aura-padding) + var(--aura-radius) + 0.1rem);
   display: inline-block;
   position: relative;
   animation: aura-spin 6s linear infinite;
@@ -369,8 +369,9 @@ body,
 
 /* El tono del halo cuando es la IA la que esta trabajando */
 .aura-ia {
-  --aura-padding: 1px;
+  --aura-padding: 0px;
   transition-duration: 3000ms;
+  animation-play-state: paused;
 
   background: repeating-conic-gradient(
     from var(--aura-angle) in oklch longer hue,
@@ -384,17 +385,17 @@ body,
 
   &:before,
   &:after {
-    opacity: 30%;
-    filter: blur(0.3rem);
+    opacity: 20%;
+    filter: blur(0.1rem);
   }
 
   &:has(textarea:focus) {
-    animation-play-state: paused;
+    animation-play-state: running;
 
     &:before,
     &:after {
-      opacity: 30%;
-      filter: blur(0.1rem);
+      opacity: 40%;
+      filter: blur(0.2rem);
     }
   }
 }
