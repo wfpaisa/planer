@@ -5,7 +5,7 @@
  * `importParse.ts`; esto es el paso siguiente --emparejar sus columnas con las
  * de la tabla y convertir cada celda-- y no necesita ver una sola etiqueta.
  */
-import type { FieldDef, FieldType, TableRecord } from "@shared/types";
+import { type FieldDef, type FieldType, isRelationField, type TableRecord } from "@shared/types";
 
 import { BOOL_FALSE, BOOL_TRUE, boolWord, convertValue, type ParsedTable } from "./importParse";
 
@@ -379,6 +379,70 @@ export function findRuleIssues(
     }
   }
   return issues;
+}
+
+/**
+ * Las columnas obligatorias de la tabla que la base rechaza vacias.
+ *
+ * No son todas las que el panel marca obligatorias. Una casilla y la mitad del
+ * id de una relacion nacen sin obligar --ver `toPbField` y `toPbFields` en
+ * `server/schema.ts`--, asi que exigirlas aqui detendria una importacion que la
+ * base acepta sin queja. Las de sistema tampoco cuentan: su valor no vive en la
+ * coleccion de la tabla y no se escribe por este camino.
+ */
+export function enforcedRequired(fields: FieldDef[]): FieldDef[] {
+  return fields.filter(
+    (f) =>
+      f.required === true &&
+      !f.system &&
+      f.type !== "bool" &&
+      !(isRelationField(f) && f.multiple !== true),
+  );
+}
+
+/**
+ * Lo que le falta a la importacion para que la base la acepte.
+ *
+ * Una columna obligatoria de la tabla a la que no llega ninguna columna del
+ * archivo deja cada fila nueva sin ese dato, y PocketBase rechaza el lote
+ * entero: la importacion se caia con "Batch transaction failed", que no dice ni
+ * que columna falta ni que hacer con ella. Se mira antes, en la
+ * previsualizacion, y se dice con el nombre de la columna.
+ *
+ * `blank` son las celdas vacias de una columna obligatoria que SI esta
+ * emparejada: se devuelven como condicion incumplida --`missing`, la misma que
+ * pone quien importa-- para que se pinten y detengan el boton por el camino que
+ * ya existe. Pasa tambien al sobrescribir: el guardado manda la columna con
+ * `null` dentro, asi que vaciarla se rechaza igual que no traerla nunca.
+ */
+export function findRequiredGaps(
+  parsed: ParsedTable,
+  plans: ColumnPlan[],
+  fields: FieldDef[],
+): { unmapped: FieldDef[]; blank: RuleIssue[] } {
+  /*
+   * Quien escribe cada columna de la tabla. Si dos columnas del archivo van a
+   * la misma, se queda la ultima: es la que gana al guardar (ver `buildBody`).
+   */
+  const written = new Map<string, ColumnPlan>();
+  for (const plan of plans) {
+    if (plan.target.kind === "field") written.set(plan.target.field.name, plan);
+  }
+
+  const unmapped: FieldDef[] = [];
+  const blank: RuleIssue[] = [];
+  for (const field of enforcedRequired(fields)) {
+    const plan = written.get(field.name);
+    if (!plan) {
+      unmapped.push(field);
+      continue;
+    }
+    parsed.rows.forEach((raw, r) => {
+      if ((raw[plan.index] ?? "").trim()) return;
+      blank.push({ row: r + 1, column: plan.column, kind: "missing" });
+    });
+  }
+  return { unmapped, blank };
 }
 
 export function targetKey(target: ColumnTarget): string {

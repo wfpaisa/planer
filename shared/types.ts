@@ -294,16 +294,6 @@ export interface AppPerson {
  */
 export type { AppTheme };
 
-/**
- * Como se coloca el sidebar de la aplicacion. Se elige una vez, en la
- * apariencia de la aplicacion, y vale para todos: tambien para los visitantes.
- * Plegarlo y desplegarlo es cosa de cada quien y no se guarda aqui.
- */
-export interface AppNav {
-  /** A que lado de la pantalla vive. */
-  side: "left" | "right";
-}
-
 export interface AppRecord {
   id: string;
   name: string;
@@ -313,8 +303,6 @@ export interface AppRecord {
   published: boolean;
   owner: string;
   theme: AppTheme | null;
-  /** Posicion y comportamiento del sidebar. Vacio: a la izquierda y fijo. */
-  nav?: AppNav | null;
   /**
    * Roles que define esta aplicacion, con el nombre que quiera el constructor.
    * Deciden que paginas y que bloques ve cada persona invitada.
@@ -442,10 +430,7 @@ export interface PageRecord {
 
 /** Todo lo que necesita una app publicada para dibujarse. */
 export interface AppBundle {
-  app: Pick<
-    AppRecord,
-    "id" | "name" | "slug" | "icon" | "visibility" | "published" | "theme" | "nav"
-  >;
+  app: Pick<AppRecord, "id" | "name" | "slug" | "icon" | "visibility" | "published" | "theme">;
   pages: PageRecord[];
   tables: TableRecord[];
   /**

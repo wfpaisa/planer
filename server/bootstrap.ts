@@ -362,8 +362,6 @@ export async function bootstrap() {
         maxSelect: 1,
       },
       { name: "theme", type: "json", maxSize: 50_000 },
-      // Posicion y comportamiento del sidebar de la aplicacion.
-      { name: "nav", type: "json", maxSize: 2_000 },
       // Roles con nombre propio: deciden que paginas ve cada persona.
       { name: "roles", type: "json", maxSize: 20_000 },
       // Id de la version que ve el publico. Es texto y no una relacion porque

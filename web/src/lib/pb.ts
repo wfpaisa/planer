@@ -104,19 +104,35 @@ export async function stream<T>(
   }
 }
 
+/**
+ * El primer campo que la base rechazo, dicho con el nombre de la columna.
+ *
+ * Se baja por los niveles porque la API de lote anida: lo que de verdad paso
+ * vive en `requests.0.response.data`, y el nivel de arriba solo dice "Batch
+ * transaction failed", que no nombra ni la columna ni el motivo. Un error de un
+ * solo registro no anida y sale en la primera vuelta.
+ */
+function fieldError(data: unknown, depth = 0): string | null {
+  if (!data || typeof data !== "object" || depth > 5) return null;
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    if (!value || typeof value !== "object") continue;
+    const node = value as { message?: string; response?: { data?: unknown } };
+    // El final del camino: una columna con lo que se le objeta. Con `response`
+    // dentro todavia no es la columna, es el pedido que la llevaba.
+    if (!node.response && node.message) return `${key}: ${node.message}`;
+    const nested = fieldError(node.response?.data ?? node, depth + 1);
+    if (nested) return nested;
+  }
+  return null;
+}
+
 /** Mensaje legible para cualquier error que llegue del servidor. */
 export function errorMessage(err: unknown): string {
   if (err instanceof ApiError) return err.message;
   if (err && typeof err === "object") {
-    const e = err as {
-      message?: string;
-      response?: { message?: string; data?: Record<string, { message?: string }> };
-    };
-    const fields = e.response?.data;
-    if (fields) {
-      const first = Object.entries(fields)[0];
-      if (first?.[1]?.message) return `${first[0]}: ${first[1].message}`;
-    }
+    const e = err as { message?: string; response?: { message?: string; data?: unknown } };
+    const field = fieldError(e.response?.data);
+    if (field) return field;
     return e.response?.message ?? e.message ?? "Algo salio mal";
   }
   return "Algo salio mal";

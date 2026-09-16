@@ -33,7 +33,6 @@ import type {
   AiRunInfo,
   AiStep,
   AppBundle,
-  AppNav,
   AppPerson,
   AppRecord,
   AppTheme,
@@ -191,15 +190,6 @@ function sanitizeTheme(input: unknown): AppTheme | null {
   return normalizePalette(input);
 }
 
-/** El sidebar solo admite los dos lados y los dos comportamientos. */
-function sanitizeNav(input: unknown): AppNav | null {
-  if (!input || typeof input !== "object") return null;
-  const raw = input as Partial<AppNav>;
-  // Lo guardado por las aplicaciones de antes puede traer `mode`. Se descarta:
-  // el sidebar siempre se dibuja encima, asi que ya no hay nada que elegir.
-  return { side: raw.side === "right" ? "right" : "left" };
-}
-
 /**
  * Deja una lista de roles limpia: normalizada, sin vacios, sin repetidos y con
  * tope. Con `allowed`, ademas descarta los que la aplicacion ya no define.
@@ -327,7 +317,6 @@ export async function updateApp(req: Request, id: string) {
     patch.visibility = input.visibility;
   if (typeof input.published === "boolean") patch.published = input.published;
   if (input.theme !== undefined) patch.theme = sanitizeTheme(input.theme);
-  if (input.nav !== undefined) patch.nav = sanitizeNav(input.nav);
   if (input.roles !== undefined) patch.roles = withAdminRole(sanitizeRoles(input.roles));
   if (typeof input.slug === "string" && input.slug.trim()) {
     const next = slugify(input.slug);
@@ -2166,9 +2155,6 @@ export async function publicBundle(req: Request, slug: string) {
     visibility: app.visibility,
     published: app.published,
     theme: snapshot ? snapshot.theme : (app.theme ?? null),
-    // La colocacion del sidebar no viaja en la version: es como se navega la
-    // aplicacion hoy, no como estaba pintada cuando se publico.
-    nav: app.nav ?? null,
   };
 
   const access = await publicAccess(req, app);

@@ -36,6 +36,7 @@
 -->
 <script lang="ts" module>
   import { pageIsAdminOnly, pageIsLimited } from "@shared/pages";
+  import { ADMIN_ROLE } from "@shared/people";
   import type { PageRecord } from "@shared/types";
 
   /**
@@ -44,10 +45,16 @@
    * Con `admin` y nada mas no hay roles que enumerar: es la pagina que todavia
    * no ve nadie, y el globo lo dice con palabras en vez de con el nombre del
    * rol --que ahi no significaria nada para quien lo lea--.
+   *
+   * `admin` no se nombra cuando hay otros roles: lo lleva toda pagina limitada
+   * --se lo pone `withPageAdmin`-- asi que repetirlo en cada globo no distingue
+   * una pagina de otra y tapa lo unico que se venia a leer, que es a quien se
+   * le abrio. La pagina de todos no llega hasta aqui: no lleva sello.
    */
   export function accessLabel(page: PageRecord): string {
     if (pageIsAdminOnly(page)) return "Solo quien construye la aplicación";
-    return `Solo: ${(page.roles ?? []).join(", ")}`;
+    const roles = (page.roles ?? []).filter((r) => r !== ADMIN_ROLE);
+    return `Solo: ${roles.join(", ")}`;
   }
 
   export interface SidebarBuilder {
@@ -76,7 +83,7 @@
 
 <script lang="ts">
   import { ROLE_ICON } from "@shared/people";
-  import type { AppNav, AppTheme } from "@shared/types";
+  import type { AppTheme } from "@shared/types";
   import { type Snippet, untrack } from "svelte";
 
   import { aiActivity } from "../lib/aiActivity.svelte";
@@ -96,7 +103,7 @@
     pinned = false,
     onTogglePin,
   }: {
-    app: { id: string; name: string; icon: string; theme?: AppTheme | null; nav?: AppNav | null };
+    app: { id: string; name: string; icon: string; theme?: AppTheme | null };
     pages: PageRecord[];
     activeId?: string;
     onOpen: (page: PageRecord) => void;
@@ -109,8 +116,6 @@
     pinned?: boolean;
     onTogglePin?: () => void;
   } = $props();
-
-  const side = $derived(app.nav?.side === "right" ? "right" : "left");
 
   // `untrack` porque leer la aplicacion aqui es a proposito: es el valor de
   // partida, y lo que pase despues lo recoge el efecto de abajo.
@@ -285,25 +290,14 @@
 {#snippet accessMark(page: PageRecord)}
   {#if pageIsLimited(page)}
     {@const label = accessLabel(page)}
-    <span
-      role="img"
-      data-tip={label}
-      data-tip-side={side === "left" ? "right" : "left"}
-      aria-label={label}
-    >
+    <span role="img" data-tip={label} data-tip-side="right" aria-label={label}>
       <Icon name={ROLE_ICON} size={18} />
     </span>
   {/if}
 {/snippet}
 
 {#if collapsed && !pinned}
-  <div
-    id="app-sidebar-collapsed"
-    class={cx(
-      "sidebar-app-collapsed flex flex-col items-center gap-2",
-      side === "left" ? "collapsed-left" : "collapsed-right",
-    )}
-  >
+  <div id="app-sidebar-collapsed" class="sidebar-app-collapsed flex flex-col items-center gap-2">
     <Button
       tip="Desplegar la navegación"
       aria-label="Desplegar la navegación"
@@ -321,12 +315,7 @@
   <aside
     id="app-sidebar"
     bind:this={box}
-    class={cx(
-      "sidebar-app flex flex-col",
-      pinned
-        ? cx("pinned", side === "left" ? "bordered-r" : "bordered-l")
-        : cx("floating", side === "left" ? "bordered-r at-left" : "bordered-l at-right"),
-    )}
+    class={cx("sidebar-app flex flex-col", pinned ? "pinned" : "floating")}
   >
     <!-- Quien visita la aplicacion publicada no tiene encabezado arriba: aqui
          es donde se entera de en que aplicacion esta. -->
@@ -439,7 +428,7 @@
                     <span
                       role="img"
                       data-tip="La inteligencia artificial está trabajando aquí"
-                      data-tip-side={side === "left" ? "right" : "left"}
+                      data-tip-side="right"
                       aria-label="La inteligencia artificial está trabajando aquí"
                       class="sidebar-page-ai"
                     >
@@ -534,16 +523,9 @@
     position: absolute;
     top: var(--sp-8);
     bottom: 0;
+    left: var(--sp-12);
     z-index: 10;
     padding: var(--sp-10) 0;
-
-    &.collapsed-left {
-      left: var(--sp-12);
-    }
-
-    &.collapsed-right {
-      right: var(--sp-12);
-    }
 
     & :global(.btn-expand-sidebar-look) {
       border-radius: 62.5rem;
@@ -563,15 +545,9 @@
     background: var(--bg-sidebar);
     width: var(--sidebar-width);
 
-    /* El borde cae del lado por el que se toca el documento: a la derecha
-       cuando el sidebar esta a la izquierda, y al reves. */
-    &.bordered-r {
-      border-right: var(--border-width) solid var(--border);
-    }
-
-    &.bordered-l {
-      border-left: var(--border-width) solid var(--border);
-    }
+    /* El borde cae del lado por el que se toca el documento: el sidebar vive a
+       la izquierda, asi que el borde va a su derecha. */
+    border-right: var(--border-width) solid var(--border);
 
     &.pinned {
       position: relative;
@@ -583,16 +559,9 @@
       position: absolute;
       top: 0;
       bottom: 0;
+      left: 0;
       z-index: 10;
       box-shadow: var(--shadow-sm);
-    }
-
-    &.at-left {
-      left: 0;
-    }
-
-    &.at-right {
-      right: 0;
     }
 
     /* Quien visita no tiene encabezado arriba: se le presenta la aplicacion. */

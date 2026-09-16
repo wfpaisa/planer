@@ -1,12 +1,3 @@
-<script lang="ts" module>
-  import type { AppNav } from "@shared/types";
-
-  /** El sidebar a la izquierda mientras nadie diga otra cosa. */
-  export function normalizeNav(nav: AppNav | null | undefined): AppNav {
-    return { side: nav?.side === "right" ? "right" : "left" };
-  }
-</script>
-
 <script lang="ts">
   import type { AppRecord, AppTheme } from "@shared/types";
 
@@ -36,7 +27,6 @@
   let slug = $state(builder.app.slug);
   let icon = $state(builder.app.icon);
   let theme = $state<AppTheme>(appBrand(builder.app.theme));
-  let nav = $state<AppNav>(normalizeNav(builder.app.nav));
 
   let busy = $state(false);
   let error = $state("");
@@ -47,8 +37,7 @@
     name !== app.name ||
       slug !== app.slug ||
       icon !== app.icon ||
-      JSON.stringify(theme) !== JSON.stringify(appBrand(app.theme)) ||
-      JSON.stringify(nav) !== JSON.stringify(normalizeNav(app.nav)),
+      JSON.stringify(theme) !== JSON.stringify(appBrand(app.theme)),
   );
 
   async function remove() {
@@ -72,7 +61,6 @@
         slug,
         icon,
         theme,
-        nav,
       });
       builder.setApp(updated);
       slug = updated.slug;
@@ -83,11 +71,6 @@
       busy = false;
     }
   }
-
-  const NAV_SIDES = [
-    { value: "left", label: "A la izquierda" },
-    { value: "right", label: "A la derecha" },
-  ] as const;
 </script>
 
 {#snippet section(
@@ -114,7 +97,7 @@
   open
   {onClose}
   title="Ajustes de la aplicación"
-  description="Nombre, enlace, navegación y apariencia con los que se publica."
+  description="Nombre, enlace y apariencia con los que se publica."
   width="modal-settings-width"
   fill
 >
@@ -142,36 +125,6 @@
       "El nombre y el enlace con los que se publica.",
       "section-app-identity",
       identity,
-    )}
-
-    {#snippet navigation()}
-      <Field label="Posicion">
-        <!-- Dos opciones de las que solo una vale a la vez. -->
-        <div role="tablist" class="tabs-app-nav tab-list w-full">
-          {#each NAV_SIDES as option (option.value)}
-            <button
-              type="button"
-              role="tab"
-              aria-selected={nav.side === option.value}
-              class={cx(
-                "btn-pick-nav-side",
-                "tab nav-tab flex-1",
-                nav.side === option.value && "active",
-              )}
-              onclick={() => (nav = { ...nav, side: option.value })}
-            >
-              {option.label}
-            </button>
-          {/each}
-        </div>
-      </Field>
-    {/snippet}
-    {@render section(
-      "app-settings-nav-section",
-      "Navegación",
-      "De qué lado vive el sidebar de páginas. Vale para todos, también para los visitantes; plegarlo y desplegarlo lo decide cada quien. Siempre se dibuja encima de la página, para no quitarle ancho.",
-      "section-app-nav",
-      navigation,
     )}
 
     {#snippet appearance()}

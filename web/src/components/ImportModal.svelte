@@ -34,6 +34,7 @@
     type ConvertedRow,
     convertRows,
     defaultMapping,
+    findRequiredGaps,
     findRuleIssues,
     IGNORED_SYSTEM_COLUMNS,
     type ImportNote,
@@ -354,11 +355,53 @@ Bruno,bruno@example.com,2023-11-15`;
    * escribir justo lo que se pidio no escribir.
    */
   const ruleIssues = $derived(parsedTable ? findRuleIssues(parsedTable, plans, rules) : []);
+
+  /*
+   * Lo que la tabla exige por su cuenta y esta importacion no trae.
+   *
+   * No lo pide quien importa --eso son las reglas de arriba-- sino la columna:
+   * marcada obligatoria, la base rechaza la fila que llegue sin ella y con ella
+   * el lote entero. Se mira aqui para decirlo antes de escribir nada.
+   *
+   * La tabla de personas se queda fuera: sus filas no se escriben en la
+   * coleccion sino por su propia ruta, que decide aparte que hacer con cada una.
+   */
+  const requiredGaps = $derived(
+    parsedTable && !isPeople
+      ? findRequiredGaps(parsedTable, plans, table.fields)
+      : { unmapped: [], blank: [] },
+  );
+  /**
+   * Si alguna fila va a nacer, que es cuando falta una columna obligatoria
+   * importa: sobrescribir una fila que ya esta no toca lo que no se manda, asi
+   * que una columna obligatoria que el archivo no trae no le quita nada.
+   */
+  const createsRows = $derived.by(() => {
+    if (result) return false;
+    if (mode !== "overwrite") return conversion.converted.length > 0;
+    return conversion.converted.some((conv, i) => statusOf(conv, i) !== "update");
+  });
+  /** Columnas obligatorias de la tabla a las que no llega ninguna del archivo. */
+  const requiredMissing = $derived(createsRows ? requiredGaps.unmapped : []);
+  /** Celdas vacias en una columna que la tabla exige. Detienen el guardado. */
+  const requiredBlank = $derived(requiredGaps.blank);
+  /** Si la tabla exige algo que no esta: el boton se queda apagado. */
+  const requiredUnmet = $derived(requiredMissing.length > 0 || requiredBlank.length > 0);
+  /** Cuantas filas y en que columnas, para contarlo en el aviso sin repetir. */
+  const requiredBlankRows = $derived(new Set(requiredBlank.map((i) => i.row)));
+  const requiredBlankColumns = $derived(new Set(requiredBlank.map((i) => i.column)));
+
+  /**
+   * Todo lo que se pinta en rojo en la grilla: lo exigido a mano y lo que exige
+   * la tabla. Para el aviso van por separado --se arreglan de maneras
+   * distintas-- pero la celda se marca igual, y de la misma forma.
+   */
+  const markedIssues = $derived([...ruleIssues, ...requiredBlank]);
   /** Las filas marcadas, por su sitio en el archivo (desde 0). */
-  const ruleRows = $derived(new Set(ruleIssues.map((i) => i.row - 1)));
+  const ruleRows = $derived(new Set(markedIssues.map((i) => i.row - 1)));
   /** Que le pasa a cada celda marcada. La llave es fila y columna. */
   const ruleCells = $derived(
-    new Map(ruleIssues.map((i) => [`${i.row - 1}\u0000${i.column}`, i.kind])),
+    new Map(markedIssues.map((i) => [`${i.row - 1}\u0000${i.column}`, i.kind])),
   );
   const ruleCell = (row: number, column: string) => ruleCells.get(`${row}\u0000${column}`);
   const duplicateRows = $derived(
@@ -1206,6 +1249,43 @@ Bruno,bruno@example.com,2023-11-15`;
       {/if}
 
       <!--
+        Lo que la tabla exige y el archivo no trae. Va antes de las reglas y
+        aparte de ellas: lo pide la columna y no quien importa, asi que no se
+        arregla quitando una regla sino mandando una columna ahi --o dejando de
+        exigir el dato en la tabla--. Sin esto la importacion salia con el lote
+        rechazado entero y un mensaje que no nombraba la columna.
+      -->
+      {#if !result && requiredUnmet}
+        <div class="alert danger note-import-required" role="status">
+          <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
+          <span>
+            <strong>
+              {requiredMissing.length > 0
+                ? requiredMissing.length === 1
+                  ? "Falta una columna que la tabla exige"
+                  : "Faltan columnas que la tabla exige"
+                : "Hay celdas vacías en una columna que la tabla exige"}
+            </strong>
+            {#if requiredMissing.length > 0}
+              Ninguna columna del archivo va a
+              <b class="import-required-strong">
+                {requiredMissing.map((f) => f.label).join(", ")}
+              </b>,
+              {requiredMissing.length === 1 ? "obligatoria" : "obligatorias"} en {table.label}: cada
+              fila nueva se quedaría sin ese dato y la base rechaza la importación completa. Manda
+              ahí una columna desde su encabezado, o quítale lo de obligatoria en la tabla.
+            {/if}
+            {#if requiredBlank.length > 0}
+              {requiredBlankRows.size}
+              {requiredBlankRows.size === 1 ? "fila no trae" : "filas no traen"} nada en
+              <b class="import-required-strong">{[...requiredBlankColumns].join(", ")}</b>, que la
+              tabla exige. Están marcadas en rojo abajo: complétalas en el archivo.
+            {/if}
+          </span>
+        </div>
+      {/if}
+
+      <!--
         Lo que incumple lo exigido a alguna columna. Va aparte de la cadena de
         arriba y no como un caso mas: puede pasar a la vez que cualquiera de
         ellas, y es lo unico que deja el boton apagado sin que haya un solo
@@ -1683,19 +1763,23 @@ Bruno,bruno@example.com,2023-11-15`;
             ? duplicateRows.size > 0
               ? "Hay filas duplicadas: no se puede importar así."
               : "Faltan datos obligatorios: no se puede importar así."
-            : nothingMapped
-              ? "Todas las columnas están ignoradas: no hay nada que guardar."
-              : !hasAccount
-                ? "Falta decir cuál columna del archivo es el correo."
-                : isPeople
-                  ? "Se reconoce a cada persona por su correo y se actualiza la que ya esté."
-                  : mode === "replace"
-                    ? "Se borran las filas actuales."
-                    : mode === "overwrite"
-                      ? overwriteByOrder
-                        ? "Se actualizan en el orden del archivo (fila por fila contra las existentes)."
-                        : "Se actualizan las que coinciden por id y se agregan las id nuevas."
-                      : "Se agregan sin tocar lo existente."}
+            : requiredUnmet
+              ? requiredMissing.length > 0
+                ? `Nada va a ${requiredMissing.map((f) => f.label).join(", ")}, que la tabla exige.`
+                : "Hay celdas vacías en una columna obligatoria de la tabla."
+              : nothingMapped
+                ? "Todas las columnas están ignoradas: no hay nada que guardar."
+                : !hasAccount
+                  ? "Falta decir cuál columna del archivo es el correo."
+                  : isPeople
+                    ? "Se reconoce a cada persona por su correo y se actualiza la que ya esté."
+                    : mode === "replace"
+                      ? "Se borran las filas actuales."
+                      : mode === "overwrite"
+                        ? overwriteByOrder
+                          ? "Se actualizan en el orden del archivo (fila por fila contra las existentes)."
+                          : "Se actualizan las que coinciden por id y se agregan las id nuevas."
+                        : "Se agregan sin tocar lo existente."}
         </span>
         <Button onclick={onClose} disabled={busy}>Cancelar</Button>
         <Button
@@ -1703,6 +1787,7 @@ Bruno,bruno@example.com,2023-11-15`;
           loading={busy}
           disabled={(conversion.errors.length > 0 && !continueOnError) ||
             ruleIssues.length > 0 ||
+            requiredUnmet ||
             total === 0 ||
             nothingToSave ||
             nothingMapped ||
@@ -1850,6 +1935,7 @@ Bruno,bruno@example.com,2023-11-15`;
 
     & .note-missing-account,
     & .note-nothing-mapped,
+    & .note-import-required,
     & .note-import-rules {
       flex-shrink: 0;
     }
@@ -1925,6 +2011,13 @@ Bruno,bruno@example.com,2023-11-15`;
     /* Los numeros del recuento: resaltados, pero en su renglon. El `strong` de
        `.alert` es el titulo del aviso y se dibuja en bloque. */
     & .import-people-strong {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* El nombre de la columna que falta, dentro del aviso: lo mismo, y por lo
+       mismo --el `strong` de `.alert` es el titulo y se dibuja en bloque--. */
+    & .import-required-strong {
       font-weight: 700;
       color: var(--text-primary);
     }

@@ -1,7 +1,7 @@
 # app-navigation Specification
 
 ## Purpose
-Define el sidebar que lleva de una pagina a otra dentro de una aplicacion, lo que ve el visitante frente a lo que ve solo quien construye, y donde se ajusta su posicion y comportamiento.
+Define el sidebar que lleva de una pagina a otra dentro de una aplicacion, lo que ve el visitante frente a lo que ve solo quien construye, y como se ajusta su comportamiento.
 
 ## Requirements
 
@@ -62,14 +62,15 @@ El sidebar SHALL ofrecer a quien construye la salida al panel de aplicaciones. E
 - **WHEN** quien construye elige la salida del sidebar
 - **THEN** llega al panel de aplicaciones
 
-### Requirement: Posicion y comportamiento se ajustan una vez
+### Requirement: El sidebar vive siempre a la izquierda
 
-La posicion del sidebar (izquierda o derecha) SHALL elegirse en los ajustes de la aplicacion y SHALL valer para todos. El comportamiento (anclado o flotante) SHALL dejar de ser un ajuste de la aplicacion y pasar a ser una preferencia de cada persona, elegida desde el propio sidebar y recordada por aplicacion en su navegador. Anclado SHALL ocupar su espacio junto al documento; flotante SHALL dibujarse encima sin quitarle espacio. Dentro de la pagina, cualquiera SHALL poder plegarlo y desplegarlo.
+El sidebar SHALL dibujarse siempre a la izquierda, sin ajuste que lo cambie de lado. El comportamiento (anclado o flotante) SHALL ser una preferencia de cada persona, elegida desde el propio sidebar y recordada por aplicacion en su navegador. Anclado SHALL ocupar su espacio junto al documento; flotante SHALL dibujarse encima sin quitarle espacio. Dentro de la pagina, cualquiera SHALL poder plegarlo y desplegarlo.
 
-#### Scenario: Cambiar la posicion
+#### Scenario: No hay donde cambiar el lado
 
-- **WHEN** quien construye pone el sidebar a la derecha en los ajustes de la aplicacion
-- **THEN** todas las paginas lo muestran a la derecha, tambien para los visitantes
+- **WHEN** quien construye abre los ajustes de la aplicacion
+- **THEN** no se ofrece elegir de que lado va el sidebar
+- **AND** todas las paginas lo muestran a la izquierda, tambien para los visitantes
 
 #### Scenario: Anclar el sidebar
 
