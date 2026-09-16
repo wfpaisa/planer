@@ -768,8 +768,18 @@
         !dropping && "overlay-drop-inert",
       )}
     >
-      <p class="overlay-drop-copy flex items-center gap-2">
-        <Icon name="file-upload" size={16} />
+      <p class="overlay-drop-copy flex items-center gap-2" role={busyDrop ? "status" : undefined}>
+        <!--
+          Mientras se escribe, el giro es la unica senal de que la espera
+          avanza: un cartel quieto no distingue trabajando de colgado.
+        -->
+        <span class="overlay-drop-icon" aria-hidden="true">
+          {#if busyDrop}
+            <span class="spinner overlay-drop-spinner"></span>
+          {:else}
+            <Icon name="file-upload" size={16} />
+          {/if}
+        </span>
         {busyDrop || "Suelta el archivo y elige que hacer con el."}
       </p>
     </div>
@@ -982,6 +992,27 @@
 
   .overlay-drop-inert {
     pointer-events: none;
+  }
+
+  /*
+   * El hueco del icono es fijo y no lo decide lo que hay dentro: icono y giro
+   * miden lo mismo, asi que el relevo no corre ni un pixel del cartel.
+   */
+  .overlay-drop-icon {
+    display: grid;
+    height: 1rem;
+    width: 1rem;
+    flex-shrink: 0;
+    place-items: center;
+  }
+
+  .overlay-drop-spinner {
+    height: 0.875rem;
+    width: 0.875rem;
+    border-width: 2px;
+    /* Entero del color de la aplicacion: el aro tenue y la cabeza plena. */
+    border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+    border-top-color: var(--accent);
   }
 
   .overlay-drop-copy {
