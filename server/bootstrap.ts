@@ -309,7 +309,28 @@ export async function bootstrap() {
     listRule: null,
     viewRule: "id = @request.auth.id",
     createRule: null,
-    updateRule: "id = @request.auth.id",
+    /*
+     * Una cuenta no se escribe a si misma.
+     *
+     * Las reglas de PocketBase son por registro y no por columna: una que
+     * dijera "soy yo" dejaria reescribir tambien `cuenta`, `login`, `app` y
+     * `verified`, que son las que dicen quien es esta persona y en que
+     * aplicacion. No abre ninguna puerta --el acceso lo decide `app_access`--
+     * pero deja a alguien poner el correo de otro en su cuenta y a la tabla de
+     * personas diciendo lo que ya no es.
+     *
+     * Cerrarla no quita nada: nada en el panel ni en una aplicacion publicada
+     * escribe aqui desde la sesion de quien entro. Lo que si cambia --el
+     * correo, el nombre, la clave-- pasa por la API de la plataforma, que
+     * comprueba que la aplicacion es de quien la pide y escribe con el token
+     * de administrador, al que las reglas no se le aplican. Ver `updateMember`
+     * y `resetMemberPassword` en `server/routes.ts`.
+     *
+     * El precio es que no hay "cambiar mi clave" para quien usa una
+     * aplicacion: hoy tampoco lo habia. Cuando lo haya, es una ruta mas de la
+     * plataforma --que exigira la clave anterior-- y no esta regla abierta.
+     */
+    updateRule: null,
     deleteRule: null,
   }));
 

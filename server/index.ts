@@ -6,7 +6,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import { bootstrap } from "./bootstrap.ts";
-import { config } from "./config.ts";
+import { config, INTERNAL } from "./config.ts";
 import {
   ASSETS_TAG,
   BRIDGE_FILE,
@@ -117,13 +117,50 @@ async function startPocketBase() {
 /* Proxy hacia PocketBase                                               */
 /* ------------------------------------------------------------------ */
 
-async function proxyToPocketBase(req: Request): Promise<Response> {
+/**
+ * Lo que el navegador puede pedirle a PocketBase por la puerta publica.
+ *
+ * La lista no puede ser mas corta: el panel lee y escribe los registros
+ * directo contra la base. Lo que se cierra es la otra API --definir
+ * colecciones, los ajustes, los respaldos, entrar como superusuario--, que se
+ * alcanza solo por `config.adminPath`.
+ */
+function publicPbPath(path: string): boolean {
+  if (/(^|\/)_superusers(\/|$)/.test(path)) return false;
+  return (
+    path === "/api/health" ||
+    path === "/api/batch" ||
+    path.startsWith("/api/files/") ||
+    /^\/api\/collections\/[^/]+\/(records|auth-with-password|auth-refresh)(\/|$)/.test(path)
+  );
+}
+
+/**
+ * Reenvia a PocketBase. La ruta llega ya sin el prefijo por el que entro.
+ *
+ * `clientIp` es de quien llamo. Va delante porque el tope de intentos de
+ * PocketBase reparte por direccion, y todo le llega desde este mismo proceso:
+ * sin decirselo, el tope seria uno solo para toda la instalacion y los
+ * intentos fallidos de cualquiera cerrarian la puerta a los demas.
+ */
+async function proxyToPocketBase(req: Request, path: string, clientIp: string): Promise<Response> {
   const url = new URL(req.url);
-  const target = `${config.pbUrl}${url.pathname.replace(/^\/pb/, "")}${url.search}`;
+  const target = `${config.pbUrl}${path}${url.search}`;
 
   const headers = new Headers(req.headers);
   headers.delete("host");
   headers.delete("accept-encoding");
+
+  if (config.trustedProxy) {
+    // Delante hay un proxy inverso: la cabecera que llega es suya y dice de
+    // quien es la peticion. Solo se rellena si no vino ninguna.
+    if (!headers.has("x-forwarded-for") && clientIp) headers.set("x-forwarded-for", clientIp);
+  } else {
+    // Sin proxy delante la cabecera la escribe quien llama, asi que no dice
+    // nada: dejarla pasar le daria cupo nuevo en cada intento.
+    headers.delete("x-forwarded-for");
+    if (clientIp) headers.set("x-forwarded-for", clientIp);
+  }
 
   const init: RequestInit = { method: req.method, headers, redirect: "manual" };
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -344,13 +381,84 @@ async function enableBatchApi() {
 
 await enableBatchApi();
 
+/**
+ * Un tope de intentos en la puerta de entrada.
+ *
+ * PocketBase trae sus reglas de serie pero viene apagado, asi que hasta aqui
+ * una clave de seis caracteres --el minimo de una persona invitada-- se podia
+ * probar entera.
+ *
+ * El tope se pone por la ruta exacta en la que se prueba una clave, y con el
+ * se quita `*:auth`, la regla que PocketBase trae puesta. Se quita por dos
+ * razones, y las dos hacen falta: esa etiqueta gana a la ruta exacta --con
+ * ella puesta el tope que manda es el suyo, comprobado-- y alcanza tambien a
+ * `auth-refresh`, que el navegador pregunta en cada carga, asi que estrecharla
+ * echaria a quien ya entro. Sin ella, refrescar la sesion queda bajo la regla
+ * general de `/api/`. Una coleccion de cuentas nueva no queda cubierta sola:
+ * hay que anadirle su ruta aqui.
+ *
+ * Las llamadas de este mismo proceso no hay que dejarlas fuera a mano:
+ * PocketBase no le aplica el tope a un superusuario, y con esa cuenta habla
+ * el servidor. Asi una importacion en bloque no se estrella contra el tope,
+ * y una direccion excluida --que con `TRUSTED_PROXY` puesto podria llegar
+ * desde fuera-- no hace falta en ninguna parte.
+ */
+async function enableRateLimits() {
+  const RULE = { audience: "", duration: 60, maxRequests: 12 };
+  const mine = [INTERNAL.builders, INTERNAL.members, "_superusers"].map((collection) => ({
+    ...RULE,
+    label: `/api/collections/${collection}/auth-with-password`,
+  }));
+
+  const settings = await pb<{
+    rateLimits?: { enabled?: boolean; rules?: { label: string }[] };
+  }>("/api/settings");
+  const current = settings.rateLimits ?? {};
+  const before = current.rules ?? [];
+  const rules = before.filter((rule) => rule.label !== "*:auth");
+
+  const missing = mine.filter((rule) => !rules.some((r) => r.label === rule.label));
+  const same = current.enabled === true && rules.length === before.length && !missing.length;
+  if (same) {
+    console.log("  El tope de intentos ya esta puesto.");
+    return;
+  }
+
+  await pb("/api/settings", {
+    method: "PATCH",
+    body: JSON.stringify({
+      rateLimits: { ...current, enabled: true, rules: [...rules, ...missing] },
+      // Sin esto PocketBase se queda con la direccion de quien le habla, que
+      // siempre es este proceso. Ver `proxyToPocketBase`.
+      trustedProxy: { headers: ["X-Forwarded-For"], useLeftmostIP: true },
+    }),
+  });
+  console.log(`  Tope de intentos: ${RULE.maxRequests} por minuto en cada puerta de entrada.`);
+}
+
+await enableRateLimits();
+
 Bun.serve({
   port: config.port,
   idleTimeout: 0,
-  async fetch(req) {
+  async fetch(req, server) {
     const url = new URL(req.url);
+    const clientIp = server.requestIP(req)?.address ?? "";
 
-    if (url.pathname.startsWith("/pb/")) return proxyToPocketBase(req);
+    // La puerta privada: PocketBase entero, consola incluida. El prefijo solo
+    // esta en el entorno del servidor, asi que sin el no se llega desde fuera.
+    if (config.adminPath && url.pathname.startsWith(`/${config.adminPath}/`)) {
+      return proxyToPocketBase(req, url.pathname.slice(config.adminPath.length + 1), clientIp);
+    }
+
+    // La puerta publica: registros, sesiones y archivos, y nada mas.
+    if (url.pathname.startsWith("/pb/")) {
+      const path = url.pathname.slice(3);
+      // Se responde que no existe y no que esta prohibido: negar sin confirmar
+      // que detras hay algo que alcanzar.
+      if (!publicPbPath(path)) return new Response("No encontrado", { status: 404 });
+      return proxyToPocketBase(req, path, clientIp);
+    }
 
     if (url.pathname.startsWith("/plane/")) {
       const asset = pageAsset(req, url.pathname);

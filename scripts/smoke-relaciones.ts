@@ -25,6 +25,14 @@ import {
 const BASE = process.env.BASE ?? "http://localhost:3000";
 const EMAIL = process.env.PB_ADMIN_EMAIL ?? "admin@planer.local";
 const PASSWORD = process.env.PB_ADMIN_PASSWORD ?? "planer-admin-1234";
+/**
+ * PocketBase, sin pasar por el proxy.
+ *
+ * El proxy `/pb/` solo deja pasar registros, sesiones y archivos: la sesion de
+ * superusuario y los esquemas se piden a la base directamente, que es donde el
+ * servidor tambien los pide. Ver `publicPbPath` en `server/index.ts`.
+ */
+const PB = process.env.PB_URL ?? "http://127.0.0.1:8090";
 
 let token = "";
 let failures = 0;
@@ -590,16 +598,22 @@ check(
 );
 
 console.log("\n15. Convertir una columna del tipo anterior");
-const superuser = await call<{ token: string }>(
-  "/pb/api/collections/_superusers/auth-with-password",
-  { method: "POST", body: JSON.stringify({ identity: EMAIL, password: PASSWORD }) },
-);
-/** Una llamada con la sesion de superusuario, que es la unica que toca esquemas. */
+const superRes = await fetch(`${PB}/api/collections/_superusers/auth-with-password`, {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ identity: EMAIL, password: PASSWORD }),
+});
+if (!superRes.ok) throw new Error(`superusuario -> ${superRes.status} ${await superRes.text()}`);
+const superuser = (await superRes.json()) as { token: string };
+/**
+ * Una llamada con la sesion de superusuario, que es la unica que toca esquemas.
+ * Va a la base directamente: el proxy no deja pasar la API de esquemas.
+ */
 const asSuper = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
   const headers = new Headers(init.headers);
   headers.set("authorization", superuser.token);
   if (init.body) headers.set("content-type", "application/json");
-  const res = await fetch(`${BASE}${path}`, { ...init, headers });
+  const res = await fetch(`${PB}${path.replace(/^\/pb/, "")}`, { ...init, headers });
   const text = await res.text();
   if (!res.ok) throw new Error(`${init.method ?? "GET"} ${path} -> ${res.status} ${text}`);
   return (text ? JSON.parse(text) : null) as T;

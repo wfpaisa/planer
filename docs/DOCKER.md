@@ -65,6 +65,33 @@ cp .env.docker.example .env.docker
 
 Cambia `PB_ADMIN_PASSWORD` en ese archivo. Es la cuenta de administrador de PocketBase y también la primera cuenta de constructor, y **se reescribe en cada arranque del contenedor** con lo que diga ahí. Eso tiene dos consecuencias: la clave nunca queda dentro de la imagen, y cambiarla ahí y reiniciar es la forma de recuperarla si se pierde.
 
+### La consola de PocketBase
+
+El proxy `/pb/` solo deja pasar lo que el navegador necesita: registros, sesiones y archivos. La otra API --definir colecciones, los ajustes, los respaldos, entrar como superusuario-- y la consola de administracion no se alcanzan por ahi.
+
+Se llega a ellas por un prefijo privado, `PB_ADMIN_PATH`, que se pone en `.env.docker` y en ningun otro sitio:
+
+```bash
+openssl rand -hex 16
+```
+
+Con ese valor en `PB_ADMIN_PATH`, la consola queda en `http://tu-servidor/<ese-valor>/_/`. Sin la variable no se monta, que es lo que conviene mientras no haga falta entrar.
+
+El prefijo esconde la puerta, no la cierra: lo que separa a quien acierte la ruta de la base entera sigue siendo `PB_ADMIN_PASSWORD`. Ponla larga.
+
+### El tope de intentos
+
+Cada puerta de entrada --constructores, personas invitadas y superusuario-- admite **12 intentos por minuto y por direccion**. Se activa solo en cada arranque; refrescar una sesion ya abierta no cuenta, y las llamadas del propio servidor tampoco, porque PocketBase no le aplica el tope a un superusuario.
+
+El reparto es por direccion, asi que hay que decirle a Planer de donde viene cada peticion:
+
+- **Sin proxy inverso delante** (el caso de `docker compose` publicando el puerto): no hay que hacer nada. La cabecera `X-Forwarded-For` que llegue de fuera se descarta, porque la escribe quien llama.
+- **Con proxy inverso delante** (nginx, Caddy, Cloudflare): pon `TRUSTED_PROXY=1` en `.env.docker`. Sin eso, los intentos de todo el mundo cuentan como uno solo y los fallos de cualquiera cierran la puerta a los demas.
+
+Encender `TRUSTED_PROXY=1` sin un proxy inverso delante anula el tope: cualquiera puede escribir la cabecera y estrenar cupo en cada intento.
+
+Con `TRUSTED_PROXY=1`, el proxy de delante tiene que **reescribir** `X-Forwarded-For`, no anadirse a la que llegue. En nginx eso es `proxy_set_header X-Forwarded-For $remote_addr`; con `$proxy_add_x_forwarded_for` la primera direccion de la lista la sigue escribiendo quien llama, y el tope vuelve a ser burlable.
+
 ```bash
 docker compose up -d
 ```
