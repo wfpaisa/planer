@@ -1,0 +1,77 @@
+/*
+  El ejemplo de cada ficha, leido del propio archivo de la galeria.
+
+  La galeria no guarda en ningun sitio el codigo de sus ejemplos, y a proposito:
+  el ejemplo *es* lo que hay escrito en la ficha. Copiarlo a una cadena para
+  poder enseñarlo seria tener el mismo componente escrito dos veces, y de las
+  dos copias solo se actualiza una.
+
+  Antes lo que se enseñaba se recomponia de lo pintado, leyendo el DOM de la
+  ficha. Servia mientras el ejemplo fuera marcado, pero no cuando la pieza es un
+  componente: de `<PlanerAvatar mood="ok" size={24} />` el DOM solo tiene el
+  `<svg>` que salio, y enseñar sus trazados no dice como se usa. Asi que lo que
+  se enseña se saca de `DemoGallery.svelte` --el archivo, como texto-- buscando
+  el `card-body` de cada ficha por el titulo con el que la dibuja `head()`. Lo
+  que se ve en el modal es entonces, literalmente, lo que hay escrito en la
+  ficha: componentes incluidos, y con sus `{#if}` y sus `{#each}` donde los haya.
+
+  El archivo entero pesa lo suyo, asi que se trae con `import()` y no de
+  entrada: lo paga quien abre el codigo de una ficha, y la primera vez nada mas.
+*/
+
+/** El titulo con el que cada ficha llama a `head()`. */
+const HEAD = /\{@render head\(\s*"((?:[^"\\]|\\.)*)"/g;
+
+/** Donde empieza el ejemplo. La ficha de la tabla no tiene `card-body`. */
+const BODY = /<div class="(?:card-body|table-wrap)"[^>]*>/;
+
+/** Los comentarios son notas para quien lee la galeria, no parte del ejemplo. */
+const COMMENT = /[ \t]*<!--[\s\S]*?-->[ \t]*\n?/g;
+
+/** El cuerpo que abre en `from`, hasta el `</div>` que lo cierra. */
+function body(raw: string, from: number): string | null {
+  const open = BODY.exec(raw.slice(from));
+  if (!open) return null;
+
+  const start = from + open.index;
+  const tags = /<div\b|<\/div>/g;
+  tags.lastIndex = start + open[0].length;
+  let depth = 1;
+
+  for (let tag = tags.exec(raw); tag; tag = tags.exec(raw)) {
+    depth += tag[0] === "</div>" ? -1 : 1;
+    // Dentro del cuerpo, sin el `<div>` que lo envuelve: eso es la ficha, no
+    // el ejemplo.
+    if (depth === 0) return raw.slice(start + open[0].length, tag.index);
+  }
+  return null;
+}
+
+/** Sin los blancos de estar dentro de la ficha, y sin lineas vacias de sobra. */
+function dedent(code: string): string {
+  const lines = code.replace(COMMENT, "").split("\n");
+  const pads = lines.filter((l) => l.trim()).map((l) => l.length - l.trimStart().length);
+  const pad = pads.length ? Math.min(...pads) : 0;
+  return lines
+    .map((l) => l.slice(pad).trimEnd())
+    .join("\n")
+    .trim();
+}
+
+function parse(raw: string): Map<string, string> {
+  const cards = new Map<string, string>();
+  HEAD.lastIndex = 0;
+  for (let head = HEAD.exec(raw); head; head = HEAD.exec(raw)) {
+    const code = body(raw, HEAD.lastIndex);
+    if (code) cards.set(head[1], dedent(code));
+  }
+  return cards;
+}
+
+let pending: Promise<Map<string, string>> | null = null;
+
+/** El ejemplo de cada ficha, por el titulo de su cabecera. */
+export function loadCardSource(): Promise<Map<string, string>> {
+  pending ??= import("./DemoGallery.svelte?raw").then((mod) => parse(mod.default));
+  return pending;
+}

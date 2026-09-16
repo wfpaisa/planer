@@ -1134,17 +1134,17 @@
     <!--
       Traer lo de fuera sin recargar el sitio: columnas, filas y enlaces sin
       dueno. Va sin etiqueta --el icono se lee solo, y la barra ya aprieta-- y
-      mientras trabaja gira, que es lo que hace `is-loading` en el sistema.
+      mientras trabaja gira, que es lo que hace `loading` en el sistema.
     -->
     <Button
       size="sm"
       variant="ghost"
       buttonClass="btn-refresh-table"
       onclick={refresh}
-      disabled={refreshing}
+      loading={refreshing}
       tip="Refrescar los datos"
       aria-label="Refrescar los datos"
-      class={cx("grid-db-tool-action", refreshing && "is-loading")}
+      class="grid-db-tool-action"
     >
       <Icon name="arrow-reload-horizontal" size={16} />
     </Button>

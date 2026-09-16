@@ -15,6 +15,8 @@
   El resto son estados, no jerarquia, y los tres vienen del sistema
   (`components.css`): `ghost` (sin fondo ni borde), `danger` (borra, expulsa o
   no se puede deshacer) y `warning` (algo esta a medias, y eso no es un error).
+  `loading` es el de carga del sistema: bloquea el boton, lo marca con
+  `aria-busy` y pone el icono que gira en lugar del que traiga el boton.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -79,12 +81,13 @@
 <button
   {...rest}
   disabled={rest.disabled || loading}
-  class={cx(buttonClass, "btn", VARIANTS[variant], SIZES[size], className)}
+  aria-busy={loading || undefined}
+  class={cx(buttonClass, "btn", VARIANTS[variant], SIZES[size], loading && "is-loading", className)}
   data-tip={tip}
   data-tip-side={tip ? tipSide : undefined}
 >
   {#if loading}
-    <span class="spinner"></span>
+    <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
   {/if}
   {@render children?.()}
 </button>

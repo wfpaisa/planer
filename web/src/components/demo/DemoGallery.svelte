@@ -46,9 +46,11 @@
   otra variante que no estaba en el original). Las dos las viste el catálogo.
 
   Y cada ficha lleva en su cabecera el botón que enseña su código. Lo que se
-  ve ahí no está escrito en ninguna parte: se lee del `.card-body` de la propia
-  ficha al abrir el modal (ver `./code.ts`), que es lo que evita tener cada
-  ejemplo escrito dos veces.
+  ve ahí no está escrito en ninguna parte: es el `card-body` de la propia ficha,
+  sacado de este archivo al abrir el modal (ver `./source.ts`), que es lo que
+  evita tener cada ejemplo escrito dos veces. Al venir del archivo y no de lo
+  pintado, una ficha que use un componente enseña la línea con la que se pide
+  --`<PlanerAvatar mood="ok" size={24} />`-- y no el `<svg>` que salió.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -58,9 +60,9 @@
   import Icon from "../Icon.svelte";
   import PlanerAvatar from "../PlanerAvatar.svelte";
   import { buildDemoCharts, CHANNELS, destroyDemoCharts, KPIS } from "./charts.ts";
-  import { readMarkup } from "./code.ts";
   import type { DemoOrder, OrderStatus } from "./orders.ts";
   import { BADGE, fmtAmount, fmtDate, initials, ORDERS } from "./orders.ts";
+  import { loadCardSource } from "./source.ts";
 
   let spark = $state<HTMLCanvasElement | null>(null);
   let main = $state<HTMLCanvasElement | null>(null);
@@ -171,26 +173,33 @@
   /* ---- El codigo de cada ficha ---- */
 
   // Un solo modal para las cuarenta y tantas fichas, y ningun ejemplo escrito
-  // dos veces: el codigo se lee del `.card-body` de la ficha que abrio el modal
-  // (ver `./code.ts`), asi que tocar el marcado de un componente basta para que
-  // cambie tambien lo que se enseña aqui.
+  // dos veces: el codigo sale del propio archivo de la galeria --el `card-body`
+  // de la ficha que abrio el modal, buscado por su titulo (ver `./source.ts`)--
+  // asi que tocar una ficha basta para que cambie tambien lo que se enseña
+  // aqui, y lo que se enseña es lo que hay escrito, componentes incluidos.
   let codeTitle = $state("");
   let codeMarkup = $state("");
   let codeCopied = $state(false);
 
-  function showCode(e: MouseEvent) {
+  async function showCode(e: MouseEvent) {
     const card = (e.currentTarget as HTMLElement).closest(".gallery-item");
-    // La ficha de la tabla no tiene `.card-body`: su ejemplo es el `.table-wrap`.
-    const body = card?.querySelector(".card-body, .table-wrap");
-    codeTitle = card?.querySelector(".card-title")?.textContent?.trim() ?? "Código";
-    codeMarkup = body ? readMarkup(body) : "";
+    const title = card?.querySelector(".card-title")?.textContent?.trim() ?? "Código";
+    codeTitle = title;
+    codeMarkup = "";
     codeCopied = false;
+
+    const cards = await loadCardSource();
+    // Con el archivo ya traido esto es el mismo cuadro; si tardo y por el
+    // camino se pidio otra ficha, manda la ultima.
+    if (codeTitle === title) codeMarkup = cards.get(title) ?? "";
   }
 
-  // Monaco tarda lo suyo en llegar la primera vez y se pide al apuntar el
-  // boton, no al pulsarlo: asi el modal se abre con el codigo ya puesto.
+  // Monaco y el archivo de la galeria tardan lo suyo la primera vez y se piden
+  // al apuntar el boton, no al pulsarlo: asi el modal se abre con el codigo ya
+  // puesto.
   function warmCode() {
     void loadMonaco();
+    void loadCardSource();
   }
 
   async function copyCode() {

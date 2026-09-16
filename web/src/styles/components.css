@@ -284,6 +284,11 @@
   background: var(--bg-card);
   border: var(--border-width) solid var(--border);
   border-radius: var(--radius-lg);
+
+  /* Con pie, el cuerpo no repite el aire de abajo: ya lo pone el pie */
+  &:has(> .card-foot) > .card-body {
+    padding-bottom: 0px;
+  }
 }
 
 /* Opaca: `--bg-card` es translucido en oscuro --lo que quiere una
@@ -353,10 +358,6 @@
   & > p {
     margin: 0;
   }
-}
-
-.card:has(> .card-foot) > .card-body {
-  padding-bottom: 0px;
 }
 
 .card-foot {
@@ -630,6 +631,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+
+  /* Cual de los paneles se ve lo dice el radio marcado de la lista */
+  &:has(.tab-list > input:nth-of-type(1):checked) .tab-panels > :nth-child(1),
+  &:has(.tab-list > input:nth-of-type(2):checked) .tab-panels > :nth-child(2),
+  &:has(.tab-list > input:nth-of-type(3):checked) .tab-panels > :nth-child(3) {
+    display: block;
+  }
 }
 
 .tab-panels {
@@ -641,12 +649,6 @@
     display: none;
     margin: 0;
   }
-}
-
-.tabs:has(.tab-list > input:nth-of-type(1):checked) .tab-panels > :nth-child(1),
-.tabs:has(.tab-list > input:nth-of-type(2):checked) .tab-panels > :nth-child(2),
-.tabs:has(.tab-list > input:nth-of-type(3):checked) .tab-panels > :nth-child(3) {
-  display: block;
 }
 
 /* ==========================================================
@@ -985,14 +987,16 @@ select.field-control {
 }
 
 /* El icono nativo del date ya sigue al color del input, no se invierte */
-.field input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="date"].field-control::-webkit-calendar-picker-indicator {
-  opacity: 0.55;
-  cursor: pointer;
-}
-.field input[type="date"]:hover::-webkit-calendar-picker-indicator,
-input[type="date"].field-control:hover::-webkit-calendar-picker-indicator {
-  opacity: 1;
+.field input[type="date"],
+input[type="date"].field-control {
+  &::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+
+  &:hover::-webkit-calendar-picker-indicator {
+    opacity: 1;
+  }
 }
 
 .field [aria-invalid="true"],
@@ -1410,19 +1414,19 @@ input[type="range"].field-control {
     flex: none;
     color: var(--text-muted);
   }
-}
 
-/* Elegida: el tinte del acento, no el acento pleno. La caja sigue
-   siendo de lectura, asi que se tine sin invertir la tinta. */
-.opt.active {
-  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
-  background: var(--accent-soft);
-  color: var(--accent-soft-text);
+  /* Elegida: el tinte del acento, no el acento pleno. La caja sigue
+     siendo de lectura, asi que se tine sin invertir la tinta. */
+  &.active {
+    border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+    background: var(--accent-soft);
+    color: var(--accent-soft-text);
 
-  & > i,
-  & .opt-label,
-  & .opt-hint {
-    color: inherit;
+    & > i,
+    & .opt-label,
+    & .opt-hint {
+      color: inherit;
+    }
   }
 }
 
@@ -1521,19 +1525,19 @@ input[type="range"].field-control {
   border-radius: var(--radius-md);
   background: var(--bg-field);
   padding: var(--sp-10);
-}
 
-/* Sin fondo: solo el cerco, para cuando lo de dentro ya se tine
-   por su cuenta (filas con su propio hover, una lista separada). */
-.inset.plain {
-  background: transparent;
-}
+  /* Sin fondo: solo el cerco, para cuando lo de dentro ya se tine
+     por su cuenta (filas con su propio hover, una lista separada). */
+  &.plain {
+    background: transparent;
+  }
 
-/* Punteado: el hueco que espera a que se llene (una lista vacia,
-   el sitio donde se suelta un archivo). */
-.inset.dashed {
-  border-style: dashed;
-  background: transparent;
+  /* Punteado: el hueco que espera a que se llene (una lista vacia,
+     el sitio donde se suelta un archivo). */
+  &.dashed {
+    border-style: dashed;
+    background: transparent;
+  }
 }
 
 /* ----------------------------------------------------------
@@ -1575,35 +1579,35 @@ input[type="range"].field-control {
     color: var(--text-muted);
     font-size: 24px;
   }
-}
 
-.dropzone.loaded {
-  border-style: solid;
-  border-color: color-mix(in oklab, var(--success) 35%, transparent);
-  background: var(--success-bg);
-  color: var(--success);
-
-  &:hover {
-    background: color-mix(in oklab, var(--success) 12%, var(--bg-level2));
-  }
-
-  & > i {
+  &.loaded {
+    border-style: solid;
+    border-color: color-mix(in oklab, var(--success) 35%, transparent);
+    background: var(--success-bg);
     color: var(--success);
-  }
-}
 
-.dropzone.rejected {
-  border-style: solid;
-  border-color: color-mix(in oklab, var(--danger) 35%, transparent);
-  background: var(--danger-bg);
-  color: var(--danger);
+    &:hover {
+      background: color-mix(in oklab, var(--success) 12%, var(--bg-level2));
+    }
 
-  &:hover {
-    background: color-mix(in oklab, var(--danger) 12%, var(--bg-level2));
+    & > i {
+      color: var(--success);
+    }
   }
 
-  & > i {
+  &.rejected {
+    border-style: solid;
+    border-color: color-mix(in oklab, var(--danger) 35%, transparent);
+    background: var(--danger-bg);
     color: var(--danger);
+
+    &:hover {
+      background: color-mix(in oklab, var(--danger) 12%, var(--bg-level2));
+    }
+
+    & > i {
+      color: var(--danger);
+    }
   }
 }
 
@@ -2583,14 +2587,14 @@ input[type="range"].field-control {
     color: var(--text-primary);
     font-weight: 700;
   }
-}
 
-/* Solo iconos, sin texto: la ruta de una cabecera estrecha. Los glifos
-   heredan el cuerpo de la ruta, que es el mas corto de la escala, y solos
-   --sin una palabra al lado que los sostenga-- se quedan chicos: crecen
-   hasta el del texto corriente. Anadido de este repo. */
-.crumbs.icons i {
-  font-size: var(--text-sm);
+  /* Solo iconos, sin texto: la ruta de una cabecera estrecha. Los glifos
+     heredan el cuerpo de la ruta, que es el mas corto de la escala, y solos
+     --sin una palabra al lado que los sostenga-- se quedan chicos: crecen
+     hasta el del texto corriente. Anadido de este repo. */
+  &.icons i {
+    font-size: var(--text-sm);
+  }
 }
 
 /* ---- Menu: popover anclado al boton que lo abre. Se cierra solo
@@ -3123,6 +3127,11 @@ input[type="range"].field-control {
 /* Boton en carga: se bloquea igual que :disabled y solo gira su icono */
 .is-loading > i {
   animation: spin 0.8s linear infinite;
+}
+
+/* Mientras carga manda el icono de carga: el propio del boton cede el sitio */
+.is-loading > i:not(.hgi-loading-03) {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
