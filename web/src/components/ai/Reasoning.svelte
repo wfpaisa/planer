@@ -28,9 +28,9 @@
     class="btn-toggle-reasoning flex w-full items-center gap-1"
   >
     <Icon name="chevron-down" size={12} class={cx("chevron", open && "chevron-open")} />
-    <span class="reasoning-toggle-label shrink-0"
-      >{open ? "Ocultar razonamiento" : "Razonamiento"}</span
-    >
+    <span class="reasoning-toggle-label shrink-0">
+      {open ? "Ocultar razonamiento" : "Razonamiento"}
+    </span>
     {#if !open}
       <span class="reasoning-first flex-1 text-left">{firstLine(text)}</span>
     {/if}

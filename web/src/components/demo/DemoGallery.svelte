@@ -329,10 +329,28 @@
           <div class="gallery-demo">
             <nav class="crumbs" aria-label="Ruta">
               <ol>
-                <li><a href="/"><i class="hgi-stroke hgi-dashboard-square-01"></i>Panel</a></li>
-                <li><a href="/"><i class="hgi-stroke hgi-store-01"></i>Comercio</a></li>
-                <li><a href="/"><i class="hgi-stroke hgi-shopping-bag-01"></i>Pedidos</a></li>
-                <li aria-current="page"><i class="hgi-stroke hgi-invoice-01"></i>#AR-4821</li>
+                <li>
+                  <a href="/">
+                    <i class="hgi-stroke hgi-dashboard-square-01"></i>
+                    Panel
+                  </a>
+                </li>
+                <li>
+                  <a href="/">
+                    <i class="hgi-stroke hgi-store-01"></i>
+                    Comercio
+                  </a>
+                </li>
+                <li>
+                  <a href="/">
+                    <i class="hgi-stroke hgi-shopping-bag-01"></i>
+                    Pedidos
+                  </a>
+                </li>
+                <li aria-current="page">
+                  <i class="hgi-stroke hgi-invoice-01"></i>
+                  #AR-4821
+                </li>
               </ol>
             </nav>
             <!--
@@ -375,8 +393,9 @@
                  el reparto igual de la base como respaldo. -->
             <div class="tab-list fit" style="--n: 3">
               <input type="radio" name="demoTabs" id="demoTab1" checked />
-              <label class="tab" for="demoTab1"><Icon name="sidebar-left" size={16} />Resumen</label
-              >
+              <label class="tab" for="demoTab1">
+                <Icon name="sidebar-left" size={16} />Resumen
+              </label>
               <input type="radio" name="demoTabs" id="demoTab2" />
               <label class="tab" for="demoTab2">Actividad</label>
               <input type="radio" name="demoTabs" id="demoTab3" />
@@ -428,18 +447,29 @@
         {@render head("Menú", "Acciones en un desplegable. Ej.: la cabecera de una columna")}
         <div class="card-body">
           <div class="gallery-row">
-            <button class="btn menu-btn" popovertarget="demoMenu"
-              >Acciones<i class="caret hgi-stroke hgi-arrow-down-01"></i></button
-            >
+            <button class="btn menu-btn" popovertarget="demoMenu">
+              Acciones
+              <i class="caret hgi-stroke hgi-arrow-down-01"></i>
+            </button>
           </div>
           <div class="menu" id="demoMenu" popover>
-            <button type="button"><i class="hgi-stroke hgi-pencil-edit-02"></i>Editar</button>
-            <button type="button"><i class="hgi-stroke hgi-copy-01"></i>Duplicar</button>
-            <button type="button"><i class="hgi-stroke hgi-download-04"></i>Exportar</button>
+            <button type="button">
+              <i class="hgi-stroke hgi-pencil-edit-02"></i>
+              Editar
+            </button>
+            <button type="button">
+              <i class="hgi-stroke hgi-copy-01"></i>
+              Duplicar
+            </button>
+            <button type="button">
+              <i class="hgi-stroke hgi-download-04"></i>
+              Exportar
+            </button>
             <div class="menu-sep"></div>
-            <button type="button" class="danger"
-              ><i class="hgi-stroke hgi-delete-02"></i>Eliminar</button
-            >
+            <button type="button" class="danger">
+              <i class="hgi-stroke hgi-delete-02"></i>
+              Eliminar
+            </button>
           </div>
         </div>
       </article>
@@ -493,17 +523,26 @@
           <div class="type-scale">
             <div class="ty-row">
               <p class="title">Ingresos y sesiones</p>
-              <span class="ty-meta">TÍTULO<b>1.125rem</b></span>
+              <span class="ty-meta">
+                TÍTULO
+                <b>1.125rem</b>
+              </span>
             </div>
             <div class="ty-row">
               <p class="ty-sample">
                 El panel resume los ingresos, las sesiones y la conversión del periodo seleccionado.
               </p>
-              <span class="ty-meta">TEXTO NORMAL<b>1rem</b></span>
+              <span class="ty-meta">
+                TEXTO NORMAL
+                <b>1rem</b>
+              </span>
             </div>
             <div class="ty-row">
-              <small> Comparado con el periodo anterior · datos provisionales </small>
-              <span class="ty-meta">SMALL<b>0.875rem</b></span>
+              <small>Comparado con el periodo anterior · datos provisionales</small>
+              <span class="ty-meta">
+                SMALL
+                <b>0.875rem</b>
+              </span>
             </div>
           </div>
         </div>
@@ -541,6 +580,7 @@
         {@render head("Caja interior", "Agrupa dentro de otra caja. Ej.: dentro de un modal")}
         <div class="card-body">
           <div class="gallery-demo">
+            <!-- prettier-ignore -->
             <p class="demo-note">
               Dentro de una tarjeta o de un modal no puede ir otra tarjeta: se hunde en vez de
               levantarse. <code>plain</code> deja solo el borde; <code>dashed</code>, para lo que
@@ -557,7 +597,8 @@
             <div class="inset plain">
               <ul class="list demo-inset-list">
                 <li>
-                  <span class="l-main">Versión 12</span><span class="tag tag-success">En vivo</span>
+                  <span class="l-main">Versión 12</span>
+                  <span class="tag tag-success">En vivo</span>
                 </li>
                 <li><span class="l-main">Versión 11</span></li>
               </ul>
@@ -647,11 +688,12 @@
           <div class="gallery-demo">
             <div class="stat">
               <span class="s-label">Ingresos netos</span>
-              <span class="s-val number"
-                >$184.320 <span class="tag tag-success"
-                  ><i class="hgi-stroke hgi-arrow-up-right-01"></i>12.4 %</span
-                ></span
-              >
+              <span class="s-val number">
+                $184.320 <span class="tag tag-success">
+                  <i class="hgi-stroke hgi-arrow-up-right-01"></i>
+                  12.4 %
+                </span>
+              </span>
               <span class="s-foot">vs. $163.980 del periodo anterior</span>
             </div>
           </div>
@@ -701,11 +743,16 @@
               type="button"
               class="chip"
               class:active={orderFilter === s.st}
-              onclick={() => setOrderFilter(s.st)}>{s.label}</button
+              onclick={() => setOrderFilter(s.st)}
             >
+              {s.label}
+            </button>
           {/each}
         </div>
-        <button class="btn hide-sm-btn"><i class="hgi-stroke hgi-filter"></i>Filtrar</button>
+        <button class="btn hide-sm-btn">
+          <i class="hgi-stroke hgi-filter"></i>
+          Filtrar
+        </button>
       {/snippet}
       <article class="card gallery-item col-span-2 table-card">
         {@render head(
@@ -724,7 +771,8 @@
                   aria-sort={orderSortAria("client")}
                   onclick={() => sortOrders("client")}
                 >
-                  Cliente<span class="arrow"></span>
+                  Cliente
+                  <span class="arrow"></span>
                 </th>
                 <th>Pedido</th>
                 <th
@@ -734,7 +782,8 @@
                   aria-sort={orderSortAria("date")}
                   onclick={() => sortOrders("date")}
                 >
-                  Fecha<span class="arrow"></span>
+                  Fecha
+                  <span class="arrow"></span>
                 </th>
                 <th>Estado</th>
                 <th
@@ -745,7 +794,8 @@
                   style="text-align: right"
                   onclick={() => sortOrders("amount")}
                 >
-                  Importe<span class="arrow"></span>
+                  Importe
+                  <span class="arrow"></span>
                 </th>
                 <th></th>
               </tr>
@@ -769,12 +819,12 @@
                     <td class="amt number">{fmtAmount(o.amount)}</td>
                     <td>
                       <div class="row-act">
-                        <button class="mini-btn" aria-label="Ver"
-                          ><i class="hgi-stroke hgi-eye"></i></button
-                        >
-                        <button class="mini-btn" aria-label="Editar"
-                          ><i class="hgi-stroke hgi-pencil-edit-02"></i></button
-                        >
+                        <button class="mini-btn" aria-label="Ver">
+                          <i class="hgi-stroke hgi-eye"></i>
+                        </button>
+                        <button class="mini-btn" aria-label="Editar">
+                          <i class="hgi-stroke hgi-pencil-edit-02"></i>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -784,8 +834,9 @@
                   <td
                     colspan="6"
                     style="text-align:center;color:var(--text-muted);padding:2.375rem 0"
-                    >Sin pedidos en este estado</td
                   >
+                    Sin pedidos en este estado
+                  </td>
                 </tr>
               {/if}
             </tbody>
@@ -825,28 +876,40 @@
         <div class="card-body">
           <ol class="timeline">
             <li class="done">
-              <span class="t-time"><b>09:14</b><span>Hoy</span></span>
+              <span class="t-time">
+                <b>09:14</b>
+                <span>Hoy</span>
+              </span>
               <div class="t-body">
                 <span class="t-title">Pedido recibido</span>
                 <span class="t-desc">Orden #AR-4821 · 3 artículos</span>
               </div>
             </li>
             <li class="done">
-              <span class="t-time"><b>09:20</b><span>Hoy</span></span>
+              <span class="t-time">
+                <b>09:20</b>
+                <span>Hoy</span>
+              </span>
               <div class="t-body">
                 <span class="t-title">Pago confirmado</span>
                 <span class="t-desc">Visa ···4192 · 184,20 €</span>
               </div>
             </li>
             <li>
-              <span class="t-time"><b>08:00</b><span>Mañana</span></span>
+              <span class="t-time">
+                <b>08:00</b>
+                <span>Mañana</span>
+              </span>
               <div class="t-body">
                 <span class="t-title">Preparando envío</span>
                 <span class="t-desc">Almacén de Madrid</span>
               </div>
             </li>
             <li>
-              <span class="t-time"><b>—</b><span>Sin fecha</span></span>
+              <span class="t-time">
+                <b>—</b>
+                <span>Sin fecha</span>
+              </span>
               <div class="t-body">
                 <span class="t-title">Entregado</span>
                 <span class="t-desc">Se avisará al destinatario</span>
@@ -868,10 +931,17 @@
             </div>
             <div class="gallery-row">
               <span class="tag tag-success">
-                <i class="hgi-stroke hgi-checkmark-circle-02"></i>Correcto
+                <i class="hgi-stroke hgi-checkmark-circle-02"></i>
+                Correcto
               </span>
-              <span class="tag tag-warning"> <i class="hgi-stroke hgi-alert-02"></i>Aviso </span>
-              <span class="tag tag-error"> <i class="hgi-stroke hgi-cancel-circle"></i>Error </span>
+              <span class="tag tag-warning">
+                <i class="hgi-stroke hgi-alert-02"></i>
+                Aviso
+              </span>
+              <span class="tag tag-error">
+                <i class="hgi-stroke hgi-cancel-circle"></i>
+                Error
+              </span>
             </div>
             <div class="gallery-row">
               <span class="tag tint-1">
@@ -924,9 +994,10 @@
               <button class="btn btn-ghost" disabled>Deshabilitado</button>
             </div>
             <div class="gallery-row">
-              <button class="btn btn-danger"
-                ><i class="hgi-stroke hgi-delete-02"></i>Eliminar</button
-              >
+              <button class="btn btn-danger">
+                <i class="hgi-stroke hgi-delete-02"></i>
+                Eliminar
+              </button>
               <button class="btn btn-danger" disabled>Eliminar</button>
               <button class="btn btn-ghost btn-danger">Quitar del equipo</button>
             </div>
@@ -957,11 +1028,13 @@
             </div>
             <div class="gallery-row">
               <button class="btn btn-primary is-loading" disabled aria-busy="true">
-                <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>Guardando…
+                <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
+                Guardando…
               </button>
-              <button class="btn is-loading" disabled aria-busy="true"
-                ><i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>Procesando…</button
-              >
+              <button class="btn is-loading" disabled aria-busy="true">
+                <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
+                Procesando…
+              </button>
               <button class="btn-icon is-loading" disabled aria-busy="true" aria-label="Cargando">
                 <i class="hgi-stroke hgi-loading-03"></i>
               </button>
@@ -975,9 +1048,10 @@
         {@render head("Enlace", "Con icono de salida. Ej.: abrir la página publicada")}
         <div class="card-body">
           <div class="gallery-demo">
-            <a class="link" href="/"
-              >Abrir en pestaña nueva<i class="hgi-stroke hgi-link-square-02"></i></a
-            >
+            <a class="link" href="/">
+              Abrir en pestaña nueva
+              <i class="hgi-stroke hgi-link-square-02"></i>
+            </a>
           </div>
         </div>
       </article>
@@ -987,6 +1061,7 @@
         {@render head("Planer", "La cara del asistente. Ej.: la cabecera del chat")}
         <div class="card-body">
           <div class="gallery-demo">
+            <!-- prettier-ignore -->
             <p class="demo-note">
               No es CSS: es el componente <code>PlanerAvatar</code>. Toma el acento de la paleta
               puesta y todo lo suyo se mide contra <code>size</code>.
@@ -1022,8 +1097,10 @@
               type="button"
               class="chip"
               class:active={range === r.days}
-              onclick={() => (range = r.days)}>{r.label}</button
+              onclick={() => (range = r.days)}
             >
+              {r.label}
+            </button>
           {/each}
         </div>
       {/snippet}
@@ -1037,16 +1114,18 @@
           <div class="chart-figure"><canvas bind:this={main}></canvas></div>
           <div class="legend">
             <span class="legend-item">
-              <i class="swatch" style="background: var(--chart-1)"></i>Ingresos
+              <i class="swatch" style="background: var(--chart-1)"></i>
+              Ingresos
               <b class="number">$184.320</b>
             </span>
             <span class="legend-item">
-              <i class="swatch" style="background: var(--chart-2)"></i>Sesiones
+              <i class="swatch" style="background: var(--chart-2)"></i>
+              Sesiones
               <b class="number">96.480</b>
             </span>
             <span class="legend-item">
-              <i class="swatch" style="background: var(--text-muted); opacity: 0.5"></i>Periodo
-              anterior
+              <i class="swatch" style="background: var(--text-muted); opacity: 0.5"></i>
+              Periodo anterior
             </span>
           </div>
         </div>
@@ -1099,7 +1178,8 @@
                   <div class="kpi-row">
                     <span class="kpi-val number">{k.val}</span>
                     <span class="tag {k.up ? 'tag-success' : 'tag-error'}">
-                      <i class="hgi-stroke hgi-arrow-{k.up ? 'up' : 'down'}-right-01"></i>{k.d}
+                      <i class="hgi-stroke hgi-arrow-{k.up ? 'up' : 'down'}-right-01"></i>
+                      {k.d}
                     </span>
                   </div>
                   <div class="kpi-foot number">{k.foot}</div>
@@ -1116,11 +1196,12 @@
         <div class="card-body">
           <div class="stat">
             <span class="s-label">Ingresos netos</span>
-            <span class="s-val number"
-              >$184.320 <span class="tag tag-success"
-                ><i class="hgi-stroke hgi-arrow-up-right-01"></i>12.4 %</span
-              ></span
-            >
+            <span class="s-val number">
+              $184.320 <span class="tag tag-success">
+                <i class="hgi-stroke hgi-arrow-up-right-01"></i>
+                12.4 %
+              </span>
+            </span>
             <span class="s-foot">vs. $163.980 del periodo anterior</span>
           </div>
           <div class="spark"><canvas bind:this={spark}></canvas></div>
@@ -1227,8 +1308,10 @@
         <div class="card-body">
           <div class="field">
             <label for="demoTextarea">Nota interna</label>
-            <textarea id="demoTextarea" rows="3" placeholder="Contexto para el equipo de soporte…"
-            ></textarea>
+            <textarea
+              id="demoTextarea"
+              rows="3"
+              placeholder="Contexto para el equipo de soporte…"></textarea>
           </div>
         </div>
       </article>
@@ -1275,7 +1358,10 @@
         {@render head("Deslizador", "Un número dentro de un rango. Ej.: el tamaño de letra")}
         <div class="card-body">
           <div class="field">
-            <span class="field-label">Importe máximo<b class="range-val">$1.200</b></span>
+            <span class="field-label">
+              Importe máximo
+              <b class="range-val">$1.200</b>
+            </span>
             <input type="range" min="0" max="2000" step="50" value="1200" />
           </div>
         </div>
@@ -1349,28 +1435,29 @@
           <div class="gallery-demo">
             <div class="rating" role="radiogroup" aria-label="Valoración">
               <input type="radio" name="demoRate" id="demoRate5" />
-              <label for="demoRate5" data-tip="5 estrellas"
-                ><i class="hgi-stroke hgi-star"></i></label
-              >
+              <label for="demoRate5" data-tip="5 estrellas">
+                <i class="hgi-stroke hgi-star"></i>
+              </label>
               <input type="radio" name="demoRate" id="demoRate4" checked />
-              <label for="demoRate4" data-tip="4 estrellas"
-                ><i class="hgi-stroke hgi-star"></i></label
-              >
+              <label for="demoRate4" data-tip="4 estrellas">
+                <i class="hgi-stroke hgi-star"></i>
+              </label>
               <input type="radio" name="demoRate" id="demoRate3" />
-              <label for="demoRate3" data-tip="3 estrellas"
-                ><i class="hgi-stroke hgi-star"></i></label
-              >
+              <label for="demoRate3" data-tip="3 estrellas">
+                <i class="hgi-stroke hgi-star"></i>
+              </label>
               <input type="radio" name="demoRate" id="demoRate2" />
-              <label for="demoRate2" data-tip="2 estrellas"
-                ><i class="hgi-stroke hgi-star"></i></label
-              >
+              <label for="demoRate2" data-tip="2 estrellas">
+                <i class="hgi-stroke hgi-star"></i>
+              </label>
               <input type="radio" name="demoRate" id="demoRate1" />
-              <label for="demoRate1" data-tip="1 estrellas"
-                ><i class="hgi-stroke hgi-star"></i></label
-              >
+              <label for="demoRate1" data-tip="1 estrellas">
+                <i class="hgi-stroke hgi-star"></i>
+              </label>
             </div>
-            <span style="font-size: 0.71875rem; color: var(--text-muted)">4 de 5 · 128 reseñas</span
-            >
+            <span style="font-size: 0.71875rem; color: var(--text-muted)">
+              4 de 5 · 128 reseñas
+            </span>
           </div>
         </div>
       </article>
@@ -1379,10 +1466,10 @@
         {@render head("Opciones", "Tarjetas de selección. Ej.: el tipo de una columna")}
         <div class="card-body">
           <div class="gallery-demo">
+            <!-- prettier-ignore -->
             <p class="demo-note">
-              Cada tarjeta lleva su nombre y una línea que lo explica, y se tiñe al elegirla. <code
-                >opt-row</code
-              > es la misma caja sin nada que elegir, con su mando a la derecha.
+              Cada tarjeta lleva su nombre y una línea que lo explica, y se tiñe al elegirla.
+              <code>opt-row</code> es la misma caja sin nada que elegir, con su mando a la derecha.
             </p>
 
             <div class="demo-opt-grid">
@@ -1488,12 +1575,11 @@
         {@render head("Zona de arrastre", "Donde se sueltan archivos. Ej.: importar un CSV")}
         <div class="card-body">
           <div class="gallery-demo">
+            <!-- prettier-ignore -->
             <p class="demo-note">
-              Acepta el archivo arrastrado encima, o abre el explorador al pulsarla. <code
-                >loaded</code
-              >
-              cuando se ha leído, <code>rejected</code> cuando no sirve; el motivo lo da el aviso de al
-              lado.
+              Acepta el archivo arrastrado encima, o abre el explorador al pulsarla.
+              <code>loaded</code> cuando se ha leído, <code>rejected</code> cuando no sirve; el
+              motivo lo da el aviso de al lado.
             </p>
             <div class="demo-dropzones">
               <div class="dropzone">
@@ -1555,23 +1641,31 @@
           <div class="gallery-demo">
             <div class="alert info" role="status">
               <i class="hgi-stroke hgi-information-circle"></i>
-              <span
-                ><strong>Sincronización programada</strong>Los datos se actualizarán esta noche a
-                las 03:00.</span
-              >
+              <span>
+                <strong>Sincronización programada</strong>
+                Los datos se actualizarán esta noche a las 03:00.
+              </span>
             </div>
             <div class="alert ok" role="status">
               <i class="hgi-stroke hgi-checkmark-circle-02"></i>
-              <span><strong>Todo correcto</strong>El informe se exportó sin incidencias.</span>
+              <span>
+                <strong>Todo correcto</strong>
+                El informe se exportó sin incidencias.
+              </span>
             </div>
             <div class="alert warn" role="status">
               <i class="hgi-stroke hgi-alert-02"></i>
-              <span><strong>Cuota al 74 %</strong>Quedan 258 K eventos en el plan de este mes.</span
-              >
+              <span>
+                <strong>Cuota al 74 %</strong>
+                Quedan 258 K eventos en el plan de este mes.
+              </span>
             </div>
             <div class="alert danger" role="alert">
               <i class="hgi-stroke hgi-cancel-circle"></i>
-              <span><strong>Pago rechazado</strong>Revisa el método de pago del cliente.</span>
+              <span>
+                <strong>Pago rechazado</strong>
+                Revisa el método de pago del cliente.
+              </span>
             </div>
           </div>
         </div>
@@ -1589,11 +1683,10 @@
             </div>
             <div class="toast ok" id="demoToast-ok" popover>
               <i class="ico hgi-stroke hgi-checkmark-circle-02"></i>
-              <span class="t-text"
-                ><span>Cambios guardados</span><span class="t-sub"
-                  >El informe se actualizó correctamente.</span
-                ></span
-              >
+              <span class="t-text">
+                <span>Cambios guardados</span>
+                <span class="t-sub">El informe se actualizó correctamente.</span>
+              </span>
               <button
                 class="close"
                 popovertarget="demoToast-ok"
@@ -1605,11 +1698,10 @@
             </div>
             <div class="toast info" id="demoToast-info" popover>
               <i class="ico hgi-stroke hgi-information-circle"></i>
-              <span class="t-text"
-                ><span>Sincronización en curso</span><span class="t-sub"
-                  >Terminará en menos de un minuto.</span
-                ></span
-              >
+              <span class="t-text">
+                <span>Sincronización en curso</span>
+                <span class="t-sub">Terminará en menos de un minuto.</span>
+              </span>
               <button
                 class="close"
                 popovertarget="demoToast-info"
@@ -1621,11 +1713,10 @@
             </div>
             <div class="toast warn" id="demoToast-warn" popover>
               <i class="ico hgi-stroke hgi-alert-02"></i>
-              <span class="t-text"
-                ><span>Cuota casi agotada</span><span class="t-sub"
-                  >Quedan 258 K eventos este mes.</span
-                ></span
-              >
+              <span class="t-text">
+                <span>Cuota casi agotada</span>
+                <span class="t-sub">Quedan 258 K eventos este mes.</span>
+              </span>
               <button
                 class="close"
                 popovertarget="demoToast-warn"
@@ -1637,11 +1728,10 @@
             </div>
             <div class="toast danger" id="demoToast-danger" popover>
               <i class="ico hgi-stroke hgi-cancel-circle"></i>
-              <span class="t-text"
-                ><span>No se pudo exportar</span><span class="t-sub"
-                  >Revisa la conexión e inténtalo de nuevo.</span
-                ></span
-              >
+              <span class="t-text">
+                <span>No se pudo exportar</span>
+                <span class="t-sub">Revisa la conexión e inténtalo de nuevo.</span>
+              </span>
               <button
                 class="close"
                 popovertarget="demoToast-danger"
@@ -1685,12 +1775,16 @@
                 </p>
               </div>
               <div class="modal-foot">
-                <button class="btn" popovertarget="demoModal" popovertargetaction="hide"
-                  >Volver</button
+                <button class="btn" popovertarget="demoModal" popovertargetaction="hide">
+                  Volver
+                </button>
+                <button
+                  class="btn btn-primary"
+                  popovertarget="demoModal"
+                  popovertargetaction="hide"
                 >
-                <button class="btn btn-primary" popovertarget="demoModal" popovertargetaction="hide"
-                  >Cancelar pedido</button
-                >
+                  Cancelar pedido
+                </button>
               </div>
             </div>
 
@@ -1717,70 +1811,100 @@
               <div class="modal-body">
                 <ol class="timeline">
                   <li class="done">
-                    <span class="t-time"><b>09:14</b><span>12 mar</span></span>
+                    <span class="t-time">
+                      <b>09:14</b>
+                      <span>12 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Pedido creado</span>
                       <span class="t-desc">Orden #AR-4821 · 3 artículos</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>09:16</b><span>12 mar</span></span>
+                    <span class="t-time">
+                      <b>09:16</b>
+                      <span>12 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Pago confirmado</span>
                       <span class="t-desc">Visa ···4192 · 184,20 €</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>15:02</b><span>12 mar</span></span>
+                    <span class="t-time">
+                      <b>15:02</b>
+                      <span>12 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Preparando el envío</span>
                       <span class="t-desc">Almacén de Madrid</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>08:40</b><span>13 mar</span></span>
+                    <span class="t-time">
+                      <b>08:40</b>
+                      <span>13 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Entregado al transportista</span>
                       <span class="t-desc">SEUR · guía 884-201-77</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>07:25</b><span>14 mar</span></span>
+                    <span class="t-time">
+                      <b>07:25</b>
+                      <span>14 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">En reparto</span>
                       <span class="t-desc">Vehículo 14 · ruta centro</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>12:10</b><span>14 mar</span></span>
+                    <span class="t-time">
+                      <b>12:10</b>
+                      <span>14 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Primer intento fallido</span>
                       <span class="t-desc">Nadie en el domicilio</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>09:05</b><span>15 mar</span></span>
+                    <span class="t-time">
+                      <b>09:05</b>
+                      <span>15 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Segundo reparto</span>
                       <span class="t-desc">Reprogramado por el cliente</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>11:48</b><span>15 mar</span></span>
+                    <span class="t-time">
+                      <b>11:48</b>
+                      <span>15 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Entregado</span>
                       <span class="t-desc">Firmado por E. Vargas</span>
                     </div>
                   </li>
                   <li>
-                    <span class="t-time"><b>16:30</b><span>18 mar</span></span>
+                    <span class="t-time">
+                      <b>16:30</b>
+                      <span>18 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Devolución solicitada</span>
                       <span class="t-desc">Motivo: talla incorrecta</span>
                     </div>
                   </li>
                   <li>
-                    <span class="t-time"><b>10:02</b><span>19 mar</span></span>
+                    <span class="t-time">
+                      <b>10:02</b>
+                      <span>19 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Reembolso emitido</span>
                       <span class="t-desc">184,20 € al método original</span>
@@ -1789,9 +1913,9 @@
                 </ol>
               </div>
               <div class="modal-foot">
-                <button class="btn" popovertarget="demoModalLg" popovertargetaction="hide"
-                  >Cerrar</button
-                >
+                <button class="btn" popovertarget="demoModalLg" popovertargetaction="hide">
+                  Cerrar
+                </button>
               </div>
             </div>
           </div>
@@ -1803,12 +1927,14 @@
         <div class="card-body">
           <div class="gallery-demo">
             <div class="gallery-row">
-              <button class="btn" popovertarget="demoDrawerL"
-                ><i class="hgi-stroke hgi-sidebar-left"></i>Izquierda</button
-              >
-              <button class="btn" popovertarget="demoDrawerR"
-                ><i class="hgi-stroke hgi-sidebar-right"></i>Derecha</button
-              >
+              <button class="btn" popovertarget="demoDrawerL">
+                <i class="hgi-stroke hgi-sidebar-left"></i>
+                Izquierda
+              </button>
+              <button class="btn" popovertarget="demoDrawerR">
+                <i class="hgi-stroke hgi-sidebar-right"></i>
+                Derecha
+              </button>
             </div>
 
             <div class="drawer left" id="demoDrawerL" popover>
@@ -1861,14 +1987,16 @@
                 </label>
               </div>
               <div class="modal-foot">
-                <button class="btn" popovertarget="demoDrawerL" popovertargetaction="hide"
-                  >Limpiar</button
-                >
+                <button class="btn" popovertarget="demoDrawerL" popovertargetaction="hide">
+                  Limpiar
+                </button>
                 <button
                   class="btn btn-primary"
                   popovertarget="demoDrawerL"
-                  popovertargetaction="hide">Aplicar</button
+                  popovertargetaction="hide"
                 >
+                  Aplicar
+                </button>
               </div>
             </div>
 
@@ -1894,28 +2022,40 @@
                 </p>
                 <ol class="timeline">
                   <li class="done">
-                    <span class="t-time"><b>09:14</b><span>12 mar</span></span>
+                    <span class="t-time">
+                      <b>09:14</b>
+                      <span>12 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Pedido creado</span>
                       <span class="t-desc">3 artículos · 184,20 €</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>09:16</b><span>12 mar</span></span>
+                    <span class="t-time">
+                      <b>09:16</b>
+                      <span>12 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Pago confirmado</span>
                       <span class="t-desc">Visa ···4192</span>
                     </div>
                   </li>
                   <li class="done">
-                    <span class="t-time"><b>08:40</b><span>13 mar</span></span>
+                    <span class="t-time">
+                      <b>08:40</b>
+                      <span>13 mar</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">En reparto</span>
                       <span class="t-desc">SEUR · guía 884-201-77</span>
                     </div>
                   </li>
                   <li>
-                    <span class="t-time"><b>—</b><span>Previsto</span></span>
+                    <span class="t-time">
+                      <b>—</b>
+                      <span>Previsto</span>
+                    </span>
                     <div class="t-body">
                       <span class="t-title">Entrega</span>
                       <span class="t-desc">14 de marzo, mañana</span>
@@ -1924,9 +2064,9 @@
                 </ol>
               </div>
               <div class="modal-foot">
-                <button class="btn" popovertarget="demoDrawerR" popovertargetaction="hide"
-                  >Cerrar</button
-                >
+                <button class="btn" popovertarget="demoDrawerR" popovertargetaction="hide">
+                  Cerrar
+                </button>
                 <button class="btn btn-primary" type="button">Ver factura</button>
               </div>
             </div>
@@ -1968,7 +2108,11 @@
           <div class="gallery-demo">
             <div class="gallery-row">
               <span class="spinner" role="status" aria-label="Cargando"></span>
-              <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="dots" aria-hidden="true">
+                <i></i>
+                <i></i>
+                <i></i>
+              </span>
               <span style="font-size: 0.78125rem; color: var(--text-muted)">Cargando…</span>
             </div>
             <div class="skeleton" style="width: 100%"></div>
@@ -1983,11 +2127,13 @@
         <div class="card-body">
           <div class="gallery-demo">
             <div class="progress-label">
-              <span>Eventos del plan</span><span class="number">74 %</span>
+              <span>Eventos del plan</span>
+              <span class="number">74 %</span>
             </div>
             <progress class="progress" max="100" value="74"></progress>
             <div class="progress-label">
-              <span>Almacenamiento</span><span class="number">31 %</span>
+              <span>Almacenamiento</span>
+              <span class="number">31 %</span>
             </div>
             <progress class="progress" max="100" value="31"></progress>
           </div>

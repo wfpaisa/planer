@@ -145,7 +145,8 @@
     {#snippet danger()}
       <div class="settings-danger-row flex items-center justify-between gap-4">
         <p class="danger-label">
-          Borrar <strong>{app.name}</strong> y todo lo que tiene.
+          Borrar <strong>{app.name}</strong>
+          y todo lo que tiene.
         </p>
         <Button variant="danger" onclick={() => (confirmDelete = true)}>
           <Icon name="trash" size={14} /> Borrar aplicación
@@ -179,7 +180,8 @@
   onConfirm={() => void remove()}
 >
   {#snippet message()}
-    Se borrará la aplicación <strong>{app.name}</strong> y todos sus datos. Esta acción no se puede deshacer.
+    Se borrará la aplicación <strong>{app.name}</strong>
+    y todos sus datos. Esta acción no se puede deshacer.
   {/snippet}
 </ConfirmDialog>
 

@@ -207,7 +207,7 @@
 <aside id="database-table-sidebar" class="sidebar-tables flex shrink-0 flex-col">
   <div class="header-tables">
     <span class="title-tables">
-      <span class="title-tables-label eyebrow"> Tablas </span>
+      <span class="title-tables-label eyebrow">Tablas</span>
       {#if tables.length > 0}
         <span class="title-tables-count">{tables.length}</span>
       {/if}

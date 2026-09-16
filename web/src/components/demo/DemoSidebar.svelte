@@ -143,10 +143,12 @@
   <nav class="nav-demo nav" aria-label="Secciones de la demo">
     <p class="nav-label eyebrow">Cuenta</p>
     <a class="nav-item" href="/" use:link data-tip="Inicio">
-      <i class="hgi-stroke hgi-home-01"></i><span>Inicio</span>
+      <i class="hgi-stroke hgi-home-01"></i>
+      <span>Inicio</span>
     </a>
     <a class="nav-item" href="/ajustes" use:link data-tip="Ajustes">
-      <i class="hgi-stroke hgi-settings-04"></i><span>Ajustes</span>
+      <i class="hgi-stroke hgi-settings-04"></i>
+      <span>Ajustes</span>
     </a>
 
     <p class="nav-label eyebrow">General</p>
@@ -157,7 +159,8 @@
       data-tip="Resumen"
       onclick={() => goTo(TOP)}
     >
-      <i class="hgi-stroke hgi-dashboard-square-01"></i><span>Resumen</span>
+      <i class="hgi-stroke hgi-dashboard-square-01"></i>
+      <span>Resumen</span>
       <i class="hgi-stroke hgi-home-01 nav-end"></i>
     </button>
 
@@ -170,7 +173,8 @@
         data-tip={s.label}
         onclick={() => goTo(s.id)}
       >
-        <i class="hgi-stroke hgi-{s.icon}"></i><span>{s.label}</span>
+        <i class="hgi-stroke hgi-{s.icon}"></i>
+        <span>{s.label}</span>
 
         <span class="nav-badge">{counts[s.id] ?? 0}</span>
         {#if "isSafe" in s && s.isSafe}

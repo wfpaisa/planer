@@ -57,9 +57,9 @@
         <Input type="password" autocomplete="current-password" bind:value={password} required />
       </Field>
       <ErrorNote message={error} />
-      <Button type="submit" variant="secondary" loading={busy} class="login-member-submit"
-        >Entrar</Button
-      >
+      <Button type="submit" variant="secondary" loading={busy} class="login-member-submit">
+        Entrar
+      </Button>
     </form>
   </div>
 </div>

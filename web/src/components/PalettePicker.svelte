@@ -116,7 +116,10 @@
           )}
         >
           <span class="ramp-palette" data-palette={palette.id}>
-            <i></i><i></i><i></i><i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
           </span>
           <span class="name-palette">{palette.name}</span>
         </button>

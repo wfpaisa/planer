@@ -98,7 +98,8 @@
                 tone={app.published ? "tag-success" : "off"}
                 class={cx("card-badge", app.published ? "card-badge-on" : "card-badge-off")}
               >
-                <span class={cx("status-dot", app.published ? "status-dot-on" : "status-dot-off")}
+                <span
+                  class={cx("status-dot", app.published ? "status-dot-on" : "status-dot-off")}
                 ></span>
                 {app.published ? "Publicada" : "Borrador"}
               </Tag>

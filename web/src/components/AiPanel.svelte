@@ -1169,7 +1169,7 @@
               <div class="chat-entry-ai rise group" style="animation-delay: 100ms">
                 <div class="header-ai-response flex items-center">
                   <Icon name="ai-magic" size={16} />
-                  <span class="header-ai-label"> Inteligencia artificial </span>
+                  <span class="header-ai-label">Inteligencia artificial</span>
                   <CopyLine text={entry.text} />
                 </div>
 
@@ -1483,6 +1483,7 @@
 
           {#if blocked}
             <div class="veil-ai-elsewhere flex flex-col items-center justify-center gap-2">
+              <!-- prettier-ignore -->
               <p class="veil-ai-elsewhere-text text-center">
                 <Icon name="ai-magic" size={14} class="veil-ai-elsewhere-icon" />
                 La inteligencia artificial está trabajando en

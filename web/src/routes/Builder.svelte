@@ -724,7 +724,7 @@
        editor. Sin aplicacion no hay editor que sostener. -->
   <div class="builder-error">
     <ErrorNote message={notice?.text || "No se encontró la aplicación"} />
-    <a href="/" use:link class="builder-error-home inline-block"> Volver al inicio </a>
+    <a href="/" use:link class="builder-error-home inline-block">Volver al inicio</a>
   </div>
 {:else}
   <!--
@@ -837,8 +837,10 @@
         <Button
           onclick={() => {
             drop = null;
-          }}>Cancelar</Button
+          }}
         >
+          Cancelar
+        </Button>
       {/snippet}
     </Modal>
   {/if}
@@ -909,8 +911,10 @@
         <Button
           onclick={() => {
             drop = null;
-          }}>Cancelar</Button
+          }}
         >
+          Cancelar
+        </Button>
       {/snippet}
     </Modal>
   {/if}

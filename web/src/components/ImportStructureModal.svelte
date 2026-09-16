@@ -131,7 +131,7 @@
     }}
   >
     <Icon name="upload-01" size={18} class="drop-filter-icon" />
-    <span class="drop-filter-text"> Arrastra un archivo JSON, o haz clic para elegirlo </span>
+    <span class="drop-filter-text">Arrastra un archivo JSON, o haz clic para elegirlo</span>
     <input
       type="file"
       accept=".json,application/json"

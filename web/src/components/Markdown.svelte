@@ -19,9 +19,8 @@
     {#if piece.kind === "code"}
       <code class="code-markdown-inline">{piece.text}</code>
     {:else if piece.kind === "link"}
-      <a href={piece.href} target="_blank" rel="noreferrer noopener" class="link-markdown"
-        >{piece.text}</a
-      >
+      <!-- prettier-ignore -->
+      <a href={piece.href} target="_blank" rel="noreferrer noopener" class="link-markdown">{piece.text}</a>
     {:else if piece.kind === "strong"}
       <strong class="bold-markdown">{piece.text}</strong>
     {:else if piece.kind === "em"}

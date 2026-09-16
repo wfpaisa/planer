@@ -1571,8 +1571,9 @@
       {#if paged}
         <Button size="sm" disabled={page === 1} onclick={() => (page -= 1)}>Anterior</Button>
         <span class="grid-db-page-current">{page} / {pageCount}</span>
-        <Button size="sm" disabled={page >= pageCount} onclick={() => (page += 1)}>Siguiente</Button
-        >
+        <Button size="sm" disabled={page >= pageCount} onclick={() => (page += 1)}>
+          Siguiente
+        </Button>
         <span aria-hidden="true" class="grid-db-page-divider"></span>
       {/if}
 

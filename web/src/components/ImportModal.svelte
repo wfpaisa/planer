@@ -1112,9 +1112,7 @@ Bruno,bruno@example.com,2023-11-15`;
           />
           {#if fileRejected}
             <span class="import-dropzone-file dropzone-lead">{fileName}</span>
-            <span class="import-dropzone-text">
-              Suelta otro archivo o haz clic para cambiarlo
-            </span>
+            <span class="import-dropzone-text">Suelta otro archivo o haz clic para cambiarlo</span>
           {:else}
             <span class="import-dropzone-text">
               Arrastra un archivo CSV, Excel o JSON, o haz clic para elegirlo
@@ -1234,8 +1232,9 @@ Bruno,bruno@example.com,2023-11-15`;
             aria-hidden="true"
           ></i>
           <span>
-            <strong>{result.ok ? "Importación terminada" : "Importación terminada a medias"}</strong
-            >
+            <strong>
+              {result.ok ? "Importación terminada" : "Importación terminada a medias"}
+            </strong>
             {result.text}
             {#if newKeys.length > 0}
               Cada persona entra con su correo; la clave se le pone desde su fila.
@@ -1280,6 +1279,7 @@ Bruno,bruno@example.com,2023-11-15`;
       {#if !result && requiredUnmet}
         <div class="alert danger note-import-required" role="status">
           <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
+          <!-- prettier-ignore -->
           <span>
             <strong>
               {requiredMissing.length > 0
@@ -1444,6 +1444,7 @@ Bruno,bruno@example.com,2023-11-15`;
               class={`hgi-stroke ${modifica ? "hgi-alert-02" : "hgi-information-circle"}`}
               aria-hidden="true"
             ></i>
+            <!-- prettier-ignore -->
             <p class="import-people-report">
               {#if peopleReport}
                 <!--
