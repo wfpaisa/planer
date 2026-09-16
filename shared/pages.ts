@@ -76,3 +76,53 @@ export function canOpenPage(page: PageGate, viewer: { roles: string[] } | null):
 export function pageDenial(page: PageGate, viewer: { roles: string[] } | null): "auth" | "role" {
   return !viewer && pageIsLimited(page) ? "auth" : "role";
 }
+
+/* ------------------------------------------------------------------ */
+/* El nombre de la pagina                                               */
+/* ------------------------------------------------------------------ */
+
+/** Lo mas largo que puede ser un nombre de pagina puesto por la IA. */
+export const PAGE_NAME_MAX = 32;
+
+/**
+ * El nombre con el que nace una pagina recien creada.
+ *
+ * Es un nombre de relleno --dice el numero de pagina, no de que va-- y por eso
+ * se reconoce: mientras siga puesto, la IA puede cambiarlo por uno que cuente
+ * lo que se le pidio construir.
+ */
+export function defaultPageName(order: number): string {
+  return `Página ${order + 1}`;
+}
+
+/**
+ * Si la pagina todavia se llama como nacio.
+ *
+ * Solo entonces se le cambia el nombre solo: uno puesto a mano es una decision
+ * de quien construye y no se toca, aunque la pagina se reescriba entera.
+ */
+export function isDefaultPageName(name: string | undefined | null): boolean {
+  return /^p[áa]gina\s+\d+$/i.test((name ?? "").trim());
+}
+
+/**
+ * Deja un nombre de pagina en condiciones de guardarse, o `null` si lo que
+ * llego no sirve.
+ *
+ * Se recorta a una linea, se le quitan las comillas con las que un modelo suele
+ * envolverlo y se corta por palabra: un nombre largo no cabe en el sidebar, y
+ * cortarlo a media palabra se lee peor que cortarlo antes.
+ */
+export function cleanPageName(value: unknown): string | null {
+  const flat = String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^["'“”«»]+|["'“”«»]+$/g, "")
+    .trim();
+  if (!flat || isDefaultPageName(flat)) return null;
+  if (flat.length <= PAGE_NAME_MAX) return flat;
+
+  const cut = flat.slice(0, PAGE_NAME_MAX);
+  const space = cut.lastIndexOf(" ");
+  return (space > 12 ? cut.slice(0, space) : cut).trim();
+}

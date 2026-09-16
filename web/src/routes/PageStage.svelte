@@ -27,7 +27,7 @@
   aplicacion, que es el que el marco lee de su contenedor y le pasa al HTML.
 -->
 <script lang="ts">
-  import { canOpenPage } from "@shared/pages";
+  import { canOpenPage, defaultPageName } from "@shared/pages";
   import { ADMIN_ROLE, ROLE_ICON } from "@shared/people";
   import type { AppPerson, PageRecord } from "@shared/types";
   import { untrack } from "svelte";
@@ -339,7 +339,7 @@
       const count = builder.pages.length;
       const created = await pb.collection("pages").create<PageRecord>({
         app: app.id,
-        name: `Página ${count + 1}`,
+        name: defaultPageName(count),
         slug: `pagina-${Math.random().toString(36).slice(2, 8)}`,
         icon: "file-01",
         order: count,

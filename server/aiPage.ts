@@ -11,6 +11,7 @@
  * presenta todos juntos en el dialogo de impacto (ver `dataImpact.ts`).
  */
 import { buildHtmlContract } from "../shared/htmlContract.ts";
+import { cleanPageName, isDefaultPageName } from "../shared/pages.ts";
 import { isPeopleNameField, isPeopleTable, normalizeRole } from "../shared/people.ts";
 import { keyCandidates } from "../shared/relations.ts";
 import type {
@@ -340,6 +341,15 @@ ${blocks.join("\n\n")}
 None of this is stored in the app yet. If what is being asked is for something here to be stored --a table with this data, a screen with this HTML-- it has to be created with the usual commands.`;
 }
 
+/**
+ * Lo que se le dice cuando la pagina todavia se llama como nacio.
+ *
+ * El nombre de relleno --"Pagina 3"-- no dice nada en el sidebar, y quien pide
+ * una pantalla ya conto de que va: el nombre sale de ahi. Solo se le ofrece
+ * mientras el de relleno siga puesto; uno escrito a mano no se toca.
+ */
+const UNNAMED_PAGE = `This page still carries the name it was born with, which says nothing about what it holds. When you write it with "escribir_pagina", send \`nombre\` as well: a short name in Spanish, two or three words at most, taken from what they asked you to build --"Clientes", "Panel de ventas", "Alta de pedidos"--. It is read in the sidebar, so it names the screen, it does not describe it: no article in front, no verb, no sentence. If they named the screen themselves in what they wrote, use their name.`;
+
 function systemPrompt(
   app: AppRecord,
   page: PageRecord,
@@ -362,7 +372,7 @@ function systemPrompt(
     contract,
     `## This page\n\nYou are writing the page "${page.name}"${
       page.isHome ? ", which is the app's home screen" : ""
-    }.`,
+    }.${isDefaultPageName(page.name) ? `\n\n${UNNAMED_PAGE}` : ""}`,
   ];
 
   if (picked.length) parts.push(pickedSection(picked));
@@ -479,6 +489,11 @@ const TOOLS: ToolDef[] = [
           type: "array",
           items: { type: "string" },
           description: "Names of the sources the HTML uses. Undeclared, they cannot be asked for.",
+        },
+        nombre: {
+          type: "string",
+          description:
+            "A short name for the page, in Spanish, two or three words at most: `Clientes`, `Panel de ventas`. It is read in the sidebar, so it names the screen rather than describing it. It is only taken while the page still carries the filler name it was born with (`Página 3`); once it has a name of its own, this is ignored.",
         },
       },
       required: ["html"],
@@ -891,6 +906,56 @@ async function saveEdit(ctx: ToolContext, html: string, sources: HtmlSource[]): 
   ctx.reviewed = false;
 }
 
+/**
+ * Le pone nombre a una pagina que todavia se llama como nacio.
+ *
+ * Una pagina recien creada se llama "Pagina 3" y esta en blanco: ese nombre es
+ * relleno, no una decision, asi que la primera vez que se escribe se cambia por
+ * uno que diga de que va la pantalla. El que manda es el que propuso la IA, que
+ * es quien leyo lo que se pidio; si no mando ninguno, se saca del titulo de lo
+ * que acaba de escribir, que dice lo mismo.
+ *
+ * Un nombre escrito a mano no se toca nunca, aunque la pagina se reescriba
+ * entera: renombrarle a alguien lo que ya nombro es perderle algo suyo.
+ */
+async function namePage(ctx: ToolContext, proposed: unknown, html: string): Promise<string | null> {
+  if (!isDefaultPageName(ctx.page.name)) return null;
+  const name = cleanPageName(proposed) ?? cleanPageName(titleFromHtml(html));
+  if (!name) return null;
+
+  await updateRecord(INTERNAL.pages, ctx.page.id, { name });
+  ctx.page = { ...ctx.page, name };
+  return name;
+}
+
+/** Como se llama la pantalla segun lo escrito: su encabezado, o su titulo. */
+function titleFromHtml(html: string): string {
+  const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html);
+  const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html);
+  return unescapeHtml((h1?.[1] ?? title?.[1] ?? "").replace(/<[^>]+>/g, " "));
+}
+
+/** Lo justo para leer un encabezado: lo demas no cabe en un nombre de pagina. */
+function unescapeHtml(text: string): string {
+  const named: Record<string, string> = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+    nbsp: " ",
+  };
+  return text.replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, (whole, code: string) => {
+    if (!code.startsWith("#")) return named[code.toLowerCase()] ?? whole;
+    const point = Number(code[1]?.toLowerCase() === "x" ? `0x${code.slice(2)}` : code.slice(1));
+    // Un numero que no es un caracter se queda escrito como vino: en un nombre
+    // de pagina molesta menos verlo que reventar por el.
+    return Number.isInteger(point) && point > 0 && point <= 0x10ffff
+      ? String.fromCodePoint(point)
+      : whole;
+  });
+}
+
 /** Apunta un cambio con riesgo en vez de hacerlo. */
 function hold(ctx: ToolContext, change: StructureChange, name: string): string {
   const already = ctx.pending.some(
@@ -1147,11 +1212,18 @@ export async function runTool(
        */
       const estilo = auditPageHtml(html);
       note(`Página "${ctx.page.name}" escrita · ${auditSummary(estilo)}`, !estilo.length);
+
+      // El nombre va despues de guardar: lo que se nombra es una pantalla que
+      // ya existe, y si la escritura falla no se renombra nada.
+      const named = await namePage(ctx, input.nombre, html);
+      if (named) note(`Página nombrada "${named}"`);
+
       return JSON.stringify({
         guardado: true,
         tablas: sources.map((s) => s.name),
         repuesto: restored,
         estilo,
+        ...(named ? { nombre: named } : {}),
       });
     }
 
