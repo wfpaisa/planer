@@ -9,6 +9,7 @@
  * Aqui vive lo que hay que saber hacer con el archivo. Quien pregunta es el
  * constructor; esto solo lee, crea e importa.
  */
+import { IMPORT_BATCH_CHUNK } from "@shared/importBatch";
 import { peopleTableOf } from "@shared/people";
 import { type Match, relationCellValues } from "@shared/relations";
 import {
@@ -28,7 +29,7 @@ import {
   parseImport,
 } from "./importParse";
 import { readableLabel } from "./importPlan";
-import { errorMessage, patch, pb, post, put } from "./pb";
+import { errorMessage, isRateLimited, patch, pb, post, put } from "./pb";
 import type { PersonLink } from "./personGuess";
 import { panelLookup } from "./relations";
 import { isSheetFile, readSheet } from "./sheet";
@@ -288,7 +289,17 @@ export async function tableFromPlan(
       ).matches
     : new Map<string, Map<string, Match>>();
 
-  let saved = 0;
+  /*
+   * Las filas van por lotes y no de una en una.
+   *
+   * Escribirlas una a una era un viaje al servidor por fila: un archivo de
+   * cuatrocientas tardaba lo que tardan cuatrocientas peticiones en fila india,
+   * con el cartel de "Creando la tabla..." puesto todo el rato, mientras el
+   * mismo archivo por el dialogo de importar entraba de golpe. Es el mismo
+   * camino que usa `importIntoTable`.
+   */
+  const url = `/api/collections/${table.dataCollection}/records`;
+  const requests: BatchRequest[] = [];
   let linked = 0;
   for (const row of plan.rows) {
     const values: Record<string, unknown> = {};
@@ -308,15 +319,11 @@ export async function tableFromPlan(
       const converted = convertValue(field, raw);
       if (converted.ok) values[field.name] = converted.value;
     });
-    try {
-      await pb.collection(table.dataCollection).create(values);
-      saved++;
-    } catch {
-      // Una fila que la base rechaza no para a las demas.
-    }
+    requests.push({ method: "POST", url, body: values });
   }
 
-  return { table, rows: saved, linked };
+  const failures = await runBatch(requests);
+  return { table, rows: requests.length - failures, linked };
 }
 
 /** Una escritura de las que van al lote. */
@@ -326,32 +333,66 @@ interface BatchRequest {
   body: Record<string, unknown>;
 }
 
-/** Cuantas escrituras caben en un mismo lote. */
-const BATCH_SIZE = 200;
-
 /**
- * Manda las escrituras en lotes y cuenta las que la base rechazo.
- * Una fila mala no para a las demas: se dice cuantas quedaron fuera y ya.
+ * Manda las escrituras por lotes y cuenta las que la base rechazo.
+ *
+ * Una fila mala no para a las demas, que es lo que promete esto desde el
+ * principio; lo que hacia falta para cumplirlo es que el tramo rechazado se
+ * repita escritura a escritura. El lote es una transaccion: si una sola cae,
+ * PocketBase no escribe ninguna de las doscientas, asi que sin repetirlas una a
+ * una la fila mala se llevaba por delante a sus vecinas. Lo normal --que no
+ * falle nada-- sigue costando un pedido por tramo.
  */
 async function runBatch(requests: BatchRequest[]): Promise<number> {
   let failures = 0;
-  for (let i = 0; i < requests.length; i += BATCH_SIZE) {
-    const chunk = requests.slice(i, i + BATCH_SIZE);
-    const res = await fetch("/pb/api/batch", {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: pb.authStore.token },
-      body: JSON.stringify({ requests: chunk }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(
-        errorMessage({ message: `La API de lote respondio ${res.status}`, response: body }),
-      );
-    }
+  for (let i = 0; i < requests.length; i += IMPORT_BATCH_CHUNK) {
+    failures += await sendChunk(requests.slice(i, i + IMPORT_BATCH_CHUNK));
+  }
+  return failures;
+}
+
+/** Manda un tramo de golpe, con el header de la sesion del panel. */
+const postChunk = (chunk: BatchRequest[]) =>
+  fetch("/pb/api/batch", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: pb.authStore.token },
+    body: JSON.stringify({ requests: chunk }),
+  });
+
+/**
+ * Un tramo: de golpe si se puede, y una a una si la base rechazo alguna.
+ *
+ * Ir demasiado rapido no es una fila mala --no hay nada que aislar-- asi que
+ * eso se arregla esperando y repitiendo el tramo entero, que no escribio nada.
+ * Ver `shared/importBatch.ts`.
+ */
+async function sendChunk(chunk: BatchRequest[]): Promise<number> {
+  let res = await postChunk(chunk);
+  let fallo = res.ok ? null : await res.json().catch(() => null);
+  for (let intento = 1; intento <= 2 && isRateLimited(fallo); intento++) {
+    await new Promise((listo) => setTimeout(listo, intento * 2000));
+    res = await postChunk(chunk);
+    fallo = res.ok ? null : await res.json().catch(() => null);
+  }
+
+  if (res.ok) {
     const data = (await res.json()) as Record<string, { status: number }>;
-    for (const key of Object.keys(data)) {
-      if (data[key].status >= 400) failures++;
-    }
+    return Object.values(data).filter((r) => r.status >= 400).length;
+  }
+  if (isRateLimited(fallo)) {
+    throw new Error(
+      errorMessage({ message: `La API de lote respondio ${res.status}`, response: fallo }),
+    );
+  }
+
+  let failures = 0;
+  for (const request of chunk) {
+    const one = await fetch(`/pb${request.url}`, {
+      method: request.method,
+      headers: { "content-type": "application/json", authorization: pb.authStore.token },
+      body: request.method === "DELETE" ? undefined : JSON.stringify(request.body),
+    });
+    if (!one.ok) failures++;
   }
   return failures;
 }

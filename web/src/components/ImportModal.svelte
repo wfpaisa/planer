@@ -925,7 +925,6 @@ Bruno,bruno@example.com,2023-11-15`;
             }),
           });
 
-        let res = await enviar();
         /*
          * Un tramo que se paso de rapido se vuelve a intentar entero.
          *
@@ -937,18 +936,16 @@ Bruno,bruno@example.com,2023-11-15`;
          * para no quedarse dando vueltas en una instalacion con el limite muy
          * abajo.
          */
-        let body: unknown = null;
-        for (let intento = 1; intento <= 2 && !res.ok; intento++) {
-          body = await res.json().catch(() => null);
-          if (!isRateLimited(body)) break;
+        let res = await enviar();
+        let fallo = res.ok ? null : await res.json().catch(() => null);
+        for (let intento = 1; intento <= 2 && isRateLimited(fallo); intento++) {
           await new Promise((listo) => setTimeout(listo, intento * 2000));
           res = await enviar();
-          body = null;
+          fallo = res.ok ? null : await res.json().catch(() => null);
         }
         if (!res.ok) {
-          const detalle = body ?? (await res.json().catch(() => ({})));
           throw new Error(
-            errorMessage({ message: `La API de lote respondio ${res.status}`, response: detalle }),
+            errorMessage({ message: `La API de lote respondio ${res.status}`, response: fallo }),
           );
         }
         const data = (await res.json()) as Record<string, { status: number }>;
