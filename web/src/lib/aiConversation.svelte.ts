@@ -15,6 +15,12 @@
  *
  * Abierta, en cambio, hay una sola en toda la aplicacion --la ultima en la que
  * se hablo-- y eso si lo guarda el servidor: ver mas abajo.
+ *
+ * El almacen es reactivo --de ahi el `.svelte.ts`-- porque no hay un solo
+ * lector: el panel dibuja lo que hay aqui, y quien escribe puede ser un hilo de
+ * avisos que empezo en un panel que ya se desmonto. Con una copia dentro del
+ * componente, la respuesta de una peticion que termino despues de ir a otra
+ * seccion y volver no aparecia hasta recargar.
  */
 import { aiNearestThinking } from "@shared/aiCatalog";
 import type {
@@ -29,6 +35,7 @@ import type {
   AiUsage,
   PickedBlock,
 } from "@shared/types";
+import { SvelteMap } from "svelte/reactivity";
 
 import { api, put } from "./pb";
 
@@ -100,7 +107,7 @@ export interface Conversation {
 
 const EMPTY: Conversation = { entries: [], chatId: "", draft: "", picks: [], files: [] };
 
-const store = new Map<string, Conversation>();
+const store = new SvelteMap<string, Conversation>();
 
 export const conversationKey = (appId: string, pageId: string) => `${appId}:${pageId}`;
 

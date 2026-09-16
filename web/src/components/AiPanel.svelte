@@ -9,7 +9,8 @@
   que ninguna necesita decir en cual se hizo.
 
   Lo escrito y lo conversado no vive aqui sino en `aiConversation`, para que
-  esconder el dock no lo borre.
+  esconder el dock no lo borre; y la peticion en marcha, en `aiRun`, para que
+  salir de la seccion y volver la encuentre donde iba.
 -->
 <script lang="ts">
   import { aiUsable } from "@shared/aiCatalog";
@@ -53,7 +54,7 @@
     writeChoice,
     writeConversation,
     writeDebug,
-  } from "../lib/aiConversation";
+  } from "../lib/aiConversation.svelte";
   import {
     AI_FILE_ACCEPT,
     MAX_AI_FILES,
@@ -64,6 +65,7 @@
     sendFilesToAi,
   } from "../lib/aiFiles";
   import { NO_PROGRESS, type Progress, taken } from "../lib/aiProgress";
+  import { closeRun, liveRun, markRun, openRun } from "../lib/aiRun.svelte";
   import { useBuilder } from "../lib/builderContext";
   import { cx } from "../lib/cx";
   import { frameThrottle } from "../lib/frameThrottle";
@@ -124,9 +126,10 @@
   const blockedBy = $derived(builder.pages.find((p) => p.id === elsewhere) ?? null);
   const blocked = $derived(!!elsewhere);
 
-  // Lo conversado se lee una vez al montar; a partir de ahi lo escrito aqui y
-  // lo guardado fuera van a la par, porque cada cambio pasa por `update`.
-  let chat = $state<Conversation>(untrack(() => readConversation(key)));
+  // Lo conversado se lee del almacen, que es reactivo: lo que escriba el hilo
+  // de avisos --tambien el de una peticion que empezo en un panel anterior--
+  // se ve aqui sin copiarlo dentro.
+  const chat = $derived(readConversation(key));
   let config = $state<AiConfigView | null>(null);
   /**
    * Con que se pide: el modelo y cuanto se le pide pensar. Sale de lo que se
@@ -135,24 +138,6 @@
   let choice = $state<AiChoice | null>(null);
   /** Ver el contexto que se le manda al modelo. Dura entre visitas. */
   let debug = $state(untrack(() => readDebug()));
-  let busy = $state(false);
-  /**
-   * La pagina cuya peticion se esta escuchando. Vacio: no se escucha ninguna.
-   *
-   * El hilo de avisos sobrevive a cambiar de pagina --la peticion sigue su
-   * curso-- asi que "hay una peticion en marcha" y "la hay en esta pagina" no
-   * son lo mismo. Lo que se pinta como trabajo en curso es lo segundo.
-   */
-  let listeningPage = $state("");
-  /**
-   * La peticion en marcha, tal y como la conoce el servidor. Mientras tenga
-   * nombre, la peticion no depende de esta ventana: se puede recargar o cerrar
-   * y al volver a esta pagina se sigue viendo. Vacio mientras se pide y si el
-   * servidor no llega a reconocerla; entonces salir si la pierde.
-   */
-  let runId = $state("");
-  /** Se pidio detenerla y todavia no ha llegado el final. */
-  let stopping = $state(false);
   /**
    * La IA quiere ver si la pagina que escribio se dibuja sin errores.
    *
@@ -162,8 +147,6 @@
    */
   let probe = $state<ProbeRequest | null>(null);
   let list = $state<AiChatSummary[] | null>(null);
-  /** Lo que la IA lleva producido en esta peticion. Solo para mirar. */
-  let progress = $state<Progress>(NO_PROGRESS);
   let scroller = $state<HTMLDivElement | null>(null);
   /** Si la vista esta pegada al final. Mientras lo este, se sigue sola. */
   let atEnd = $state(true);
@@ -181,8 +164,24 @@
 
   const loadDoc = $derived(appDocLoader(appId));
 
-  /** La peticion que se esta escuchando es la de la pagina abierta. */
-  const working = $derived(busy && listeningPage === page.id);
+  /*
+   * La peticion en marcha de la pagina abierta, si la hay.
+   *
+   * Vive fuera del componente --`lib/aiRun`-- porque el panel se desmonta al
+   * salir de la seccion y la peticion no se corta con el: asi volver a la
+   * pagina la encuentra donde iba, en vez de en blanco hasta recargar.
+   */
+  const run = $derived(liveRun(key));
+  /** Hay una peticion en marcha en la pagina abierta. */
+  const working = $derived(!!run);
+  /** Lo que la IA lleva producido en esta peticion. Solo para mirar. */
+  const progress = $derived(run?.progress ?? NO_PROGRESS);
+  /** Desde cuando trabaja la peticion en marcha. Mueve el reloj de "Working". */
+  const startedAt = $derived(run?.startedAt ?? 0);
+  /** Como la llama el servidor. Vacio: salir todavia la pierde. */
+  const runId = $derived(run?.runId ?? "");
+  /** Se pidio detenerla y todavia no ha llegado el final. */
+  const stopping = $derived(run?.stopping ?? false);
 
   /* Lo que de verdad se puede mandar: sin texto ni nada anadido no hay peticion. */
   const canSend = $derived(
@@ -207,26 +206,21 @@
    * Cada cambio se guarda fuera, para que cerrar la barra no lo pierda.
    *
    * `forKey` existe para lo que llega tarde: una respuesta puede aterrizar
-   * cuando ya se cambio de pagina, y tiene que caer en la conversacion donde
-   * se pidio, no en la que se este mirando. Lo de pantalla solo se toca cuando
-   * las dos son la misma.
+   * cuando ya se cambio de pagina, y tiene que caer en la conversacion donde se
+   * pidio, no en la que se este mirando. Lo que hay delante sale del almacen,
+   * asi que escribir ahi es lo unico que hace falta: si lo escrito es de la
+   * pagina abierta se ve solo, y si es de otra no la toca.
    */
   function update(next: Conversation, forKey: string = key): void {
     writeConversation(forKey, next);
-    if (forKey === key) chat = next;
   }
 
   /*
    * Cambiar de pagina trae la conversacion de esa pagina.
    *
-   * Lo conversado se lee al montar y no vuelve a leerse solo, asi que sin esto
-   * el dock seguiria ensenando la conversacion de la pagina anterior --y el
-   * siguiente cambio la escribiria bajo la clave de la nueva, pisando la que
-   * de verdad era suya--.
-   *
-   * No hay nada que conservar a mano cuando la IA esta trabajando aqui: lo que
-   * el hilo de avisos va dejando se guarda en la conversacion de esta pagina,
-   * asi que volver a leerla es volver a lo que esta pasando ahora mismo.
+   * Lo conversado lo trae el almacen solo --la clave cambio-- pero la portada
+   * y la lista de conversaciones no: son de esta pantalla, y sin esto se
+   * quedarian como estaban en la pagina de la que se viene.
    */
   let shown = untrack(() => key);
   $effect(() => {
@@ -235,9 +229,7 @@
 
     if (mine !== shown) {
       shown = mine;
-      const now = readConversation(mine);
-      chat = now;
-      phase = now.entries.length ? "gone" : "hero";
+      phase = untrack(() => (readConversation(mine).entries.length ? "gone" : "hero"));
       // La lista era la de la pagina de la que se viene.
       list = null;
     }
@@ -450,7 +442,6 @@
    * escribe no puede acabar en un tiron hacia abajo cada pocos frames. Cuando
    * no lo esta aparece el boton que baja de un toque.
    */
-  let streaming = false;
   let stuck = true;
 
   /*
@@ -462,7 +453,10 @@
     if (scroller) scroller.scrollTo({ top: scroller.scrollHeight, behavior });
   }
 
-  const scrollToEnd = frameThrottle(() => jump(streaming ? "auto" : "smooth"));
+  // Mientras la respuesta llega, sin suavizado; el suave es para lo que se
+  // mueve de golpe. Vale `working` y no una marca propia: con la peticion
+  // viviendo fuera del panel, volver a la pagina la encuentra en marcha.
+  const scrollToEnd = frameThrottle(() => jump(working ? "auto" : "smooth"));
 
   function follow(): void {
     if (stuck) scrollToEnd();
@@ -513,12 +507,11 @@
    * del servidor y el redibujado se pide agrupado, con lo ultimo que haya.
    */
   let seen: Progress = NO_PROGRESS;
+  /** De que peticion es lo visto: lo agrupado se sirve a la que sigue en marcha. */
+  let seenKey = "";
   const showProgress = frameThrottle(() => {
-    progress = seen;
+    markRun(seenKey, { progress: seen });
   });
-
-  /** Desde cuando trabaja la peticion en marcha. Mueve el reloj de "Working". */
-  let startedAt = $state(0);
 
   /*
    * Cada paso que la IA da ya quedo escrito en la base --la pagina se guarda
@@ -550,11 +543,12 @@
     }, REFRESH_MS);
   }
 
-  // Lo pedido a los frames y el reloj del lienzo se cancelan al desmontar: los
-  // dos trabajarian sobre un panel que ya no esta en pantalla.
+  // Lo pedido a los frames para desplazar la columna y el reloj del lienzo se
+  // cancelan al desmontar: los dos trabajarian sobre un panel que ya no esta en
+  // pantalla. El avance no: lo que agrupa vive fuera --`lib/aiRun`-- y quien
+  // vuelva a esta pagina tiene que encontrarlo donde iba.
   $effect(() => () => {
     scrollToEnd.cancel();
-    showProgress.cancel();
     if (refresh.timer) clearTimeout(refresh.timer);
   });
 
@@ -570,24 +564,19 @@
     const mine = key;
     const minePage = page.id;
     markListening(mine, true);
-    listeningPage = minePage;
     // La senal de que la IA trabaja aqui: la escribe quien escucha el hilo de
     // avisos, que es el unico que sabe cuando empieza y cuando termina.
     setAiWorking(minePage, true);
-    busy = true;
-    stopping = false;
-    runId = "";
     // Al mandar una peticion nueva, "since" es ahora mismo. Al volver a una
     // que ya venia en marcha, es cuando de verdad empezo --si no, el reloj
     // se reiniciaria en cada recarga, aunque la IA llevara rato trabajando.
-    startedAt = since ?? Date.now();
-    streaming = true;
+    openRun(mine, since ?? Date.now());
     // Escuchar es querer ver: la vista vuelve al final aunque se estuviera
     // leyendo mas arriba.
     stuck = true;
     atEnd = true;
     seen = NO_PROGRESS;
-    progress = NO_PROGRESS;
+    seenKey = mine;
 
     let result: AiPageResult | null = null;
     let failure = "";
@@ -640,7 +629,7 @@
         if (part.tipo === "inicio") {
           // El servidor la tiene apuntada: a partir de aqui recargar o cerrar
           // ya no la pierde.
-          runId = part.runId;
+          markRun(mine, { runId: part.runId });
           return;
         }
         if (part.tipo === "pregunta") {
@@ -719,15 +708,10 @@
         seen.context || undefined,
       );
     } finally {
-      streaming = false;
-      busy = false;
-      stopping = false;
-      runId = "";
       seen = NO_PROGRESS;
-      progress = NO_PROGRESS;
+      closeRun(mine);
       markListening(mine, false);
       setAiWorking(minePage, false);
-      listeningPage = "";
     }
   }
 
@@ -744,7 +728,7 @@
     text: string,
     opts?: { label?: string; keepDraft?: boolean },
   ): Promise<void> {
-    if (busy) return;
+    if (working) return;
     // La IA trabaja en otra pagina: lo escrito se queda donde esta, esperando
     // a que aquello termine.
     if (blocked) return;
@@ -835,8 +819,8 @@
    * Asi lo que se alcanzo a hacer queda contado en la conversacion.
    */
   async function stop(): Promise<void> {
-    if (!busy || stopping) return;
-    stopping = true;
+    if (!working || stopping) return;
+    markRun(key, { stopping: true });
     try {
       await post(`/api/apps/${appId}/paginas/${page.id}/ia/detener`);
     } catch {
@@ -853,22 +837,38 @@
    * pidio delante, que tras recargar ya no lo tiene nadie mas--.
    *
    * Se retoma una sola vez por pagina: repetirlo cuando la peticion ya termino
-   * volveria a recoger el mismo resultado. La marca se pone al recibir la
+   * volveria a recoger el mismo resultado --el servidor guarda la ultima para
+   * que recargar justo al acabar no lo pierda--. La marca se pone al recibir la
    * respuesta, no al preguntar, porque el panel se monta mas de una vez y una
    * marca puesta antes de tiempo dejaria fuera al montaje que si sigue vivo.
+   *
+   * La excepcion es que la senal de actividad diga que aqui hay una peticion en
+   * marcha y esta pestana no la este escuchando: entonces se vuelve a preguntar
+   * aunque ya se hubiera preguntado antes. Esa senal solo cuenta las que no han
+   * terminado, asi que no puede recoger dos veces un resultado; sin esto, una
+   * peticion que empezo en otra ventana se quedaria senalada en el sidebar y en
+   * blanco aqui, hasta recargar.
    */
   $effect(() => {
     const mine = key;
     const id = appId;
     const pageId = page.id;
-    if (wasResumed(mine) || isListening(mine)) return;
+    const signalled = aiActivity.has(pageId);
+    if (isListening(mine) || liveRun(mine)) return;
+    if (wasResumed(mine) && !signalled) return;
 
     let dropped = false;
     api<AiRunInfo | null>(`/api/apps/${id}/paginas/${pageId}/ia`)
       .then((run) => {
-        if (dropped || wasResumed(mine) || isListening(mine)) return;
+        if (dropped || isListening(mine) || liveRun(mine)) return;
         markResumed(mine);
-        if (!run) return;
+        if (!run) {
+          // La senal decia que aqui se trabajaba y el servidor dice que no.
+          // Manda el servidor: sin esto el sidebar seguiria senalando esta
+          // pagina el resto de la visita, y aqui no habria nada que ensenar.
+          if (signalled) setAiWorking(pageId, false);
+          return;
+        }
         const now = readConversation(mine);
         // Tras recargar no queda ni lo que se pidio: se repone antes de seguir,
         // o la respuesta apareceria sola, sin pregunta delante.
@@ -900,7 +900,7 @@
    * normal-- este aviso desaparece, porque salir deja de costar nada.
    */
   $effect(() => {
-    if (!busy || runId) return;
+    if (!working || runId) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
