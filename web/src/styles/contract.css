@@ -1,0 +1,97 @@
+/* ==========================================================
+   CONTRACT — los tokens que el HTML de una pagina nombra
+   ----------------------------------------------------------
+   Lo que `shared/htmlContract.ts` le promete a quien escribe una
+   pagina: la paleta viva, las separaciones y la escala de texto.
+   Estan aqui, y no en global.css, porque tienen DOS consumidores
+   que no pueden quedarse distintos -- el panel, que los hereda por
+   `global.css`, y el documento de una pagina, que recibe esta
+   misma hoja servida en `/plane/estilos.css`.
+
+   Los selectores son los de compat.css y por la misma razon: una
+   variable se resuelve donde se declara, asi que cualquier
+   elemento que cambie el tema o la paleta recomputa los suyos.
+   ========================================================== */
+
+:root,
+[data-theme],
+[data-palette] {
+  /*
+   * LA PALETA VIVA
+   *
+   * Doce colores que no salen ni del tema ni de la paleta. Son un recurso
+   * aparte, para cuando algo *significa* un color --una etiqueta, una
+   * categoria, el punto de una leyenda, un dibujo-- y la escala del acento
+   * no sirve porque ahi todo es el mismo tono.
+   *
+   * No pintan nada de la casa: ni fondos, ni texto, ni bordes, ni botones.
+   * Eso sigue siendo `--surface-*`, `--ink*`, `--line*` y `--accent` (via
+   * `compat.css`).
+   *
+   * Cada color viene con su tinta: el texto que se lee encima del color
+   * solido. No se adivina, se usa `--vivid-<nombre>-ink`.
+   *
+   * Vivos quiere decir puestos cerca de donde cada tono llega a su maxima
+   * saturacion dentro de sRGB. Como ese punto cae a una luminosidad
+   * distinta en cada tono --un amarillo vivo es claro, un indigo vivo es
+   * oscuro-- los doce no comparten luminosidad, y por eso cinco llevan
+   * tinta clara encima y siete la llevan oscura.
+   *
+   * Sobre papel oscuro esos cinco profundos se perderian, asi que ahi suben
+   * de luminosidad; entonces los doce llevan ya tinta oscura y solo esos
+   * cinco necesitan el par de `light-dark()` en la tinta.
+   *
+   * Cada color contrasta contra la tinta que le toca por encima del 4,5:1
+   * que pide la WCAG para texto normal; el peor caso son 4,6:1 (el rosa en
+   * claro). Ese contraste es el del color como *relleno*: un amarillo vivo
+   * no se lee como texto sobre el papel claro, y por eso lo que dice
+   * `shared/htmlContract.ts` es que son rellenos, no letra.
+   */
+  --vivid-red: light-dark(oklch(0.57 0.21 27), oklch(0.72 0.17 27));
+  --vivid-red-ink: light-dark(oklch(0.99 0.02 27), oklch(0.24 0.05 27));
+  --vivid-orange: light-dark(oklch(0.7 0.19 45), oklch(0.76 0.15 45));
+  --vivid-orange-ink: oklch(0.24 0.05 45);
+  --vivid-amber: light-dark(oklch(0.79 0.16 72), oklch(0.82 0.14 72));
+  --vivid-amber-ink: oklch(0.24 0.05 72);
+  --vivid-yellow: oklch(0.87 0.17 100);
+  --vivid-yellow-ink: oklch(0.24 0.05 100);
+  --vivid-lime: light-dark(oklch(0.85 0.2 128), oklch(0.85 0.19 128));
+  --vivid-lime-ink: oklch(0.24 0.05 128);
+  --vivid-green: light-dark(oklch(0.72 0.19 150), oklch(0.78 0.18 150));
+  --vivid-green-ink: oklch(0.24 0.05 150);
+  --vivid-teal: light-dark(oklch(0.72 0.13 180), oklch(0.78 0.12 180));
+  --vivid-teal-ink: oklch(0.24 0.05 180);
+  --vivid-cyan: light-dark(oklch(0.75 0.12 205), oklch(0.8 0.12 205));
+  --vivid-cyan-ink: oklch(0.24 0.05 205);
+  --vivid-blue: light-dark(oklch(0.55 0.22 262), oklch(0.72 0.14 262));
+  --vivid-blue-ink: light-dark(oklch(0.99 0.02 262), oklch(0.24 0.05 262));
+  --vivid-indigo: light-dark(oklch(0.53 0.21 285), oklch(0.72 0.14 285));
+  --vivid-indigo-ink: light-dark(oklch(0.99 0.02 285), oklch(0.24 0.05 285));
+  --vivid-violet: light-dark(oklch(0.55 0.24 305), oklch(0.74 0.16 305));
+  --vivid-violet-ink: light-dark(oklch(0.99 0.02 305), oklch(0.24 0.05 305));
+  --vivid-pink: light-dark(oklch(0.58 0.23 350), oklch(0.75 0.17 350));
+  --vivid-pink-ink: light-dark(oklch(0.99 0.02 350), oklch(0.24 0.05 350));
+
+  /*
+   * Medidas de la casa. Viajan al HTML de una pagina junto con los colores,
+   * y `shared/htmlContract.ts` las describe una por una.
+   */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* La escala de letra es la de theme.css (`--text-*`). */
+  --type-xs: var(--text-xs);
+  --type-sm: var(--text-sm);
+  --type-base: var(--text-base);
+  --type-lg: var(--text-lg);
+  --type-xl: var(--text-xl);
+  --type-2xl: var(--text-2xl);
+  --type-3xl: var(--text-3xl);
+}

@@ -1,0 +1,530 @@
+/* ==========================================================
+   THEME — tokens del sistema de diseño
+   ----------------------------------------------------------
+   Hoja independiente del proyecto: aqui solo viven las
+   variables (color, espacio, radios, tipografia, sombra) y el
+   reset minimo que las pone a trabajar. Copiar este archivo a
+   otro proyecto basta para llevarse el aspecto entero.
+
+   La paleta que se ve por defecto es LA DE ESTE ARCHIVO. Las
+   otras viven en css/palettes.css, que solo PISA estos tokens
+   cuando el elemento lleva data-palette; sin el, manda este
+   archivo.
+
+   Ajustes de este repo respecto de la hoja de origen:
+   - Los tokens claros van tambien en [data-theme="light"]: aqui
+     el data-theme se pone en contenedores internos (la vista
+     previa de una app dentro del panel) y un contenedor claro
+     dentro de un <html> oscuro tiene que poder volver a claro.
+     Los dos bloques de tema reponen ademas `color`, que se hereda
+     y que las variables no reescriben solas.
+   - El reset es mas largo: ver la nota del bloque Base.
+   - Hay un token de mas, --bg-hover: la fila de una tabla y el
+     encabezado de una columna se tinen al pasar el cursor, y el
+     panel no tenia nombre para ese fondo. Se declara en los tres
+     bloques de tema --y no una vez con un color-mix-- porque una
+     variable se resuelve DONDE SE DECLARA: con un solo bloque, un
+     contenedor con `data-theme` propio heredaria el valor ya
+     resuelto del documento de fuera.
+   - La escala --text-* conserva los valores que tenia el panel
+     (los de Tailwind): lg/xl/2xl/3xl son un escalon menos que en
+     la hoja de origen, porque el contrato del HTML de las paginas
+     (shared/htmlContract.ts) los documenta con estos valores.
+   ========================================================== */
+
+:root {
+  /* La rama que elige light-dark() en css/palettes.css sale de aqui
+     (y de color-scheme: dark en el tema oscuro), no de un selector:
+     por eso la derivacion de las paletas se escribe una sola vez.
+     De paso pinta de claro los controles nativos. */
+  color-scheme: light;
+
+  /* ---- Superficies: tres planos, de atras hacia delante ----
+     --bg-level1     el lienzo de la pagina, lo que se ve entre tarjetas
+     --bg-level2    todo lo que se levanta del lienzo: card, modal, menu,
+                  boton normal, popover
+     --bg-field  hundido DENTRO de una superficie: input, cabecera de
+                  tabla, pista de un control
+     --bg-hover   la fila o la celda bajo el cursor: un punto por
+                  encima de --bg-field, para que se note sobre el
+     --bg-sidebar el sidebar, que puede querer separarse del resto */
+  --bg-level1: oklch(1 0 0);
+  --bg-level2: oklch(1 0 0);
+  --bg-card: oklch(1 0 0);
+  --bg-field: oklch(0.97 0 0);
+  --bg-hover: oklch(0.94 0 0);
+  --bg-sidebar: oklch(1 0 0);
+
+  /* ---- Texto: tres niveles de importancia, no tres grises ----
+     --text-primary    lo que se lee primero: cifras, titulos, valores
+     --text-secondary  texto corriente y etiquetas de formulario
+     --text-muted      lo accesorio: pies, unidades, ayudas, placeholders
+     Regla: si algo se puede leer en diagonal, es primary; si explica a
+     otra cosa, es muted. */
+  --text-primary: oklch(0.2 0 286);
+  --text-secondary: oklch(0.413 0 0);
+  --text-muted: oklch(0.633 0 0);
+
+  /* ---- Lineas ----
+     --border         separaciones y contornos en reposo
+     --border-strong  contorno destacado: hover, controles, puntos */
+  --border: oklch(0.919 0 0);
+  --border-strong: oklch(0.855 0 0);
+
+  /* ---- Acento: la accion principal y lo que esta activo ----
+     --accent           relleno del boton primario, foco, seleccion
+     --accent-hover     el mismo, con el cursor encima
+     --accent-soft      fondo tenue de acento (item activo del menu)
+     --accent-soft-text       texto sobre --accent-soft
+     --accent-text  texto sobre --accent pleno (con una paleta puesta
+                        lo deriva palettes.css para que contraste) */
+  --accent: oklch(60% 0.3 256);
+  --accent-text: oklch(1 0 0);
+  --accent-hover: oklch(0.41 0.208 264.8);
+  --accent-soft: oklch(0.938 0.025 271.1);
+  --accent-soft-text: oklch(0.357 0.182 264.9);
+
+  /* ---- Estado: va bien / avisa / va mal ----
+     El color (--success) es para el texto y el icono; el -bg, para el
+     fondo de la pastilla que lo envuelve. */
+  --success: oklch(0.622 0.133 162.3);
+  --success-bg: oklch(0.96 0.018 166.4);
+  --danger: oklch(0.569 0.207 21.8);
+  --danger-bg: oklch(0.936 0.026 11.9);
+  --danger-text: oklch(1 0 0);
+  --warning: oklch(0.55 0.13 70.1);
+  --warning-bg: oklch(0.95 0.035 80);
+
+  /* ---- Serie de datos: cuatro colores para distinguir, no para
+          decorar (graficas, barras, leyendas). El 1 es el principal. ---- */
+  --chart-1: oklch(60% 0.3 256);
+  --chart-2: oklch(0.6 0.04 269);
+  --chart-3: oklch(0.38 0.03 269);
+  --chart-4: oklch(0.93 0.02 212);
+
+  /* ---- Tinte: la version suave de cada color de la serie, para
+          pastillas y avatares. -bg es el fondo y -fg su texto. ---- */
+  --tint-1-bg: oklch(0.918 0.03 271.1);
+  --tint-1-fg: oklch(0.357 0.182 264.9);
+  --tint-2-bg: oklch(0.926 0 0);
+  --tint-2-fg: oklch(0.301 0 0);
+  --tint-3-bg: oklch(0.941 0 0);
+  --tint-3-fg: oklch(0.475 0 0);
+  --tint-4-bg: oklch(0.914 0 0);
+  --tint-4-fg: oklch(0.218 0 0);
+
+  /* Rejilla de fondo de las graficas y halo del elemento enfocado */
+  --chart-grid: oklch(0.943 0 0);
+  --focus-ring: oklch(0.47 0.244 264.7 / 0.2);
+
+  /* ---- Sombra: cuanto se separa del plano de atras ----
+     sm  apenas despega (boton, chip)
+     md  descansa sobre el lienzo (card)
+     lg  flota por encima de todo (modal, menu, drawer, toast) */
+  --shadow-sm: 0 2px 4px oklch(0 0 0 / 0.05);
+  --shadow-md: 0 4px 8px oklch(0 0 0 / 0.05);
+  --shadow-lg: 0 8px 16px oklch(0 0 0 / 0.05);
+
+  /* ==========================================================
+     Escalas ajustables
+     Cada una es un multiplicador con el que el panel de
+     personalizacion mueve todo el sistema a la vez.
+     ========================================================== */
+  --spacing: 0.25rem;
+
+  /* ---- Espaciado: un paso por medida usada en el sistema ---- */
+  --sp-4: calc(var(--spacing) * 1); /* 4px */
+  --sp-6: calc(var(--spacing) * 1.5); /* 6px */
+  --sp-8: calc(var(--spacing) * 2); /* 8px */
+  --sp-9: calc(var(--spacing) * 2.25); /* 9px */
+  --sp-10: calc(var(--spacing) * 2.5); /* 10px */
+  --sp-11: calc(var(--spacing) * 2.75); /* 11px */
+  --sp-12: calc(var(--spacing) * 3); /* 12px */
+  --sp-14: calc(var(--spacing) * 3.5); /* 14px */
+  --sp-16: calc(var(--spacing) * 4); /* 16px */
+  --sp-18: calc(var(--spacing) * 4.5); /* 18px */
+  --sp-20: calc(var(--spacing) * 5); /* 20px */
+  --sp-22: calc(var(--spacing) * 5.5); /* 22px */
+  --sp-24: calc(var(--spacing) * 6); /* 24px */
+  --sp-28: calc(var(--spacing) * 7); /* 28px */
+  --sp-40: calc(var(--spacing) * 10); /* 40px */
+
+  /* La separacion entre tarjetas tiene mando propio, encima del espaciado */
+  --card-gap: calc(var(--spacing) * 4); /* 16px */
+
+  --border-width: 1px;
+
+  /* El cuadro de un color suelto: la misma medida en todas partes
+     --el que ensena el color puesto y el que se pulsa para elegirlo--. */
+  --swatch-size: 1.75rem;
+
+  --radius-scale: 1;
+  --radius-sm: calc(var(--radius-scale) * 0.5rem);
+  --radius-md: calc(var(--radius-scale) * 0.6875rem);
+  --radius-lg: calc(var(--radius-scale) * 1rem);
+  --radius-xl: calc(var(--radius-scale) * 1.25rem);
+
+  /* ---- Tipografia: tres tamanos, en linea con los tres niveles de
+          texto (titulo de card, texto corriente, apoyo) ---- */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  --font-family: "Quicksand", system-ui, -apple-system, sans-serif;
+  --font-mono: "Reddit Mono", monospace;
+
+  /*Wrapper - container*/
+  --container: 90rem; /*1440px*/
+}
+
+/* ==========================================================
+   Tema claro explicito
+   Lo mismo que :root, para el contenedor que lleva el tema de
+   una aplicacion dentro de un panel oscuro (y al reves): sin
+   este bloque, [data-theme="dark"] de un ancestro ganaria por
+   cascada y el contenedor claro se quedaria oscuro.
+   ========================================================== */
+[data-theme="light"] {
+  color-scheme: light;
+  /* La tinta se HEREDA, y las variables no la reescriben solas: sin esto un
+     contenedor claro dentro de un documento oscuro se queda con el texto
+     casi blanco del panel y no se lee nada. Lo mismo en el bloque oscuro. */
+  color: var(--text-primary);
+
+  --bg-level1: oklch(1 0 0);
+  --bg-level2: oklch(1 0 0);
+  --bg-card: oklch(1 0 0);
+  --bg-field: oklch(0.99 0 0);
+  --bg-hover: oklch(0.955 0 0);
+  --bg-sidebar: oklch(1 0 0);
+
+  --text-primary: oklch(0.2 0 286);
+  --text-secondary: oklch(0.413 0 0);
+  --text-muted: oklch(0.633 0 0);
+
+  --border: oklch(0.919 0 0);
+  --border-strong: oklch(0.855 0 0);
+
+  --accent: oklch(60% 0.3 256);
+  --accent-text: oklch(1 0 0);
+  --accent-hover: oklch(66% 0.3 256);
+  --accent-soft: oklch(0.938 0.025 271.1);
+  --accent-soft-text: oklch(20% 0.3 256);
+
+  --success: oklch(0.622 0.133 162.3);
+  --success-bg: oklch(0.96 0.018 166.4);
+  --danger: oklch(0.569 0.207 21.8);
+  --danger-bg: oklch(0.936 0.026 11.9);
+  --danger-text: oklch(1 0 0);
+  --warning: oklch(66% 0.14 65);
+  --warning-bg: oklch(0.95 0.035 80);
+
+  --chart-1: oklch(60% 0.3 256);
+  --chart-2: oklch(33% 0.02 264);
+  --chart-3: oklch(61% 0.01 212);
+  --chart-4: oklch(33% 0.01 266);
+
+  --tint-1-bg: oklch(0.918 0.03 271.1);
+  --tint-1-fg: oklch(0.357 0.182 264.9);
+  --tint-2-bg: oklch(0.926 0 0);
+  --tint-2-fg: oklch(24.47% 0.05183 266.728);
+  --tint-3-bg: oklch(90.845% 0.02369 232.025);
+  --tint-3-fg: oklch(44.251% 0.01942 254.089);
+  --tint-4-bg: oklch(86.516% 0.02058 250.511);
+  --tint-4-fg: oklch(22.216% 0.01447 266.936);
+
+  --chart-grid: oklch(0.943 0 0);
+  --focus-ring: oklch(0.47 0.244 264.7 / 0.2);
+}
+
+/* ==========================================================
+   Tema oscuro
+   Solo se redefinen los tokens de color: ninguna regla del
+   sistema necesita saber en que tema esta.
+   ========================================================== */
+[data-theme="dark"] {
+  --bg-level1: oklch(0.15 0 0);
+  --bg-level2: oklch(0.2 0 0);
+
+  --bg-card: oklch(0.2 0 0 / 0.3);
+  --bg-field: oklch(0.12 0 0 / 0.5);
+  --bg-hover: oklch(0.26 0 0);
+  --bg-sidebar: oklch(0.173 0 0);
+
+  --text-primary: oklch(0.961 0 0);
+  --text-secondary: oklch(0.741 0 0);
+  --text-muted: oklch(0.538 0 0);
+
+  --border: oklch(0.28 0 0);
+  --border-strong: oklch(0.3 0 0);
+
+  --accent: oklch(60% 0.3 256); /*#007EFF */
+  --accent-hover: oklch(65% 0.3 256);
+  --accent-soft: oklch(0.268 0.053 266);
+  --accent-soft-text: oklch(70% 0.3 256);
+  --accent-text: oklch(1 0 0);
+
+  --success: oklch(0.789 0.185 152);
+  --success-bg: oklch(0.262 0.038 157.6);
+  --danger: oklch(0.719 0.177 16.8);
+  --danger-bg: oklch(0.255 0.042 10.6);
+  --danger-text: oklch(0.18 0.06 16.8);
+  --warning: oklch(0.8 0.15 75);
+  --warning-bg: oklch(0.26 0.05 75);
+
+  --chart-1: oklch(60% 0.3 256);
+  --chart-2: oklch(0.6 0.04 269);
+  --chart-3: oklch(0.38 0.03 269);
+  --chart-4: oklch(0.93 0.02 212);
+
+  --tint-1-bg: oklch(0.318 0.058 270.4);
+  --tint-1-fg: oklch(0.818 0.091 273.2);
+  --tint-2-bg: oklch(26.085% 0.01594 224.339);
+  --tint-2-fg: oklch(79.877% 0.03351 254.082);
+  --tint-3-bg: oklch(26.713% 0.01265 258.411);
+  --tint-3-fg: oklch(64.202% 0.02508 242.179);
+  --tint-4-bg: oklch(28.443% 0.01014 229.393);
+  --tint-4-fg: oklch(86.22% 0.03734 244.532);
+
+  --chart-grid: oklch(0.235 0 0);
+  --focus-ring: oklch(0.631 0.197 269.6 / 0.32);
+
+  /* Pinta de oscuro los controles nativos (scroll, selects, date) */
+  color-scheme: dark;
+  /* Ver la nota del bloque claro: la tinta se hereda y hay que reponerla. */
+  color: var(--text-primary);
+}
+
+/* ==========================================================
+   Base
+   ----------------------------------------------------------
+   El reset es mas largo que el de la hoja de origen a proposito.
+   Alli todo lo que se dibuja lleva una clase del catalogo, asi que
+   basta con el box-sizing; aqui hay 119 componentes escritos contra
+   la capa base de la utilidad de antes, que ponia a cero el margen,
+   el relleno y el borde de TODO. Sin esto reaparecen los valores de
+   origen del navegador: los titulos y los parrafos se separan solos,
+   las listas se indentan y --lo mas visible-- cualquier <button> sin
+   clase recupera su fondo gris y su borde de sistema.
+
+   Orden: universal → documento (html/body) → tipografia (h*, b, code)
+         → formularios → listas → media → tablas → enlaces → layout
+         → estados (selection/focus) → scrollbar
+   ========================================================== */
+
+/* ---- Universal ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
+
+/* ---- Documento ---- */
+
+/*
+ * La raiz no declara tamano: manda el del navegador, salvo cuando el tamano
+ * de letra del panel (`lib/fontSize.svelte.ts`) escribe un porcentaje inline
+ * en el `html`. Toda la hoja esta en rem, asi que mover la raiz reescala el
+ * panel entero: el texto crece y las cajas que lo rodean crecen con el.
+ */
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-level1);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Tipografia ---- */
+
+/* Los titulos toman su tamano de quien los dibuja, no de la etiqueta. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 1em;
+}
+
+/* ---- Formularios ---- */
+
+/* Un control no trae ni fondo ni esquina de fabrica: los pone el sistema
+   (`.btn`, `.field`) o el <style> del componente. */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font: inherit;
+  color: var(--text-primary);
+  background: transparent;
+  border-radius: 0;
+}
+
+input:autofill,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px light-dark(rgba(255, 255, 255, 1), rgb(12, 13, 16)) inset;
+  -webkit-text-fill-color: var(--text-muted);
+}
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+  appearance: button;
+}
+
+::placeholder {
+  opacity: 1;
+  color: var(--text-muted);
+}
+
+/* ---- Listas ---- */
+
+/* Una lista es una estructura, no una vinneta: el punto lo pone quien
+   lo quiera. */
+ul,
+ol,
+menu {
+  list-style: none;
+}
+
+/* ---- Media y embebidos ---- */
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---- Tablas ---- */
+
+table {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+}
+
+hr {
+  height: 0;
+  color: inherit;
+  border-top-width: var(--border-width);
+}
+
+/* ---- Enlaces ---- */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---- Layout ---- */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+
+  --container-width: var(--container);
+  --container-padding: 2rem;
+
+  width: min(var(--container-width), 100% - var(--container-padding));
+  margin-inline: auto;
+  container-type: inline-size;
+  padding-block: var(--container-padding);
+}
+
+/* ---- Estados ---- */
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0.125rem;
+  border-radius: 0.375rem;
+}
+
+/* ---- Scrollbar ---- */
+
+/* El anidado no concatena nombres (eso es Sass): cada pseudoelemento
+   del scroll va en su propia regla. */
+::-webkit-scrollbar {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 62.5rem;
+}
+
+/* ==========================================================
+   Utilidades de token
+   ========================================================== */
+
+/* Cifras de ancho fijo: las columnas de numeros no bailan al cambiar */
+.number {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+}
+
+/* Iconos de la fuente Hugeicons: un tamano de partida comun */
+i[class*="hgi-"] {
+  font-size: var(--text-base);
+  line-height: 1;
+  flex: none;
+}
+
+small {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-muted);
+}

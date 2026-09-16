@@ -1,0 +1,375 @@
+/* ==========================================================
+   LAYOUT — utilidades de diseño (utility-first)
+   ----------------------------------------------------------
+   Clases de un solo propósito para alinear, distribuir y
+   dar tamaño. Son la capa de utilidades propia del panel.
+
+   Los tokens de la escala (--sp-*, --card-gap, --container) los
+   declara `theme.css`: esta hoja solo consume.
+
+   Convenciones:
+   - Sin selectores anidados: cada clase, su regla.
+   - Numeración: los índices (gap-*, grid-cols-*, order-*)
+     son la escala de cuarto de rem: 1 = 0.25rem, 2 = 0.5rem.
+   - Breakpoint `md`: >= 768px.
+   ========================================================== */
+
+/*
+--------------------------------------------
+Containment y apilamiento
+--------------------------------------------
+`@container` (el nombre literal de la clase, con arroba) convierte
+al elemento en contenedor de consultas; `isolate` le da un contexto
+de apilamiento propio, para que su z-index no discuta con el de
+fuera (ver la escala de capas en `styles/global.css`).
+*/
+.\@container {
+  container-type: inline-size;
+}
+.isolate {
+  isolation: isolate;
+}
+
+/*
+--------------------------------------------
+Puntero
+--------------------------------------------
+*/
+.cursor-default {
+  cursor: default;
+}
+
+/* ==========================================================
+   Texto — alineación horizontal del contenido
+   ========================================================== */
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+
+/* ==========================================================
+   Display — tipo de caja
+   ========================================================== */
+.inline {
+  display: inline;
+}
+.block {
+  display: block;
+}
+.inline-block {
+  display: inline-block;
+}
+.contents {
+  display: contents;
+}
+.inline-flex {
+  display: inline-flex;
+}
+.inline-grid {
+  display: inline-grid;
+}
+
+/* ==========================================================
+   Flex — contenedor
+   ========================================================== */
+.flex {
+  display: flex;
+}
+.flow-root {
+  display: flow-root;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+.flex-col {
+  flex-direction: column;
+}
+
+@media (min-width: 48rem) {
+  .md\:flex-col {
+    flex-direction: column;
+  }
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+/* ==========================================================
+   Flex — hijos (grow / shrink / basis)
+   ========================================================== */
+.flex-1 {
+  flex: 1 1 0%;
+}
+.flex-2 {
+  flex: 2 1 0%;
+}
+.flex-3 {
+  flex: 3 1 0%;
+}
+.flex-4 {
+  flex: 4 1 0%;
+}
+.flex-auto {
+  flex: 1 1 auto;
+}
+.flex-none {
+  flex: none;
+}
+
+.shrink-0 {
+  flex-shrink: 0;
+}
+
+@media (min-width: 48rem) {
+  .md\:flex-2 {
+    flex: 2 1 0%;
+  }
+  .md\:flex-3 {
+    flex: 3 1 0%;
+  }
+  .md\:flex-4 {
+    flex: 4 1 0%;
+  }
+}
+
+/* ==========================================================
+   Visibilidad
+   ========================================================== */
+.hidden {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .md\:hidden {
+    display: none;
+  }
+}
+
+/* ==========================================================
+   Grid — contenedor y columnas
+   ========================================================== */
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (min-width: 48rem) {
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+  .col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+  .col-span-4 {
+    grid-column: span 4 / span 4;
+  }
+}
+
+/* ==========================================================
+   Gaps — separación entre hijos de flex/grid
+   Los índices son la escala de cuarto de rem, pero
+   multiplicados por --sp-* para que respeten el mando
+   --spacing del tema.
+   ========================================================== */
+.gap-1 {
+  gap: var(--sp-4);
+}
+.gap-2 {
+  gap: var(--sp-8);
+}
+.gap-3 {
+  gap: var(--sp-12);
+}
+.gap-4 {
+  gap: var(--sp-16);
+}
+.gap-5 {
+  gap: var(--sp-20);
+}
+.gap-6 {
+  gap: var(--sp-24);
+}
+.gap-7 {
+  gap: var(--sp-28);
+}
+.gap-8 {
+  gap: var(--sp-40);
+}
+
+/* ==========================================================
+   Flex / Grid — justificación horizontal (eje principal)
+   ========================================================== */
+.justify-start {
+  justify-content: flex-start;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-around {
+  justify-content: space-around;
+}
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+/* ==========================================================
+   Flex / Grid — alineación vertical (eje cruzado)
+   ========================================================== */
+.items-start {
+  align-items: flex-start;
+}
+.items-end {
+  align-items: flex-end;
+}
+.items-center {
+  align-items: center;
+}
+.items-baseline {
+  align-items: baseline;
+}
+.items-stretch {
+  align-items: stretch;
+}
+
+/* ==========================================================
+   Grid — justificación horizontal de los hijos en su celda
+   ========================================================== */
+.justify-items-start {
+  justify-items: start;
+}
+.justify-items-end {
+  justify-items: end;
+}
+.justify-items-center {
+  justify-items: center;
+}
+.justify-items-stretch {
+  justify-items: stretch;
+}
+
+/* ==========================================================
+   Grid — distribución vertical del contenido entre filas
+   ========================================================== */
+.content-start {
+  align-content: flex-start;
+}
+.content-end {
+  align-content: flex-end;
+}
+.content-center {
+  align-content: center;
+}
+.content-between {
+  align-content: space-between;
+}
+.content-around {
+  align-content: space-around;
+}
+.content-evenly {
+  align-content: space-evenly;
+}
+
+/* ==========================================================
+   Grid / Flex — alineación individual de un hijo
+   ========================================================== */
+.self-auto {
+  align-self: auto;
+}
+.self-start {
+  align-self: flex-start;
+}
+.self-end {
+  align-self: flex-end;
+}
+.self-center {
+  align-self: center;
+}
+
+/* ==========================================================
+   Width — ancho del contenedor
+   ========================================================== */
+.w-full {
+  width: 100%;
+}
+.w-screen {
+  width: 100vw;
+}
+.w-dvw {
+  width: 100dvw;
+}
+
+/* ==========================================================
+   Height — alto del contenedor
+   ========================================================== */
+.h-full {
+  height: 100%;
+}
+.h-screen {
+  height: 100vh;
+}
+.h-dvh {
+  height: 100dvh;
+}
+
+/* ==========================================================
+   Order — reorden visual de hijos flex/grid
+   ========================================================== */
+.order-1 {
+  order: 1;
+}
+.order-2 {
+  order: 2;
+}
+.order-3 {
+  order: 3;
+}
+.order-4 {
+  order: 4;
+}
+.order-5 {
+  order: 5;
+}
+.order-6 {
+  order: 6;
+}

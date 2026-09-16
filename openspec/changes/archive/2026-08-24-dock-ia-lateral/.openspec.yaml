@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-08-24
+# builder-omnibar y builder-topbar-retirement se retiran enteras: la primera
+# describia la pildora, que deja de existir, y la segunda una retirada que
+# nunca se hizo. Sin esto el archivado se niega a borrar sus specs.
+retire_capabilities: true

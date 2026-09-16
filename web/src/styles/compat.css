@@ -1,0 +1,117 @@
+/* ==========================================================
+   COMPAT — el puente entre los nombres viejos y los tokens nuevos
+   ----------------------------------------------------------
+   El panel (89 archivos con <style> propio) y el contrato del HTML
+   de las paginas (shared/htmlContract.ts) hablan los nombres de
+   siempre: --surface-*, --ink*, --line*, --color-primary... El
+   sistema nuevo (theme.css + palettes.css) habla otros. Este
+   archivo declara los viejos DERIVADOS de los nuevos, y asi no hay
+   que tocar nada mas:
+
+   - un color de pagina dentro del iframe recibe exactamente los
+     mismos nombres que ayer (es lo que lee `readTheme()` en
+     `HtmlFrame.svelte`), pero resueltos contra la paleta de la
+     aplicacion cuando lo hay;
+   - el CSS propio de un componente sigue compilando igual.
+
+   Los tres selectores son a proposito: una variable se resuelve
+   DONDE SE DECLARA, asi que cualquier elemento que cambie el tema
+   (`data-theme`) o la paleta (`data-palette`) tiene que volver a
+   computar los suyos. Sin `[data-palette]`, una pastilla con la
+   paleta de una aplicacion pero sin tema propio --el icono de la
+   app-- seguiria leyendo el `--color-primary` del panel.
+
+   La excepcion son los --color-base-*: nombre puro de la libreria
+   de antes, sin sitio en el contrato; esos se reescribieron en
+   sitio y aqui no estan.
+   ========================================================== */
+
+:root,
+[data-theme],
+[data-palette] {
+  /* ---- Superficies ---- */
+  --surface-page: var(--bg-level1);
+  --surface-card: var(--bg-level2);
+  --surface-soft: var(--bg-field);
+  --surface-hover: color-mix(in oklab, var(--text-primary) 8%, var(--bg-field));
+
+  /* ---- Tinta ---- */
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --ink-faint: var(--text-muted);
+
+  /* ---- Lineas ---- */
+  --line: var(--border);
+  /* El contrato del HTML de las paginas promete `--line-strong`
+     (shared/htmlContract.ts) y aqui se llamaba `--line-soft`: una pagina
+     que pidiera el borde destacado se quedaba con una variable que no
+     existe, o sea sin borde. Nadie usaba el nombre viejo. */
+  --line-strong: var(--border-strong);
+
+  /* ---- Acento ----
+     El sistema tiene un solo acento; primary y secondary eran dos
+     formas de pedir lo mismo. El de letra (-text) es el suave, que
+     contrasta sobre el papel; el de relleno (-content) es la tinta
+     que se lee encima del acento pleno. */
+  --color-primary: var(--accent);
+  --color-primary-content: var(--accent-text);
+  --color-primary-text: var(--accent-soft-text);
+  --color-secondary: var(--accent);
+  --color-secondary-content: var(--accent-text);
+  --color-secondary-text: var(--accent-soft-text);
+
+  /*
+   * Escala del acento. Existe porque el HTML de las paginas la
+   * recibe (via `readTheme`), con el nombre que les dio
+   * `shared/htmlContract.ts`. Se calcula aqui, en el mismo elemento
+   * que lleva `data-theme` y la paleta: solo asi `var(--accent)` ya
+   * vale el color de la aplicacion.
+   */
+  --color-accent-50: color-mix(in oklab, var(--accent) 10%, var(--bg-level2));
+  --color-accent-100: color-mix(in oklab, var(--accent) 16%, var(--bg-level2));
+  --color-accent-200: color-mix(in oklab, var(--accent) 28%, var(--bg-level2));
+  --color-accent-300: color-mix(in oklab, var(--accent) 46%, var(--bg-level2));
+  --color-accent-400: color-mix(in oklab, var(--accent) 66%, var(--bg-level2));
+  --color-accent-500: var(--accent);
+  --color-accent-600: color-mix(in oklab, var(--accent) 86%, black);
+  --color-accent-700: color-mix(in oklab, var(--accent) 72%, black);
+  --color-accent-800: color-mix(in oklab, var(--accent) 58%, black);
+  --color-accent-900: color-mix(in oklab, var(--accent) 46%, black);
+  --color-accent-950: color-mix(in oklab, var(--accent) 34%, black);
+  /* Texto que va encima del color principal. */
+  --color-accent-ink: var(--accent-text);
+
+  /* ---- Estado ----
+     Los colores de estado del sistema ya vienen medidos para ser
+     letra; el contenido (-content) es la tinta que se lee encima
+     del color pleno. */
+  --color-success: var(--success);
+  --color-success-content: var(--bg-level1);
+  --color-warning: var(--warning);
+  --color-warning-content: var(--bg-level1);
+  --color-error: var(--danger);
+  --color-error-content: var(--danger-text);
+  --color-info: var(--chart-2);
+  --color-info-content: var(--bg-level1);
+  --color-neutral: var(--text-secondary);
+  --color-neutral-content: var(--bg-level1);
+
+  /* ---- Medidas ---- */
+  --radius-card: var(--radius-lg);
+  --radius-field: var(--radius-md);
+  --shadow-card: var(--shadow-sm);
+
+  /* ---- Tipografia ----
+     Los interlineados los generaba la utilidad de antes; los
+     pares --text-* de theme.css no traen el suyo. La fraccion es
+     la del tamano al que acompanan (1.25rem sobre 0.875rem, etc.):
+     al ir juntos quedan igual que ayer. */
+  --font-sans: var(--font-family);
+  --text-xs--line-height: calc(1 / 0.75);
+  --text-sm--line-height: calc(1.25 / 0.875);
+  --text-base--line-height: calc(1.5 / 1);
+  --text-lg--line-height: calc(1.75 / 1.125);
+  --text-xl--line-height: calc(1.75 / 1.25);
+  --text-2xl--line-height: calc(2 / 1.5);
+  --text-3xl--line-height: calc(2.25 / 1.875);
+}

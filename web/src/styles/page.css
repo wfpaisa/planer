@@ -1,0 +1,277 @@
+/* ==========================================================
+   PAGE — la capa que solo existe dentro de una pagina
+   ----------------------------------------------------------
+   Una pagina recibe las mismas hojas que el panel (theme, paletas,
+   catalogo, compat y contract, servidas juntas en
+   `/plane/estilos.css`). Esto es lo unico que se le anade, y son
+   cuatro cosas que ahi si hacen falta y en el panel no:
+
+   1. El documento es la pantalla entera, no un trozo de otra.
+   2. Una etiqueta desnuda tiene que verse bien. El panel escribe
+      `class="btn"` en cada boton porque lo escribe una persona; una
+      pagina la escribe un modelo, y un <button> sin clase es lo que
+      sale cuando se despista. Con el reset de theme.css eso seria
+      un boton gris del sistema, asi que aqui las etiquetas de
+      formulario y de tabla llevan el vestido del catalogo puesto.
+      Escribir la clase sigue siendo lo correcto --y lo que dice el
+      contrato-- pero olvidarla ya no rompe la pantalla.
+   3. `hidden` tiene que esconder. El panel esconde con logica --lo
+      que no toca no se dibuja-- y una pagina esconde con el
+      atributo, que el catalogo anula sin avisar.
+   4. Los nombres que las paginas de antes usaban (`plane-tarjeta`,
+      `plane-boton`) siguen valiendo, apuntando al catalogo.
+   ========================================================== */
+
+/* ----------------------------------------------------------
+   El documento
+   ---------------------------------------------------------- */
+
+/* El marco pinta su propio fondo y el documento se estira dentro:
+   una pagina corta no puede dejar ver el papel del contenedor. */
+html {
+  min-height: 100%;
+  background: var(--bg-level1);
+}
+
+body {
+  min-height: 100vh;
+  /* El fondo lo pone <html>: pintarlo dos veces impide que una pagina
+     ponga el suyo propio en el body sin pelearse con este. */
+  background: transparent;
+}
+
+/* ----------------------------------------------------------
+   Esconder
+   ----------------------------------------------------------
+   `hidden` tiene que esconder, sea lo que sea lo que lo lleve.
+
+   El navegador lo esconde con `display: none`, pero lo declara
+   con el peso de una etiqueta, y cualquier clase que traiga su
+   propio `display` le gana: `.card` es `display: flex`, y con
+   ella sesenta y tantas piezas mas del catalogo. El resultado es
+   el peor que hay -- la seccion se queda a la vista y nada avisa,
+   porque el atributo esta puesto y el script hizo su trabajo.
+
+   Es justo lo que rompe una pagina que esconde una seccion por
+   rol: se escribe `seccion.hidden = true`, se lee bien, y la ve
+   todo el mundo. El !important no es un atajo: es lo unico que
+   gana a un catalogo entero sin tener que enumerarlo.
+   ---------------------------------------------------------- */
+
+[hidden] {
+  /* biome-ignore lint/complexity/noImportantStyles: tiene que ganar al display del catalogo */
+  display: none !important;
+}
+
+/* ----------------------------------------------------------
+   Las etiquetas desnudas
+   ----------------------------------------------------------
+   El filtro es `:not([class])` y no `:where()`, que fue el primer
+   intento y no valia: `:where()` no suma especificidad, asi que la
+   regla perdia contra el propio reset de theme.css --que empareja
+   `button { background: transparent }` con peso (0,0,1)-- y el
+   boton salia transparente. Con `:not([class])` el peso es (0,1,1),
+   gana al reset, y sigue sin poder estorbar a una clase: solo
+   empareja lo que no tiene ninguna.
+   ---------------------------------------------------------- */
+
+/* Un <button> sin clase es el boton de siempre. */
+button:not([class]),
+.plane-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.375rem;
+  padding: 0 0.875rem;
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: 0.15s;
+
+  &:hover:not(:disabled) {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+/* Un campo sin clase es el campo de siempre. Las casillas y los
+   interruptores no: los dibuja `.choice` con su propio marcado, y
+   vestirlos aqui les quitaria el suyo. */
+input:not([class], [type="checkbox"], [type="radio"], [type="range"]),
+select:not([class]),
+textarea:not([class]) {
+  width: 100%;
+  min-width: 0;
+  height: 2.375rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--border);
+  background: var(--bg-field);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  outline: none;
+  transition: 0.15s;
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+
+  &:disabled {
+    color: var(--text-muted);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+textarea:not([class]) {
+  height: auto;
+  min-height: 5rem;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* Una tabla suelta se lee como la del catalogo: sin rayas verticales,
+   la cabecera en letra pequena y cada fila separada de la siguiente
+   por una linea fina. */
+table:not([class]) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+
+  & th {
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--bg-field);
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  & td {
+    padding: 0.6875rem 0.875rem;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  & tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+/* El texto corrido de una pagina. El panel no lo necesita --ahi cada
+   parrafo vive dentro de un componente-- pero una pagina se escribe
+   con parrafos, titulos y listas sueltos, y el reset los dejo a cero. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-2xl);
+}
+h2 {
+  font-size: var(--text-xl);
+}
+h3 {
+  font-size: var(--text-lg);
+  letter-spacing: -0.01em;
+}
+h4,
+h5,
+h6 {
+  font-size: var(--text-md);
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+small {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Un enlace suelto es el `.link` del catalogo. El acento de letra, que
+   es el que contrasta contra el papel: el de relleno puede ser un
+   amarillo. */
+a:not([class]) {
+  color: var(--accent-soft-text);
+  text-underline-offset: 0.2em;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Las listas con vinneta vuelven a tenerla cuando son texto y no
+   estructura: el reset se la quita a todas, y en una pagina hay
+   listas de verdad. */
+ul:not([class]),
+ol:not([class]) {
+  padding-left: 1.25rem;
+  color: var(--text-secondary);
+}
+
+ul:not([class]) {
+  list-style: disc;
+}
+
+ol:not([class]) {
+  list-style: decimal;
+}
+
+/* ----------------------------------------------------------
+   Los nombres de antes
+   ----------------------------------------------------------
+   Las paginas ya publicadas los llevan escritos. Apuntan al
+   catalogo para que sigan viendose como el resto.
+   ---------------------------------------------------------- */
+
+.plane-tarjeta {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-20);
+}
+
+/*
+ * Quien pide menos movimiento no lo pide a medias, y una pagina la escribe un
+ * modelo que puede animar cualquier cosa: aqui el !important no es un atajo,
+ * es la unica forma de que la peticion valga tambien sobre lo que se escriba
+ * despues.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: tiene que ganar a lo que escriba la pagina */
+    transition: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: lo mismo */
+    animation: none !important;
+  }
+}

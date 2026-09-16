@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planer</title>
+    <!--
+      La marca: el icono `activity-circle` del mismo catalogo que la fuente
+      (ver `web/public/favicon.svg`). El `.ico` va primero por los navegadores
+      que no leen SVG, y el de Apple porque iOS no usa ninguno de los dos.
+    -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!--
+      Los iconos son una fuente: ver `shared/icons.ts`.
+      La fuente se pide a la misma vez que su hoja, sin esperar a que esta se
+      lea: son novecientos y pico kilobytes, y hasta que llegan el navegador
+      dibuja cada icono con el glifo que le toque en la fuente del sistema. El
+      `crossorigin` no es opcional --una fuente se pide siempre con CORS, y sin
+      el la descarga adelantada no se aprovecha--.
+    -->
+    <link rel="preconnect" href="https://use.hugeicons.com" crossorigin />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="https://use.hugeicons.com/font/hgi-stroke-rounded.woff2?t=1788409416849"
+      crossorigin
+    />
+    <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css" />
+    <!--
+      La letra del panel y su monoespaciada (ver `--font-family` y
+      `--font-mono` en `styles/theme.css`).
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400..700&family=Reddit+Mono:wght@400..700&display=swap"
+    />
+    <script>
+      // Aplicamos el tema y el tamano de letra antes de pintar para que no haya parpadeo.
+      (() => {
+        const saved = localStorage.getItem("plane-theme");
+        const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        // Siempre puesto, tambien cuando manda el sistema: es de donde salen
+        // el recorte de la paleta y el vestido de los campos.
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+
+        // Tamano de letra: un porcentaje entre 80 y 160, como `font-size`
+        // de la raiz; con 100 manda el tamano del navegador.
+        const font = Number(localStorage.getItem("plane-font-size"));
+        if (font >= 80 && font <= 160 && font % 10 === 0 && font !== 100) {
+          document.documentElement.style.fontSize = `${font}%`;
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

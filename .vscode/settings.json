@@ -1,0 +1,35 @@
+{
+  // Prettier formatea todo al guardar; ESLint corrige lo que puede
+  // (incluido el orden de los imports, via simple-import-sort).
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[svelte]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  // La config global del usuario trae "source.fixAll" (sin acotar), que se
+  // suma a la de aqui abajo en vez de reemplazarla. Ese fixAll generico
+  // tambien corre el "remove unused imports" de TS/Svelte, que en .svelte
+  // no siempre detecta bien los usos (template, tipos) y borra imports
+  // que si se usan. Se anula explicitamente para que solo actue ESLint.
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // La configuracion plana (eslint.config.js), la del proyecto.
+  "eslint.useFlatConfig": true,
+  "eslint.validate": ["javascript", "typescript", "svelte"],
+  "css.lint.unknownAtRules": "ignore",
+
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/web/dist": true,
+    "**/pb/pb_data": true,
+    "bun.lock": true
+  }
+}

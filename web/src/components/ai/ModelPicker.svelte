@@ -1,0 +1,198 @@
+<!--
+  Con que se va a pedir: que modelo y cuanto se le pide pensar.
+
+  Las dos cosas viven en el mismo menu porque se deciden juntas --un modelo que
+  no sabe pensar no tiene nivel que elegir-- y porque las dos son lo mismo:
+  cuanto se va a gastar en esta peticion.
+-->
+<script lang="ts">
+  import {
+    aiModelLabel,
+    aiProviderName,
+    aiProviderReady,
+    aiThinkingLabel,
+    aiThinkingLevels,
+    aiWindowLabel,
+  } from "@shared/aiCatalog";
+  import { AI_THINKING_OFF, type AiChoice, type AiConfigView } from "@shared/types";
+
+  import Icon from "../Icon.svelte";
+  import { Dropdown, MenuItem, MenuLabel, MenuSeparator } from "../ui";
+
+  let {
+    config,
+    choice,
+    onPick,
+    disabled,
+  }: {
+    config: AiConfigView;
+    choice: AiChoice;
+    onPick: (patch: Partial<AiChoice>) => void;
+    disabled: boolean;
+  } = $props();
+
+  const provider = $derived(config.providers.find((p) => p.id === choice.provider));
+  const model = $derived(provider?.models.find((m) => m.id === choice.model));
+  const usable = $derived(config.providers.filter(aiProviderReady));
+  /* Un modelo que no piensa no tiene nivel que elegir, y se dice. */
+  const levels = $derived(model ? aiThinkingLevels(model) : []);
+</script>
+
+<!--
+  El hueco del que no esta marcado mide lo mismo que el visto bueno: sin el,
+  los rotulos del menu bailarian de linea en linea.
+-->
+{#snippet mark(on: boolean)}
+  {#if on}
+    <Icon name="check" size={13} class="mark-checked" />
+  {:else}
+    <span class="mark-hole shrink-0"></span>
+  {/if}
+{/snippet}
+
+<Dropdown up class="menu-ai-models">
+  {#snippet trigger({ toggle })}
+    <button
+      type="button"
+      {disabled}
+      onclick={toggle}
+      aria-label="Elegir modelo y cuánto piensa"
+      class="btn-pick-ai-model flex items-center gap-1"
+    >
+      <span class="model-name">{model ? aiModelLabel(model) : "Sin modelo"}</span>
+      {#if model?.thinking && choice.thinking !== AI_THINKING_OFF}
+        <Icon name="brain" size={12} class="model-thinking-icon" />
+        <span class="model-thinking">{aiThinkingLabel(choice.thinking)}</span>
+      {/if}
+      {#if model?.contextWindow}
+        <span class="model-window">{aiWindowLabel(model.contextWindow)}</span>
+      {/if}
+      <Icon name="chevron-down" size={12} class="model-chevron" />
+    </button>
+  {/snippet}
+
+  {#snippet children(close: () => void)}
+    {#each usable as p (p.id)}
+      <MenuLabel>{aiProviderName(p)}</MenuLabel>
+      {#each p.models as m (m.id)}
+        {#snippet icon()}
+          {@render mark(p.id === choice.provider && m.id === choice.model)}
+        {/snippet}
+        <MenuItem
+          {icon}
+          onclick={() => {
+            onPick({ provider: p.id, model: m.id });
+            close();
+          }}
+        >
+          {aiModelLabel(m)}
+        </MenuItem>
+      {/each}
+    {/each}
+
+    <MenuSeparator />
+    <MenuLabel>Cuánto piensa</MenuLabel>
+    {#if levels.length > 1}
+      {#each levels as level (level)}
+        {#snippet icon()}
+          {@render mark(choice.thinking === level)}
+        {/snippet}
+        <MenuItem
+          {icon}
+          onclick={() => {
+            onPick({ thinking: level });
+            close();
+          }}
+        >
+          {aiThinkingLabel(level)}
+        </MenuItem>
+      {/each}
+    {:else}
+      <div class="menu-ai-note">
+        {#if model?.thinking}
+          Este modelo piensa siempre{levels[0] ? `, al nivel "${aiThinkingLabel(levels[0])}"` : ""}.
+        {:else}
+          Este modelo responde directo: no sabe pensar antes.
+        {/if}
+      </div>
+    {/if}
+  {/snippet}
+</Dropdown>
+
+<style>
+  /* La clase lleva el menu de Dropdown (un componente): sale del ambito. */
+  :global(.menu-ai-models) {
+    max-height: 20rem;
+    overflow-y: auto;
+  }
+
+  .btn-pick-ai-model {
+    min-width: 0;
+    cursor: pointer;
+    border-radius: 62.5rem;
+    padding: var(--sp-4) var(--sp-8);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--text-secondary);
+    transition:
+      background-color 150ms,
+      color 150ms;
+
+    &:hover:not(:disabled) {
+      background: var(--bg-field);
+      color: var(--text-primary);
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.5;
+    }
+
+    & .model-name {
+      max-width: 7rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    & .model-window {
+      flex-shrink: 0;
+      opacity: 0.6;
+      font-variant-numeric: tabular-nums;
+    }
+
+    & .model-thinking {
+      flex-shrink: 0;
+    }
+  }
+
+  /* El icono de pensamiento va dentro del Icon: fuera del ambito del boton. */
+  :global(.model-thinking-icon) {
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  /* El cheuron va dentro del Icon: fuera del ambito del boton. */
+  :global(.model-chevron) {
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  /* El visto bueno va dentro de Icon (un componente): sale del ambito. */
+  :global(.mark-checked) {
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  /* Mide lo mismo que el visto bueno para que el menu no baile de linea. */
+  .mark-hole {
+    width: 13px;
+  }
+
+  .menu-ai-note {
+    padding: var(--sp-6) var(--sp-10);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--text-muted);
+  }
+</style>

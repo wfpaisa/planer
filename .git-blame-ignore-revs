@@ -1,0 +1,3 @@
+# Commit de formateo inicial con Biome (no aporta cambios funcionales).
+# git blame debe ignorarlo: ver .git/config o `git config blame.ignoreRevsFile`.
+badad75f9f3eaa8e4bd0db3f37a308a629f58c70

@@ -1,0 +1,3236 @@
+/* ==========================================================
+   COMPONENTS — piezas reutilizables
+   ----------------------------------------------------------
+   Todo se apoya en los tokens de theme.css (--bg-level2, --accent,
+   --chart-1..4, --sp-*, --radius-*, --shadow-*): ningun color ni
+   medida esta escrito a mano, asi que estas piezas se adaptan solas
+   al tema y a la paleta que haya activa.
+
+   Nada aqui sabe de este proyecto. Los componentes que necesitan
+   comportamiento lo resuelven con CSS (:checked, :has(), popover,
+   @starting-style) salvo el toast, que se lanza desde
+   js/components.js.
+
+   Ajustes de este repo:
+   - El select abre una lista vestida por nosotros y no la del
+     sistema operativo: `appearance: base-select`, bajo @supports.
+     Ver la nota en su bloque.
+   - `.table` trae linea entre columnas: aqui las tablas son de
+     datos y se leen por columna. Ver la nota en su bloque.
+   ========================================================== */
+
+/* ==========================================================
+   Botones
+   ========================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.375rem;
+  padding: 0.25rem 0.875rem;
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--border);
+  background: var(--bg-level2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: 0.15s;
+  color: var(--text-primary);
+
+  &:hover {
+    border-color: var(--border-strong);
+    background: oklch(from var(--text-primary) l c h / 6%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+/* Accion principal: la unica que se pinta con el acento */
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--accent-text);
+  box-shadow: 0 0.5rem 1.25rem -0.625rem var(--accent);
+
+  &:hover {
+    background: var(--accent-hover);
+  }
+}
+
+/* Boton cuadrado de solo icono */
+.btn-icon {
+  width: 2.375rem;
+  height: 2.375rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--border);
+  background: var(--bg-level2);
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: 0.15s;
+  padding: 0px;
+
+  &.btn.sm {
+    padding: 0;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+    background: oklch(from var(--text-primary) l c h / 6%);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Medida corta, para barras y pies de tabla */
+  &.sm {
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+
+    & i {
+      font-size: var(--text-base);
+    }
+  }
+}
+
+/* Boton minimo: aparece dentro de filas y listas */
+.mini-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.5rem;
+  border: var(--border-width) solid var(--border);
+  background: var(--bg-level2);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: 0.15s;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  & i {
+    font-size: var(--text-base);
+  }
+}
+
+/* ==========================================================
+   Modificadores
+   Van DESPUES de .btn, .btn-icon y .mini-btn a proposito: tienen la
+   misma especificidad que ellos, asi que solo ganan por orden. Puestos
+   antes, .btn-icon recuperaba su fondo y su borde y el fantasma no se
+   veia en los botones de icono.
+   ========================================================== */
+
+/* Sin fondo, sin borde y sin sombra: para la accion que acompana a
+   otra y no debe competir con ella. Lo unico que lo dibuja es el
+   hover, por eso ese estado no es opcional aqui. */
+.btn-ghost {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--text-secondary);
+
+  &:hover {
+    border-color: transparent;
+    background: oklch(from var(--text-primary) l c h / 6%);
+    color: var(--text-primary);
+  }
+}
+
+/* Destructivo: borra, expulsa o no se puede deshacer. Rojo pleno,
+   nunca la primaria, para que no se confundan de un vistazo. */
+.btn-danger {
+  background: var(--danger);
+  border-color: transparent;
+  color: var(--danger-text);
+  box-shadow: 0 0.5rem 1.25rem -0.625rem var(--danger);
+
+  &:hover {
+    background: oklch(from var(--danger) calc(l - 0.06) c h);
+  }
+}
+
+/* Pendiente: algo esta a medias --hay cambios sin publicar-- y no es
+   un error. Avisa sin alarmar, asi que va sin relleno: el color en la
+   letra y en el borde, que es lo que distingue un aviso de un peligro. */
+.btn-warning {
+  border-color: var(--warning);
+  color: var(--warning);
+  box-shadow: none;
+
+  &:hover {
+    border-color: var(--warning);
+    background: var(--warning-bg);
+    color: var(--warning);
+  }
+}
+
+/* Destructivo discreto: el mismo peligro sin gritarlo, para cuando
+   la accion convive con otras en una fila o una fila de tabla.
+   Compuesto (0,2,0) para ganar a los dos anteriores venga el orden
+   de clases que venga en el marcado. */
+.btn-ghost.btn-danger {
+  background: none;
+  box-shadow: none;
+  color: var(--danger);
+
+  &:hover {
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+}
+
+/* Peligro solo al apuntarlo: en reposo se lee como cualquier otro
+   boton de la fila --no pide atencion-- y avisa cuando el cursor ya
+   esta encima, que es el instante en que importa. Para lo que sale de
+   una barra o un pie y no se quiere gritar de continuo.
+
+   Anadido de este repo: cerrar sesion se escribia a mano en el pie de
+   la sidebar publicada y en el de la demo, con la misma receta. */
+.btn-danger-quiet:hover {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* Medida corta, la misma que .btn-icon.sm: un boton con texto que
+   convive con ellos en una barra tiene que medir lo mismo. */
+.btn.sm {
+  min-height: 2rem;
+  padding: 0 0.625rem;
+  font-size: var(--text-xs);
+
+  & i {
+    font-size: var(--text-base);
+  }
+}
+
+/* Puesto: el boton que abre un panel se queda marcado mientras el panel
+   esta abierto, para que se vea de donde salio. Es el hover en firme, asi
+   que solo vale para los que no traen color propio: sobre el primario o
+   el destructivo taparia justo lo que los distingue. */
+.btn.active:not(.btn-primary, .btn-danger, .btn-warning),
+.btn-icon.active,
+.mini-btn.active {
+  border-color: var(--border-strong);
+  background: oklch(from var(--text-primary) l c h / 8%);
+  color: var(--text-primary);
+}
+
+/* Encendido: el interruptor que esta puesto --el cursor de senalar, el
+   modo debug, la navegacion fijada-- se tine con el acento. Es la receta de
+   `.opt.active` y de la casilla en curso: tinte, no relleno pleno. Un estado
+   no es la accion principal de la pantalla, y pintarlo de primario deja dos
+   botones igual de azules sin decir cual hay que pulsar.
+
+   Lo dice el marcado --`aria-pressed`, que ya es lo que anuncia el lector de
+   pantalla-- y no una clase aparte: asi el color y lo que se dice en voz alta
+   no se pueden separar por olvido. Se aparta de los que traen color propio,
+   igual que hace `.active`: sobre el primario o el destructivo taparia justo
+   lo que los distingue.
+
+   Anadido de este repo: tres botones del panel de la IA cambiaban de variante
+   a mano (`variant={activo ? "secondary" : "soft"}`) y salian de azul pleno,
+   y el de fijar la navegacion no se distinguia de ninguna manera. */
+.btn[aria-pressed="true"]:not(.btn-primary, .btn-danger, .btn-warning),
+.btn-icon[aria-pressed="true"]:not(.btn-primary, .btn-danger, .btn-warning),
+.mini-btn[aria-pressed="true"]:not(.btn-primary, .btn-danger, .btn-warning) {
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-text);
+
+  /* Apuntar lo que ya esta puesto aprieta el tinte; volver al gris del
+     hover normal leeria como si se hubiera apagado al acercarse. */
+  &:hover {
+    border-color: var(--accent);
+    background: color-mix(in oklab, var(--accent-soft) 85%, var(--accent));
+    color: var(--accent-soft-text);
+  }
+}
+
+/* Pastilla: solo cambia el radio, asi que se combina con cualquier
+   variante (.btn-primary, .btn-ghost) y con .btn-icon / .mini-btn.
+   Va despues de los tres para ganarles el border-radius por orden. */
+.btn-rounded {
+  border-radius: 62.5rem;
+}
+
+/* ==========================================================
+   Card
+   Columna: cabecera arriba, pie abajo y el cuerpo llenando el
+   hueco. Asi dos cards contiguas alinean sus pies aunque su
+   contenido mida distinto, sin igualar alturas a mano.
+   ========================================================== */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* Opaca: `--bg-card` es translucido en oscuro --lo que quiere una
+   pagina publicada, donde la card se posa sobre el lienzo-- y en el
+   panel las secciones de ajustes, la ficha de una app o el formulario
+   de entrada necesitan separarse del fondo. Anadido de este repo:
+   cinco pantallas repetian el mismo `background: var(--bg-level2)`. */
+.card-solid {
+  background: var(--bg-level2);
+}
+
+.card-head {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-14);
+  padding: var(--sp-18) var(--sp-20) 0;
+
+  /* El bloque de titulo cede antes que las acciones */
+  & > :first-child {
+    min-width: 0;
+  }
+}
+
+.card-title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+
+.card-sub {
+  margin: 0.125rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.card-head-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* En estrecho los filtros bajan a su propia linea, a lo ancho */
+  @media (max-width: 38.75rem) {
+    &:has(> .chips) {
+      flex: 1 1 100%;
+    }
+
+    & > .chips {
+      width: 100%;
+    }
+  }
+}
+
+/* Cuerpo y pie completan a .card-head: el mismo eje horizontal que
+   la cabecera, y el pie empuja sus acciones a la derecha. */
+.card-body {
+  /* Es el unico que crece: empuja al pie contra el borde inferior */
+  flex: 1;
+  min-height: 0;
+  padding: var(--sp-14) var(--sp-20) var(--sp-18);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.55;
+
+  & > p {
+    margin: 0;
+  }
+}
+
+.card:has(> .card-foot) > .card-body {
+  padding-bottom: 0px;
+}
+
+.card-foot {
+  /* margin-top:auto lo ancla abajo aunque la card no tenga cuerpo */
+  flex: none;
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: var(--sp-16) var(--sp-20) var(--sp-18);
+}
+
+/* ==========================================================
+   Chips / Tabs / Segmentos: un mismo mecanismo, dos nombres
+   La pastilla activa es un ::before que se desplaza; al pasar el
+   cursor viaja hasta la opcion apuntada y vuelve al soltarla.
+   Funciona con botones (.active, lo marca el JS) o con radios
+   ocultos + <label> (sin JS ninguno).
+   `.chips`/`.chip` son un selector suelto (un filtro, un rango de
+   fechas): no navegan a ningun sitio. `.tab-list`/`.tab` son lo
+   mismo para cuando SI hay pestanas de verdad --con `role="tablist"`
+   o dentro de `.tabs`--; comparten el mecanismo para no duplicarlo.
+   ========================================================== */
+.chips,
+.tab-list {
+  --n: 3;
+  --active: 0;
+  position: relative;
+  /* Grid de columnas 1fr: todas las opciones miden lo mismo y el
+     ancho sale de la mas larga, sin recortes */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.1875rem;
+  gap: 0.125rem;
+  background: var(--bg-field);
+  border: var(--border-width) solid var(--border);
+  border-radius: calc(var(--radius-md) + 0.125rem);
+
+  /* El numero de opciones se deduce del propio marcado */
+  &:has(> :nth-child(2):last-child) {
+    --n: 2;
+  }
+  &:has(> :nth-child(3):last-child) {
+    --n: 3;
+  }
+  &:has(> :nth-child(4):last-child) {
+    --n: 4;
+  }
+  &:has(> :nth-child(5):last-child) {
+    --n: 5;
+  }
+  &:has(> :nth-child(6):last-child) {
+    --n: 6;
+  }
+
+  /* La pastilla: una sola caja que viaja de columna en columna */
+  &::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: 0.1875rem auto 0.1875rem 0.1875rem;
+    width: calc((100% - 0.375rem - (var(--n) - 1) * 0.125rem) / var(--n));
+    background: var(--bg-level2);
+    border-radius: calc(var(--radius-sm) + 0.15rem);
+    box-shadow: inset 0 0 0 1px light-dark(oklch(0 0 0 / 0.12), oklch(1 0 0 / 0.1));
+    translate: calc(var(--active) * 100% + var(--active) * 0.125rem) 0;
+    transition:
+      translate 0.3s cubic-bezier(0.34, 0.9, 0.32, 1),
+      opacity 0.2s;
+  }
+
+  /* Sin opcion elegida no se dibuja: aparece al pasar el cursor */
+  &:not(:has(> :is(.chip, .tab).active)):not(:has(> input:checked)) {
+    &::before {
+      opacity: 0;
+    }
+
+    &:hover::before {
+      opacity: 1;
+    }
+  }
+
+  /* Donde para la pastilla: en la opcion marcada... `--active` la
+     desplaza con la cuenta de columnas iguales; `--pill-anchor` nombra
+     la opcion para que la variante `fit` (abajo) la tome por ancla */
+  &:has(> :is(.chip, .tab):nth-of-type(1).active),
+  &:has(> input:nth-of-type(1):checked) {
+    --active: 0;
+    --pill-anchor: --seg-1;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(2).active),
+  &:has(> input:nth-of-type(2):checked) {
+    --active: 1;
+    --pill-anchor: --seg-2;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(3).active),
+  &:has(> input:nth-of-type(3):checked) {
+    --active: 2;
+    --pill-anchor: --seg-3;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(4).active),
+  &:has(> input:nth-of-type(4):checked) {
+    --active: 3;
+    --pill-anchor: --seg-4;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(5).active),
+  &:has(> input:nth-of-type(5):checked) {
+    --active: 4;
+    --pill-anchor: --seg-5;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(6).active),
+  &:has(> input:nth-of-type(6):checked) {
+    --active: 5;
+    --pill-anchor: --seg-6;
+  }
+
+  /* ...y, mientras dura, en la que apunta el cursor */
+  &:has(> :is(.chip, .tab):nth-of-type(1):hover) {
+    --active: 0;
+    --pill-anchor: --seg-1;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(2):hover) {
+    --active: 1;
+    --pill-anchor: --seg-2;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(3):hover) {
+    --active: 2;
+    --pill-anchor: --seg-3;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(4):hover) {
+    --active: 3;
+    --pill-anchor: --seg-4;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(5):hover) {
+    --active: 4;
+    --pill-anchor: --seg-5;
+  }
+  &:has(> :is(.chip, .tab):nth-of-type(6):hover) {
+    --active: 5;
+    --pill-anchor: --seg-6;
+  }
+
+  /* El radio real solo existe para el teclado y el :checked */
+  & > input {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* El foco se pinta en la pastilla, que es lo que se ve */
+  &:has(> input:focus-visible)::before {
+    box-shadow:
+      var(--shadow-sm),
+      0 0 0 0.125rem var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      transition: opacity 0.2s;
+    }
+  }
+}
+
+.chip,
+.tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: 0;
+  padding: 0.375rem 0.625rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &.active,
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  /* En pantallas estrechas la etiqueta manda sobre el acolchado */
+  @media (max-width: 30rem) {
+    padding-inline: 0.25rem;
+    font-size: var(--text-xs);
+  }
+}
+
+/* ---- Variante `fit`: cada opcion a su ancho natural ----
+   La pastilla de arriba mide "el total entre el numero de opciones",
+   cuenta que solo cuadra si todas las columnas son iguales. Aqui las
+   columnas miden su contenido y la pastilla no calcula: se ancla a la
+   opcion marcada o apuntada (anchor positioning) y toma su borde y su
+   ancho con anchor()/anchor-size(); la transicion de left/width sigue
+   deslizando --position-area no anima entre posiciones--. Los nombres
+   `--seg-*` los declara cada opcion y los elige la maquina de estados
+   de arriba mediante --pill-anchor; `anchor-scope` encierra los
+   nombres en cada instancia y, donde aun no exista, no debe convivir
+   con otra `.fit` en la pagina: un nombre repetido se resuelve al
+   ultimo que lo declara. Sin anclas no se aplica nada y queda el
+   reparto igual de la base. */
+@supports (anchor-name: --a) {
+  .chips.fit,
+  .tab-list.fit {
+    grid-auto-columns: max-content;
+    anchor-scope: all;
+
+    &::before {
+      position-anchor: var(--pill-anchor, --seg-1);
+      left: anchor(left);
+      width: anchor-size(width);
+      translate: none;
+      transition:
+        left 0.3s cubic-bezier(0.34, 0.9, 0.32, 1),
+        width 0.3s cubic-bezier(0.34, 0.9, 0.32, 1),
+        opacity 0.2s;
+    }
+
+    & > :is(.chip, .tab):nth-of-type(1) {
+      anchor-name: --seg-1;
+    }
+
+    & > :is(.chip, .tab):nth-of-type(2) {
+      anchor-name: --seg-2;
+    }
+
+    & > :is(.chip, .tab):nth-of-type(3) {
+      anchor-name: --seg-3;
+    }
+
+    & > :is(.chip, .tab):nth-of-type(4) {
+      anchor-name: --seg-4;
+    }
+
+    & > :is(.chip, .tab):nth-of-type(5) {
+      anchor-name: --seg-5;
+    }
+
+    & > :is(.chip, .tab):nth-of-type(6) {
+      anchor-name: --seg-6;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &::before {
+        transition: opacity 0.2s;
+      }
+    }
+  }
+}
+
+/* Tabs = .tab-list con radios + paneles; el :has() elige cual se ve */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tab-panels {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.55;
+
+  & > * {
+    display: none;
+    margin: 0;
+  }
+}
+
+.tabs:has(.tab-list > input:nth-of-type(1):checked) .tab-panels > :nth-child(1),
+.tabs:has(.tab-list > input:nth-of-type(2):checked) .tab-panels > :nth-child(2),
+.tabs:has(.tab-list > input:nth-of-type(3):checked) .tab-panels > :nth-child(3) {
+  display: block;
+}
+
+/* ==========================================================
+   Formulario
+   ========================================================== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+
+  /* La etiqueta puede ser <label> o un <span class="field-label">
+     cuando no apunta a un control concreto */
+  & > label,
+  & > .field-label {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  /* ---- Estados: error y deshabilitado ---- */
+  &.error label,
+  &.error .field-hint {
+    color: var(--danger);
+  }
+
+  &:has(:disabled) label,
+  &:has(:disabled) .field-hint {
+    opacity: 0.6;
+  }
+}
+
+/* ==========================================================
+   El vestido de un control
+   Dos sitios y una sola regla: dentro de un `.field` --lo normal, con
+   su etiqueta y su ayuda-- o suelto con `.field-control`, para el que
+   va sin nada alrededor: el buscador de una tabla, la celda de la
+   rejilla, el campo de una fila. Se escriben juntos a proposito, para
+   que un control no se vista distinto segun donde caiga.
+   ========================================================== */
+.field :is(input, select, textarea),
+.field-control {
+  width: 100%;
+  min-width: 0;
+  height: 2.375rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--border);
+  background: var(--bg-field);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+
+  &:disabled {
+    color: var(--text-muted);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Medida corta, la del `.btn-icon.sm`: para barras y filas estrechas */
+.field.sm :is(input, select, textarea),
+.field-control.sm {
+  height: 2rem;
+  font-size: var(--text-xs);
+}
+
+.field textarea,
+textarea.field-control {
+  height: auto;
+  min-height: 4rem;
+  padding: 0.5625rem 0.75rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.field select,
+select.field-control {
+  padding-right: 2rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%238E8CA3' stroke-width='1.2'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.25rem center;
+  background-size: 1.5rem 1.5rem;
+  background-repeat: no-repeat;
+}
+
+/* ==========================================================
+   La lista de un select, tambien nuestra
+   ----------------------------------------------------------
+   Anadido de este repo. La lista que se abre al pulsar un select la
+   dibujaba hasta ahora el sistema operativo: ni el tema ni la paleta
+   llegaban a ella, asi que un panel oscuro abria un desplegable claro
+   y ninguna opcion se podia marcar con el acento. Con
+   `appearance: base-select` la lista pasa a ser HTML corriente y se
+   viste como el menu del panel --mismo fondo, mismo radio, misma
+   sombra, mismo renglon bajo el cursor--, que es de lo que hace las
+   veces.
+
+   Se opta dos veces, el control y su lista: con una sola, la lista
+   sigue siendo la del sistema. Y va todo dentro del `@supports`
+   porque donde no exista se queda exactamente lo de arriba: la flecha
+   dibujada al fondo y la lista nativa.
+
+   Va por `select` a secas y no por las clases del vestido --la unica
+   vez que esta hoja nombra una etiqueta desnuda-- porque una lista
+   nativa no la puede vestir nadie, ni el `.field` ni la pagina: o la
+   cambia aqui el catalogo o se queda del sistema. El vestido del
+   control sigue siendo cosa de las clases, debajo.
+
+   El boton del control no se escribe a mano (`<button><selectedcontent>`):
+   lo pone el navegador. Asi una pagina publicada, que trae el select
+   pelado que le enseno el contrato, se ve igual que el panel sin tener
+   que saber nada de esto.
+   ========================================================== */
+@supports (appearance: base-select) {
+  select {
+    appearance: base-select;
+    /* El boton que dibuja el navegador estira de arriba abajo y deja el
+       texto colgando del borde de arriba: centrado, cae donde el de un
+       input corriente. */
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    text-align: start;
+    font-weight: inherit;
+    & selectedcontent {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    /* Abierto se marca como enfocado: es donde esta el teclado */
+    &:open {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+    }
+
+    /* La flecha del navegador es un triangulo relleno; la del sistema es
+       el mismo chevron de siempre. No viaja como SVG con el color
+       grabado dentro: va de mascara sobre `currentColor`, asi sale de
+       --text-muted y sigue al tema. */
+    &::picker-icon {
+      content: "";
+      flex: none;
+      width: 1rem;
+      height: 1rem;
+      color: var(--text-muted);
+      background: currentColor;
+      mask: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+      transition:
+        rotate 0.2s,
+        color 0.15s;
+    }
+
+    &:hover::picker-icon {
+      color: var(--text-primary);
+    }
+
+    &:open::picker-icon {
+      rotate: 180deg;
+    }
+
+    /* ---- La lista: el vestido del `.menu` ---- */
+    &::picker(select) {
+      appearance: base-select;
+      /* A los dos lados: si abajo no cabe se abre hacia arriba y el hueco
+         tiene que quedar igual */
+      margin-block: 0.375rem;
+      padding: 0.3125rem;
+      min-width: anchor-size(width);
+      max-height: 17.5rem;
+      overflow-y: auto;
+      /* La barra fina no llega sola: la del tema viste el documento, y
+         esto es un pseudoelemento en la capa de arriba */
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+      overscroll-behavior: contain;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-level2);
+      box-shadow: var(--shadow-lg);
+      /* Si debajo no cabe, se abre hacia arriba */
+      position-try-fallbacks: flip-block;
+      opacity: 0;
+      translate: 0 -0.25rem;
+      transition:
+        opacity 0.15s,
+        translate 0.15s,
+        overlay 0.15s allow-discrete,
+        display 0.15s allow-discrete;
+    }
+
+    &:open::picker(select) {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    /* ---- Cada opcion es un renglon del menu ---- */
+    & option {
+      display: flex;
+      align-items: center;
+      gap: 0.5625rem;
+      min-height: 2rem;
+      padding: 0.4375rem 0.5625rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      /* Lo que no se hereda del grupo, ver su nota */
+      letter-spacing: normal;
+      text-transform: none;
+      cursor: pointer;
+
+      /* El `display` de aqui le gana al del navegador, asi que una
+         opcion oculta --la que guarda lo escrito a mano en un
+         `InputPicker`-- volveria a salir como un renglon en blanco. */
+      &[hidden] {
+        display: none;
+      }
+
+      &:hover,
+      &:focus {
+        outline: none;
+        background: var(--bg-field);
+        color: var(--text-primary);
+      }
+
+      &:checked {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      &:disabled {
+        color: var(--text-muted);
+        cursor: not-allowed;
+
+        &:hover {
+          background: none;
+        }
+      }
+
+      /* La marca de lo elegido va al final del renglon y guarda su sitio
+         aunque no se vea: si apareciera y desapareciera, los textos
+         bailarian de una opcion a otra. */
+      &::checkmark {
+        content: "\2713";
+        order: 1;
+        margin-inline-start: auto;
+        color: var(--accent);
+        font-weight: 700;
+        visibility: hidden;
+      }
+
+      &:checked::checkmark {
+        visibility: visible;
+      }
+    }
+
+    /* ---- Grupos y separadores: los rotulos del menu ----
+       El rotulo de un grupo lo dibuja el navegador: el atributo `label`
+       no es un elemento y no se deja apuntar. Asi que el vestido --el
+       mismo `.eyebrow` con el que se rotula un menu-- va en el
+       `optgroup` y baja heredado, y es la opcion la que repone debajo
+       lo que no es suyo. Un `<legend>` escrito a mano hereda igual: solo
+       hay que darle su hueco. */
+    & optgroup {
+      padding: 0.375rem 0 0;
+      font-size: var(--text-xs);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+
+      & legend {
+        padding: 0.125rem 0.5625rem 0.25rem;
+      }
+    }
+
+    & hr {
+      height: var(--border-width);
+      margin: 0.25rem 0;
+      border: 0;
+      background: var(--border);
+    }
+  }
+
+  /* El vestido del catalogo apaga la apariencia nativa y le guardaba su
+     hueco a la flecha de fondo. Pesa mas que el `select` pelado de
+     arriba, asi que hay que repetirle las dos cosas: la apariencia, y
+     el hueco que ya no hace falta --la flecha es ahora un elemento mas
+     del renglon, y el control vuelve a tener el mismo aire a los dos
+     lados--. */
+  .field select,
+  select.field-control {
+    appearance: base-select;
+    background-image: none;
+    padding-right: 0.75rem;
+  }
+
+  /* Sin la salida no hay transicion: la lista ya estaria puesta al
+     mostrarse. Va fuera del anidado porque `@starting-style` dentro de
+     un `&` no alcanza a un pseudoelemento del propio `&`. */
+  @starting-style {
+    select:open::picker(select) {
+      opacity: 0;
+      translate: 0 -0.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    select {
+      &::picker-icon,
+      &::picker(select) {
+        transition: none;
+      }
+    }
+  }
+}
+
+.field input::-webkit-outer-spin-button,
+.field input::-webkit-inner-spin-button,
+.field-control::-webkit-outer-spin-button,
+.field-control::-webkit-inner-spin-button {
+  margin-left: 0.375rem;
+}
+
+/* El icono nativo del date ya sigue al color del input, no se invierte */
+.field input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"].field-control::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+  cursor: pointer;
+}
+.field input[type="date"]:hover::-webkit-calendar-picker-indicator,
+input[type="date"].field-control:hover::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
+.field [aria-invalid="true"],
+[aria-invalid="true"].field-control {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+
+  &:focus {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 0.1875rem color-mix(in srgb, var(--danger) 28%, transparent);
+  }
+}
+
+/* ---- Range: pista y perilla pintadas a mano en los dos motores ---- */
+.field input[type="range"],
+input[type="range"].field-control {
+  width: 100%;
+  height: 0.375rem;
+  margin-top: 0.625rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  accent-color: var(--accent);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-slider-runnable-track {
+    height: 0.375rem;
+    border-radius: 62.5rem;
+    background: var(--bg-field);
+    border: var(--border-width) solid var(--border);
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 1.0625rem;
+    height: 1.0625rem;
+    margin-top: -0.375rem;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 0;
+    cursor: pointer;
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  &::-moz-range-track {
+    height: 0.375rem;
+    border-radius: 62.5rem;
+    background: var(--bg-field);
+    border: var(--border-width) solid var(--border);
+  }
+
+  &::-moz-range-thumb {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 0;
+    cursor: pointer;
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+}
+
+/* Varios campos en fila, cada uno con su minimo antes de partir */
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-16);
+
+  & > .field {
+    flex: 1;
+    min-width: 11.25rem;
+  }
+}
+
+/* Pista bajo el campo; con icono si acompana a un error */
+.field-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+
+  & i {
+    font-size: var(--text-sm);
+    flex: none;
+  }
+}
+
+/* Valor actual de un range, al final de su etiqueta */
+.range-val {
+  float: right;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Join: controles pegados en una sola pieza ----
+   Los bordes interiores se solapan (-1px) para que no queden dobles,
+   y el control activo sube de capa para que su foco se vea entero. */
+.join {
+  display: flex;
+  min-width: 0;
+
+  /* Los tipos van explicitos: .field input ya pesa (0,1,1) y un
+     .join > * no lo alcanzaria para anular su radio */
+  & > *,
+  & > input,
+  & > select,
+  & > textarea,
+  & > button {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  & > *:not(:first-child) {
+    margin-left: calc(var(--border-width) * -1);
+  }
+
+  & > *:first-child {
+    border-start-start-radius: var(--radius-md);
+    border-end-start-radius: var(--radius-md);
+  }
+
+  & > *:last-child {
+    border-start-end-radius: var(--radius-md);
+    border-end-end-radius: var(--radius-md);
+  }
+
+  & > *:hover,
+  & > *:focus,
+  & > *:focus-within {
+    position: relative;
+    z-index: 1;
+  }
+
+  & input {
+    flex: 1;
+  }
+
+  & select {
+    flex: none;
+    width: auto;
+    padding-right: 2.375rem;
+
+    /* Con la lista propia la flecha es un elemento mas del renglon y no
+       un fondo dibujado: el hueco que le guardaba la nativa sobra. */
+    @supports (appearance: base-select) {
+      padding-right: 0.75rem;
+    }
+  }
+
+  & .btn {
+    flex: none;
+  }
+
+  /* El primario no tiene borde propio: se le da uno para casar la costura */
+  & .btn-primary {
+    border-color: var(--accent);
+  }
+}
+
+.fieldset {
+  margin: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5625rem;
+  padding: var(--sp-12) var(--sp-14) var(--sp-14);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+
+  & legend {
+    padding: 0 0.375rem;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+}
+
+/* ---- Checkbox / Radio / Toggle ---- */
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  /* El input real se oculta; la caja visible es un <i> con el glifo */
+  &:not(.switch) input {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  & input:checked + .choice-box {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+    /* La iconeria solo trae trazo: se engrosa para que se lea macizo */
+    -webkit-text-stroke: 1.5px currentColor;
+
+    &.round::after {
+      opacity: 1;
+    }
+  }
+
+  & input:focus-visible + .choice-box {
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+
+  &:has(input:disabled) {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.choice-box {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: grid;
+  place-items: center;
+  border: calc(var(--border-width) + 1px) solid var(--border-strong);
+  border-radius: calc(var(--radius-sm) / 2);
+  background: var(--bg-level2);
+  color: transparent;
+  font-size: var(--text-sm);
+  line-height: 1;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
+
+  /* Radio: circulo y punto central en vez de glifo */
+  &.round {
+    border-radius: 50%;
+
+    &::after {
+      content: "";
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--accent-text);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+  }
+}
+
+/* Ajuste optico del glifo: los iconos de la fuente no vienen centrados
+   en su em, asi que el tick cae bajo y a la derecha. Se corrige el
+   dibujo, no la caja: el area clicable y el borde no se mueven.
+   Se afina por instancia con style="--nudge-x: ...; --nudge-y: ...". */
+.ico-nudge {
+  --nudge-x: 0px;
+  --nudge-y: 0px;
+
+  &::before {
+    transform: translate(var(--nudge-x), var(--nudge-y));
+  }
+}
+
+/* Toggle: aqui el input SI se ve, pintado como pista + perilla */
+.switch input {
+  flex: none;
+  width: 2.875rem;
+  height: 1.625rem;
+  margin: 0;
+  position: relative;
+  /* La pista se redondea a la mitad; la perilla, del todo */
+  border-radius: 4rem;
+  background: var(--bg-field);
+  border: calc(var(--border-width) + 1px) solid var(--border-strong);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition:
+    background-color 0.22s ease,
+    border-color 0.22s ease;
+
+  /* La perilla se ve siempre: sin ella el control parece un recuadro */
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 50%;
+    background: var(--text-muted);
+    box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.25);
+    transition:
+      translate 0.22s cubic-bezier(0.34, 0.9, 0.32, 1),
+      background-color 0.22s ease;
+  }
+
+  &:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+
+    &::after {
+      translate: 1.25rem 0;
+      background: var(--accent-text);
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+}
+
+/* ---- Rating: estrellas en orden inverso para que el hover
+        encienda tambien las anteriores con un solo selector ---- */
+.rating {
+  position: relative;
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 0.25rem;
+
+  & input {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  & label {
+    display: grid;
+    place-items: center;
+    color: var(--border-strong);
+    cursor: pointer;
+    transition: color 0.14s;
+
+    & i {
+      font-size: var(--text-lg);
+    }
+  }
+
+  /* El hermano posterior en el DOM es la estrella anterior en pantalla */
+  & input:checked ~ label,
+  & label:hover,
+  & label:hover ~ label {
+    color: var(--chart-1);
+  }
+
+  & input:focus-visible + label {
+    outline: 2px solid var(--accent);
+    outline-offset: 0.125rem;
+    border-radius: 0.25rem;
+  }
+}
+
+/* ----------------------------------------------------------
+   Opcion: la caja que se elige
+   ----------------------------------------------------------
+   Anadido de este repo: el panel repetia esta misma receta en
+   nueve pantallas --el tipo de columna, el icono de una pagina,
+   la visibilidad al publicar, la salida que propone la IA, el
+   proveedor de modelos...-- cada una con su borde, su radio y su
+   tinte de acento escritos a mano. Es la pieza que le faltaba al
+   catalogo entre la casilla (`.choice`, una marca) y la pastilla
+   (`.tag`, una etiqueta): una caja con su nombre y su explicacion
+   que se queda marcada al elegirla.
+
+   `.opt` es la que se pulsa; `.opt-row` es la misma caja cuando no
+   se elige nada --una fila de ajuste con su mando a la derecha--.
+   Las dos comparten `.opt-label` y `.opt-hint`.
+   ---------------------------------------------------------- */
+.opt {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  width: 100%;
+  padding: var(--sp-10) var(--sp-12);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms;
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-strong);
+    background: var(--bg-field);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  /* El icono acompana al texto y no compite con el */
+  & > i {
+    flex: none;
+    color: var(--text-muted);
+  }
+}
+
+/* Elegida: el tinte del acento, no el acento pleno. La caja sigue
+   siendo de lectura, asi que se tine sin invertir la tinta. */
+.opt.active {
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-text);
+
+  & > i,
+  & .opt-label,
+  & .opt-hint {
+    color: inherit;
+  }
+}
+
+/* La columna de texto: cede antes que el mando que va al lado */
+.opt-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.opt-label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.opt-hint {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Fila de ajuste: la misma caja sin nada que elegir. El mando
+   --un interruptor, un desplegable-- se va al otro extremo. */
+.opt-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+  padding: var(--sp-12) var(--sp-14);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+
+  & > :last-child {
+    margin-left: auto;
+    flex: none;
+  }
+}
+
+/* Mosaico: la opcion que se elige mirando y no leyendo --una
+   muestra de color, una miniatura--. NO es una `.opt`: aquella
+   pinta un fondo al apuntarla, y aqui el fondo es el contenido.
+   Lo unico que la enmarca es el cerco, por eso es mas grueso; se
+   levanta un pelo al apuntarla y la elegida lleva el halo del
+   foco, que es lo que se ve de lejos en una rejilla de cuarenta.
+
+   Anadido de este repo: el selector de paletas y el de color
+   personalizado la escribian igual, cada uno por su cuenta. */
+.opt-tile {
+  border: calc(var(--border-width) * 1.5) solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
+
+  &:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-0.0625rem);
+  }
+
+  &:focus-visible,
+  &.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+    outline: none;
+  }
+}
+
+/* El cuadro de un color suelto. Se escribia dos veces con dos medidas
+   --1.25rem el que ensena el color puesto dentro del campo hexadecimal,
+   1.75rem el que se pulsa en los accesos rapidos-- siendo la misma cosa.
+   La medida vive en `--swatch-size` para que no vuelva a separarse; el
+   cerco y la marca de elegido los pone `.opt-tile` cuando se pulsa. */
+.swatch-color {
+  width: var(--swatch-size);
+  height: var(--swatch-size);
+  flex: none;
+  border-radius: var(--radius-sm);
+}
+
+/* ----------------------------------------------------------
+   Inset: la caja hundida
+   ----------------------------------------------------------
+   Anadido de este repo: dentro de un modal o de una card ya
+   levantada, lo que agrupa --una barra de opciones, una lista de
+   columnas, las etiquetas de un multiselect-- no puede ser otra
+   card encima de la primera. Se hunde en vez de levantarse, con
+   el mismo papel que `--bg-field` tiene en un campo.
+   ---------------------------------------------------------- */
+.inset {
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-field);
+  padding: var(--sp-10);
+}
+
+/* Sin fondo: solo el cerco, para cuando lo de dentro ya se tine
+   por su cuenta (filas con su propio hover, una lista separada). */
+.inset.plain {
+  background: transparent;
+}
+
+/* Punteado: el hueco que espera a que se llene (una lista vacia,
+   el sitio donde se suelta un archivo). */
+.inset.dashed {
+  border-style: dashed;
+  background: transparent;
+}
+
+/* ----------------------------------------------------------
+   Dropzone: el hueco donde se suelta un archivo
+   ----------------------------------------------------------
+   Anadido de este repo: el panel importa datos por dos sitios
+   --filas y estructura-- con el mismo hueco punteado escrito dos
+   veces. Los dos estados finales son los que cuentan: leido
+   (verde, el borde se cierra) y rechazado (rojo); el porque lo
+   dice el aviso de al lado, no la caja.
+   ---------------------------------------------------------- */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-6);
+  width: 100%;
+  padding: var(--sp-24) var(--sp-16);
+  border: var(--border-width) dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+
+  &:hover {
+    background: var(--bg-field);
+  }
+
+  &:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+
+  & > i {
+    color: var(--text-muted);
+    font-size: 24px;
+  }
+}
+
+.dropzone.loaded {
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--success) 35%, transparent);
+  background: var(--success-bg);
+  color: var(--success);
+
+  &:hover {
+    background: color-mix(in oklab, var(--success) 12%, var(--bg-level2));
+  }
+
+  & > i {
+    color: var(--success);
+  }
+}
+
+.dropzone.rejected {
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--danger) 35%, transparent);
+  background: var(--danger-bg);
+  color: var(--danger);
+
+  &:hover {
+    background: color-mix(in oklab, var(--danger) 12%, var(--bg-level2));
+  }
+
+  & > i {
+    color: var(--danger);
+  }
+}
+
+/* Lo que se lee primero dentro del hueco: el nombre del archivo
+   cuando ya hay uno, la instruccion cuando no. */
+.dropzone-lead {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.dropzone-hint {
+  font-size: var(--text-xs);
+}
+
+/* El selector nativo, fuera de la vista: lo abre el clic en la
+   etiqueta que lo envuelve. */
+.dropzone-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border-width: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   Datos: etiquetas, medidas y listas
+   ========================================================== */
+
+/* Tag: etiqueta de categoria o de estado.
+
+   El color lo pone SIEMPRE una clase, nunca un estilo en linea: `.tint-1` es
+   la normal, `.tint-2`..`.tint-4` reparten categorias, y `.tag-success` /
+   `.tag-warning` / `.tag-error` son las que de verdad significan algo.
+
+   La pastilla a secas --sin ninguna de esas clases-- es el estado apagado:
+   solo su linea, que es como se queda un filtro que no esta puesto. Encender
+   y apagar es, entonces, poner y quitar `.tint-1`. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5625rem;
+  border-radius: 62.5rem;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition:
+    background-color 200ms,
+    color 200ms;
+
+  /* La etiqueta que se enciende es un boton: el toque y el borde a cero van
+     aqui, y no repetidos en cada pantalla que tiene filtros. */
+  &:is(button) {
+    cursor: pointer;
+    border: 0;
+  }
+
+  /* Apagada: sin fondo, solo el anillo. La lista se escribe entera a
+     proposito --un `[class*="tint-"]` tambien casaria con una clase de la
+     pantalla que solo se llame parecido. */
+  &:not(.tint-1, .tint-2, .tint-3, .tint-4, .tag-success, .tag-warning, .tag-error) {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-primary) 12%, transparent);
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--text-primary) 4%, transparent);
+    }
+  }
+
+  /* Sin esto el icono se queda con el tamano global de theme.css
+     (1.125rem) y estira la pastilla por encima de su texto. */
+  & i {
+    font-size: var(--text-xs);
+  }
+
+  /* Con un boton de cerrar dentro, el hueco de su lado sobra: el propio
+     boton ya separa del borde. */
+  &:has(.tag-remove) {
+    padding-right: 0.25rem;
+  }
+
+  /* ---- Semanticos ----
+     Nombrados por lo que significan, no por su color: si manana el
+     aviso deja de ser ambar, la clase sigue siendo la correcta. */
+  &.tag-success {
+    background: var(--success-bg);
+    color: var(--success);
+  }
+
+  &.tag-warning {
+    background: var(--warning-bg);
+    color: var(--warning);
+  }
+
+  &.tag-error {
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+}
+
+/* El boton para quitar un tag: vive dentro de el, no aparte. Su color sale
+   de `currentColor` a proposito: asi seguia sea cual sea el tinte del tag
+   que lo lleva, sin necesitar una variante propia por color. */
+.tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem;
+  border-radius: 0.25rem;
+  color: color-mix(in oklab, currentColor 60%, transparent);
+  transition:
+    background-color 150ms,
+    color 150ms;
+
+  & i {
+    font-size: var(--text-xs);
+  }
+
+  &:hover {
+    background: color-mix(in oklab, currentColor 15%, transparent);
+    color: currentColor;
+  }
+}
+
+/* Punto de estado: una sola clase en el propio contenedor, sin
+   elemento dentro. El punto es su ::after y el halo va como anillo
+   de box-shadow en ese mismo pseudo, no como un segundo elemento:
+   asi el componente gasta un unico pseudo y deja el otro libre.
+
+   El color viaja en --status-color para que la animacion, que vive
+   fuera de la regla, pueda leerlo sin repetir un keyframe por estado. */
+.badge-success,
+.badge-warning,
+.badge-error {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -0.25rem;
+    translate: -30% -30%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--status-color);
+    animation: badge-pulse 1.9s ease-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+    }
+  }
+}
+
+.badge-success {
+  --status-color: var(--success);
+}
+.badge-warning {
+  --status-color: var(--warning);
+}
+.badge-error {
+  --status-color: var(--danger);
+}
+
+@keyframes badge-pulse {
+  from {
+    box-shadow: 0 0 0 0 oklch(from var(--status-color) l c h / 0.55);
+  }
+  to {
+    box-shadow: 0 0 0 0.4375rem oklch(from var(--status-color) l c h / 0);
+  }
+}
+
+/* Iniciales de una persona */
+.avatar {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: var(--border-width) solid color-mix(in srgb, var(--accent) 32%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  font-size: var(--accent-soft);
+  font-weight: 700;
+}
+
+/* Quien esta dentro: el nombre encima y la cuenta debajo, los dos
+   recortados antes que empujar al avatar o al boton de al lado. Va
+   junto a un `.avatar` en el pie de una barra lateral.
+
+   Anadido de este repo: el pie de la aplicacion publicada y el de la
+   demo lo escribian igual, cada uno por su cuenta. */
+.identity {
+  min-width: 0;
+  flex: 1;
+  line-height: 1.3;
+
+  & strong {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  & span {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  & strong,
+  & span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Leyenda de una grafica: cuadro de color + texto */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-18);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+
+  & b {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+}
+
+.swatch {
+  width: 0.5625rem;
+  height: 0.5625rem;
+  flex: none;
+  border-radius: 0.1875rem;
+}
+
+/* Cifra suelta con su etiqueta y su pie */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  & .s-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  & .s-val {
+    font-size: var(--text-xl);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  & .s-foot {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+}
+
+/* ----------------------------------------------------------
+   Insight: sugerencia generada, con el fondo muy rebajado del
+   color de datos que le toque -- se tine sola al cambiar de
+   paleta, sin variante propia por color.
+   ---------------------------------------------------------- */
+.insights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--card-gap);
+}
+
+.insight {
+  position: relative;
+  overflow: hidden;
+  padding: var(--sp-18) var(--sp-18) var(--sp-20);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+
+  &:hover {
+    transform: translateY(-0.125rem);
+    box-shadow: var(--shadow-md);
+  }
+
+  & h3 {
+    margin: 0 0 0.25rem;
+    max-width: 78%;
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  & p {
+    margin: 0;
+    max-width: 80%;
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  /* Icono de fondo: acompaña, no compite con el texto */
+  & i.deco {
+    position: absolute;
+    right: 0.875rem;
+    top: 1rem;
+    font-size: var(--text-2xl);
+    opacity: 0.3;
+  }
+
+  &.a {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--chart-1) 26%, var(--bg-level2)),
+      color-mix(in srgb, var(--chart-1) 7%, var(--bg-level2)) 85%
+    );
+    border-color: color-mix(in srgb, var(--chart-1) 30%, var(--border));
+
+    & i.deco {
+      color: var(--tint-1-fg);
+    }
+  }
+
+  &.b {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--chart-2) 26%, var(--bg-level2)),
+      color-mix(in srgb, var(--chart-2) 7%, var(--bg-level2)) 85%
+    );
+    border-color: color-mix(in srgb, var(--chart-2) 30%, var(--border));
+
+    & i.deco {
+      color: var(--tint-2-fg);
+    }
+  }
+
+  &.c {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--chart-3) 26%, var(--bg-level2)),
+      color-mix(in srgb, var(--chart-3) 7%, var(--bg-level2)) 85%
+    );
+    border-color: color-mix(in srgb, var(--chart-3) 30%, var(--border));
+
+    & i.deco {
+      color: var(--tint-3-fg);
+    }
+  }
+}
+
+/* ----------------------------------------------------------
+   KPI: cifra clave con su tendencia y una sparkline que se sale
+   del acolchado para tocar los bordes de la card.
+   ---------------------------------------------------------- */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--card-gap);
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  padding: var(--sp-18) var(--sp-18) var(--sp-10);
+  overflow: hidden;
+
+  & > .spark {
+    height: 2.75rem;
+    margin: 0 calc(var(--sp-18) * -1) calc(var(--sp-10) * -1);
+  }
+}
+
+.kpi-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-9);
+}
+
+/* Icono en linea, sin caja: el color lo pone el acento */
+.kpi-ico {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+
+  & i {
+    font-size: var(--text-2xl);
+  }
+}
+
+.kpi-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.kpi-val {
+  font-size: var(--text-2xl);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kpi-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5625rem;
+}
+
+.kpi-foot {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Lista de filas con separadores propios */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+
+  & li {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    font-size: var(--text-sm);
+
+    & + li {
+      border-top: var(--border-width) solid var(--border);
+    }
+
+    &:hover {
+      background: var(--bg-field);
+    }
+  }
+
+  & .l-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  & .l-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  & .l-sub {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+}
+
+/* ---- Timeline ----
+   Tres columnas: hora · riel · contenido. Cada li replica las
+   pistas con subgrid para que la hora quede alineada en toda la
+   lista, mida lo que mida el contenido. */
+.timeline {
+  --rail: 0.75rem;
+  --step: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: max-content var(--rail) minmax(0, 1fr);
+  gap: 0 0.75rem;
+
+  & li {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: start;
+    padding-bottom: var(--step);
+    font-size: var(--text-sm);
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+
+    /* El riel y el punto comparten celda: el punto, opaco, tapa la linea */
+    &::after {
+      content: "";
+      grid-column: 2;
+      grid-row: 1;
+      align-self: stretch;
+      justify-self: center;
+      width: var(--border-width);
+      background: var(--border);
+      margin-bottom: calc(var(--step) * -1);
+    }
+
+    &:first-child::after {
+      margin-top: 0.4375rem;
+    }
+
+    &:last-child::after {
+      display: none;
+    }
+
+    &::before {
+      content: "";
+      grid-column: 2;
+      grid-row: 1;
+      z-index: 1; /* el punto va encima del riel */
+      justify-self: center;
+      margin-top: 0.1875rem;
+      width: 0.5625rem;
+      height: 0.5625rem;
+      border-radius: 50%;
+      background: var(--bg-level2);
+      box-shadow: 0 0 0 0.125rem var(--border-strong);
+    }
+
+    &.done::before {
+      background: var(--accent);
+      box-shadow: 0 0 0 0.125rem var(--accent);
+    }
+
+    /* Pendiente: la hora se apaga igual que el punto */
+    &:not(.done) .t-time b {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+  }
+
+  /* La hora manda: va primera, alineada a la derecha contra el riel */
+  & .t-time {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    line-height: 1.35;
+
+    & b {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+
+    & span {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+  }
+
+  & .t-body {
+    grid-column: 3;
+    grid-row: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  & .t-title {
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  & .t-desc {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+}
+
+/* ---- Steps: el numero lo pone un contador, no el marcado ---- */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  counter-reset: step;
+
+  & li {
+    counter-increment: step;
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+
+    &::before {
+      content: counter(step);
+      position: relative;
+      z-index: 1;
+      width: 1.625rem;
+      height: 1.625rem;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--bg-field);
+      border: var(--border-width) solid var(--border);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    /* La linea une un paso con el anterior */
+    & + li::after {
+      content: "";
+      position: absolute;
+      top: 0.75rem;
+      right: 50%;
+      left: -50%;
+      height: 0.125rem;
+      background: var(--border);
+      z-index: 0;
+    }
+
+    &.done,
+    &.current {
+      color: var(--text-primary);
+    }
+
+    &.done::before {
+      content: "\2713";
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    &.current::before {
+      border-color: var(--accent);
+      color: var(--accent-soft-text);
+      background: var(--accent-soft);
+    }
+
+    /* El tramo detras de un paso hecho tambien se pinta */
+    &.done + li::after {
+      background: var(--accent);
+    }
+  }
+}
+
+/* ---- Pagination ---- */
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  & button {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border-radius: var(--radius-sm);
+    border: var(--border-width) solid var(--border);
+    background: var(--bg-level2);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(:disabled) {
+      border-color: var(--border-strong);
+      background: var(--bg-field);
+      color: var(--text-primary);
+    }
+
+    &[aria-current] {
+      background: var(--accent);
+      border-color: transparent;
+      color: var(--accent-text);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+  }
+
+  & .gap {
+    padding: 0 0.125rem;
+    color: var(--text-muted);
+  }
+}
+
+/* ==========================================================
+   Tabla
+   ========================================================== */
+
+/* La card que la contiene recorta las esquinas del pie y la cabecera */
+.table-card {
+  overflow: hidden;
+}
+
+/* El scroll horizontal vive aqui: la pagina nunca se desplaza en X */
+.table-wrap {
+  overflow-x: auto;
+  padding: var(--sp-14) 0 0;
+}
+
+.table {
+  width: 100%;
+  min-width: 41.25rem;
+  border-collapse: collapse;
+
+  & th {
+    padding: var(--sp-10) var(--sp-20);
+    background: light-dark(oklch(0 0 0 / 3%), oklch(100% 0 0 / 0.02));
+    border-block: var(--border-width) solid var(--border);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    white-space: nowrap;
+
+    &.sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+
+      &:hover {
+        color: var(--text-secondary);
+      }
+
+      /* Triangulo dibujado con bordes: no depende de la iconeria */
+      & .arrow {
+        display: inline-block;
+        margin-left: 0.3125rem;
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-bottom: 5px solid currentColor;
+        opacity: 0;
+        vertical-align: middle;
+        transition:
+          transform 0.2s,
+          opacity 0.2s;
+      }
+
+      &.sorted {
+        color: var(--text-primary);
+
+        & .arrow {
+          opacity: 1;
+        }
+
+        &.asc .arrow {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+
+  & td {
+    padding: var(--sp-14) var(--sp-20);
+    border-bottom: var(--border-width) solid var(--border);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    vertical-align: middle;
+  }
+
+  /* Anadido de este repo: linea entre columnas, de serie.
+     Una tabla de datos --y las del panel lo son todas-- se lee por
+     columnas antes que por filas; sin la linea, dos celdas cortas
+     seguidas parecen una sola. Va entre columnas y no en el borde
+     de fuera (`+`, nunca en la primera), para no dibujar dos lineas
+     contra el borde de la tarjeta. */
+  & th + th,
+  & td + td {
+    border-left: var(--border-width) solid var(--border);
+  }
+
+  /* Cebra opcional */
+  &:where(.table-striped) tbody tr:nth-child(even) {
+    background: light-dark(oklch(0% 0 0 / 0.04), oklch(100% 0 0 / 0.02));
+  }
+
+  & tbody tr {
+    transition: background 0.12s;
+
+    &:hover {
+      background: light-dark(oklch(0% 0 0 / 0.05), oklch(100% 0 0 / 0.05));
+    }
+  }
+
+  /* El pie vive en el <tfoot>: la celda solo hace de contenedor, sin caja */
+  & tfoot td {
+    padding: 0;
+    border: 0;
+  }
+
+  /*
+    Sin pie, la ultima fila cierra la tabla con su propio borde. Con <tfoot>,
+    la linea la pone el borde superior del pie: quitamos el de la fila para no
+    dibujar dos.
+  */
+  &:has(tfoot) tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+/* Pie de tabla: recuento a la izquierda, paginacion a la derecha */
+.table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: var(--sp-12) var(--sp-20);
+  border-top: var(--border-width) solid var(--border);
+  background: light-dark(oklch(0% 0 0 / 0.03), oklch(100% 0 0 / 0.02));
+
+  /*
+    El pie va dentro del <tfoot>, asi que es tan ancho como la tabla y se
+    desplaza con ella. Los dos extremos se pegan al borde visible del scroll
+    para que el recuento y el pager sigan a la vista en pantalla estrecha.
+  */
+  & .pg-info {
+    position: sticky;
+    left: var(--sp-20);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  & .pg {
+    position: sticky;
+    right: var(--sp-20);
+    display: flex;
+    gap: 0.375rem;
+
+    /* Un punto mas bajos que el .btn-icon.sm normal: el pie es estrecho */
+    & .btn-icon {
+      width: 1.9375rem;
+      height: 1.9375rem;
+      border-radius: 0.5rem;
+
+      & i {
+        font-size: var(--text-base);
+      }
+    }
+  }
+}
+
+/* ==========================================================
+   Navegacion
+   ========================================================== */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  border-radius: var(--radius-sm);
+  color: var(--accent-soft-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  text-underline-offset: 0.1875rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 0.1875rem;
+  }
+
+  & i {
+    font-size: var(--text-base);
+  }
+}
+
+.divider {
+  height: var(--border-width);
+  margin: 0;
+  border: 0;
+  background: var(--border);
+}
+
+/* Separador con texto en medio: las lineas las ponen los pseudos */
+.divider-text {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: var(--border-width);
+    background: var(--border);
+  }
+}
+
+.crumbs {
+  & ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  & a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      color: var(--accent-soft-text);
+    }
+  }
+
+  /* Cada escalon a renglon. Anadido de este repo: un escalon puede llevar
+     icono delante del texto, y un glifo suelto en linea cuelga de la base en
+     vez de quedar en el eje. La barra pasa a ser un elemento mas del renglon,
+     asi que su margen lo hace ahora el hueco --la misma medida de antes. */
+  & li {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  & li + li::before {
+    content: "/";
+    color: var(--border-strong);
+  }
+
+  & [aria-current] {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+}
+
+/* Solo iconos, sin texto: la ruta de una cabecera estrecha. Los glifos
+   heredan el cuerpo de la ruta, que es el mas corto de la escala, y solos
+   --sin una palabra al lado que los sostenga-- se quedan chicos: crecen
+   hasta el del texto corriente. Anadido de este repo. */
+.crumbs.icons i {
+  font-size: var(--text-sm);
+}
+
+/* ---- Menu: popover anclado al boton que lo abre. Se cierra solo
+        al clicar fuera o con Esc, sin una linea de JS ---- */
+.menu-btn {
+  anchor-name: --menu;
+
+  & i.caret {
+    transition: rotate 0.2s;
+  }
+}
+
+.menu {
+  margin: 0;
+  padding: 0.3125rem;
+  min-width: 12.5rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-level2);
+  box-shadow: var(--shadow-lg);
+  flex-direction: column;
+  gap: 0.0625rem;
+
+  &:popover-open {
+    display: flex;
+  }
+
+  @supports (anchor-name: --a) {
+    position-anchor: --menu;
+    position-area: bottom span-right;
+    margin-top: 0.375rem;
+    justify-self: start;
+  }
+
+  & button {
+    display: flex;
+    align-items: center;
+    gap: 0.5625rem;
+    width: 100%;
+    padding: 0.5rem 0.5625rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--bg-field);
+      color: var(--text-primary);
+    }
+
+    &.danger {
+      color: var(--danger);
+
+      &:hover {
+        background: var(--danger-bg);
+      }
+    }
+  }
+
+  & i {
+    font-size: var(--text-base);
+  }
+}
+
+.menu-sep {
+  height: var(--border-width);
+  margin: 0.25rem 0;
+  background: var(--border);
+}
+
+/* ---- Disparador discreto: el boton que abre un menu dentro de
+        una celda o un encabezado. No es un boton de barra --no
+        lleva fondo ni borde en reposo-- pero se deja apuntar: la
+        linea solo asoma bajo el cursor.
+
+        Anadido de este repo: los encabezados de la importacion
+        (destino, tipo y llave) llevaban tres copias de la misma
+        regla, una por archivo. ---- */
+.trigger-quiet {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+
+  &:hover {
+    background: var(--bg-field);
+    border-color: var(--border-strong);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+
+  /* El cheuron y las flechas que lleva dentro: acompanan, no mandan */
+  & > i {
+    flex: none;
+    color: var(--text-muted);
+  }
+}
+
+/* Lo que se dice de segundas dentro del disparador: de donde viene
+   un dato frente a adonde va. */
+.trigger-quiet-soft {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* ==========================================================
+   Capas flotantes: modal, drawer y toast
+   Las tres son popover: el navegador se encarga de la capa
+   superior, del fondo y del cierre con Esc.
+   ========================================================== */
+
+/* Medidas del dialogo: cada instancia puede fijar --modal-w y
+   --modal-h, y los max-* garantizan siempre 1rem de aire. */
+.modal {
+  --modal-w: 26.25rem;
+  --modal-h: fit-content;
+  /* inset:0 lo pone el popover; margin auto centra sin transform */
+  margin: auto;
+  padding: 0;
+  width: var(--modal-w);
+  height: var(--modal-h);
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+
+  /* Navegador con dvh: el alto de la ventana dinamica, sin barras */
+  @supports (height: 100dvh) {
+    & {
+      max-height: calc(100dvh - 2rem);
+    }
+  }
+  overflow: hidden; /* el scroll vive en .modal-body */
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--bg-level2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+
+  &:popover-open {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background: rgba(12, 12, 20, 0.5);
+    backdrop-filter: blur(0.125rem);
+  }
+}
+
+/* ---- Esqueleto head / body / foot, compartido por modal y drawer ---- */
+.modal-head {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-14);
+  padding: var(--sp-20) var(--sp-22);
+  border-bottom: var(--border-width) solid var(--border);
+
+  & h2,
+  & h3 {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  & p {
+    margin: 0.25rem 0 0;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  /* El cierre siempre al extremo, mida lo que mida el titulo */
+  & .btn-icon {
+    margin-left: auto;
+    flex: none;
+  }
+}
+
+/* El form solo envuelve a body + foot y hereda la columna del modal */
+.modal-form {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-18);
+  padding: var(--sp-20) var(--sp-22);
+
+  & > p {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+}
+
+.modal-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding: var(--sp-16) var(--sp-22);
+  border-top: var(--border-width) solid var(--border);
+}
+
+/* ---- Drawer: el mismo esqueleto, pegado a un lado ----
+        Con top y bottom fijados y height auto ocupa el alto de la
+        ventana; lo suyo es por donde entra. */
+.drawer {
+  --drawer-w: 20rem;
+  margin: 0;
+  padding: 0;
+  width: var(--drawer-w);
+  max-width: calc(100vw - 3rem);
+  height: auto;
+  max-height: none;
+  border: var(--border-width) solid var(--border);
+  background: var(--bg-level2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transition:
+    translate 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    overlay 0.3s allow-discrete,
+    display 0.3s allow-discrete;
+
+  /* Solo se redondea el canto interior: el que da al contenido */
+  &.left {
+    inset: 0 auto 0 0;
+    border-left: 0;
+    translate: -100% 0;
+  }
+
+  &.right {
+    inset: 0 0 0 auto;
+    border-right: 0;
+    translate: 100% 0;
+  }
+
+  &:popover-open {
+    display: flex;
+    flex-direction: column;
+
+    /* Compuesto (0,3,0) para ganar al estado cerrado venga donde venga */
+    &.left,
+    &.right {
+      translate: 0 0;
+    }
+  }
+
+  &::backdrop {
+    background: rgba(12, 12, 20, 0.5);
+    backdrop-filter: blur(0.125rem);
+    opacity: 0;
+    transition:
+      opacity 0.3s,
+      overlay 0.3s allow-discrete,
+      display 0.3s allow-discrete;
+  }
+
+  &:popover-open::backdrop {
+    opacity: 1;
+  }
+
+  /* El drawer llena el alto, asi que su cuerpo es el que scrollea */
+  & .modal-body {
+    gap: var(--sp-16);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &,
+    &::backdrop {
+      transition: none;
+    }
+
+    &.left,
+    &.right {
+      translate: 0 0;
+    }
+  }
+}
+
+/* Sin @starting-style el panel ya estaria dentro al mostrarse:
+   la transicion necesita un valor de partida desde el que salir. */
+@starting-style {
+  .drawer.left:popover-open {
+    translate: -100% 0;
+  }
+
+  .drawer.right:popover-open {
+    translate: 100% 0;
+  }
+
+  .drawer:popover-open::backdrop {
+    opacity: 0;
+  }
+}
+
+/* ---- Toast: aviso en la esquina, sin fondo que bloquee ---- */
+.toast {
+  position: fixed;
+  inset: 1.375rem 1.375rem auto auto;
+  margin: 0;
+  align-items: flex-start;
+  gap: 0.625rem;
+  max-width: min(21.25rem, calc(100vw - 2.75rem));
+  padding: 0.75rem 0.875rem;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--text-sm);
+  font-weight: 600;
+
+  &:popover-open {
+    display: flex;
+  }
+
+  &::backdrop {
+    background: none;
+  }
+
+  & i.ico {
+    font-size: var(--text-base);
+    flex: none;
+    margin-top: 0.0625rem;
+  }
+
+  & .t-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.0625rem;
+  }
+
+  & .t-sub {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    opacity: 0.75;
+  }
+
+  & .close {
+    margin-left: auto;
+    padding: 0 0 0 0.25rem;
+    border: 0;
+    background: none;
+    color: currentColor;
+    font-size: var(--text-base);
+    opacity: 0.6;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+/* ---- Alert: el aviso en linea, dentro del contenido ---- */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.6875rem 0.8125rem;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+
+  & i {
+    font-size: var(--text-base);
+    flex: none;
+    margin-top: 0.0625rem;
+  }
+
+  & strong {
+    display: block;
+    font-size: var(--text-sm);
+  }
+}
+
+/* Los cuatro tonos de aviso: alert y toast comparten color y borde */
+.alert,
+.toast {
+  &.info {
+    background: var(--accent-soft);
+    color: var(--accent-soft-text);
+    border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  &.ok {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 22%, transparent);
+  }
+
+  &.warn {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border-color: color-mix(in srgb, var(--chart-3) 26%, transparent);
+  }
+
+  &.danger {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 22%, transparent);
+  }
+}
+
+/* Sin soporte de popover el bloque queda visible en linea, no roto */
+@supports not selector(:popover-open) {
+  .modal,
+  .drawer,
+  .toast {
+    position: static;
+    display: block;
+    height: auto;
+    max-height: none;
+  }
+}
+
+/* ---- Tooltip: el texto sale de data-tip, no del marcado ---- */
+.tip {
+  position: relative;
+
+  &::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    translate: -50% 0;
+    padding: 0.3125rem 0.5625rem;
+    border-radius: var(--radius-sm);
+    background: var(--text-primary);
+    color: var(--bg-level1);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================
+   Carga
+   ========================================================== */
+.spinner {
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 50%;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.7s linear infinite;
+}
+
+.dots {
+  display: inline-flex;
+  gap: 0.25rem;
+
+  & i {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 1s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+/* Hueco de texto mientras llegan los datos */
+.skeleton {
+  height: 0.625rem;
+  border-radius: 62.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--bg-level2) 25%,
+    color-mix(in srgb, var(--text-muted) 18%, var(--bg-field)) 37%,
+    var(--bg-field) 63%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+
+/* Boton en carga: se bloquea igual que :disabled y solo gira su icono */
+.is-loading > i {
+  animation: spin 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .dots i,
+  .skeleton,
+  .is-loading > i {
+    animation: none;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+
+/* ---- Progress: se pinta la barra nativa en los dos motores ---- */
+.progress {
+  display: block;
+  width: 100%;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 62.5rem;
+  background: var(--border);
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-progress-bar {
+    background: var(--bg-field);
+    border-radius: 62.5rem;
+  }
+
+  &::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--chart-1), var(--chart-4));
+    border-radius: 62.5rem;
+  }
+
+  &::-moz-progress-bar {
+    background: var(--chart-1);
+    border-radius: 62.5rem;
+  }
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Fondo + tinta de cada color de la serie, en una sola clase */
+.tint-1 {
+  background: var(--tint-1-bg);
+  color: var(--tint-1-fg);
+}
+.tint-2 {
+  background: var(--tint-2-bg);
+  color: var(--tint-2-fg);
+}
+.tint-3 {
+  background: var(--tint-3-bg);
+  color: var(--tint-3-fg);
+}
+.tint-4 {
+  background: var(--tint-4-bg);
+  color: var(--tint-4-fg);
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Rotulo de grupo: el renglon en versalitas que encabeza una lista
+   o una seccion de un menu. No es un titulo --no se lee, se ojea--
+   asi que va en el tono accesorio y nunca en negrita de titular.
+
+   Anadido de este repo: diez pantallas lo escribian a mano con las
+   mismas cinco declaraciones y tres interletrajes distintos. */
+.eyebrow {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}

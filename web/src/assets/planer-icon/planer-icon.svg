@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="128"
+   height="90"
+   viewBox="0 0 33.866667 23.8125"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   sodipodi:docname="planer1.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="5.6340776"
+     inkscape:cx="11.359446"
+     inkscape:cy="83.953405"
+     inkscape:window-width="2560"
+     inkscape:window-height="1371"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-108.75574,-94.994145)">
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#8e27f3;stroke-width:1.1843;stroke-dasharray:none;stroke-opacity:1"
+       id="rect12"
+       width="32.698841"
+       height="22.258612"
+       x="109.33965"
+       y="95.784081"
+       rx="10.902676"
+       ry="10.279582" />
+    <ellipse
+       style="fill:#8e27f3;fill-opacity:1;stroke:none;stroke-width:1.00799;stroke-dasharray:none;stroke-opacity:1"
+       id="ellipse13"
+       cx="119.17943"
+       cy="105.28049"
+       rx="3.2427197"
+       ry="4.5266771" />
+    <ellipse
+       style="fill:#8e27f3;fill-opacity:1;stroke:none;stroke-width:1.00799;stroke-dasharray:none;stroke-opacity:1"
+       id="ellipse14"
+       cx="132.19872"
+       cy="105.28049"
+       rx="3.2427197"
+       ry="4.5266771" />
+  </g>
+</svg>

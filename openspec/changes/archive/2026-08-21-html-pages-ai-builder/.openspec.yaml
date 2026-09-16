@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-08-20
+# `block-checks` pierde todos sus requisitos con este cambio: los bloques ya no
+# existen. La deteccion de referencias rotas pasa a `html-pages` y `data-impact`.
+retire_capabilities: true

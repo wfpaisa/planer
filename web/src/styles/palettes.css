@@ -1,0 +1,652 @@
+/* ==========================================================
+   PALETTES — las paletas, en CSS
+   ----------------------------------------------------------
+   Una paleta son CUATRO colores crudos y nada mas. Todo lo que
+   el panel ve (acento, tintes, serie de datos, halo de foco) se
+   deriva de esos cuatro aqui abajo, en un unico bloque.
+
+   Se pone en el HTML, sin JavaScript:
+
+       <html data-palette="lava">        <- o class="theme-lava"
+       <div class="theme-p-coral">       <- solo esa rama
+
+   Quitar el atributo (o la clase) devuelve los tokens que
+   declara theme.css: este archivo solo los PISA, nunca es el
+   valor de partida.
+
+   Dos cosas que explican la forma del archivo:
+
+   1. Claro y oscuro conviven en light-dark(), no en dos bloques.
+      El tema oscuro ya declara color-scheme: dark (theme.css), y
+      light-dark() lee justo eso. Por eso la derivacion se escribe
+      UNA vez y no hay que repetirla bajo [data-theme="dark"].
+   2. El tono se escribe `none`, no 0. Un oklch(0 0 0) declara un
+      tono REAL de 0 grados (rojo) y color-mix lo interpola: mezclar
+      un verde hacia el giraria el tono por amarillo y naranja. Con
+      `none` el tono queda sin potencia y la mezcla adopta el del
+      otro color, que es lo unico que se quiere mover: luminosidad
+      y croma.
+
+   Los selectores van enumerados uno a uno a proposito: un
+   [class*="theme-"] atraparia tambien a .theme-btn.
+   ========================================================== */
+
+[data-palette],
+.theme-electrico,
+.theme-tropico,
+.theme-frambuesa,
+.theme-bosque,
+.theme-lava,
+.theme-cyberpunk,
+.theme-v-solar,
+.theme-v-naranja,
+.theme-v-ambar,
+.theme-v-lima,
+.theme-v-esmeralda,
+.theme-v-turquesa,
+.theme-v-oceano,
+.theme-v-violeta,
+.theme-v-carmin,
+.theme-algodon,
+.theme-durazno,
+.theme-cielo,
+.theme-salvia,
+.theme-lavanda,
+.theme-vainilla,
+.theme-p-coral,
+.theme-p-limon,
+.theme-p-pistacho,
+.theme-p-menta,
+.theme-p-aguamarina,
+.theme-p-nube,
+.theme-p-lila,
+.theme-p-chicle,
+.theme-p-cuarzo,
+.theme-mono-red,
+.theme-mono-orange,
+.theme-mono-amber,
+.theme-mono-yellow,
+.theme-mono-lime,
+.theme-mono-green,
+.theme-mono-emerald,
+.theme-mono-teal,
+.theme-mono-sky,
+.theme-mono-blue,
+.theme-mono-indigo,
+.theme-mono-violet,
+.theme-mono-purple,
+.theme-mono-pink,
+.theme-mono-rose,
+.theme-mono-slate,
+.theme-custom {
+  /* ---- Acento ----
+     El principal se aparta un poco del color crudo (se oscurece en
+     claro, se aclara en oscuro) para que el boton primario no salga
+     igual de saturado que la barra de la grafica que lleva al lado. */
+  --_accent-light: color-mix(in oklch, var(--palette-1), oklch(0 0 none) 8%);
+  --_accent-dark: color-mix(in oklch, var(--palette-1), oklch(1 0 none) 28%);
+  --accent: light-dark(var(--_accent-light), var(--_accent-dark));
+
+  --accent-hover: light-dark(
+    color-mix(in oklch, var(--_accent-light), oklch(0 0 none) 14%),
+    color-mix(in oklch, var(--_accent-dark), oklch(1 0 none) 14%)
+  );
+
+  --accent-soft: light-dark(
+    color-mix(in oklch, var(--palette-1), oklch(1 0 none) 90%),
+    color-mix(in oklch, var(--palette-1), oklch(0.1 0 none) 80%)
+  );
+  --accent-soft-text: light-dark(
+    color-mix(in oklch, var(--palette-1), oklch(0 0 none) 35%),
+    color-mix(in oklch, var(--palette-1), oklch(1 0 none) 35%)
+  );
+
+  /* Tinta legible sobre el acento pleno, sin medir contraste en JS.
+     El clamp es un interruptor, no una interpolacion: si el acento es
+     claro (l > 0.635) el numerador se va negativo y cae al minimo
+     (tinta oscura); si es oscuro se dispara y cae al maximo (tinta
+     clara). El *1000 solo asegura que ningun valor intermedio
+     sobreviva al clamp. El croma cambia con el mismo interruptor,
+     invertido: la tinta clara admite menos que la oscura.
+
+     0.635 no es un numero redondo elegido a ojo: es el que reproduce
+     la decision WCAG del motor anterior en 90 de las 92 combinaciones
+     de paleta y tema. Las dos que no (naranja en claro) caian en
+     3.05:1, al borde del minimo, y ahora se llevan tinta oscura, que
+     contrasta mas. Cuando contrast-color() tenga soporte, sustituye
+     a estas dos lineas. */
+  --accent-text: light-dark(
+    oklch(
+      from var(--_accent-light) clamp(0.2, (l - 0.635) * -1000, 0.97)
+        min(c, clamp(0.045, (l - 0.635) * 1000, 0.09)) h
+    ),
+    oklch(
+      from var(--_accent-dark) clamp(0.2, (l - 0.635) * -1000, 0.97)
+        min(c, clamp(0.045, (l - 0.635) * 1000, 0.09)) h
+    )
+  );
+
+  --focus-ring: light-dark(
+    oklch(from var(--_accent-light) l c h / 0.18),
+    oklch(from var(--_accent-dark) l c h / 0.28)
+  );
+
+  /* ---- Serie de datos ----
+     En oscuro se aclaran para no apagarse contra el fondo; en claro
+     se usan tal cual salen de la paleta. */
+  --chart-1: light-dark(
+    var(--palette-1),
+    color-mix(in oklch, var(--palette-1), oklch(1 0 none) 15%)
+  );
+  --chart-2: light-dark(
+    var(--palette-2),
+    color-mix(in oklch, var(--palette-2), oklch(1 0 none) 15%)
+  );
+  --chart-3: light-dark(
+    var(--palette-3),
+    color-mix(in oklch, var(--palette-3), oklch(1 0 none) 15%)
+  );
+  --chart-4: light-dark(
+    var(--palette-4),
+    color-mix(in oklch, var(--palette-4), oklch(1 0 none) 15%)
+  );
+
+  /* ---- Tintes ----
+     El fondo se fija por LUMINOSIDAD, no mezclando una proporcion de
+     blanco o negro: mezclando, un color de partida oscuro daba un
+     tinte aun mas oscuro que la propia tarjeta y el tinte desaparecia.
+     Asi todos caen en la misma banda visible. El sumando `l` es
+     pequeno a proposito: mantiene separados entre si los cuatro
+     tintes de una paleta que solo se diferencian en luminosidad (los
+     neutros de las monocromas).
+
+     La tinta se fija igual y por el mismo motivo: mezclando, un color
+     oscuro daba texto oscuro sobre un fondo ya aclarado y se quedaba
+     sin contraste (los neutros de las monocromas bajaban a 2.3:1).
+
+     El croma es lo unico que se mueve libre, y va alto a proposito:
+     con multiplicadores bajos el tinte sale gris y no se distingue de
+     la tarjeta. El techo no es el gusto sino el contraste entre tinta
+     y fondo: medido sobre las 46 paletas x 2 temas x 4 tintes, con
+     estos numeros el peor par queda en 5.5:1 en claro y 6.7:1 en
+     oscuro, con 4.5:1 (AA de texto normal) como suelo. Subir la tinta
+     de c*1 a c*1.4 ya rompe seis casos, asi que ahi esta el margen. */
+  --tint-1-bg: light-dark(
+    oklch(from var(--palette-1) calc(0.91 + l * 0.03) calc(c * 0.35) h),
+    oklch(from var(--palette-1) calc(0.2 + l * 0.07) calc(c * 0.7) h)
+  );
+  --tint-1-fg: light-dark(
+    oklch(from var(--palette-1) 0.42 calc(c * 1) h),
+    oklch(from var(--palette-1) 0.82 calc(c * 0.75) h)
+  );
+  --tint-2-bg: light-dark(
+    oklch(from var(--palette-2) calc(0.91 + l * 0.03) calc(c * 0.35) h),
+    oklch(from var(--palette-2) calc(0.2 + l * 0.07) calc(c * 0.7) h)
+  );
+  --tint-2-fg: light-dark(
+    oklch(from var(--palette-2) 0.42 calc(c * 1) h),
+    oklch(from var(--palette-2) 0.82 calc(c * 0.75) h)
+  );
+  --tint-3-bg: light-dark(
+    oklch(from var(--palette-3) calc(0.91 + l * 0.03) calc(c * 0.35) h),
+    oklch(from var(--palette-3) calc(0.2 + l * 0.07) calc(c * 0.7) h)
+  );
+  --tint-3-fg: light-dark(
+    oklch(from var(--palette-3) 0.42 calc(c * 1) h),
+    oklch(from var(--palette-3) 0.82 calc(c * 0.75) h)
+  );
+  --tint-4-bg: light-dark(
+    oklch(from var(--palette-4) calc(0.91 + l * 0.03) calc(c * 0.35) h),
+    oklch(from var(--palette-4) calc(0.2 + l * 0.07) calc(c * 0.7) h)
+  );
+  --tint-4-fg: light-dark(
+    oklch(from var(--palette-4) 0.42 calc(c * 1) h),
+    oklch(from var(--palette-4) 0.82 calc(c * 0.75) h)
+  );
+}
+
+/* ==========================================================
+   Las paletas
+   Cada una declara sus cuatro colores crudos. El bloque de
+   arriba hace el resto.
+   ========================================================== */
+
+/* ---------- Vivos — Cuatro colores plenos: uno principal y tres de apoyo. ---------- */
+
+/* Eléctrico */
+[data-palette="electrico"],
+.theme-electrico {
+  --palette-1: oklch(60% 0.3 256);
+  --palette-2: oklch(0.649 0.114 182);
+  --palette-3: oklch(0.768 0.163 72.4);
+  --palette-4: oklch(0.634 0.213 1.3);
+}
+
+/* Trópico */
+[data-palette="tropico"],
+.theme-tropico {
+  --palette-1: oklch(0.722 0.129 216.8);
+  --palette-2: oklch(0.705 0.193 39.2);
+  --palette-3: oklch(0.541 0.247 293);
+  --palette-4: oklch(0.885 0.18 94.8);
+}
+
+/* Frambuesa */
+[data-palette="frambuesa"],
+.theme-frambuesa {
+  --palette-1: oklch(0.596 0.228 2.2);
+  --palette-2: oklch(0.715 0.126 215.2);
+  --palette-3: oklch(0.769 0.165 70.1);
+  --palette-4: oklch(0.606 0.219 292.7);
+}
+
+/* Bosque neón */
+[data-palette="bosque"],
+.theme-bosque {
+  --palette-1: oklch(0.627 0.17 149.2);
+  --palette-2: oklch(0.592 0.218 0.6);
+  --palette-3: oklch(0.705 0.187 47.6);
+  --palette-4: oklch(0.546 0.215 262.9);
+}
+
+/* Lava */
+[data-palette="lava"],
+.theme-lava {
+  --palette-1: oklch(0.637 0.208 25.3);
+  --palette-2: oklch(0.704 0.123 182.5);
+  --palette-3: oklch(0.769 0.165 70.1);
+  --palette-4: oklch(0.585 0.204 277.1);
+}
+
+/* Cyberpunk */
+[data-palette="cyberpunk"],
+.theme-cyberpunk {
+  --palette-1: oklch(0.667 0.259 322.1);
+  --palette-2: oklch(0.797 0.134 211.5);
+  --palette-3: oklch(0.861 0.173 91.9);
+  --palette-4: oklch(0.645 0.215 16.4);
+}
+
+/* Solar */
+[data-palette="v-solar"],
+.theme-v-solar {
+  --palette-1: oklch(0.795 0.184 86.047);
+  --palette-2: oklch(0.606 0.25 292.717);
+  --palette-3: oklch(0.704 0.14 182.503);
+  --palette-4: oklch(0.645 0.246 16.439);
+}
+
+/* Naranja */
+[data-palette="v-naranja"],
+.theme-v-naranja {
+  --palette-1: oklch(0.705 0.213 47.604);
+  --palette-2: oklch(0.685 0.169 237.323);
+  --palette-3: oklch(0.768 0.233 130.85);
+  --palette-4: oklch(0.627 0.265 303.9);
+}
+
+/* Ámbar */
+[data-palette="v-ambar"],
+.theme-v-ambar {
+  --palette-1: oklch(0.769 0.188 70.08);
+  --palette-2: oklch(0.704 0.14 182.503);
+  --palette-3: oklch(0.645 0.246 16.439);
+  --palette-4: oklch(0.585 0.233 277.117);
+}
+
+/* Lima */
+[data-palette="v-lima"],
+.theme-v-lima {
+  --palette-1: oklch(0.768 0.233 130.85);
+  --palette-2: oklch(0.627 0.265 303.9);
+  --palette-3: oklch(0.705 0.213 47.604);
+  --palette-4: oklch(0.685 0.169 237.323);
+}
+
+/* Esmeralda */
+[data-palette="v-esmeralda"],
+.theme-v-esmeralda {
+  --palette-1: oklch(0.696 0.17 162.48);
+  --palette-2: oklch(0.645 0.246 16.439);
+  --palette-3: oklch(0.769 0.188 70.08);
+  --palette-4: oklch(0.623 0.214 259.815);
+}
+
+/* Turquesa */
+[data-palette="v-turquesa"],
+.theme-v-turquesa {
+  --palette-1: oklch(0.704 0.14 182.503);
+  --palette-2: oklch(0.705 0.213 47.604);
+  --palette-3: oklch(0.627 0.265 303.9);
+  --palette-4: oklch(0.768 0.233 130.85);
+}
+
+/* Océano */
+[data-palette="v-oceano"],
+.theme-v-oceano {
+  --palette-1: oklch(0.623 0.214 259.815);
+  --palette-2: oklch(0.769 0.188 70.08);
+  --palette-3: oklch(0.696 0.17 162.48);
+  --palette-4: oklch(0.656 0.241 354.308);
+}
+
+/* Violeta */
+[data-palette="v-violeta"],
+.theme-v-violeta {
+  --palette-1: oklch(0.606 0.25 292.717);
+  --palette-2: oklch(0.768 0.233 130.85);
+  --palette-3: oklch(0.769 0.188 70.08);
+  --palette-4: oklch(0.704 0.14 182.503);
+}
+
+/* Carmín */
+[data-palette="v-carmin"],
+.theme-v-carmin {
+  --palette-1: oklch(0.645 0.246 16.439);
+  --palette-2: oklch(0.704 0.14 182.503);
+  --palette-3: oklch(0.795 0.184 86.047);
+  --palette-4: oklch(0.585 0.233 277.117);
+}
+
+/* ---------- Pasteles — La misma gama, en tono suave. ---------- */
+
+/* Algodón */
+[data-palette="algodon"],
+.theme-algodon {
+  --palette-1: oklch(0.785 0.104 274.7);
+  --palette-2: oklch(0.91 0.093 180.4);
+  --palette-3: oklch(0.924 0.115 95.8);
+  --palette-4: oklch(0.899 0.059 343.2);
+}
+
+/* Durazno */
+[data-palette="durazno"],
+.theme-durazno {
+  --palette-1: oklch(0.843 0.089 46.6);
+  --palette-2: oklch(0.899 0.059 343.2);
+  --palette-3: oklch(0.925 0.081 156);
+  --palette-4: oklch(0.87 0.062 274);
+}
+
+/* Cielo */
+[data-palette="cielo"],
+.theme-cielo {
+  --palette-1: oklch(0.828 0.101 230.3);
+  --palette-2: oklch(0.894 0.055 293.3);
+  --palette-3: oklch(0.945 0.124 101.5);
+  --palette-4: oklch(0.885 0.059 18.3);
+}
+
+/* Salvia */
+[data-palette="salvia"],
+.theme-salvia {
+  --palette-1: oklch(0.871 0.136 154.4);
+  --palette-2: oklch(0.924 0.115 95.8);
+  --palette-3: oklch(0.823 0.11 346);
+  --palette-4: oklch(0.865 0.115 207.1);
+}
+
+/* Lavanda */
+[data-palette="lavanda"],
+.theme-lavanda {
+  --palette-1: oklch(0.811 0.101 293.6);
+  --palette-2: oklch(0.845 0.13 165);
+  --palette-3: oklch(0.924 0.115 95.8);
+  --palette-4: oklch(0.808 0.103 19.6);
+}
+
+/* Vainilla */
+[data-palette="vainilla"],
+.theme-vainilla {
+  --palette-1: oklch(0.879 0.153 91.6);
+  --palette-2: oklch(0.823 0.11 346);
+  --palette-3: oklch(0.785 0.104 274.7);
+  --palette-4: oklch(0.855 0.125 181.1);
+}
+
+/* Coral */
+[data-palette="p-coral"],
+.theme-p-coral {
+  --palette-1: oklch(0.86 0.0995 25.331);
+  --palette-2: oklch(0.86 0.0588 182.503);
+  --palette-3: oklch(80.762% 0.125 53.557);
+  --palette-4: oklch(0.86 0.0979 277.117);
+}
+
+/* Limón */
+[data-palette="p-limon"],
+.theme-p-limon {
+  --palette-1: oklch(0.86 0.0773 86.047);
+  --palette-2: oklch(0.86 0.1 292.717);
+  --palette-3: oklch(0.86 0.0588 182.503);
+  --palette-4: oklch(0.86 0.1 16.439);
+}
+
+/* Pistacho */
+[data-palette="p-pistacho"],
+.theme-p-pistacho {
+  --palette-1: oklch(0.86 0.0979 130.85);
+  --palette-2: oklch(0.86 0.1 303.9);
+  --palette-3: oklch(0.86 0.0895 47.604);
+  --palette-4: oklch(0.86 0.071 237.323);
+}
+
+/* Menta */
+[data-palette="p-menta"],
+.theme-p-menta {
+  --palette-1: oklch(0.86 0.0714 162.48);
+  --palette-2: oklch(0.86 0.1 16.439);
+  --palette-3: oklch(0.86 0.079 70.08);
+  --palette-4: oklch(0.86 0.0899 259.815);
+}
+
+/* Aguamarina */
+[data-palette="p-aguamarina"],
+.theme-p-aguamarina {
+  --palette-1: oklch(0.86 0.0588 182.503);
+  --palette-2: oklch(0.86 0.0895 47.604);
+  --palette-3: oklch(0.86 0.1 303.9);
+  --palette-4: oklch(0.86 0.0979 130.85);
+}
+
+/* Nube */
+[data-palette="p-nube"],
+.theme-p-nube {
+  --palette-1: oklch(0.86 0.0899 259.815);
+  --palette-2: oklch(0.86 0.079 70.08);
+  --palette-3: oklch(0.86 0.0714 162.48);
+  --palette-4: oklch(0.86 0.1 354.308);
+}
+
+/* Lila */
+[data-palette="p-lila"],
+.theme-p-lila {
+  --palette-1: oklch(0.86 0.1 303.9);
+  --palette-2: oklch(0.86 0.0979 130.85);
+  --palette-3: oklch(0.86 0.079 70.08);
+  --palette-4: oklch(0.86 0.0588 182.503);
+}
+
+/* Chicle */
+[data-palette="p-chicle"],
+.theme-p-chicle {
+  --palette-1: oklch(0.86 0.1 354.308);
+  --palette-2: oklch(0.86 0.071 237.323);
+  --palette-3: oklch(0.86 0.0773 86.047);
+  --palette-4: oklch(0.86 0.092 149.579);
+}
+
+/* Cuarzo */
+[data-palette="p-cuarzo"],
+.theme-p-cuarzo {
+  --palette-1: oklch(0.86 0.1 16.439);
+  --palette-2: oklch(0.86 0.0588 182.503);
+  --palette-3: oklch(0.86 0.0773 86.047);
+  --palette-4: oklch(0.86 0.0979 277.117);
+}
+
+/* ---------- Monocromos — Color principal + tres neutros compartidos. ---------- */
+
+/* Rojo */
+[data-palette="mono-red"],
+.theme-mono-red {
+  --palette-1: oklch(0.637 0.237 25.331);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Naranja */
+[data-palette="mono-orange"],
+.theme-mono-orange {
+  --palette-1: oklch(0.705 0.213 47.604);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Ámbar */
+[data-palette="mono-amber"],
+.theme-mono-amber {
+  --palette-1: oklch(0.769 0.188 70.08);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Amarillo */
+[data-palette="mono-yellow"],
+.theme-mono-yellow {
+  --palette-1: oklch(0.795 0.184 86.047);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Lima */
+[data-palette="mono-lime"],
+.theme-mono-lime {
+  --palette-1: oklch(0.768 0.233 130.85);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Verde */
+[data-palette="mono-green"],
+.theme-mono-green {
+  --palette-1: oklch(0.723 0.219 149.579);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Esmeralda */
+[data-palette="mono-emerald"],
+.theme-mono-emerald {
+  --palette-1: oklch(0.696 0.17 162.48);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Turquesa */
+[data-palette="mono-teal"],
+.theme-mono-teal {
+  --palette-1: oklch(0.704 0.14 182.503);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Cielo */
+[data-palette="mono-sky"],
+.theme-mono-sky {
+  --palette-1: oklch(0.685 0.169 237.323);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Azul */
+[data-palette="mono-blue"],
+.theme-mono-blue {
+  --palette-1: oklch(0.623 0.214 259.815);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Índigo */
+[data-palette="mono-indigo"],
+.theme-mono-indigo {
+  --palette-1: oklch(0.585 0.233 277.117);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Violeta */
+[data-palette="mono-violet"],
+.theme-mono-violet {
+  --palette-1: oklch(0.606 0.25 292.717);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Púrpura */
+[data-palette="mono-purple"],
+.theme-mono-purple {
+  --palette-1: oklch(0.627 0.265 303.9);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Rosa */
+[data-palette="mono-pink"],
+.theme-mono-pink {
+  --palette-1: oklch(0.656 0.241 354.308);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Carmín */
+[data-palette="mono-rose"],
+.theme-mono-rose {
+  --palette-1: oklch(0.645 0.246 16.439);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* Pizarra */
+[data-palette="mono-slate"],
+.theme-mono-slate {
+  --palette-1: oklch(0.554 0.046 257.417);
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+}
+
+/* ---------- Personalizado ----------
+   El unico caso con JavaScript: el selector de color escribe
+   --palette-1 en linea sobre <html>. Los tres de apoyo son los
+   neutros de las monocromas, y viven aqui. */
+[data-palette="custom"],
+.theme-custom {
+  --palette-2: oklch(0.711 0.035 256.8);
+  --palette-3: oklch(0.445 0.037 257.3);
+  --palette-4: oklch(0.279 0.037 260);
+
+  /* El acento de una paleta predisenada se aparta a proposito del
+     color crudo (oscurecido en claro, aclarado en oscuro), pero aqui
+     el color LO ELIGE la persona con el selector: la muestra y los
+     botones tienen que mostrar ese exacto. Se pisan las mezclas del
+     bloque comun y todo lo demas (hover, tinta, foco) sigue
+     derivando de ellas igual que en las otras paletas. */
+  --_accent-light: var(--palette-1);
+  --_accent-dark: var(--palette-1);
+}

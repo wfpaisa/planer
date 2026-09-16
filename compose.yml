@@ -1,0 +1,42 @@
+# Despliegue en un servidor: una imagen, un volumen.
+#
+#   cp .env.docker.example .env.docker   (y cambia la clave)
+#   docker compose up -d
+#
+# Las claves salen de `.env.docker`, nunca de la imagen. Es un archivo
+# aparte del `.env` de desarrollo a proposito: Compose lee el `.env` del
+# proyecto para rellenar ${...}, asi que compartirlos colaria la clave por
+# defecto del entorno de desarrollo en el servidor.
+
+# Sin esto, Docker tomaria el nombre de la carpeta y los nombres cambiarian
+# de un servidor a otro. Fija el contenedor `planer` y el volumen
+# `planer_pb_data`.
+name: planer
+
+services:
+  planer:
+    # Para desplegar la del registro:  PLANER_IMAGE=... docker compose up -d
+    image: ${PLANER_IMAGE:-planer:latest}
+    container_name: planer
+    # Comenta `build` en el servidor si la imagen llega de un registro.
+    build:
+      context: .
+      args:
+        PB_VERSION: ${PB_VERSION:-0.39.11}
+    restart: unless-stopped
+    # Para que `docker stop` llegue limpio a PocketBase.
+    init: true
+    ports:
+      # Para publicar en otro puerto:  PLANER_PORT=8080 docker compose up -d
+      # Va por el entorno de la terminal, no por `.env.docker`: `env_file`
+      # alimenta al contenedor, no a los ${...} de este archivo.
+      - "${PLANER_PORT:-3000}:3000"
+    # La cuenta de administrador de PocketBase se reescribe en cada arranque
+    # con lo que diga este archivo. Si falta, `up` se detiene con un aviso.
+    env_file:
+      - .env.docker
+    volumes:
+      - pb_data:/app/pb/pb_data
+
+volumes:
+  pb_data:

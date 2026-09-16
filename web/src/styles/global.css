@@ -1,0 +1,400 @@
+/*
+ * El punto de entrada del CSS del panel.
+ *
+ * theme.css trae los tokens y el reset; palettes.css las 46 paletas;
+ * components.css el catalogo de piezas; layout.css las utilidades;
+ * compat.css declara los nombres que usaban la libreria de antes,
+ * derivados de los tokens nuevos; contract.css los que el HTML de
+ * una pagina nombra, y que por eso se sirven tambien ahi.
+ * Lo que sigue es la casa: piezas que no son de catalogo.
+ */
+
+@import "./theme.css";
+@import "./palettes.css";
+@import "./components.css";
+@import "./layout.css";
+@import "./compat.css";
+@import "./contract.css";
+
+/*
+ * LA ESCALA DE CAPAS
+ *
+ * Cinco peldanos, de diez en diez, y ninguno mas. Antes cada sitio se
+ * inventaba el suyo --50, 60, 70, 75, 80, 200-- y el numero solo decia "por
+ * encima de lo ultimo que probe": no habia forma de saber, leyendo uno, que
+ * tenia delante ni que tenia detras.
+ *
+ *   10  Cromo de la pagina: encabezados pegajosos, barra lateral, celdas
+ *       fijas de una cuadricula, menus desplegables.
+ *   20  Modales: la vista previa, los paneles y los velos que tapan la
+ *       ventana entera.
+ *   30  El cajon de fila, que se abre desde dentro de un modal y por eso
+ *       tiene que quedar por encima de el.
+ *   40  Avisos: los toasts y las alertas. Se tapan los ultimos.
+ *   50  Los globos de ayuda, que no tapan nada porque no reciben el puntero.
+ *
+ * Un peldano es un tramo, no un valor suelto: quien necesite ordenar varias
+ * piezas dentro de uno --la cuadricula, por ejemplo, que apila celda, fila y
+ * cabecera-- se aisla con `isolation: isolate` y ordena por su cuenta. Asi
+ * sus numeros no compiten con los de fuera y el tramo sigue valiendo lo que
+ * dice la tabla de arriba.
+ *
+ * Los `<dialog>` nativos y la capa de avisos no juegan aqui: el navegador los
+ * dibuja en la capa superior del documento, por encima de cualquier z-index.
+ * Ver `components/Toast.svelte`.
+ */
+
+/*
+ * El ritmo de las entradas del panel: lo que aparece en la conversacion y
+ * la portada que la abre. Vive aqui --y no en contract.css-- porque no
+ * viaja a ninguna pagina: es del panel y de nadie mas.
+ */
+:root {
+  --travel-ms: 380ms;
+  /* La curva del movimiento: sale rapido y llega con un rebote pequeno, el
+   * gesto de una burbuja que se posa. */
+  --travel-curve: cubic-bezier(0.32, 1.12, 0.5, 1);
+  /* La curva de los fundidos, sin rebote: lo que aparece no rebota. */
+  --travel-fade: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/*
+ * El globo de ayuda (ver `components/TooltipLayer.svelte`). Lo dibuja una capa
+ * al final del documento, en coordenadas de ventana, asi que ningun
+ * contenedor con desplazamiento lo puede recortar.
+ *
+ * El color sale del tema por mezcla --tinta casi pura sobre el papel-- para
+ * que el mismo globo funcione en los temas claros y en los oscuros.
+ */
+.plane-tip {
+  position: fixed;
+  /* El peldano mas alto de la escala: no tapa nada porque no recibe el puntero. */
+  z-index: 50;
+  max-width: 18rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-field);
+  background: color-mix(in oklab, var(--ink) 92%, var(--surface-card));
+  color: var(--surface-card);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+  text-align: center;
+  text-wrap: balance;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.18);
+  pointer-events: none;
+  animation: tip-in 120ms var(--travel-fade) both;
+  font-weight: 500;
+}
+
+.plane-tip-error {
+  background: var(--color-error);
+  color: var(--color-error-content);
+}
+
+@keyframes tip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plane-tip {
+    animation: none;
+  }
+}
+
+/*
+ * El vestido de lo que flota encima del panel (ver `components/ui/surface.ts`):
+ * un dialogo, un panel del encabezado y el cajon de una fila son cosas distintas
+ * por dentro, pero por fuera tienen que ser la misma tarjeta. Las clases viven
+ * aqui, en CSS plano, para que los cuatro que se lo ponen no se desincronicen.
+ */
+.plane-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow:
+    0 1.25rem 1.5625rem -0.3125rem rgb(0 0 0 / 0.1),
+    0 0.5rem 0.625rem -0.375rem rgb(0 0 0 / 0.1);
+}
+
+.plane-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.4);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+}
+
+.plane-card-head,
+.plane-card-foot {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.plane-card-head {
+  align-items: flex-start;
+  border-block-end: 1px solid var(--line);
+}
+
+.plane-card-foot {
+  align-items: center;
+  justify-content: flex-end;
+  border-block-start: 1px solid var(--line);
+}
+
+.plane-card-body {
+  padding: 1rem;
+}
+
+.plane-card-title {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.plane-card-description {
+  margin-block-start: 0.125rem;
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  color: var(--ink-soft);
+}
+
+/*
+ * La conversacion con la inteligencia artificial entra escalonada: primero el
+ * mensaje de quien pide, luego la pillora de "Generando" y por ultimo la
+ * respuesta. Cada pieza sube un poco y se asoma (fade + slide up).
+ */
+.rise {
+  animation: rise var(--travel-ms) var(--travel-curve) both;
+}
+
+.hero-in {
+  animation: hero-in var(--travel-ms) var(--travel-curve) both;
+}
+.hero-leave {
+  animation: hero-out var(--travel-ms) var(--travel-fade) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.625rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.875rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.875rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .hero-in,
+  .hero-leave {
+    animation: none;
+  }
+}
+
+/*
+ * El velo de soltar un archivo. Tapa la ventana entera y se asoma con un fade:
+ * asi el cartel se lee sobre cualquier documento, por cargado de color que
+ * este, y no se pierde entre lo que hay debajo.
+ */
+.drop-veil {
+  background: color-mix(in oklab, var(--surface-page) 88%, transparent);
+  backdrop-filter: blur(2px);
+  animation: veil-in 140ms var(--travel-fade) both;
+}
+
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop-veil {
+    animation: none;
+  }
+}
+
+/*
+ * Los avisos de la capa de arriba a la derecha (ver `components/Toast.svelte`).
+ * Entran deslizandose desde el borde para que se note que llego algo nuevo sin
+ * mover nada de lo que hay debajo.
+ */
+.toast-item {
+  animation: toast-in 160ms var(--travel-fade) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-item {
+    animation: none;
+  }
+}
+
+/* Barras de desplazamiento discretas (el punto de partida esta en theme.css). */
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--ink-faint) 45%, transparent);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--ink-faint) 70%, transparent);
+  background-clip: content-box;
+}
+
+/*
+ * EL HALO DE LA IA
+ *
+ * Un anillo de color que gira alrededor de lo que envuelve (el boton y el
+ * campo de la conversacion). El angulo es una propiedad registrada: solo asi
+ * se puede animar, y sin registro el degradado quedaria quieto.
+ */
+@property --aura-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes aura-spin {
+  to {
+    --aura-angle: 360deg;
+  }
+}
+
+.aura {
+  --aura-padding: 0.125rem;
+  --aura-radius: var(--radius-field);
+  padding: var(--aura-padding);
+  border-radius: calc(var(--aura-padding) + var(--aura-radius));
+  display: inline-block;
+  position: relative;
+  animation: aura-spin 6s linear infinite;
+
+  &:before,
+  &:after {
+    background-image: inherit;
+    border-radius: inherit;
+    z-index: 0;
+    opacity: 0.7;
+    filter: blur(0.25rem);
+    content: "";
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+  }
+
+  &:after {
+    opacity: 0.3;
+    filter: blur(1rem);
+  }
+
+  & > * {
+    z-index: 1;
+    position: relative;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 24s;
+  }
+}
+
+/*
+ * El halo va por fuera, a `--aura-padding` de lo que envuelve: para que las
+ * dos curvas sean concentricas su radio tiene que ser el de dentro mas ese
+ * hueco. Si no lo es, el anillo se despega en las cuatro esquinas --se ve un
+ * hueco entre el color y la caja, justo lo que delata que son dos piezas--.
+ * El valor de partida sirve al campo; lo que redondea distinto se dice aqui.
+ */
+.aura:has(> .card) {
+  --aura-radius: var(--radius-lg);
+}
+
+.aura:has(> .btn-rounded) {
+  --aura-radius: 62.5rem;
+}
+
+/* El tono del halo cuando es la IA la que esta trabajando */
+.aura-ia {
+  --aura-padding: 1px;
+  transition-duration: 3000ms;
+
+  background: repeating-conic-gradient(
+    from var(--aura-angle) in oklch longer hue,
+    oklch(87% 0.2 150 / 0.6),
+    oklch(87% 0.2 150 / 0.6)
+  );
+
+  &.aura-ia-ghost {
+    background: transparent;
+  }
+
+  &:before,
+  &:after {
+    opacity: 30%;
+    filter: blur(0.3rem);
+  }
+
+  &:has(textarea:focus) {
+    animation-play-state: paused;
+
+    &:before,
+    &:after {
+      opacity: 30%;
+      filter: blur(0.1rem);
+    }
+  }
+}

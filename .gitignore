@@ -1,0 +1,15 @@
+node_modules/
+web/dist/
+pb/pb_data/
+pb/pb_migrations/
+pb/pocketbase
+.husky/_
+.env
+.env.docker
+# Lleva dentro la direccion del servidor.
+desplegar.sh
+*.log
+
+.claude
+.crush
+.zcode

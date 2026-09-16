@@ -1,0 +1,21 @@
+# Todo lo que se reconstruye dentro de la imagen, o no debe entrar nunca.
+.git
+.git-blame-ignore-revs
+.github
+.husky
+.vscode
+.claude
+.crush
+.zcode
+node_modules
+web/dist
+pb/pocketbase
+pb/pb_data
+pb/pb_migrations
+.env
+.env.*
+!.env.example
+*.log
+openspec
+docs
+scripts/smoke*.ts

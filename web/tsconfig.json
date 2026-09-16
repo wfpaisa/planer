@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["svelte", "vite/client"]
+  },
+  /*
+   * Quien revisa el panel es `svelte-check`, no `tsc`: entiende los `.svelte` y
+   * los `.svelte.ts`, que es todo lo que hay aqui.
+   */
+  "include": ["src/**/*.ts", "src/**/*.svelte", "svelte.config.js", "vite.config.ts"],
+  "exclude": ["dist"]
+}
