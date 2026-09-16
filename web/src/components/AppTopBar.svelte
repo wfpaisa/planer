@@ -31,6 +31,7 @@
   import type { AppRecord } from "@shared/types";
 
   import { cx } from "../lib/cx";
+  import { closePublish, publishCard, togglePublish } from "../lib/publishPanel.svelte";
   import AppIcon from "./AppIcon.svelte";
   import AppName from "./AppName.svelte";
   import Icon from "./Icon.svelte";
@@ -57,15 +58,20 @@
     onChanged: () => Promise<void> | void;
   } = $props();
 
-  /** Lo que el encabezado puede tener abierto. Vacio: solo la fila. */
-  let panel = $state<"" | "publish">("");
-  const close = () => (panel = "");
+  /*
+   * La tarjeta de publicar se dibuja aqui, pero su estado vive fuera (ver
+   * `lib/publishPanel.svelte.ts`): tambien la abre el candado de la barra de
+   * direccion, que esta en otra rama del arbol.
+   */
 
-  // Si se cambia de mitad con la tarjeta de publicar abierta --el historial del
-  // navegador puede hacerlo sin tocar la fila-- se cierra sola: publicar no
-  // vive en la mitad de los datos.
+  // Si se cambia de mitad con la tarjeta abierta --el historial del navegador
+  // puede hacerlo sin tocar la fila-- se cierra sola: publicar no vive en la
+  // mitad de los datos. Y al entrar en otra aplicacion tambien, que lo abierto
+  // era de la anterior y el estado no se desmonta con el encabezado.
+  let lastApp = "";
   $effect(() => {
-    if (section !== "app") panel = "";
+    if (section !== "app" || app.id !== lastApp) closePublish();
+    lastApp = app.id;
   });
 </script>
 
@@ -162,16 +168,13 @@
     {#if section === "app"}
       <span aria-hidden="true" class="topbar-divider"></span>
 
-      <PublishButton
-        active={panel === "publish"}
-        onclick={() => (panel = panel === "publish" ? "" : "publish")}
-      />
+      <PublishButton active={publishCard.open} onclick={togglePublish} />
     {/if}
   </div>
 </header>
 
-<PanelModal open={panel === "publish"} onClose={close} height="34rem">
-  <PublishPanel onClose={close} />
+<PanelModal open={publishCard.open} onClose={closePublish} height="34rem">
+  <PublishPanel onClose={closePublish} />
 </PanelModal>
 
 <style>

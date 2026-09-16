@@ -49,6 +49,7 @@
   import { errorMessage, pb } from "../lib/pb";
   import { getPeople } from "../lib/people.svelte";
   import { previewAs } from "../lib/previewAs.svelte";
+  import { openPublish } from "../lib/publishPanel.svelte";
   import { navigate } from "../lib/router.svelte";
   import { sidebarPin } from "../lib/sidebarPin.svelte";
   import { theme } from "../lib/theme.svelte";
@@ -399,6 +400,7 @@
       dock={builder.dock}
       onOpenCode={() => openPanel("code")}
       onOpenChanges={() => openPanel("changes")}
+      onOpenAccess={openPublish}
       {previewOptions}
       previewValue={preview.role}
       {previewing}

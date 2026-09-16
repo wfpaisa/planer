@@ -61,6 +61,7 @@
     dock,
     onOpenCode,
     onOpenChanges,
+    onOpenAccess,
     previewOptions,
     previewValue,
     previewing,
@@ -76,6 +77,14 @@
     onOpenCode?: () => void;
     /** Como estaba antes esta pagina. */
     onOpenChanges?: () => void;
+    /**
+     * Quien puede entrar en la aplicacion. Lo abre el candado: es lo que el
+     * candado cuenta, asi que es donde tiene que llevar al pulsarlo.
+     *
+     * Sin nadie que lo escuche el candado se queda en lo que era --un aviso
+     * con su globito-- y no finge ser un boton.
+     */
+    onOpenAccess?: () => void;
     /**
      * Con quien se puede mirar la pagina, en el orden en que se ofrece.
      *
@@ -109,6 +118,15 @@
   /** Como se lee lo puesto ahora. Sin rotulo conocido, el valor a secas. */
   const previewLabel = $derived(
     previewOptions?.find((o) => o.value === previewValue)?.label ?? previewValue ?? "",
+  );
+
+  /*
+   * Lo que dice el globito del candado: primero como esta --que es lo que el
+   * icono ya cuenta a medias-- y, si se puede pulsar, a donde lleva.
+   */
+  const accessState = $derived(open ? "Pública: se alcanza sin cuenta" : "Requiere iniciar sesión");
+  const accessTip = $derived(
+    onOpenAccess ? `${accessState}. Cambiar quién puede entrar` : accessState,
   );
 
   const copy = async () => {
@@ -204,17 +222,38 @@
   >
     <!-- Quien entra. Lo abierto se dibuja apagado y lo restringido encendido:
          en una fila de siempre, lo que hay que cazar de un vistazo es la
-         excepcion, no la norma. Es el mismo criterio del sidebar. -->
-    <span
-      class={cx(
-        "btn-icon btn-ghost btn-rounded sm lock-public-link",
-        open ? "lock-public-link-open" : "lock-public-link-closed",
-      )}
-      data-tip={open ? "Pública: se alcanza sin cuenta" : "Requiere iniciar sesión"}
-      data-tip-side="bottom"
-    >
-      <Icon name={open ? "globe-02" : "key-round"} size={16} />
-    </span>
+         excepcion, no la norma. Es el mismo criterio del sidebar.
+
+         Y se pulsa: lleva a la tarjeta de publicar, que es donde se cambia
+         quien puede entrar. Enterarse de que hace falta cuenta y querer
+         cambiarlo son el mismo momento, y el globito ya lo estaba contando. -->
+    {#if onOpenAccess}
+      <Button
+        size="sm"
+        onclick={onOpenAccess}
+        aria-label={accessTip}
+        tip={accessTip}
+        tipSide="bottom"
+        buttonClass="btn-open-publish-access"
+        class={cx(
+          "btn-icon btn-ghost btn-rounded sm lock-public-link",
+          open ? "lock-public-link-open" : "lock-public-link-closed",
+        )}
+      >
+        <Icon name={open ? "globe-02" : "key-round"} size={16} />
+      </Button>
+    {:else}
+      <span
+        class={cx(
+          "btn-icon btn-ghost btn-rounded sm lock-public-link",
+          open ? "lock-public-link-open" : "lock-public-link-closed",
+        )}
+        data-tip={accessTip}
+        data-tip-side="bottom"
+      >
+        <Icon name={open ? "globe-02" : "key-round"} size={16} />
+      </span>
+    {/if}
 
     <!-- Gris lo que situa --el dominio, las barras-- y negro lo que nombra: el
          enlace se lee por el nombre, no por el resto. -->
@@ -228,9 +267,15 @@
     </span>
 
     <dir class="public-right-links">
+      <!-- El globito lee lo copiado igual que el icono, pero solo lo cuenta a
+           quien vuelve a pasar por encima: la capa de globos se queda con el
+           texto que habia al asomar (ver `TooltipLayer`). No hace falta mas,
+           que el campo entero poniendose verde ya lo dice en el momento. -->
       <span
         onclick={copy}
         aria-hidden="true"
+        data-tip={copied ? "Enlace copiado" : "Copiar el enlace"}
+        data-tip-side="bottom"
         class={cx(
           "btn-icon btn-ghost btn-rounded sm",
           copied ? "copy-icon-public-link-copied" : "copy-icon-public-link-idle",
@@ -242,6 +287,8 @@
       <span
         onclick={() => window.open(url, "_blank", "noopener")}
         aria-hidden="true"
+        data-tip="Abrir en otra pestaña"
+        data-tip-side="bottom"
         class="btn-icon btn-ghost btn-rounded sm"
       >
         <Icon name="external-link" size={16} />

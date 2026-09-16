@@ -82,16 +82,16 @@
    */
   const VISIBILITIES = [
     {
-      value: "public",
-      icon: "globe-02",
-      title: "Libre",
-      description: "No requiere iniciar sesión para poder ver.",
-    },
-    {
       value: "private",
       icon: "key-round",
       title: "Requiere iniciar sesión",
       description: "Hay que ingresar con una cuenta creada en la Base de datos de Personas.",
+    },
+    {
+      value: "public",
+      icon: "globe-02",
+      title: "Libre",
+      description: "No requiere iniciar sesión para poder ver.",
     },
   ] as const;
 </script>
