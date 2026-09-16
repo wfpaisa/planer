@@ -21,6 +21,23 @@
    */
   type ExportFormat = "csv" | "json" | "excel";
 
+  /**
+   * Lo que se espera desde la ultima tecla antes de volver a leer la tabla.
+   *
+   * Suficiente para que una palabra escrita de seguido sea una sola consulta, y
+   * poco para que corregir una letra no se sienta parado.
+   */
+  const SEARCH_DELAY = 250;
+
+  /**
+   * Lo minimo que el giro se queda a la vista, aunque las filas ya esten.
+   *
+   * Una lectura corta vuelve en menos de lo que tarda en verse: sin este suelo,
+   * el icono cambia y vuelve en el mismo parpadeo y lo unico que se percibe es
+   * un tiron. Se mide desde que empezo a girar, no desde que termino de leer.
+   */
+  const SPIN_MIN = 400;
+
   const PAGE_SIZES = [25, 50, 100, 200, 300, 500] as const;
   /** Cuando `meta.pageSize` no vale, la grilla usa este tamano. */
   const DEFAULT_PAGE_SIZE = 50;
@@ -71,6 +88,7 @@
   import type { Row } from "../lib/cellValues";
   import { cx } from "../lib/cx";
   import { ROW_ORDER } from "../lib/dropFiles";
+  import { DEFAULT_TABLE_ICON } from "../lib/icons";
   import { type ImportNote, peopleImportNote } from "../lib/importPlan";
   import {
     linkWaiting,
@@ -125,7 +143,6 @@
     MenuItem,
     MenuLabel,
     MenuSeparator,
-    Spinner,
     SuccessNote,
     WarnNote,
   } from "./ui";
@@ -194,7 +211,17 @@
   let onlyOrphans = $state(false);
   /** Filas de otras tablas que estaban esperando al registro recien creado. */
   let waiting = $state<Waiting[] | null>(null);
+  /**
+   * Lo que se busca, ya aplicado. Cambiarlo es pedir las filas otra vez.
+   *
+   * Va aparte de lo que hay escrito --`searchText`-- porque no se aplica en el
+   * momento: ver `typeSearch`.
+   */
   let search = $state("");
+  /** Lo que hay escrito en el buscador ahora mismo. Es lo que se ve teclear. */
+  let searchText = $state("");
+  /** La tecla que todavia no se ha aplicado, si queda alguna esperando. */
+  let searchTimer: ReturnType<typeof setTimeout> | null = null;
   let sort = $state<Sort | null>(null);
   let columnModal = $state<{ field?: FieldDef } | null>(null);
   /**
@@ -437,6 +464,52 @@
       refreshing = false;
     }
   }
+
+  /**
+   * Si el icono de la tabla esta girando.
+   *
+   * No es `loading` a secas: se enciende con el y se apaga un poco despues, lo
+   * justo para que el relevo se vea. Entre lectura y lectura seguidas no se
+   * reinicia --el suelo se cuenta desde la primera-- asi que teclear deprisa da
+   * un giro continuo y no una sucesion de arranques.
+   */
+  let spinning = $state(false);
+  /*
+   * Estas dos no son estado de pantalla y por eso no son runas: si lo fueran,
+   * el efecto de abajo dependeria de lo que el mismo escribe y volveria a
+   * lanzarse solo.
+   */
+  let spinStart = 0;
+  let spinTimer: ReturnType<typeof setTimeout> | null = null;
+
+  $effect(() => {
+    if (loading) {
+      if (!spinStart) spinStart = Date.now();
+      spinning = true;
+      return;
+    }
+    if (!spinStart) return;
+
+    const left = SPIN_MIN - (Date.now() - spinStart);
+    const stop = () => {
+      spinStart = 0;
+      spinning = false;
+    };
+    if (left <= 0) {
+      stop();
+      return;
+    }
+    spinTimer = setTimeout(() => {
+      spinTimer = null;
+      stop();
+    }, left);
+    // Corre antes de la siguiente vuelta y al irse la pantalla: una lectura que
+    // empieza mientras el giro se esta apagando lo hereda en vez de cortarlo.
+    return () => {
+      if (spinTimer) clearTimeout(spinTimer);
+      spinTimer = null;
+    };
+  });
 
   /**
    * El estado intermedio de la casilla "todos" no es un atributo: se pone sobre
@@ -830,7 +903,33 @@
         : { field: name, dir: "asc" },
     );
 
+  /**
+   * Una tecla en el buscador.
+   *
+   * Lo escrito se ve al momento; lo que espera es la consulta. Sin esta espera,
+   * escribir "clientes" son ocho lecturas de la tabla --siete de ellas de algo
+   * que ya no se esta buscando-- y ocho parpadeos del indicador de carga.
+   */
+  function typeSearch(value: string) {
+    searchText = value;
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchTimer = null;
+      if (value === search) return;
+      page = 1;
+      search = value;
+    }, SEARCH_DELAY);
+  }
+
+  /* Al irse la pantalla no queda ninguna tecla esperando a aplicarse. */
+  $effect(() => () => {
+    if (searchTimer) clearTimeout(searchTimer);
+  });
+
   function clearSearch() {
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = null;
+    searchText = "";
     search = "";
     page = 1;
   }
@@ -853,6 +952,25 @@
   <!-- Barra de herramientas -->
   <div id="database-grid-toolbar" class="toolbar-grid-db flex shrink-0 items-center gap-1">
     <div class="grid-db-table-id">
+      <!--
+        El icono de la tabla es tambien el indicador de carga: mientras llegan
+        las filas lo releva un giro con el acento de la aplicacion, en su mismo
+        hueco. Antes el indicador era un circulo que aparecia entre el contador
+        y el buscador, y encenderlo empujaba la barra entera hacia la derecha a
+        cada tecla. Esto no mueve nada: el hueco esta puesto y solo cambia lo
+        que hay dentro.
+
+        Es el mismo icono que la tabla tiene en el lateral, y por eso dice "la
+        tabla" y no "la busqueda": el giro sale igual al ordenar, al paginar o
+        al refrescar.
+      -->
+      <span class="grid-db-table-icon" aria-hidden="true">
+        {#if spinning}
+          <span class="spinner grid-db-table-spinner"></span>
+        {:else}
+          <Icon name={isPeople ? "user-multiple" : DEFAULT_TABLE_ICON} size={15} />
+        {/if}
+      </span>
       <!--
         El nombre es lo unico que cede espacio cuando la barra aprieta, pero
         nunca hasta desaparecer.
@@ -878,7 +996,6 @@
           {total === 1 ? "fila" : "filas"}
         </span>
       {/if}
-      {#if loading && rows.length > 0}<Spinner class="grid-db-spinner" />{/if}
     </div>
 
     <span aria-hidden="true" class="grid-db-divider"></span>
@@ -886,16 +1003,13 @@
     <div class="grid-db-search">
       <Icon name="search-01" size={13} class="grid-db-search-icon" />
       <input
-        value={search}
-        oninput={(e) => {
-          page = 1;
-          search = e.currentTarget.value;
-        }}
+        value={searchText}
+        oninput={(e) => typeSearch(e.currentTarget.value)}
         placeholder="Buscar"
         aria-label="Buscar en la tabla"
         class="input-search-table field-control sm grid-db-search-input"
       />
-      {#if search}
+      {#if searchText}
         <button
           type="button"
           onclick={clearSearch}
@@ -1702,8 +1816,26 @@
       }
     }
 
-    & :global(.grid-db-spinner) {
+    /*
+     * El hueco del icono es fijo y no lo decide lo que hay dentro: icono y giro
+     * miden lo mismo, asi que el relevo no corre ni un pixel de la barra.
+     */
+    & .grid-db-table-icon {
+      display: grid;
+      height: 1rem;
+      width: 1rem;
       flex-shrink: 0;
+      place-items: center;
+      color: var(--text-muted);
+    }
+
+    & .grid-db-table-spinner {
+      height: 0.875rem;
+      width: 0.875rem;
+      border-width: 2px;
+      /* Entero del color de la aplicacion: el aro tenue y la cabeza plena. */
+      border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+      border-top-color: var(--accent);
     }
 
     & .grid-db-divider {

@@ -30,7 +30,7 @@
   padding: 0.25rem 0.875rem;
   border-radius: var(--radius-md);
   border: var(--border-width) solid var(--border);
-  background: var(--bg-level2);
+  background: color-mix(in srgb, var(--bg-level2) 96%, var(--text-primary));
   font-size: var(--text-sm);
   font-weight: 600;
   white-space: nowrap;
