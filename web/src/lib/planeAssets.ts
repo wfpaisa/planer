@@ -34,7 +34,7 @@ function file(path: string): Promise<string> {
 }
 
 /**
- * La referencia, tal como la escribio `server/pageAssets.ts` o la propia
+ * La referencia, tal como la escribio `server/page/pageAssets.ts` o la propia
  * pagina. Se reconoce por la ruta, no por la linea entera: el documento pudo
  * escribirla con la direccion absoluta, con comillas simples o con atributos
  * de mas.

@@ -277,7 +277,7 @@ function pickFallback(providers: AiProviderConfig[], candidates: AiChoice[]): Ai
  * Los servidores se emparejan por su `id`, que es el que el archivo conserva:
  * uno que se reimporta sobre si mismo se reconoce, y con eso el servidor le
  * mantiene la clave guardada al escribirlo (ver `mergeConfig` en
- * `server/ai.ts`). Por eso `hasKey` se lee de lo que ya hay y no del archivo,
+ * `server/ai/ai.ts`). Por eso `hasKey` se lee de lo que ya hay y no del archivo,
  * que nunca lo trae: es lo unico honesto que se puede decir de una clave que
  * no ha viajado.
  */

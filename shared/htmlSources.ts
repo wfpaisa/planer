@@ -21,7 +21,7 @@ import {
  * Cuantas filas trae como mucho una sola llamada a `plane.listar`.
  *
  * Vive aqui porque tiene dos lados y los dos tienen que decir lo mismo: el
- * servidor lo aplica (`runPageData` en `server/pageData.ts`) y el contrato se lo
+ * servidor lo aplica (`runPageData` en `server/page/pageData.ts`) y el contrato se lo
  * cuenta al modelo (`shared/htmlContract.ts`). Cuando los dos numeros no
  * cuadran, una pagina cuenta el techo creyendo que cuenta la tabla y el numero
  * corto parece el bueno.

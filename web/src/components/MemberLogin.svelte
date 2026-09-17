@@ -11,7 +11,7 @@
 
   import { paletteAttrs } from "../lib/appTheme";
   import { pbApp } from "../lib/pb";
-  import AppIcon from "./AppIcon.svelte";
+  import AppIcon from "./app/AppIcon.svelte";
   import { Button, ErrorNote, Field, Input } from "./ui";
 
   let { bundle, onSignedIn }: { bundle: AppBundle; onSignedIn: () => void } = $props();

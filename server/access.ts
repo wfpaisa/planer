@@ -7,7 +7,7 @@
  *
  * Aqui ya no se reparte nada por filas: quien puede abrir una pagina alcanza
  * todas las filas de las tablas que esa pagina declara. Lo unico que separa
- * leer de escribir es la sesion, y eso se comprueba en `server/pageData.ts`.
+ * leer de escribir es la sesion, y eso se comprueba en `server/page/pageData.ts`.
  */
 import { normalizeRole } from "../shared/people.ts";
 import type { AppPerson, AppRecord } from "../shared/types.ts";

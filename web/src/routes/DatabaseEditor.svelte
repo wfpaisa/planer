@@ -6,9 +6,9 @@
   igual que se vino.
 -->
 <script lang="ts">
-  import DataGrid from "../components/DataGrid.svelte";
+  import DataGrid from "../components/database/DataGrid.svelte";
+  import TableSidebar from "../components/database/TableSidebar.svelte";
   import Icon from "../components/Icon.svelte";
-  import TableSidebar from "../components/TableSidebar.svelte";
   import { EmptyState } from "../components/ui";
   import { useBuilder } from "../lib/builderContext";
   import { navigate, type RouteParams } from "../lib/router.svelte";

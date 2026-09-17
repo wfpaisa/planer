@@ -31,7 +31,7 @@ La imagen final lleva:
 
 - `server/` y `shared/` — el código del servidor, que Bun ejecuta directamente desde TypeScript.
 - `web/dist/` — el panel compilado.
-- `web/src/` — **hace falta encendido**. `server/pageStyles.ts` lee las hojas de `web/src/styles/` al arrancar para servir `/plane/estilos.css`. Sin ellas, las páginas publicadas salen sin estilos.
+- `web/src/` — **hace falta encendido**. `server/page/pageStyles.ts` lee las hojas de `web/src/styles/` al arrancar para servir `/plane/estilos.css`. Sin ellas, las páginas publicadas salen sin estilos.
 - `node_modules/` de producción — entre otras cosas, de ahí sale `chart.js`, que se sirve en `/plane/graficas.js`.
 - `pb/pocketbase` — el programa, sin datos.
 

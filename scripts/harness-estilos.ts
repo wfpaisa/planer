@@ -10,7 +10,7 @@
  *
  *   1. `web/src/styles/*`      lo que de verdad existe
  *   2. `shared/htmlContract.ts` lo que se le promete al modelo
- *   3. `server/htmlAudit.ts`   lo que se le reprocha cuando se sale
+ *   3. `server/html/htmlAudit.ts`   lo que se le reprocha cuando se sale
  *
  * Separarse es facil y no avisa. Si el contrato ensena `class="tabla"` y en el
  * catalogo la clase se llama `.table`, el modelo escribe una pagina sin
@@ -23,8 +23,8 @@
  * arregla y estropea algo por el camino-- asi que los casos buenos pesan aqui
  * tanto como los malos.
  */
-import { auditPageHtml, KNOWN_CLASSES, KNOWN_VARS } from "../server/htmlAudit.ts";
-import { PAGE_STYLES } from "../server/pageStyles.ts";
+import { auditPageHtml, KNOWN_CLASSES, KNOWN_VARS } from "../server/html/htmlAudit.ts";
+import { PAGE_STYLES } from "../server/page/pageStyles.ts";
 import { buildHtmlDocs, SPACE_VARS, TEXT_VARS, THEME_VARS } from "../shared/htmlContract.ts";
 
 let failed = 0;

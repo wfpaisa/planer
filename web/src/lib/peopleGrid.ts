@@ -171,7 +171,7 @@ export interface PeopleImportReport {
  * El nombre que puede traer la columna de la clave en un archivo de nomina.
  *
  * No es una columna de la tabla y no lo sera nunca: se reconoce aqui, se usa
- * para dar de alta y no se guarda. Ver `web/src/components/PersonPassword.tsx`.
+ * para dar de alta y no se guarda. Ver `web/src/components/database/PasswordForm.svelte`.
  */
 const PASSWORD_COLUMNS = ["clave", "contrasena", "contraseña", "password"];
 

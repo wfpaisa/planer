@@ -4,7 +4,7 @@
  * Vive en `shared/` y no en el navegador porque hay dos lados que leen el mismo
  * archivo. El navegador lo lee para la importacion manual --la previsualizacion
  * de `ImportModal`-- y el servidor lo lee para contarle a la IA lo que trae un
- * adjunto y para llenar una tabla desde el (`server/aiFiles.ts`). Que las dos
+ * adjunto y para llenar una tabla desde el (`server/ai/aiFiles.ts`). Que las dos
  * lecturas sean la misma es lo que hace que lo que se ve antes de importar sea
  * lo que despues entra.
  *

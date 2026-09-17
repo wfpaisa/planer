@@ -2,7 +2,7 @@
  * Lo que hace falta para escribir muchas filas de golpe.
  *
  * Tiene dos lados, y por eso vive aqui: el navegador parte la importacion en
- * tramos de este tamano (`save` en `web/src/components/ImportModal.svelte`) y
+ * tramos de este tamano (`save` en `web/src/components/database/ImportModal.svelte`) y
  * el servidor deja la instalacion de PocketBase en condiciones de aceptarlos
  * (`ensureBatchSettings` en `server/bootstrap.ts`). Cuando los dos numeros no
  * cuadran, la importacion se cae a mitad con un 429 --o no arranca con un

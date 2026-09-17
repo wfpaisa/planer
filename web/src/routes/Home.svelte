@@ -2,8 +2,8 @@
   import type { AppRecord } from "@shared/types";
 
   import planeIcon from "../assets/plane-icon.svg";
-  import AppIcon from "../components/AppIcon.svelte";
-  import CreateAppModal from "../components/CreateAppModal.svelte";
+  import AppIcon from "../components/app/AppIcon.svelte";
+  import CreateAppModal from "../components/app/CreateAppModal.svelte";
   import Icon from "../components/Icon.svelte";
   import ThemePicker from "../components/ThemePicker.svelte";
   import Button from "../components/ui/Button.svelte";

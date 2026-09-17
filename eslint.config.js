@@ -7,7 +7,13 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   // Lo que no es nuestro: dependencias, el build del panel y PocketBase.
-  { ignores: ["node_modules", "web/node_modules", "web/dist", "pb"] },
+  //
+  // `.claude` va con ellos y no solo en `.gitignore`: ahi dentro nacen copias
+  // enteras del repo (los worktrees de las sesiones), y cada una trae su propio
+  // `tsconfig.json`. El parser de TypeScript ve entonces dos raices candidatas y
+  // se planta --"No tsconfigRootDir was set"-- en cada archivo de la copia, asi
+  // que un worktree olvidado bastaba para que `bun run lint` no pasara nunca.
+  { ignores: ["node_modules", "web/node_modules", "web/dist", "pb", ".claude"] },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,

@@ -7,7 +7,7 @@
  * tarde o temprano una de las dos se quedaria vieja.
  *
  * Va en ingles porque es una instruccion para el modelo, como todo lo que se
- * le pasa (ver `server/aiPage.ts`). Lo que el modelo *escribe* --el texto de
+ * le pasa (ver `server/ai/aiPage/prompts.ts`). Lo que el modelo *escribe* --el texto de
  * la pantalla y su respuesta en el chat-- sigue siendo espanol, y eso se le
  * dice de forma expresa en `LANGUAGE_SECTION`.
  */
@@ -45,7 +45,7 @@ const TYPE_NAMES: Record<FieldDef["type"], string> = {
 /**
  * De donde cuelgan los tres archivos que Planer pone en cada pagina.
  *
- * Viven aqui, y no en `server/pageAssets.ts`, porque los nombran tres sitios
+ * Viven aqui, y no en `server/page/pageAssets.ts`, porque los nombran tres sitios
  * que no pueden quedarse distintos: el texto que lee la IA, quien los sirve, y
  * el panel, que los incrusta en el documento antes de meterlo en el marco (ver
  * `web/src/lib/planeAssets.ts`).
@@ -272,7 +272,7 @@ If a piece of data carries a real-world colour of its own --a team's colour, the
  * pantalla salia razonable y no se parecia del todo a ninguna otra, porque
  * nadie escribe dos veces el mismo `border-radius`. Ahora la pieza ya esta
  * hecha --es la MISMA hoja que viste el panel, servida en `/plane/estilos.css`,
- * ver `server/pageStyles.ts`-- y lo que se le pide al modelo es que la use.
+ * ver `server/page/pageStyles.ts`-- y lo que se le pide al modelo es que la use.
  *
  * El orden de dentro no es alfabetico: primero lo que sale en toda pantalla.
  */

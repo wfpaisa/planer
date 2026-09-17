@@ -27,10 +27,10 @@ import {
   type PageRecord,
   type TableRecord,
 } from "../shared/types.ts";
-import { MAX_AI_FILE_BYTES } from "./aiFiles.ts";
+import { MAX_AI_FILE_BYTES } from "./ai/aiFiles.ts";
 import { config, INTERNAL } from "./config.ts";
 import { quote } from "./filter.ts";
-import { readDoc } from "./htmlDocs.ts";
+import { readDoc } from "./html/htmlDocs.ts";
 import {
   createCollection,
   createRecord,

@@ -64,7 +64,7 @@
   import { isPeopleTable, withRoleOptions } from "@shared/people";
   import type { AiConfigView, AppRecord, PageRecord, TableRecord } from "@shared/types";
 
-  import AppTopBar, { type Section } from "../components/AppTopBar.svelte";
+  import AppTopBar, { type Section } from "../components/app/AppTopBar.svelte";
   import DropChoice from "../components/DropChoice.svelte";
   import Icon from "../components/Icon.svelte";
   import PersonLinkModal from "../components/PersonLinkModal.svelte";

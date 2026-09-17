@@ -930,7 +930,7 @@ export type AiFileKind = "html" | "css" | "js" | "json" | "csv" | "sheet" | "tex
  * se escribe la peticion.
  *
  * Lleva la referencia de lo guardado, no el contenido: el contenido se guarda
- * una sola vez (`server/aiFiles.ts`) y de ahi lo leen tanto la muestra que se
+ * una sola vez (`server/ai/aiFiles.ts`) y de ahi lo leen tanto la muestra que se
  * le cuenta al modelo como las ordenes que lo abren entero. Asi un archivo de
  * varios megabytes no engorda ninguna peticion, y sigue estando en los turnos
  * siguientes de la conversacion.

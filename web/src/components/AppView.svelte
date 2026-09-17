@@ -14,7 +14,7 @@
   import type { DocLoader } from "../lib/htmlDocs";
   import { pageMode } from "../lib/pageMode.svelte";
   import { sidebarPin } from "../lib/sidebarPin.svelte";
-  import AppSidebar from "./AppSidebar.svelte";
+  import AppSidebar from "./app/AppSidebar.svelte";
   import PageView from "./PageView.svelte";
   import ModeToggle from "./ui/ModeToggle.svelte";
 

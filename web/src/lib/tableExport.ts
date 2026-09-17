@@ -18,7 +18,7 @@ import { relationCell, type Row } from "./cellValues";
  * esta en `fields` ni en la fila. No hay una lista de la que excluirla, asi que
  * tampoco hay una lista que alguien pueda olvidarse de mantener. Si algun dia
  * se anade un tipo de columna que guarde secretos, esta es la funcion que hay
- * que volver a mirar. Ver `web/src/components/PersonPassword.tsx`.
+ * que volver a mirar. Ver `web/src/components/database/PasswordForm.svelte`.
  */
 
 /**

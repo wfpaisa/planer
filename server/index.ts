@@ -15,7 +15,7 @@ import {
   CHARTS_PATH,
   STYLES_FILE,
   STYLES_PATH,
-} from "./pageAssets.ts";
+} from "./page/pageAssets.ts";
 import { pb } from "./pb.ts";
 import * as api from "./routes.ts";
 import { toResponse } from "./routes.ts";

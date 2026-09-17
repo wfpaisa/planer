@@ -19,7 +19,7 @@ Las colecciones internas de la plataforma (`builders`, `members`, `apps`, `table
 
 La regla de acceso que PocketBase guarda sobre cada colección `d_*` dice una sola cosa: solo quien es dueño de la app (el constructor) entra directo (`accessRules()` en `server/schema.ts`). No sabe nada de si la app es pública, de roles ni de columnas — esa decisión ya no vive en la base de datos.
 
-Quién llega a qué lo decide `server/pageData.ts`, el único camino por el que pasa cualquier comando de datos de una página publicada. Revisa, en orden: si la app es pública o exige sesión, si quien pregunta puede abrir la página desde la que pregunta, si el comando escribe (escribir siempre exige sesión) y si la tabla está declarada en esa página. No filtra filas: quien puede abrir una página llega a **todas** las filas de las tablas que esa página declara.
+Quién llega a qué lo decide `server/page/pageData.ts`, el único camino por el que pasa cualquier comando de datos de una página publicada. Revisa, en orden: si la app es pública o exige sesión, si quien pregunta puede abrir la página desde la que pregunta, si el comando escribe (escribir siempre exige sesión) y si la tabla está declarada en esa página. No filtra filas: quien puede abrir una página llega a **todas** las filas de las tablas que esa página declara.
 
 **Contar no es lo mismo que listar.** `plane.listar` entrega como máximo `MAX_LIST_ROWS` filas por llamada (200) y lo dice en la respuesta (`recortado`); `plane.contar` cuenta del lado del servidor sin traer filas. Antes de este límite, una página que contaba `filas.length` contaba el tamaño de la página, no el total: una tabla de 410 filas mostraba 200 sin que nadie lo notara.
 
@@ -38,7 +38,7 @@ La API propia (`/api/*`) solo existe para lo que el navegador no puede hacer dir
 
 Cada vez que se publica una app queda guardada la versión que estaba en producción; también se puede guardar una versión manual en cualquier momento, por ejemplo antes de un cambio grande. El listado de versiones dice qué cambió en cada una y permite restaurarla para dejarla activa de nuevo — restaurar una versión es, otra vez, publicar, así que también deja su propio punto de vuelta atrás.
 
-## El mecanismo de creación y modificación de páginas (`server/htmlBlocks.ts`)
+## El mecanismo de creación y modificación de páginas (`server/html/htmlBlocks.ts`)
 
 - Cada bloque se identifica por un atributo `data-plane="nombre"` en su elemento raíz. La primera vez que la IA toca un elemento, el servidor le estampa ese nombre (el que propuso la IA, o si no lo dio, uno derivado del título/id/clase/etiqueta del propio trozo). Una vez nombrado, esa identidad queda fija.
 - Para editar, la IA llama `reemplazar_bloque` mandando **solo el HTML del trozo nuevo**, no la página entera. El servidor usa `HTMLRewriter` (el parser en streaming de Bun) para localizar el único elemento que matchea `[data-plane="nombre"]`, reemplazarlo por el nuevo fragmento, y dejar **todo lo demás byte a byte igual** — el propio código lo dice explícito: un documento que pasa por esta transformación sin coincidencias sale idéntico, doctype, comentarios, scripts y todo.
@@ -47,7 +47,7 @@ Cada vez que se publica una app queda guardada la versión que estaba en producc
 
 ### Cuándo se reescribe la página completa en vez de un bloque
 
-`escribir_pagina` reemplaza el documento completo, y el propio mensaje de sistema que recibe la IA (`TOOL_GUIDE`, en `server/aiPage.ts`, escrito en inglés porque así se le dan todas las instrucciones al modelo) le dice cuándo usar cada herramienta:
+`escribir_pagina` reemplaza el documento completo, y el propio mensaje de sistema que recibe la IA (`TOOL_GUIDE`, en `server/ai/aiPage/prompts.ts`, escrito en inglés porque así se le dan todas las instrucciones al modelo) le dice cuándo usar cada herramienta:
 
 > A local change --a title, a table, a card-- is made with "reemplazar_bloque"/"insertar_bloque"/"quitar_bloque". **Redoing the screen** --a different structure, a different layout-- is made with "escribir_pagina", which replaces the whole document. When you use it, say so at the end and say why.
 
@@ -55,7 +55,7 @@ En español: un cambio local se hace con las herramientas de bloque; solo cuando
 
 ### El catálogo de estilos que la IA no debe reinventar
 
-Las instrucciones que recibe la IA (`shared/htmlContract.ts`) le hablan de "the catalogue": no son componentes por-app ni algo que la IA generó en un turno anterior, sino **una sola hoja de estilos real y fija de toda la plataforma** — `/plane/estilos.css`, la misma con la que se dibuja el propio panel de Planer (`server/pageStyles.ts`). Botones, cards, tablas, tags, campos de formulario, KPIs, tabs, timeline, modales, etc. — todos ya existen como clases CSS reales, compartidas por todas las apps.
+Las instrucciones que recibe la IA (`shared/htmlContract.ts`) le hablan de "the catalogue": no son componentes por-app ni algo que la IA generó en un turno anterior, sino **una sola hoja de estilos real y fija de toda la plataforma** — `/plane/estilos.css`, la misma con la que se dibuja el propio panel de Planer (`server/page/pageStyles.ts`). Botones, cards, tablas, tags, campos de formulario, KPIs, tabs, timeline, modales, etc. — todos ya existen como clases CSS reales, compartidas por todas las apps.
 
 ### Cómo la IA recibe el catálogo de componentes UI
 
@@ -65,7 +65,7 @@ En `shared/htmlContract.ts`, la función `catalogSection()` describe ese catálo
 
 #### Cómo el servidor comprueba que la IA respetó el contrato
 
-En `server/htmlAudit.ts`, las listas `KNOWN_VARS` y `KNOWN_CLASSES` —las variables y clases CSS que existen de verdad en la plataforma— **no están escritas a mano**: se extraen con una expresión regular directamente de `PAGE_STYLES`, la hoja de CSS real que se sirve:
+En `server/html/htmlAudit.ts`, las listas `KNOWN_VARS` y `KNOWN_CLASSES` —las variables y clases CSS que existen de verdad en la plataforma— **no están escritas a mano**: se extraen con una expresión regular directamente de `PAGE_STYLES`, la hoja de CSS real que se sirve:
 
 ```
 export const KNOWN_VARS = new Set(
@@ -77,6 +77,6 @@ Así esa lista "de lo que existe" nunca se desincroniza de lo que realmente hay 
 
 ## Los archivos que se adjuntan a la IA se guardan una sola vez, por su contenido
 
-Un archivo soltado en el editor se sube al momento a la colección interna `ai_files`, con clave el sha256 de su contenido (`server/aiFiles.ts`): subir el mismo contenido dos veces ocupa una sola fila. La petición que va al modelo carga solo la referencia, nunca el contenido, y un adjunto dura mientras alguna conversación guardada lo nombre.
+Un archivo soltado en el editor se sube al momento a la colección interna `ai_files`, con clave el sha256 de su contenido (`server/ai/aiFiles.ts`): subir el mismo contenido dos veces ocupa una sola fila. La petición que va al modelo carga solo la referencia, nunca el contenido, y un adjunto dura mientras alguna conversación guardada lo nombre.
 
 **El modelo recibe una muestra, nunca el archivo entero.** `sampleAiFile()` decide qué viaja según el tipo: columnas más ~20 filas y el total para un CSV o una hoja, claves más los primeros elementos para una lista JSON, el archivo completo mientras quepa bajo 20 000 caracteres para texto o código, y una imagen viaja como base64. Toda muestra dice su tamaño, si está recortada y el nombre por el que se la nombra — así preguntar por un archivo dos turnos después no exige volver a adjuntarlo.

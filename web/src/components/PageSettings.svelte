@@ -28,7 +28,7 @@
   import { untrack } from "svelte";
 
   import { preview, setPanelAside } from "../lib/previewPanel.svelte";
-  import HistoryPanel from "./HistoryPanel.svelte";
+  import HistoryPanel from "./app/HistoryPanel.svelte";
   import PageCodePanel from "./PageCodePanel.svelte";
   import PagePanel from "./PagePanel.svelte";
   import PanelModal from "./PanelModal.svelte";

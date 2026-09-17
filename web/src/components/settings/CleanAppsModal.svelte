@@ -19,7 +19,7 @@
 
   import { errorMessage, pb, post } from "../../lib/pb";
   import { useAsync } from "../../lib/useAsync.svelte";
-  import AppIcon from "../AppIcon.svelte";
+  import AppIcon from "../app/AppIcon.svelte";
   import Icon from "../Icon.svelte";
   import { Button, ErrorNote, Field, Input, Loading, Modal } from "../ui";
 

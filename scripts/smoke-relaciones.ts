@@ -1086,7 +1086,7 @@ console.log("\n21. Las ordenes con las que la IA crea tablas y columnas");
  * peticion de verdad por cada intento.
  */
 {
-  const { runTool } = await import("../server/aiPage.ts");
+  const { runTool } = await import("../server/ai/aiPage/toolRuntime.ts");
   const appRec = await call<AppRecord>(records("apps", app.id));
   const paginaIa = await call<PageRecord>(records("pages"), {
     method: "POST",

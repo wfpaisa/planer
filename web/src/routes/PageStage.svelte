@@ -33,7 +33,7 @@
   import { untrack } from "svelte";
 
   import AiDock from "../components/AiDock.svelte";
-  import AppSidebar from "../components/AppSidebar.svelte";
+  import AppSidebar from "../components/app/AppSidebar.svelte";
   import ConvertDialog, { legacyBlockCount } from "../components/ConvertDialog.svelte";
   import Icon from "../components/Icon.svelte";
   import PageSettings, { type Panel } from "../components/PageSettings.svelte";

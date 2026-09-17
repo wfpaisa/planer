@@ -117,7 +117,7 @@ async function toPbFields(def: FieldDef, orphanIds?: Map<string, string>): Promi
      * columna obligatoria sin poder importar una cedula nueva, y sin poder
      * conservar la cedula de quien deja de estar invitado. Quien exige que la
      * celda tenga algo es el panel, antes de guardar. Ver `missing` en
-     * `web/src/components/RowDrawer.tsx`.
+     * `web/src/components/database/RowDrawer.svelte`.
      */
     { ...main, required: false },
     {
@@ -365,7 +365,7 @@ export function uniqueConflictMessage(conflicts: UniqueConflict[]): string {
  * datos como llamados de atencion o nomina, una regla floja no es un fallo
  * tecnico: es un incidente de la empresa.
  *
- * Asi que quien decide es el servidor, en `server/pageData.ts`, y estas reglas
+ * Asi que quien decide es el servidor, en `server/page/pageData.ts`, y estas reglas
  * pasan a ser una sola cosa: cerrar la coleccion a los invitados. Un invitado
  * que consulte la base por su cuenta no recibe nada, tenga la sesion que tenga.
  *

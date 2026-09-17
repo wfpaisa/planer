@@ -10,13 +10,18 @@
   ficha. Servia mientras el ejemplo fuera marcado, pero no cuando la pieza es un
   componente: de `<PlanerAvatar mood="ok" size={24} />` el DOM solo tiene el
   `<svg>` que salio, y enseñar sus trazados no dice como se usa. Asi que lo que
-  se enseña se saca de `DemoGallery.svelte` --el archivo, como texto-- buscando
-  el `card-body` de cada ficha por el titulo con el que la dibuja `head()`. Lo
-  que se ve en el modal es entonces, literalmente, lo que hay escrito en la
-  ficha: componentes incluidos, y con sus `{#if}` y sus `{#each}` donde los haya.
+  se enseña se saca de los archivos de la galeria --como texto-- buscando el
+  `card-body` de cada ficha por el titulo con el que la dibuja `head()`. Lo que
+  se ve en el modal es entonces, literalmente, lo que hay escrito en la ficha:
+  componentes incluidos, y con sus `{#if}` y sus `{#each}` donde los haya.
 
-  El archivo entero pesa lo suyo, asi que se trae con `import()` y no de
-  entrada: lo paga quien abre el codigo de una ficha, y la primera vez nada mas.
+  Se leen las cinco secciones y no una sola porque ahi es donde estan las
+  fichas; `DemoGallery.svelte` solo las compone y no tiene ninguna. Cada titulo
+  es unico en la galeria --es lo que se lee en la cabecera de la ficha-- asi que
+  juntar los cinco mapas no pisa nada.
+
+  Los archivos pesan lo suyo, asi que se traen con `import()` y no de entrada:
+  lo paga quien abre el codigo de una ficha, y la primera vez nada mas.
 */
 
 /** El titulo con el que cada ficha llama a `head()`. */
@@ -70,8 +75,19 @@ function parse(raw: string): Map<string, string> {
 
 let pending: Promise<Map<string, string>> | null = null;
 
+/** Las secciones de la galeria, que es donde estan las fichas. */
+const SECTIONS = [
+  () => import("./DemoNavegacion.svelte?raw"),
+  () => import("./DemoContenido.svelte?raw"),
+  () => import("./DemoGraficas.svelte?raw"),
+  () => import("./DemoFormularios.svelte?raw"),
+  () => import("./DemoAvisos.svelte?raw"),
+];
+
 /** El ejemplo de cada ficha, por el titulo de su cabecera. */
 export function loadCardSource(): Promise<Map<string, string>> {
-  pending ??= import("./DemoGallery.svelte?raw").then((mod) => parse(mod.default));
+  pending ??= Promise.all(SECTIONS.map((load) => load())).then(
+    (mods) => new Map(mods.flatMap((mod) => [...parse(mod.default)])),
+  );
   return pending;
 }

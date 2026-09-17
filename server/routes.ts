@@ -57,11 +57,11 @@ import {
   type StoredConfig,
   type StoredProvider,
   testAiConfig,
-} from "./ai.ts";
-import { appendToChat, getChat, listChats, readOpenChat, setOpenChat } from "./aiChats.ts";
-import { clearAiDebug, readAiDebug } from "./aiDebug.ts";
-import { findAiFile, readAiFileBytes, saveAiFile } from "./aiFiles.ts";
-import { findCatalogModel, listCatalog, llamaCppCatalog, llamaCppModel } from "./aiModels.ts";
+} from "./ai/ai.ts";
+import { appendToChat, getChat, listChats, readOpenChat, setOpenChat } from "./ai/aiChats.ts";
+import { clearAiDebug, readAiDebug } from "./ai/aiDebug.ts";
+import { findAiFile, readAiFileBytes, saveAiFile } from "./ai/aiFiles.ts";
+import { findCatalogModel, listCatalog, llamaCppCatalog, llamaCppModel } from "./ai/aiModels.ts";
 import {
   appPages,
   appTables,
@@ -69,7 +69,7 @@ import {
   fixPage,
   runPageRequest,
   writePageDoc,
-} from "./aiPage.ts";
+} from "./ai/aiPage/index.ts";
 import {
   activeRuns,
   type AiRun,
@@ -79,17 +79,17 @@ import {
   runInfo,
   startRun,
   watchRun,
-} from "./aiRuns.ts";
+} from "./ai/aiRuns.ts";
 import { HttpError, type Identity, optionalMember, requireBuilder } from "./auth.ts";
 import { INTERNAL } from "./config.ts";
 import { applyChange, pagesForChanges, readChanges, readChoice } from "./dataImpact.ts";
 import { quote } from "./filter.ts";
-import { BRIDGE_TAG, wrapDocument } from "./htmlBridge.ts";
-import { pruneDocs, requireDoc } from "./htmlDocs.ts";
-import { closeProbe } from "./htmlProbe.ts";
-import { ASSETS_TAG, REF_NAMES, wrapPage } from "./pageAssets.ts";
-import { convertPageToHtml } from "./pageConvert.ts";
-import { isSourceError, runPageData } from "./pageData.ts";
+import { BRIDGE_TAG, wrapDocument } from "./html/htmlBridge.ts";
+import { pruneDocs, requireDoc } from "./html/htmlDocs.ts";
+import { closeProbe } from "./html/htmlProbe.ts";
+import { ASSETS_TAG, REF_NAMES, wrapPage } from "./page/pageAssets.ts";
+import { convertPageToHtml } from "./page/pageConvert.ts";
+import { isSourceError, runPageData } from "./page/pageData.ts";
 import {
   createRecord,
   deleteRecord,
@@ -1050,7 +1050,7 @@ const isAiFileKind = (value: unknown): value is AiFileKind =>
  * Ya no llegan con el contenido dentro: llegan como referencias a lo que el
  * navegador subio al soltarlo. Aqui solo se comprueba que tengan forma y que la
  * referencia sea de esta aplicacion; lo que se le ensena al modelo de cada uno
- * lo decide el contexto (`server/aiPage.ts`).
+ * lo decide el contexto (`server/ai/aiPage/context.ts`).
  *
  * Una referencia que no existe se descarta en silencio: adjuntar mal no puede
  * tumbar una peticion, y la peticion sigue sin ese adjunto.
@@ -1246,13 +1246,10 @@ async function executeRun(
   let timedOut = false;
   const timer =
     cfg.runTimeoutMinutes > 0
-      ? setTimeout(
-          () => {
-            timedOut = true;
-            run.stop.abort();
-          },
-          cfg.runTimeoutMinutes * 60_000,
-        )
+      ? setTimeout(() => {
+          timedOut = true;
+          run.stop.abort();
+        }, cfg.runTimeoutMinutes * 60_000)
       : null;
 
   try {

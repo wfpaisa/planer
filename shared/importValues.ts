@@ -4,7 +4,7 @@
  * Es el paso siguiente a leer el archivo (`importParse.ts`) y vive aqui por lo
  * mismo: lo hacen los dos lados. El navegador convierte al importar a mano; el
  * servidor convierte al llenar una tabla desde un adjunto (`llenar_tabla`, en
- * `server/aiPage.ts`). Una sola lectura de lo que es una fecha, un numero o un
+ * `server/ai/aiPage/toolRuntime.ts`). Una sola lectura de lo que es una fecha, un numero o un
  * "si" es lo que hace que las dos importaciones acepten los mismos archivos.
  */
 import type { FieldDef } from "./types.ts";

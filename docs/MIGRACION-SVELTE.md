@@ -43,7 +43,7 @@ Fuera del panel no se toca nada:
   aislado** (`components/HtmlFrame.tsx`). El producto no genera JSX, así que el
   formato de salida, el puente de datos y el contrato de seguridad son
   agnósticos al framework.
-- `chart.js` se inyecta en el HTML generado desde `server/pageAssets.ts`. No se
+- `chart.js` se inyecta en el HTML generado desde `server/page/pageAssets.ts`. No se
   usa en el panel.
 - Tailwind v4 y daisyUI funcionan igual con Svelte, con el mismo plugin
   `@tailwindcss/vite`. Las cuatro hojas de `styles/` no cambian.

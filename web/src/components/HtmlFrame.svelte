@@ -155,7 +155,7 @@
       vars,
       modo: computed.colorScheme === "dark" ? "dark" : "light",
       // La paleta de la aplicacion, para que el documento la ponga en su raiz
-      // y las hojas deriven ahi dentro. Ver `server/pageStyles.ts`.
+      // y las hojas deriven ahi dentro. Ver `server/page/pageStyles.ts`.
       paleta:
         (element as HTMLElement).closest("[data-palette]")?.getAttribute("data-palette") ?? null,
     };

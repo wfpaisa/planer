@@ -6,7 +6,7 @@
  * que dibujar uno es escribir su nombre en una clase: ni paquete, ni arbol de
  * SVG en el bundle, ni logica que elegir. El panel la carga en su `index.html`
  * y cada pagina publicada la recibe con el resto de lo que inyecta el puente
- * (`server/htmlBridge.ts`), de modo que quien escribe una pantalla ya la tiene
+ * (`server/html/htmlBridge.ts`), de modo que quien escribe una pantalla ya la tiene
  * puesta.
  *
  * Antes el catalogo era `@hugeicons/core-free-icons`: seis mil trazados
