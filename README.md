@@ -155,6 +155,8 @@ pb/        PocketBase y sus datos
 
 ### Documentación adicional
 
+- [docs/FUNCIONALIDADES.md](./docs/FUNCIONALIDADES.md) — listado resumido de todas las funcionalidades, por área. Se actualiza con cada cambio que agrega, modifica o retira una funcionalidad.
+- [docs/COMO-FUNCIONA.md](./docs/COMO-FUNCIONA.md) — los mecanismos centrales de la plataforma: el modelo de datos, los permisos, las dos sesiones, versiones, y cómo la IA crea y modifica páginas.
 - [docs/PAGINAS-HTML.md](./docs/PAGINAS-HTML.md) — guía para escribir páginas de una app en HTML propio: contrato `window.plane`, variables de estilo, datos, gráficas y límites.
 - [docs/CHAT.md](./docs/CHAT.md) — cómo funciona el chat de IA: el bucle de rondas, cómo prueba una página antes de darla por buena, y los cambios con riesgo.
 - [docs/DOCKER.md](./docs/DOCKER.md) — desplegar con Docker: cómo se construye la imagen, qué lleva dentro, los nombres que usa, actualizaciones y copias de seguridad.
@@ -169,3 +171,4 @@ bun run smoke
 ```
 
 Recorre el camino completo: crear una app, crear tablas, cambiar columnas sin perder datos, publicar, invitar a alguien, comprobar que nadie más puede entrar y que la clave de la IA no sale del servidor.
+

@@ -27,6 +27,12 @@ Stack: Bun + TypeScript (server), PocketBase (storage, spawned as a child proces
 
 There is **no unit-test framework**. Verification loop: `bun run typecheck`, then `bun run dev` + `bun run smoke` (smoke needs the server up, and uses the admin credentials from `.env`).
 
+## Feature inventory
+
+[docs/FUNCIONALIDADES.md](./docs/FUNCIONALIDADES.md) is the always-current, concise list of every user-facing feature, grouped by area (short nested bullets, no explanations — the detail lives in the code and the other docs). **Whenever a change adds, changes the scope of, or removes a feature, update that file in the same change**: add a bullet, edit one, or delete it.
+
+[docs/COMO-FUNCIONA.md](./docs/COMO-FUNCIONA.md) is the companion doc for the platform's core mechanisms — the data model, how access is decided, the two-session split, versions, the page block-editing mechanism, AI attachments — one section per mechanism, in Spanish prose. **When a change alters one of these mechanisms, or introduces a new one worth explaining, update that file too.**
+
 ## Process model and request flow
 
 One port (default `3000`) fronts everything (`server/index.ts`):

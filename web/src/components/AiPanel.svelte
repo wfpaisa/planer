@@ -1097,6 +1097,32 @@
     }
   }
 
+  /**
+   * Abre un archivo adjuntado en una pestana nueva.
+   *
+   * No es un `<a href>` a secas: esa direccion exige la sesion del panel, y un
+   * navegador no manda esa cabecera al navegar. La pestana se abre en el mismo
+   * click --si no, el bloqueador de ventanas emergentes la corta-- y se rellena
+   * en cuanto llega el archivo.
+   */
+  async function openAiFile(ref: string): Promise<void> {
+    const win = window.open("", "_blank");
+    try {
+      const res = await fetch(`/api/apps/${appId}/ia/archivos/${ref}`, {
+        headers: pb.authStore.token ? { authorization: pb.authStore.token } : {},
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? `El servidor respondió ${res.status}`);
+      }
+      const url = URL.createObjectURL(await res.blob());
+      if (win) win.location.href = url;
+    } catch (err) {
+      win?.close();
+      say(errorMessage(err));
+    }
+  }
+
   /*
    * Volver a una peticion que seguia en marcha.
    *
@@ -1447,17 +1473,16 @@
                       <!-- Un archivo que sigue guardado se puede abrir para ver
                            lo que se adjunto; uno de antes del almacen, no. -->
                       {#if file.ref}
-                        <a
-                          href={`/api/apps/${appId}/ia/archivos/${file.ref}`}
-                          target="_blank"
-                          rel="noopener"
+                        <button
+                          type="button"
+                          onclick={() => openAiFile(file.ref)}
                           class="link-user-file"
                         >
                           <Tag tone="tint-2" class="badge-user-file" tip={`Ver ${file.name}`}>
                             <Icon name="attachment-01" />
                             <span class="entry-file-name">{file.name}</span>
                           </Tag>
-                        </a>
+                        </button>
                       {:else}
                         <Tag tone="tint-2" class="badge-user-file">
                           <Icon name="attachment-01" />
@@ -1734,6 +1759,30 @@
                       Adjuntar archivo
                     </MenuItem>
 
+                    <!--
+                    El modo Plan: conversar y preguntar antes de construir. El
+                    item solo manda la intencion; quien decide el estado real
+                    es el servidor, a partir del hilo (D1 de `ia-modo-plan`).
+                    Cerrado no tiene accion: se espera la decision del server.
+                  -->
+                    {#snippet planIcon()}
+                      <Icon name="route-01" size={14} />
+                    {/snippet}
+                    <MenuItem
+                      icon={planIcon}
+                      disabled={planStatus === "closed"}
+                      onclick={() => {
+                        close();
+                        togglePlan();
+                      }}
+                    >
+                      {planStatus === "closed"
+                        ? "Plan cerrado: esperando decisión"
+                        : planStatus === "active"
+                          ? "Modo Plan activo"
+                          : "Activar modo Plan"}
+                    </MenuItem>
+
                     <MenuSeparator />
                     <MenuLabel>Autocomando</MenuLabel>
                     {#each QUICK_ASK_IDS as id (id)}
@@ -1764,26 +1813,6 @@
                   onclick={() => setPickerActive(!picker.active)}
                 >
                   <Icon name="cursor-01" size={15} />
-                </Button>
-
-                <!--
-                El modo Plan: conversar y preguntar antes de construir. El
-                boton solo manda la intencion; quien decide el estado real es
-                el servidor, a partir del hilo (D1 de `ia-modo-plan`).
-              -->
-                <Button
-                  size="sm"
-                  tip={planStatus === "closed"
-                    ? "Plan cerrado: esperando decisión"
-                    : planStatus === "active"
-                      ? "Modo Plan activo: conversa y pregunta antes de construir"
-                      : "Activar modo Plan: conversar antes de construir"}
-                  aria-pressed={planStatus !== "off"}
-                  buttonClass="btn-toggle-plan"
-                  class="btn-icon btn-rounded"
-                  onclick={togglePlan}
-                >
-                  <Icon name="route-01" size={15} />
                 </Button>
 
                 <!--
@@ -2270,9 +2299,10 @@
     }
   }
 
-  /* El badge de un adjunto que se puede abrir: el enlace no lo redecora. */
+  /* El badge de un adjunto que se puede abrir: el boton no lo redecora. */
   .link-user-file {
-    text-decoration: none;
+    all: unset;
+    cursor: pointer;
     color: inherit;
   }
 </style>

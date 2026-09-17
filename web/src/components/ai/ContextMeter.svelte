@@ -6,15 +6,6 @@
   modelo sin ventana declarada solo puede decir el numero, sin contra que
   medirlo.
 -->
-<script lang="ts" module>
-  /** Un numero de tokens en corto: 12400 se lee mucho mejor como 12,4k. */
-  export function short(value: number): string {
-    if (value < 1000) return String(value);
-    const thousands = value / 1000;
-    return `${thousands < 10 ? thousands.toFixed(1) : Math.round(thousands)}k`;
-  }
-</script>
-
 <script lang="ts">
   import type { AiUsage } from "@shared/types";
 
@@ -31,41 +22,32 @@
 </script>
 
 <span data-tip={detail} class="meter-ai-context flex shrink-0 items-center">
-  {#if usage.window > 0}
-    <span class="meter-track block">
-      <span
-        class={cx("meter-fill block h-full", share > 0.85 && "meter-fill-high")}
-        style="width: {share * 100}%"
-      ></span>
-    </span>
-  {/if}
-  {usage.window ? `${short(usage.input)}/${short(usage.window)}` : short(usage.input)}
+  <span
+    class={cx("meter-ring block", share > 0.85 && "meter-ring-high")}
+    style="--meter-fill: {share * 100}%"
+  ></span>
 </span>
 
 <style>
   .meter-ai-context {
-    gap: var(--sp-6);
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
     color: var(--text-muted);
-    font-variant-numeric: tabular-nums;
   }
 
-  .meter-track {
-    height: 0.25rem;
-    width: 2.5rem;
-    overflow: hidden;
-    border-radius: 62.5rem;
-    background: var(--bg-field);
-  }
-
-  .meter-fill {
-    border-radius: 62.5rem;
-    background: var(--accent);
+  .meter-ring {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) var(--meter-fill), var(--bg-field) 0);
+    mask-image: radial-gradient(farthest-side, transparent calc(100% - 0.16rem), #000 calc(100% - 0.16rem));
+    -webkit-mask-image: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 0.16rem),
+      #000 calc(100% - 0.16rem)
+    );
 
     /* Casi lleno: avisa en ambar, que es lo unico que hay que mirar. */
-    &.meter-fill-high {
-      background: var(--warning);
+    &.meter-ring-high {
+      background: conic-gradient(var(--warning) var(--meter-fill), var(--bg-field) 0);
     }
   }
 </style>
