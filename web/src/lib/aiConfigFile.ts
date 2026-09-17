@@ -32,12 +32,16 @@ export const AI_CONFIG_FORMAT = "plane-servidores-ia";
 /** Como se llama el archivo que se descarga. */
 export const AI_CONFIG_FILE = "servidores-ia.json";
 
+/** Igual que en el servidor: a lo que se cae si el archivo no trae un numero valido. */
+const AI_DEFAULT_RUN_TIMEOUT_MINUTES = 40;
+
 /** Lo que trae un archivo, ya leido y sin nada que no se entienda. */
 export interface AiConfigFile {
   providers: AiProviderConfig[];
   fallback: AiChoice;
   enabled: boolean;
   debugButton: boolean;
+  runTimeoutMinutes: number;
 }
 
 export type AiConfigFileResult =
@@ -66,6 +70,7 @@ export function aiConfigToJson(config: AiConfigView): string {
       version: 1,
       activa: config.enabled,
       botonDepuracion: config.debugButton,
+      tiempoMaximoMinutos: config.runTimeoutMinutes,
       porDefecto: { ...config.fallback },
       servidores,
     },
@@ -206,9 +211,16 @@ export function parseAiConfigFile(input: string): AiConfigFileResult {
       },
       enabled: head.activa === true,
       debugButton: head.botonDepuracion === true,
+      runTimeoutMinutes: readRunTimeoutMinutes(head.tiempoMaximoMinutos),
     },
     invalid,
   };
+}
+
+/** Igual que en el servidor: 0 quita el tope, lo demas se redondea a minutos. */
+function readRunTimeoutMinutes(value: unknown): number {
+  const n = Math.round(Number(value));
+  return Number.isFinite(n) && n >= 0 ? n : AI_DEFAULT_RUN_TIMEOUT_MINUTES;
 }
 
 /* ------------------------------------------------------------------ */
@@ -219,7 +231,8 @@ export function parseAiConfigFile(input: string): AiConfigFileResult {
  * Que hacer con lo que trae el archivo.
  *
  *   add      solo entran los servidores que aqui no estan; lo demas --el
- *            modelo por defecto y los dos interruptores-- se queda como esta.
+ *            modelo por defecto, los dos interruptores y el tiempo maximo--
+ *            se queda como esta.
  *   replace  se restaura la seccion entera, interruptores incluidos.
  */
 export type AiImportMode = "add" | "replace";
@@ -302,6 +315,7 @@ export function planAiImport(
       fallback: pickFallback(incoming, [file.fallback, current.fallback]),
       enabled: file.enabled,
       debugButton: file.debugButton,
+      runTimeoutMinutes: file.runTimeoutMinutes,
     },
     added: incoming,
     skipped: [],

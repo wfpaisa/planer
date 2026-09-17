@@ -40,7 +40,7 @@
   import Icon from "../Icon.svelte";
   import SettingsSection from "../SettingsSection.svelte";
   import type { ToastKind } from "../Toast.svelte";
-  import { Button, Field, Note, Select, Switch } from "../ui";
+  import { Button, Field, Input, Note, Select, Switch } from "../ui";
   import AiImportModal from "./AiImportModal.svelte";
   import ProviderDetail from "./ProviderDetail.svelte";
   import ProviderRail from "./ProviderRail.svelte";
@@ -270,6 +270,25 @@
     <Switch checked={config.debugButton} onchange={(v) => set({ debugButton: v })} />
   </div>
 
+  <div class="row-ai-toggle opt-row">
+    <div class="opt-body">
+      <p class="opt-label">Tiempo máximo por petición</p>
+      <p class="opt-hint">
+        Si una petición no termina antes de este tiempo —el proveedor colgado, una ronda que no
+        vuelve— se corta sola, como si se hubiera apretado "detener". En minutos; 0 la deja sin
+        tope.
+      </p>
+    </div>
+    <Input
+      type="number"
+      min={0}
+      step={1}
+      value={config.runTimeoutMinutes}
+      oninput={(e) => set({ runTimeoutMinutes: Number(e.currentTarget.value) })}
+      class="input-ai-run-timeout"
+    />
+  </div>
+
   <div class="grid-ai-layout grid gap-4">
     <ProviderRail
       providers={config.providers}
@@ -356,8 +375,13 @@
 {/if}
 
 <style>
-  /* Las dos filas de interruptor son `.opt-row` del catalogo, con
-     `.opt-label` y `.opt-hint`: aqui no queda nada propio que decir. */
+  /* Las tres filas son `.opt-row` del catalogo, con `.opt-label` y
+     `.opt-hint`: aqui no queda nada propio que decir de esa parte. */
+  :global(.input-ai-run-timeout) {
+    width: 5rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
 
   /* El `card-foot` empuja todo a la derecha; el auto devuelve este par al
      lado contrario y deja Guardar solo en el extremo. */

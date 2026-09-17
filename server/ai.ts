@@ -77,12 +77,22 @@ export interface StoredConfig extends Omit<AiConfig, "providers"> {
   providers: StoredProvider[];
 }
 
+/** A lo que se cae si nunca se guardo nada, o si lo guardado no es un numero valido. */
+const DEFAULT_RUN_TIMEOUT_MINUTES = 40;
+
 const EMPTY: StoredConfig = {
   providers: [],
   fallback: { provider: "", model: "", thinking: AI_THINKING_OFF },
   enabled: false,
   debugButton: false,
+  runTimeoutMinutes: DEFAULT_RUN_TIMEOUT_MINUTES,
 };
+
+/** 0 y para arriba: 0 quita el tope, lo demas se redondea a minutos enteros. */
+function readRunTimeoutMinutes(value: unknown): number {
+  const n = Math.round(Number(value));
+  return Number.isFinite(n) && n >= 0 ? n : DEFAULT_RUN_TIMEOUT_MINUTES;
+}
 
 /** La forma que tenia la configuracion cuando solo cabia un servidor. */
 interface LegacyConfig {
@@ -183,6 +193,7 @@ function readConfig(value: unknown): StoredConfig {
       fallback: { provider: provider.id, model, thinking: AI_THINKING_OFF },
       enabled: raw.enabled === true,
       debugButton: false,
+      runTimeoutMinutes: DEFAULT_RUN_TIMEOUT_MINUTES,
     };
   }
 
@@ -199,6 +210,7 @@ function readConfig(value: unknown): StoredConfig {
     },
     enabled: raw.enabled === true,
     debugButton: raw.debugButton === true,
+    runTimeoutMinutes: readRunTimeoutMinutes(raw.runTimeoutMinutes),
   };
 }
 
@@ -560,27 +572,38 @@ function anthropicConversation(
         throw new HttpError(400, "El modelo no quiso responder a esta petición.");
       }
 
+      const truncated = response.stop_reason === "max_tokens";
+      const hadToolUse = response.content.some((b) => b.type === "tool_use");
+      // Un tool_use cortado a medias por el tope de tokens no se ejecuta ni
+      // se manda de vuelta: si quedara en el historial sin su resultado, la
+      // proxima ronda fallaria pidiendo uno que nunca existio.
+      const kept: Anthropic.ContentBlock[] = truncated
+        ? response.content.filter((b) => b.type !== "tool_use")
+        : response.content;
+
       // Se devuelve el contenido completo: los bloques de razonamiento
       // deben viajar de vuelta tal cual llegaron.
-      messages.push({ role: "assistant", content: response.content });
+      messages.push({ role: "assistant", content: kept });
 
-      const text = response.content
+      const text = kept
         .filter((b): b is Anthropic.TextBlock => b.type === "text")
         .map((b) => b.text)
         .join("\n")
         .trim();
 
-      const calls = response.content
-        .filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use")
-        .map((b) => ({
-          id: b.id,
-          name: b.name,
-          input: (b.input ?? {}) as Record<string, unknown>,
-        }));
+      const calls = truncated
+        ? []
+        : kept
+            .filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use")
+            .map((b) => ({
+              id: b.id,
+              name: b.name,
+              input: (b.input ?? {}) as Record<string, unknown>,
+            }));
 
       // El razonamiento vive en los bloques `thinking`. Los `redacted_thinking`
       // llegan cifrados y no se pueden leer, asi que no se muestran.
-      const reasoning = response.content
+      const reasoning = kept
         .filter((b): b is Anthropic.ThinkingBlock => b.type === "thinking")
         .map((b) => b.thinking)
         .join("\n")
@@ -599,6 +622,7 @@ function anthropicConversation(
             (response.usage.cache_creation_input_tokens ?? 0),
           output: response.usage.output_tokens,
         },
+        ...(truncated ? { notice: hadToolUse ? NOTICE_TRUNCATED_CALL : NOTICE_TRUNCATED } : {}),
       };
     },
 
@@ -639,6 +663,23 @@ const IMAGE_REJECTED = [
 const WITHOUT_IMAGES =
   "El modelo elegido no mira imágenes: se atendió la petición sin ellas. " +
   "Quita «Ve imágenes» en sus ajustes, o elige un modelo con visión.";
+
+/**
+ * El proveedor corto la respuesta al llegar al "Maximo por respuesta"
+ * configurado para el modelo, sin que el modelo hubiera terminado. Se dice
+ * tal cual, porque quien lo lee es quien puede subirlo.
+ */
+const NOTICE_TRUNCATED =
+  "La respuesta se cortó al llegar al «Máximo por respuesta» configurado para este modelo. Subilo en sus ajustes si vuelve a pasar.";
+
+/**
+ * Igual que `NOTICE_TRUNCATED`, pero lo que se corto fue una instruccion a
+ * medio escribir. No se ejecuta: una instruccion incompleta no es una
+ * instruccion mas corta, es otra cosa, y aplicarla igual arriesgaria mas que
+ * no aplicarla.
+ */
+const NOTICE_TRUNCATED_CALL =
+  "Una instrucción se cortó a medias por el «Máximo por respuesta» configurado y no se ejecutó, para no aplicar algo incompleto. Subilo en sus ajustes si vuelve a pasar.";
 
 /** El mensaje con el que el servidor explico el fallo, si lo explico. */
 const failureText = (body: unknown) =>
@@ -748,6 +789,9 @@ function openAiConversation(
       let text = "";
       let reasoning = "";
       let usage: TurnUsage | undefined;
+      // Cuando el proveedor corta por el "Maximo por respuesta" configurado
+      // llega como "length" aqui, en el fragmento final: no hay otro aviso.
+      let finishReason: string | undefined;
       const calls: { index: number; id: string; name: string; args: string }[] = [];
 
       function onEvent(event: Record<string, unknown>) {
@@ -759,8 +803,10 @@ function openAiConversation(
             output: Number(counted.completion_tokens ?? 0),
           };
         }
-        const delta = ((event.choices as Record<string, unknown>[] | undefined)?.[0]?.delta ??
-          {}) as Record<string, unknown>;
+        const choice = (event.choices as Record<string, unknown>[] | undefined)?.[0] as
+          Record<string, unknown> | undefined;
+        if (choice?.finish_reason) finishReason = String(choice.finish_reason);
+        const delta = (choice?.delta ?? {}) as Record<string, unknown>;
         const piece = String(delta.content ?? "");
         if (piece) {
           text += piece;
@@ -817,14 +863,19 @@ function openAiConversation(
         }
       }
 
-      const done = calls.map((c) => {
+      // Una llamada cuyos argumentos no cierran en JSON valido no se arregla
+      // rellenando lo que falta: se descarta entera, nunca se ejecuta con
+      // `{}` puesto a mano. Es lo que pasa siempre que se corto a medias.
+      let droppedCall = false;
+      const done = calls.flatMap((c) => {
         let input: Record<string, unknown>;
         try {
           input = JSON.parse(c.args || "{}");
         } catch {
-          input = {};
+          droppedCall = true;
+          return [];
         }
-        return { id: c.id, name: c.name, input };
+        return [{ id: c.id, name: c.name, input }];
       });
 
       messages.push({
@@ -840,6 +891,11 @@ function openAiConversation(
             }
           : {}),
       });
+
+      if (finishReason === "length") {
+        const cut = droppedCall ? NOTICE_TRUNCATED_CALL : NOTICE_TRUNCATED;
+        notice = notice ? `${notice} ${cut}` : cut;
+      }
 
       return {
         text: text.trim(),

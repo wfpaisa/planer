@@ -662,6 +662,12 @@ export interface AiConfig {
   enabled: boolean;
   /** Ofrece en el chat el boton para ver el contexto que se le manda al modelo. */
   debugButton: boolean;
+  /**
+   * Minutos que se deja correr una peticion antes de cortarla sola, como si
+   * quien la pidio hubiera apretado "detener". Protege contra un proveedor
+   * colgado o una conversacion que no cierra sola. 0: sin tope.
+   */
+  runTimeoutMinutes: number;
 }
 
 /** Un proveedor tal y como se le muestra al panel: nunca incluye la clave. */

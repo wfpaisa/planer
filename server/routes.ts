@@ -1236,6 +1236,25 @@ async function executeRun(
     planIntent?: AiPlanIntent;
   },
 ): Promise<void> {
+  /*
+   * Corte de seguridad: si la peticion se queda mucho mas de la cuenta --el
+   * proveedor colgado, una ronda que no vuelve-- se para sola, igual que si
+   * quien la pidio hubiera apretado "detener". El tiempo es global, se
+   * configura en los ajustes, y 0 lo apaga.
+   */
+  const cfg = await loadAiConfig();
+  let timedOut = false;
+  const timer =
+    cfg.runTimeoutMinutes > 0
+      ? setTimeout(
+          () => {
+            timedOut = true;
+            run.stop.abort();
+          },
+          cfg.runTimeoutMinutes * 60_000,
+        )
+      : null;
+
   try {
     /*
      * Lo que ya se hablo en esta conversacion. De aqui salen dos cosas: los
@@ -1259,6 +1278,16 @@ async function executeRun(
       planIntent: opts.planIntent,
       onProgress: (event) => pushRun(run, event),
     });
+    if (timer) clearTimeout(timer);
+
+    // El corte por tiempo se distingue de un "detener" del usuario: quien lo
+    // pidio no aprieto nada, asi que hay que decirle por que quedo a medias.
+    if (timedOut) {
+      result.notices = [
+        ...result.notices,
+        `La petición se cortó al llegar al tiempo máximo configurado (${cfg.runTimeoutMinutes} min). Lo que se alcanzó a hacer quedó guardado.`,
+      ];
+    }
 
     // Se guarda tambien lo que se detuvo a medias: es lo que paso, y quien
     // vuelva a la conversacion tiene que poder leerlo.
@@ -1297,9 +1326,17 @@ async function executeRun(
 
     pushRun(run, { tipo: "fin", resultado: { ...result, chatId: chat.id } });
   } catch (err) {
+    if (timer) clearTimeout(timer);
+    // Si el corte por tiempo no alcanzo a volver como resultado parcial y
+    // termino tirando (un abort a mitad de un paso que no lo esperaba), el
+    // motivo real no se pierde detras de un mensaje generico.
     pushRun(run, {
       tipo: "error",
-      mensaje: err instanceof HttpError ? err.message : "No se pudo completar la petición.",
+      mensaje: timedOut
+        ? `La petición se cortó al llegar al tiempo máximo configurado (${cfg.runTimeoutMinutes} min).`
+        : err instanceof HttpError
+          ? err.message
+          : "No se pudo completar la petición.",
     });
   }
 }
