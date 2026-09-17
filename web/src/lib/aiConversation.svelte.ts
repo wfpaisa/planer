@@ -60,6 +60,11 @@ export interface Entry {
    */
   question?: AiQuestion;
   /**
+   * El plan con el que este turno cerro el modo Plan, si lo cerro. Mismo papel
+   * que `question`: se lee la tarjeta aunque se recargue o se relea despues.
+   */
+  plan?: { texto: string; implementado: boolean };
+  /**
    * Los accesos que la IA quiere dar y todavia no dio. Viven en la entrada del
    * turno que los pidio: lo que hay que leer para decidir es la frase que la
    * IA escribio ahi, no un boton en otra pantalla.

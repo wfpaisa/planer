@@ -328,7 +328,7 @@
   }
 
   .timeline-thought {
-    color: var(--text-muted);
+    color: var(--text-primary);
   }
 
   .timeline-step {

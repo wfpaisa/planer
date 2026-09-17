@@ -67,7 +67,7 @@
     & .code-markdown-inline {
       padding: 0.125rem 0.25rem;
       border-radius: var(--radius-md);
-      background: var(--bg-field);
+      background: color-mix(in srgb, var(--text-primary) 14%, transparent);
       font-family: var(--font-mono);
       font-size: 0.92em;
     }

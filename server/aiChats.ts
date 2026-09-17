@@ -97,6 +97,9 @@ function readMessages(value: unknown): AiMessage[] {
         text: String(raw.text ?? ""),
         ...(Array.isArray(raw.steps) ? { steps: raw.steps } : {}),
         ...(raw.question && Array.isArray(raw.question.options) ? { question: raw.question } : {}),
+        ...(raw.plan && typeof raw.plan.texto === "string"
+          ? { plan: { texto: raw.plan.texto, implementado: raw.plan.implementado === true } }
+          : {}),
         ...(typeof raw.reasoning === "string" && raw.reasoning ? { reasoning: raw.reasoning } : {}),
         ...(files.length ? { files } : {}),
         ...(picked.length ? { picked } : {}),
@@ -129,6 +132,22 @@ export async function getChat(appId: string, id: string): Promise<AiChat> {
 }
 
 /**
+ * Marca implementado el plan cerrado mas reciente de la conversacion.
+ *
+ * Es lo que hace "pasar a modo Implementador" desde un plan cerrado (D2, D1
+ * de `ia-modo-plan`): el plan no se edita ni se reabre, solo se le cambia esta
+ * marca, y desde ahi la conversacion corre con las herramientas de siempre.
+ * Sin ningun plan sin implementar, no hay nada que marcar.
+ */
+function markPlanImplemented(messages: AiMessage[]): AiMessage[] {
+  const at = messages.findLastIndex((m) => m.from === "ia" && m.plan && !m.plan.implementado);
+  if (at === -1) return messages;
+  return messages.map((m, i) =>
+    i === at && m.plan ? { ...m, plan: { ...m.plan, implementado: true } } : m,
+  );
+}
+
+/**
  * Guarda la peticion y la respuesta. Sin `chatId` abre una conversacion nueva;
  * con el, sigue la que estaba, que es lo que hace que abrir una nueva no
  * pierda la anterior.
@@ -139,9 +158,12 @@ export async function appendToChat(opts: {
   page: PageRecord;
   authorId: string;
   messages: AiMessage[];
+  /** Pasar a modo Implementador desde un plan cerrado: ver `markPlanImplemented`. */
+  implementPlan?: boolean;
 }): Promise<AiChat> {
   const existing = opts.chatId ? await getChat(opts.appId, opts.chatId).catch(() => null) : null;
-  const messages = [...(existing?.messages ?? []), ...opts.messages].slice(-MAX_MESSAGES);
+  const before = opts.implementPlan ? markPlanImplemented(existing?.messages ?? []) : (existing?.messages ?? []);
+  const messages = [...before, ...opts.messages].slice(-MAX_MESSAGES);
 
   if (existing) {
     const saved = await updateRecord<AiChat>(INTERNAL.chats, existing.id, { messages });

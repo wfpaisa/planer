@@ -30,6 +30,7 @@ import type {
   AiFileKind,
   AiModel,
   AiOpenChat,
+  AiPlanIntent,
   AiProgress,
   AiRunInfo,
   AiStep,
@@ -1231,6 +1232,8 @@ async function executeRun(
     chatId?: string;
     choice?: Partial<AiChoice>;
     debug?: boolean;
+    /** La intencion de modo Plan que mando el boton del composer. */
+    planIntent?: AiPlanIntent;
   },
 ): Promise<void> {
   try {
@@ -1253,6 +1256,7 @@ async function executeRun(
       choice: opts.choice,
       signal: run.stop.signal,
       debug: opts.debug,
+      planIntent: opts.planIntent,
       onProgress: (event) => pushRun(run, event),
     });
 
@@ -1263,6 +1267,9 @@ async function executeRun(
       chatId: opts.chatId,
       page: opts.page,
       authorId: opts.authorId,
+      // Pasar a modo Implementador: el plan cerrado que dejo esta misma
+      // conversacion queda marcado antes de anadir esta peticion (D1, D2).
+      implementPlan: opts.planIntent === "implementar",
       messages: [
         {
           from: "yo",
@@ -1281,6 +1288,8 @@ async function executeRun(
           // La pregunta se guarda con el mensaje: al volver a la conversacion
           // se lee que se pregunto, no solo lo que se construyo despues.
           ...(result.question ? { question: result.question } : {}),
+          // Lo mismo, con el plan que cerro el modo Plan.
+          ...(result.plan ? { plan: result.plan } : {}),
           ...(result.reasoning ? { reasoning: result.reasoning } : {}),
         },
       ],
@@ -1320,6 +1329,8 @@ export async function askPage(req: Request, appId: string, pageId: string) {
     choice?: Partial<AiChoice>;
     /** Quiere ver el contexto que se le manda al modelo en cada ronda. */
     debug?: boolean;
+    /** La intencion de modo Plan que manda el boton del composer. */
+    plan?: unknown;
   }>(req);
 
   const prompt = (input.prompt ?? "").trim();
@@ -1336,6 +1347,7 @@ export async function askPage(req: Request, appId: string, pageId: string) {
   const picked = pickedBlocks(input.picked);
   const files = await aiFiles(app.id, input.files);
   const chatId = typeof input.chatId === "string" ? input.chatId : undefined;
+  const planIntent = readPlanIntent(input.plan);
 
   const run = startRun({ appId: app.id, pageId: page.id, prompt });
   void executeRun(run, {
@@ -1347,9 +1359,15 @@ export async function askPage(req: Request, appId: string, pageId: string) {
     chatId,
     choice: input.choice,
     debug: input.debug === true,
+    planIntent,
   });
 
   return runStream(run);
+}
+
+/** La intencion de modo Plan tal como llega, o ninguna si no es una de las tres. */
+function readPlanIntent(raw: unknown): AiPlanIntent | undefined {
+  return raw === "activar" || raw === "cortar" || raw === "implementar" ? raw : undefined;
 }
 
 /**

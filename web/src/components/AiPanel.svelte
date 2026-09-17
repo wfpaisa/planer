@@ -22,6 +22,7 @@
     AiConfigView,
     AiDebugRead,
     AiPageResult,
+    AiPlanIntent,
     AiProgress,
     AiQuestion,
     AiQuestionOption,
@@ -90,6 +91,7 @@
   import ModelPicker from "./ai/ModelPicker.svelte";
   import Notices from "./ai/Notices.svelte";
   import PickedBadges from "./ai/PickedBadges.svelte";
+  import PlanCard from "./ai/PlanCard.svelte";
   import Process from "./ai/Process.svelte";
   import Question from "./ai/Question.svelte";
   import Icon from "./Icon.svelte";
@@ -135,6 +137,22 @@
   // de avisos --tambien el de una peticion que empezo en un panel anterior--
   // se ve aqui sin copiarlo dentro.
   const chat = $derived(readConversation(key));
+  /**
+   * La intencion local de activar el modo Plan para la proxima peticion.
+   *
+   * No es el estado que se muestra: cerrado e implementado se leen del ultimo
+   * mensaje del hilo, que manda sobre esto (D1 de `ia-modo-plan`). Esto solo
+   * cubre "activo", que mientras se sigue conversando no deja ninguna marca
+   * propia en el hilo -- ver la pregunta que se le hizo a quien construye
+   * antes de implementarlo.
+   */
+  let planWanted = $state(false);
+  /** Como se muestra el boton de Plan: activo, cerrado o apagado. */
+  const planStatus = $derived.by(() => {
+    const last = chat.entries[chat.entries.length - 1];
+    if (last?.from === "ia" && last.plan) return last.plan.implementado ? "off" : "closed";
+    return planWanted ? "active" : "off";
+  });
   let config = $state<AiConfigView | null>(null);
   /**
    * Con que se pide: el modelo y cuanto se le pide pensar. Sale de lo que se
@@ -237,6 +255,8 @@
       phase = untrack(() => (readConversation(mine).entries.length ? "gone" : "hero"));
       // La lista era la de la pagina de la que se viene.
       list = null;
+      // La intencion de modo Plan era de la conversacion de la que se viene.
+      planWanted = false;
     }
 
     void reopenOpen(mine, pageId);
@@ -642,6 +662,8 @@
      * resultado: lo que la IA quiso preguntar no se pierde por eso.
      */
     let asked: AiQuestion | null = null;
+    /** El plan con el que se cerro el modo Plan, si se cerro. Mismo papel que `asked`. */
+    let closedPlan: { texto: string; implementado: boolean } | null = null;
     /** Los accesos que la IA dejo pedidos y hay que autorizar uno a uno. */
     let grants: AccessChange[] = [];
 
@@ -672,6 +694,7 @@
               context,
               ...(unfinished ? { unfinished: true } : {}),
               ...(asked ? { question: asked } : {}),
+              ...(closedPlan ? { plan: closedPlan } : {}),
               ...(grants.length ? { access: grants } : {}),
             },
           ],
@@ -704,6 +727,12 @@
           // No es avance que mostrar --el paso de "preguntar" ya salio-- sino
           // lo que hara falta al aterrizar la respuesta.
           asked = part.pregunta;
+          return;
+        }
+        if (part.tipo === "plan") {
+          // Lo mismo que con la pregunta: se guarda para aterrizarlo con la
+          // respuesta, y para que la tarjeta se pinte en cuanto se cierra.
+          closedPlan = part.plan;
           return;
         }
         if (part.tipo === "probar") {
@@ -752,6 +781,10 @@
       if (result) {
         const done: AiPageResult = result;
         grants = done.access ?? [];
+        // "cortar" cierra el plan sin pasar por el aviso de progreso -- no le
+        // manda texto nuevo al modelo, asi que no hay ronda que lo suelte
+        // antes de tiempo-- y el resultado es lo unico que lo trae.
+        if (!closedPlan && done.plan) closedPlan = done.plan;
         land(
           done.message,
           done.steps,
@@ -809,7 +842,7 @@
    */
   async function dispatch(
     text: string,
-    opts?: { label?: string; keepDraft?: boolean },
+    opts?: { label?: string; keepDraft?: boolean; plan?: AiPlanIntent },
   ): Promise<void> {
     // La IA trabaja en otra pagina: lo escrito se queda donde esta, esperando
     // a que aquello termine.
@@ -881,6 +914,11 @@
     // referencia: es lo que la deja abrirse.
     if (files.some((f) => !f.ref)) patchFiles(entryId, ready);
 
+    // Fuera de una accion explicita (cortar, implementar), la peticion lleva
+    // la intencion del boton mientras siga encendido: es lo unico que hace
+    // que el modo Plan siga activo turno tras turno (D1 de `ia-modo-plan`).
+    const planIntent = opts?.plan ?? (planWanted ? "activar" : undefined);
+
     await listen(`/api/apps/${appId}/paginas/${page.id}/ia`, {
       prompt: value,
       chatId: readConversation(key).chatId || undefined,
@@ -888,6 +926,7 @@
       ...(ready.length ? { files: ready.map(asChatFile) } : {}),
       ...(choice ? { choice } : {}),
       ...(debug && config?.debugButton ? { debug: true } : {}),
+      ...(planIntent ? { plan: planIntent } : {}),
     });
   }
 
@@ -985,6 +1024,54 @@
   /** Un atajo, a un clic: manda de una vez, sin pasar por el campo de texto. */
   const runQuickAsk = (id: QuickAskId) =>
     dispatch(QUICK_ASK[id].prompt, { label: QUICK_ASK[id].label, keepDraft: true });
+
+  /**
+   * Encender o apagar la intencion de modo Plan.
+   *
+   * Apagarlo con un plan ya cerrado sin implementar no lo descarta: la
+   * tarjeta se queda en el hilo como esta, y la siguiente peticion se
+   * comporta como hoy (D5 de `ia-modo-plan`).
+   */
+  function togglePlan(): void {
+    planWanted = planStatus === "off";
+  }
+
+  /**
+   * La orden de implementar a mitad de conversacion (D4): un boton, no un
+   * texto que se manda al modelo para que lo interprete como orden de cierre.
+   * Cierra el plan con lo que la IA tenia hasta ahora y lo deja listo para
+   * construir.
+   */
+  function cutPlan(): void {
+    planWanted = false;
+    void dispatch("Implementar ahora.", {
+      label: "Implementar ahora",
+      keepDraft: true,
+      plan: "cortar",
+    });
+  }
+
+  /**
+   * Pasar a modo Implementador desde un plan ya cerrado.
+   *
+   * Lo que se manda al modelo es el plan concretado: la burbuja ensena un
+   * rotulo corto, igual que al elegir la opcion de una pregunta.
+   *
+   * El servidor marca implementado el plan guardado, pero esta entrada ya
+   * esta pintada en el navegador con lo que tenia al cerrarse: sin marcarla
+   * tambien aqui, su tarjeta seguiria ofreciendo el boton hasta recargar.
+   */
+  function implementPlan(entryId: number, plan: { texto: string; implementado: boolean }): void {
+    planWanted = false;
+    const now = readConversation(key);
+    update({
+      ...now,
+      entries: now.entries.map((entry) =>
+        entry.id === entryId ? { ...entry, plan: { ...plan, implementado: true } } : entry,
+      ),
+    });
+    void dispatch(plan.texto, { label: "Implementar", keepDraft: true, plan: "implementar" });
+  }
 
   /** Abrir el archivo elegido con el selector nativo del "+" a la conversacion. */
   function attachFiles(e: Event): void {
@@ -1112,6 +1199,7 @@
     text: m.text,
     steps: m.steps,
     question: m.question,
+    plan: m.plan,
     reasoning: m.reasoning,
     files: m.files,
     picked: m.picked,
@@ -1129,6 +1217,9 @@
         queue: now.queue,
         entries: saved.messages.map(toEntry),
       });
+      // La intencion de modo Plan era de la conversacion que se deja: la de
+      // la que se abre la dice su propio ultimo mensaje.
+      planWanted = false;
       // Abrir una es dejarla abierta: es la que se repone al volver, aqui y
       // desde cualquier otro navegador.
       setOpenChat(appId, { chat: saved.id, page: saved.page }, key);
@@ -1180,6 +1271,7 @@
     // otro navegador-- empieza igual de limpio, no con la de antes repuesta.
     setOpenChat(appId, null, key);
     phase = "hero";
+    planWanted = false;
     setPickerActive(false);
     box?.focus();
   }
@@ -1460,6 +1552,20 @@
                     onChoose={(option) => answer(option)}
                   />
                 {/if}
+
+                <!--
+                  El plan con el que se cerro el modo Plan. Solo se puede
+                  pasar a construir desde el del ultimo turno: uno cerrado mas
+                  atras, o ya implementado, se lee pero no se toca (D2 de
+                  `ia-modo-plan`).
+                -->
+                {#if entry.plan}
+                  <PlanCard
+                    plan={entry.plan}
+                    live={!working && entry.id === chat.entries[chat.entries.length - 1]?.id}
+                    onImplement={() => entry.plan && implementPlan(entry.id, entry.plan)}
+                  />
+                {/if}
               </div>
             {/if}
           {/each}
@@ -1659,6 +1765,45 @@
                 >
                   <Icon name="cursor-01" size={15} />
                 </Button>
+
+                <!--
+                El modo Plan: conversar y preguntar antes de construir. El
+                boton solo manda la intencion; quien decide el estado real es
+                el servidor, a partir del hilo (D1 de `ia-modo-plan`).
+              -->
+                <Button
+                  size="sm"
+                  tip={planStatus === "closed"
+                    ? "Plan cerrado: esperando decisión"
+                    : planStatus === "active"
+                      ? "Modo Plan activo: conversa y pregunta antes de construir"
+                      : "Activar modo Plan: conversar antes de construir"}
+                  aria-pressed={planStatus !== "off"}
+                  buttonClass="btn-toggle-plan"
+                  class="btn-icon btn-rounded"
+                  onclick={togglePlan}
+                >
+                  <Icon name="route-01" size={15} />
+                </Button>
+
+                <!--
+                Cortar el plan a mitad de conversacion (D4): un boton, no un
+                texto que el usuario escriba para que el modelo lo interprete
+                como orden de cierre. Solo mientras el modo esta activo y sin
+                cerrar todavia.
+              -->
+                {#if planStatus === "active" && !working}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    tip="Cerrar el plan con lo que hay hasta ahora y pasar a construir"
+                    buttonClass="btn-cut-plan"
+                    class="btn-icon btn-rounded"
+                    onclick={cutPlan}
+                  >
+                    <Icon name="arrow-right-01" size={15} />
+                  </Button>
+                {/if}
 
                 <!--
                 Con que se va a pedir. Vive pegado al campo porque es parte de la
@@ -1959,8 +2104,8 @@
     max-width: 88%;
     white-space: pre-wrap;
     border-radius: var(--radius-lg);
-    border-bottom-right-radius: var(--radius-sm);
-    background: var(--bg-field);
+    border-bottom-right-radius: 0px;
+    background: color-mix(in srgb, var(--accent) 40%, var(--bg-field));
     padding: var(--sp-8) var(--sp-14);
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
@@ -1982,8 +2127,16 @@
 
   .content-ai-response {
     font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    /* line-height: var(--text-sm--line-height); */
+    line-height: var(--text-md--line-height);
     color: var(--text-primary);
+    padding-left: 1rem;
+    padding-right: 2rem;
+    text-wrap: balance;
+
+    :global(ul li, ol li) {
+      margin-bottom: 0.5rem;
+    }
   }
 
   .context-debug-wrap {

@@ -54,8 +54,8 @@
 /* Accion principal: la unica que se pinta con el acento */
 .btn-primary {
   background: var(--accent);
-  border-color: transparent;
   color: var(--accent-text);
+  border-color: transparent;
   box-shadow: 0 0.5rem 1.25rem -0.625rem var(--accent);
 
   &:hover {
@@ -104,6 +104,11 @@
     & i {
       font-size: var(--text-base);
     }
+  }
+
+  &.btn-primary {
+    background: var(--accent);
+    color: var(--accent-text);
   }
 }
 

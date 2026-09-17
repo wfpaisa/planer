@@ -24,6 +24,7 @@ import type {
   AiChoice,
   AiMessage,
   AiPageResult,
+  AiPlanIntent,
   AiProgress,
   AiQuestion,
   AiStep,
@@ -432,6 +433,33 @@ Two things to hold on to:
  */
 const UNNAMED_PAGE = `This page still carries the name it was born with, which says nothing about what it holds. When you write it with "escribir_pagina", send \`nombre\` as well: a short name in Spanish, two or three words at most, taken from what they asked you to build --"Clientes", "Panel de ventas", "Alta de pedidos"--. It is read in the sidebar, so it names the screen, it does not describe it: no article in front, no verb, no sentence. If they named the screen themselves in what they wrote, use their name.`;
 
+/**
+ * La guia que se agrega mientras el modo Plan esta activo (D3 de
+ * `ia-modo-plan`). Las herramientas que escriben la pagina o las tablas no
+ * estan en la lista que se le ofrece --eso es lo que de verdad lo impide--
+ * esto solo cuenta como se conversa dentro de esa restriccion.
+ */
+const PLAN_MODE_GUIDE = `## Plan mode
+
+You are in plan mode: talk with them and ask what is needed to concrete a screen before anything gets built. The commands that write the page or the tables are not offered to you right now, only the ones that read.
+
+- Talk and ask the way you always decide what to build: never guess between two things that already exist in this app without asking with "preguntar", and keep asking about anything else that is still open, since there is no first version you can write yet to let them correct.
+- The plan stays on this one page. If the idea needs more than one view, resolve it with tabs or with sections that show and hide inside this same page --never propose creating or touching another page.
+- When you have nothing left to ask, close with "cerrar_plan". Write the plan for the person who owns the app, never for whoever builds it after: short, concrete, plain language. Never name a table, a column, a function or API call, or any other internal identifier -- say what they will see and do instead ("el motivo de la cancelación", never "\`motivo_de_cancelacion\`"). Shape it in Spanish markdown, exactly like this:
+
+  Se va a hacer:
+  1. <first concrete action, one line>
+  2. <second concrete action, one line>
+  3. <...>
+
+  ### Esto cambia
+  <one short paragraph: what looks or behaves differently for them>
+
+  ### Esto mejora
+  <one short paragraph: why that is better for them>
+
+  Drop a section only when it truly has nothing to say. Do not also write a summary outside of it: closing is how you hand it over, the same way "preguntar" closes without one.`;
+
 function systemPrompt(
   app: AppRecord,
   page: PageRecord,
@@ -439,6 +467,7 @@ function systemPrompt(
   picked: PickedBlock[],
   files: ShownFile[],
   people: AppPerson[],
+  planActive: boolean,
 ): string {
   const contract = buildHtmlContract({
     appName: app.name,
@@ -457,6 +486,7 @@ function systemPrompt(
     }.${isDefaultPageName(page.name) ? `\n\n${UNNAMED_PAGE}` : ""}`,
   ];
 
+  if (planActive) parts.push(PLAN_MODE_GUIDE);
   if (picked.length) parts.push(pickedSection(picked));
   if (files.length) parts.push(filesSection(files));
   parts.push(TOOL_GUIDE);
@@ -864,6 +894,55 @@ const TOOLS: ToolDef[] = [
   },
 ];
 
+/**
+ * Las herramientas que escriben la pagina o las tablas. En modo Plan no se le
+ * ofrecen al modelo: es lo que de verdad le impide construir, no una
+ * instruccion que pueda ignorar (D3 de `ia-modo-plan`).
+ */
+const PLAN_MODE_WRITE_TOOLS = new Set([
+  "escribir_pagina",
+  "reemplazar_bloque",
+  "insertar_bloque",
+  "quitar_bloque",
+  "crear_tabla",
+  "agregar_columnas",
+  "renombrar_columna",
+  "borrar_columna",
+  "cambiar_tipo_columna",
+  "borrar_tabla",
+  "llenar_tabla",
+  "cambiar_acceso",
+  "cambiar_roles_pagina",
+]);
+
+/**
+ * Cierra el modo Plan sin construir nada, con el mismo patron que "preguntar":
+ * termina el turno y trae lo que hay que guardar. Solo se ofrece mientras el
+ * modo esta activo.
+ */
+const CERRAR_PLAN_TOOL: ToolDef = {
+  name: "cerrar_plan",
+  description:
+    "Closes plan mode and ends your turn: nothing gets built here. Use it once you have nothing left to ask about the idea. After calling it write nothing else: no summary, the same as \"preguntar\".",
+  schema: {
+    type: "object",
+    properties: {
+      plan: {
+        type: "string",
+        description:
+          'The concreted plan, in Spanish markdown, for the app\'s owner (not the builder): short, plain words, no table/column/function names. Shape: a numbered list under "Se va a hacer:", then "### Esto cambia" and "### Esto mejora", each a short paragraph.',
+      },
+    },
+    required: ["plan"],
+  },
+};
+
+/** La lista de herramientas que de verdad se le ofrece al modelo esta ronda. */
+function toolsFor(planActive: boolean): ToolDef[] {
+  if (!planActive) return TOOLS;
+  return [...TOOLS.filter((tool) => !PLAN_MODE_WRITE_TOOLS.has(tool.name)), CERRAR_PLAN_TOOL];
+}
+
 /* ------------------------------------------------------------------ */
 /* Ejecucion de las ordenes                                             */
 /* ------------------------------------------------------------------ */
@@ -982,6 +1061,11 @@ export interface ToolContext {
    * cierra: preguntar y seguir escribiendo seria preguntar por cortesia.
    */
   question: AiQuestion | null;
+  /**
+   * El plan con el que se cerro el modo Plan, si se cerro. Mismo papel que
+   * `question`: mientras tenga algo, el turno se cierra.
+   */
+  plan: { texto: string; implementado: boolean } | null;
   /**
    * Si lo que hay escrito ahora mismo ya paso por la revision.
    *
@@ -1445,6 +1529,22 @@ export async function runTool(
       ctx.question = { question, header: header || "Elige", options };
       note(`Pregunta: ${question}`);
       return "The question is on its way. Your turn ends here: write nothing else and add no summary. Choosing an option arrives as a new request.";
+    }
+
+    /*
+     * Cierra el modo Plan. No construye nada -- las herramientas que lo harian
+     * ni siquiera estan en la lista mientras el modo esta activo-- solo deja
+     * apuntado el plan concretado, con el mismo patron que "preguntar".
+     */
+    case "cerrar_plan": {
+      const texto = String(input.plan ?? "").trim();
+      if (!texto) {
+        note("Plan sin contenido", false);
+        return 'Error: send the concreted plan\'s text in "plan".';
+      }
+      ctx.plan = { texto, implementado: false };
+      note("Plan cerrado");
+      return "The plan is on its way. Your turn ends here: write nothing else and add no summary.";
     }
 
     case "revisar_errores": {
@@ -2082,12 +2182,45 @@ async function pageRequest(
      * para el uso de cada dia.
      */
     debug?: boolean;
+    /** La intencion de modo Plan que mando el boton del composer. Ver `planModeFor`. */
+    planIntent?: AiPlanIntent;
   },
   traced: Traced,
 ): Promise<Omit<AiPageResult, "chatId">> {
   if (!(await aiEnabled())) throw new HttpError(400, AI_MISSING);
 
   const stopped = () => opts.signal?.aborted === true;
+
+  /*
+   * "cortar": la orden de implementar a mitad de conversacion (D4). No manda
+   * texto nuevo al modelo -- cierra el plan con lo ultimo que la IA dejo dicho
+   * y lo deja listo para construir de una vez, sin pasar por la tarjeta de
+   * "cerrado, esperando decision".
+   */
+  if (opts.planIntent === "cortar") {
+    const lastAi = [...(opts.history ?? [])].reverse().find((m) => m.from === "ia");
+    const texto = (lastAi?.text ?? "").trim() || "Sin más detalle todavía: se cortó el plan tal como estaba.";
+    return {
+      message: texto,
+      steps: [],
+      notices: [],
+      changed: false,
+      impact: null,
+      question: null,
+      plan: { texto, implementado: true },
+      access: [],
+      stopped: false,
+    };
+  }
+
+  /*
+   * El resto de la peticion: el modo Plan gatea las herramientas de esta
+   * ronda solo cuando el boton mando "activar" con ella. Un plan cerrado y
+   * sin implementar que haya quedado en el hilo no lo bloquea: el composer
+   * solo manda "activar" cuando el boton lo muestra apagado, y volver a
+   * activarlo abre un plan distinto (D1 de `ia-modo-plan`).
+   */
+  const planActive = opts.planIntent === "activar";
 
   const [tables, pages, people] = await Promise.all([
     appTables(opts.app.id),
@@ -2116,6 +2249,7 @@ async function pageRequest(
     step: stepBefore(opts.app, opts.prompt, opts.authorId),
     probes: 0,
     question: null,
+    plan: null,
     reviewed: false,
     /*
      * Probar es lo unico que necesita algo de vuelta, y de un sitio donde este
@@ -2181,9 +2315,9 @@ async function pageRequest(
   }
 
   const chat = await startConversation(
-    systemPrompt(opts.app, opts.page, tables, opts.picked ?? [], shown, people),
+    systemPrompt(opts.app, opts.page, tables, opts.picked ?? [], shown, people, planActive),
     opts.prompt,
-    TOOLS,
+    toolsFor(planActive),
     {
       signal: opts.signal,
       choice: opts.choice,
@@ -2212,7 +2346,7 @@ async function pageRequest(
    * ya se gastaron, no se fuerza ninguna mas.
    */
   const reviewPending = () =>
-    ctx.changed && !ctx.reviewed && ctx.probes < MAX_PROBES && !ctx.question && !stopped();
+    ctx.changed && !ctx.reviewed && ctx.probes < MAX_PROBES && !ctx.question && !ctx.plan && !stopped();
 
   /**
    * Pide la revision en nombre del modelo y deja su paso a la vista.
@@ -2311,9 +2445,9 @@ async function pageRequest(
       for (const paso of ctx.steps.slice(before)) opts.onProgress?.({ tipo: "paso", paso });
       results.push({ id: call.id, output });
     }
-    // Preguntar cierra el turno: no se abre otra ronda, asi que lo que el
-    // modelo llevara escrito se queda como esta y la pregunta sale al panel.
-    if (ctx.question) break;
+    // Preguntar y cerrar el plan cierran el turno: no se abre otra ronda, asi
+    // que lo que el modelo llevara escrito se queda como esta y sale al panel.
+    if (ctx.question || ctx.plan) break;
     chat.reply(results);
   }
 
@@ -2330,6 +2464,11 @@ async function pageRequest(
   // peticion no quiere que le abran una eleccion para seguirla.
   const question = stopped() ? null : ctx.question;
   if (question) opts.onProgress?.({ tipo: "pregunta", pregunta: question });
+
+  // Lo mismo que con la pregunta: se cuenta antes del `fin`, y no se cuenta
+  // nada si se detuvo a medias.
+  const plan = stopped() ? null : ctx.plan;
+  if (plan) opts.onProgress?.({ tipo: "plan", plan });
 
   // Lo mismo que con el impacto: quien para una peticion no quiere que le
   // abran una autorizacion para seguirla.
@@ -2358,10 +2497,10 @@ async function pageRequest(
     ? `Petición detenida.${ctx.changed ? " Lo que ya se había aplicado se queda como está." : ""}`
     : "";
 
-  // Al preguntar, el texto de la pregunta es la respuesta: el modelo tiene
+  // Al preguntar o cerrar el plan, ese texto es la respuesta: el modelo tiene
   // dicho que no escriba resumen, y la conversacion guardada tiene que leerse
   // igual de bien sin los botones delante.
-  const closing = question ? question.question : "Listo.";
+  const closing = plan ? plan.texto : question ? question.question : "Listo.";
 
   return {
     message: [message, ending].filter(Boolean).join("\n\n") || closing,
@@ -2371,6 +2510,7 @@ async function pageRequest(
     impact,
     access: grants,
     question,
+    plan,
     reasoning: reasoning || undefined,
     stopped: halted,
     ...(usage ? { usage } : {}),

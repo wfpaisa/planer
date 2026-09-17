@@ -642,6 +642,19 @@ export interface AiChoice {
   thinking: AiThinking;
 }
 
+/**
+ * La intencion de modo Plan que manda el boton del composer con la siguiente
+ * peticion. Quien decide el estado real es el servidor, a partir del hilo: ver
+ * `design.md` D1 de `ia-modo-plan`.
+ *
+ * - `activar`: empezar --o seguir en-- modo Plan para esta peticion.
+ * - `cortar`: orden de implementar a mitad de conversacion (D4): no manda
+ *   texto nuevo al modelo, cierra el plan con lo que la IA tenia hasta ahora y
+ *   lo deja listo para construir.
+ * - `implementar`: pasar de un plan ya cerrado a modo Implementador.
+ */
+export type AiPlanIntent = "activar" | "cortar" | "implementar";
+
 export interface AiConfig {
   providers: AiProviderConfig[];
   /** Lo que se usa cuando quien pide no elige otra cosa. */
@@ -703,6 +716,15 @@ export interface AiMessage {
    * respuesta que vino despues.
    */
   question?: AiQuestion;
+  /**
+   * El plan con el que este mensaje cerro el modo Plan, si lo cerro. Mismo
+   * patron que `question`: un campo opcional que distingue este turno de una
+   * respuesta normal. `implementado` empieza en falso y pasa a verdadero
+   * cuando quien construye elige pasar a modo Implementador; desde entonces el
+   * plan sigue visible pero no se edita ni se reabre. Ver `design.md` D2 de
+   * `ia-modo-plan`.
+   */
+  plan?: { texto: string; implementado: boolean };
   /**
    * El razonamiento que el modelo dejo escrito antes de responder, si el
    * servidor de IA lo envio. No siempre existe: depende del modelo.
@@ -989,6 +1011,11 @@ export interface AiPageResult {
    */
   question: AiQuestion | null;
   /**
+   * El plan con el que se cerro el turno, si se cerro uno. `null` es lo
+   * normal, igual que `question`.
+   */
+  plan: { texto: string; implementado: boolean } | null;
+  /**
    * Accesos que la IA quiere dar y todavia no ha dado: cada uno se confirma
    * por separado, con su consecuencia delante. Los que quitan no llegan aqui,
    * se aplican solos.
@@ -1105,6 +1132,11 @@ export type AiProgress =
    * panel pueda pintarla en cuanto se sabe, sin esperar al resultado.
    */
   | { tipo: "pregunta"; pregunta: AiQuestion }
+  /**
+   * El modo Plan se cerro con este plan. Llega antes del `fin`, por lo mismo
+   * que "pregunta": para que la tarjeta se pinte en cuanto se sabe.
+   */
+  | { tipo: "plan"; plan: { texto: string; implementado: boolean } }
   | { tipo: "fin"; resultado: AiPageResult }
   | { tipo: "error"; mensaje: string };
 

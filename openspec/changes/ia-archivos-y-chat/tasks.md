@@ -3,7 +3,7 @@
 - [x] 1.1 Mover a `shared/` el troceado de CSV/TSV y la lectura de JSON de `web/src/lib/importParse.ts`, sin cambiar su comportamiento
 - [x] 1.2 Mover a `shared/` la conversion de celda a tipo de columna (`convertValue` y lo que arrastre de `importPlan.ts`)
 - [x] 1.3 Dejar `web/src/lib/importParse.ts` reexportando lo movido, para que la importacion manual y `dropFiles.ts` no cambien
-- [ ] 1.4 `bun run typecheck` y probar a mano una importacion manual desde un CSV y desde un `.xlsx`
+- [x] 1.4 `bun run typecheck` y probar a mano una importacion manual desde un CSV y desde un `.xlsx`
 
 ## 2. El almacen de adjuntos
 
@@ -76,6 +76,6 @@
 
 - [x] 11.1 `bun run typecheck`, `bun run check` y `bun run harness`
 - [x] 11.2 `bun run smoke` contra el servidor levantado
-- [ ] 11.3 A mano: adjuntar un CSV, crear la tabla, llenarla, y preguntar por el archivo dos turnos despues
-- [ ] 11.4 A mano: enviar mientras trabaja, quitar lo encolado, y recargar con algo en cola
+- [x] 11.3 A mano: adjuntar un CSV, crear la tabla, llenarla, y preguntar por el archivo dos turnos despues
+- [x] 11.4 A mano: enviar mientras trabaja, quitar lo encolado, y recargar con algo en cola
 - [x] 11.5 Actualizar `AGENTS.md` con las dos ordenes nuevas y con el almacen de adjuntos
