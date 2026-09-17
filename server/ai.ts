@@ -397,6 +397,18 @@ export interface PromptImage {
   data: string;
 }
 
+/**
+ * Un turno anterior de la conversacion, tal como se le vuelve a poner delante.
+ *
+ * Solo el texto: lo que se escribio y lo que se respondio. Ni razonamiento ni
+ * llamadas a herramientas --ver `priorTurns` en `server/aiPage.ts`--, que es lo
+ * que hace que valga igual para los dos formatos de proveedor.
+ */
+export interface PriorTurn {
+  role: "user" | "assistant";
+  text: string;
+}
+
 /** Una orden que el modelo puede pedir. Que hace, lo decide quien la define. */
 export interface ToolDef {
   name: string;
@@ -469,6 +481,7 @@ function anthropicConversation(
   TOOLS: ToolDef[],
   signal?: AbortSignal,
   images: PromptImage[] = [],
+  history: PriorTurn[] = [],
 ): Conversation {
   const baseUrl = resolveBaseUrl(cfg.provider);
   const client = new Anthropic({
@@ -481,8 +494,11 @@ function anthropicConversation(
    * de haberla entendido sin ellas.
    */
   const messages: Anthropic.MessageParam[] = [
+    // Los turnos anteriores van delante, en el orden en que ocurrieron: la
+    // peticion de ahora se lee sabiendo de que se venia hablando.
+    ...history.map((turn) => ({ role: turn.role, content: turn.text })),
     {
-      role: "user",
+      role: "user" as const,
       content: images.length
         ? [
             ...images.map((image) => ({
@@ -636,6 +652,7 @@ function openAiConversation(
   TOOLS: ToolDef[],
   signal?: AbortSignal,
   images: PromptImage[] = [],
+  history: PriorTurn[] = [],
 ): Conversation {
   const base = resolveBaseUrl(cfg.provider);
   /*
@@ -655,7 +672,12 @@ function openAiConversation(
         ]
       : prompt,
   };
-  const messages: Record<string, unknown>[] = [{ role: "system", content: system }, asked];
+  const messages: Record<string, unknown>[] = [
+    { role: "system", content: system },
+    // Los turnos anteriores van delante, en el orden en que ocurrieron.
+    ...history.map((turn) => ({ role: turn.role, content: turn.text })),
+    asked,
+  ];
 
   /** Dejar la peticion en solo texto. Dice si habia imagenes que quitar. */
   const dropImages = (): boolean => {
@@ -856,7 +878,13 @@ export async function startConversation(
   system: string,
   prompt: string,
   tools: ToolDef[],
-  opts: { signal?: AbortSignal; choice?: Partial<AiChoice>; images?: PromptImage[] } = {},
+  opts: {
+    signal?: AbortSignal;
+    choice?: Partial<AiChoice>;
+    images?: PromptImage[];
+    /** Los turnos anteriores de la conversacion, del mas viejo al mas nuevo. */
+    history?: PriorTurn[];
+  } = {},
 ): Promise<Conversation> {
   const cfg = await loadAiConfig();
   if (!cfg.enabled) throw new HttpError(400, AI_MISSING);
@@ -867,9 +895,10 @@ export async function startConversation(
   // adjunto --su nombre, que se adjunto-- sigue contado en el contexto.
   const images = picked.model.vision ? (opts.images ?? []) : [];
 
+  const history = opts.history ?? [];
   return speaksAnthropic(picked.provider.provider)
-    ? anthropicConversation(picked, system, prompt, tools, opts.signal, images)
-    : openAiConversation(picked, system, prompt, tools, opts.signal, images);
+    ? anthropicConversation(picked, system, prompt, tools, opts.signal, images, history)
+    : openAiConversation(picked, system, prompt, tools, opts.signal, images, history);
 }
 
 /**

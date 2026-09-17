@@ -25,6 +25,7 @@ import { buildHtmlContract, buildHtmlDocs } from "../shared/htmlContract.ts";
 import { ADMIN_ROLE } from "../shared/people.ts";
 import type {
   AiActiveRun,
+  AiChatFile,
   AiChatSummary,
   AiDebugRead,
   AiFile,
@@ -72,6 +73,37 @@ function judge(label: string, condition: unknown, evidence?: AiPageResult | null
   }
 }
 
+/**
+ * Sube un adjunto y devuelve su referencia.
+ *
+ * Los adjuntos ya no viajan dentro de la peticion: se guardan antes, y lo que
+ * la peticion lleva es la referencia. Por eso la bateria tiene que subirlos
+ * igual que lo hace el panel.
+ */
+async function upload(
+  appId: string,
+  name: string,
+  kind: AiFile["kind"],
+  mime: string,
+  content: string,
+): Promise<AiChatFile> {
+  const form = new FormData();
+  form.set("archivo", new Blob([content], { type: mime }), name);
+  form.set("nombre", name);
+  form.set("clase", kind);
+  form.set("tipo", mime);
+
+  const res = await fetch(`${BASE}/api/apps/${appId}/ia/archivos`, {
+    method: "POST",
+    headers: { authorization: token },
+    body: form,
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`subir adjunto -> ${res.status} ${text}`);
+  const saved = JSON.parse(text) as Omit<AiFile, "id">;
+  return { ref: saved.ref, name: saved.name, kind: saved.kind, size: saved.size };
+}
+
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (token) headers.set("authorization", token);
@@ -93,7 +125,7 @@ async function ask(
   appId: string,
   pageId: string,
   prompt: string,
-  extra: { picked?: PickedBlock[]; files?: AiFile[]; allowError?: boolean } = {},
+  extra: { picked?: PickedBlock[]; files?: AiChatFile[]; allowError?: boolean } = {},
 ): Promise<{ result: AiPageResult | null; events: AiProgress[] }> {
   const res = await fetch(`${BASE}/api/apps/${appId}/paginas/${pageId}/ia`, {
     method: "POST",
@@ -656,6 +688,15 @@ const vecina = await nuevaPagina("Conversaciones B", "conv-b");
  * sus nombres queden en el mensaje guardado, no su contenido. El HTML senalado
  * y el texto del archivo ya viajaron y no tienen por que quedarse.
  */
+const adjunto = await upload(
+  app.id,
+  "clientes.csv",
+  "csv",
+  "text/csv",
+  "nombre,ciudad\nAna,Cali\nLuis,Pasto\n",
+);
+check("el adjunto se guardó y devolvió su referencia", !!adjunto.ref);
+
 const conAdjuntos = await ask(app.id, casa.id, "Pon un título que diga Clientes.", {
   picked: [
     {
@@ -667,17 +708,7 @@ const conAdjuntos = await ask(app.id, casa.id, "Pon un título que diga Clientes
       truncated: false,
     },
   ],
-  files: [
-    {
-      id: "f1",
-      name: "clientes.csv",
-      kind: "csv",
-      mime: "text/csv",
-      size: 12,
-      text: "a,b\n1,2",
-      truncated: false,
-    },
-  ],
+  files: [adjunto],
 });
 check("la petición con adjuntos terminó", !!conAdjuntos.result);
 
@@ -712,11 +743,18 @@ check(
   trasCasa?.chat === nacida && trasCasa?.page === casa.id,
 );
 
-const guardada = await call<{ messages: { from: string; files?: string[]; picked?: string[] }[] }>(
-  `/api/apps/${app.id}/conversaciones/${nacida}`,
-);
+const guardada = await call<{
+  messages: { from: string; files?: AiChatFile[]; picked?: string[] }[];
+}>(`/api/apps/${app.id}/conversaciones/${nacida}`);
 const mia = guardada.messages.find((m) => m.from === "yo");
-check("al reabrir, el mensaje conserva el nombre del archivo", mia?.files?.[0] === "clientes.csv");
+check(
+  "al reabrir, el mensaje conserva el nombre del archivo",
+  mia?.files?.[0]?.name === "clientes.csv",
+);
+check(
+  "y la referencia con la que se vuelve a alcanzar el adjunto",
+  mia?.files?.[0]?.ref === adjunto.ref,
+);
 check("y la etiqueta de lo señalado", mia?.picked?.[0] === "tabla Clientes");
 
 /* ------------------------------------------------------------------ */

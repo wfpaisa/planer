@@ -25,9 +25,9 @@
 import { aiNearestThinking } from "@shared/aiCatalog";
 import type {
   AccessChange,
+  AiChatFile,
   AiChoice,
   AiConfigView,
-  AiFile,
   AiOpenChat,
   AiQuestion,
   AiStep,
@@ -37,6 +37,7 @@ import type {
 } from "@shared/types";
 import { SvelteMap } from "svelte/reactivity";
 
+import type { DraftFile } from "./aiFiles";
 import { api, put } from "./pb";
 
 export interface Entry {
@@ -69,15 +70,35 @@ export interface Entry {
   /** El contexto que se le mando al modelo, si se pidio verlo en modo debug. */
   context?: string;
   /**
-   * Los nombres de los archivos que se adjuntaron a esta peticion. Solo los
-   * nombres: el contenido ya viajo y no hay por que guardarlo aqui otra vez.
+   * Los archivos que se adjuntaron a esta peticion: su nombre y la referencia
+   * de lo guardado. El contenido no esta aqui --vive en el almacen de
+   * adjuntos-- pero con la referencia la burbuja puede abrirlo.
    */
-  files?: string[];
+  files?: AiChatFile[];
   /**
    * Como se llamaba cada elemento senalado con el cursor. Por lo mismo que los
    * archivos: el HTML ya viajo, y lo que queda es con que se pidio.
    */
   picked?: string[];
+  /**
+   * El turno termino sin respuesta: fallo, o se detuvo a mitad.
+   *
+   * Es lo que decide que su proceso no se pliegue. Un turno que cerro bien se
+   * pliega porque la respuesta es lo que hay que leer; en uno que no llego a
+   * cerrar, lo que hay que leer es justo por donde iba.
+   */
+  unfinished?: boolean;
+}
+
+/** Una peticion escrita mientras la IA trabajaba, esperando su turno. */
+export interface QueuedAsk {
+  id: number;
+  /** El texto que se va a mandar. */
+  text: string;
+  /** Lo que se lee en el badge, si es distinto de lo que se manda. */
+  label?: string;
+  picks: PickedBlock[];
+  files: DraftFile[];
 }
 
 export interface Conversation {
@@ -93,11 +114,21 @@ export interface Conversation {
    */
   picks: PickedBlock[];
   /**
-   * Los archivos adjuntos a la peticion que se esta escribiendo, ya leidos.
-   * Viven aqui por lo mismo que lo senalado: quitar uno antes de enviar no
-   * puede costar lo que se llevaba escrito, y esconder el dock no los pierde.
+   * Los archivos adjuntos a la peticion que se esta escribiendo, ya subidos o
+   * todavia subiendose. Viven aqui por lo mismo que lo senalado: quitar uno
+   * antes de enviar no puede costar lo que se llevaba escrito, y esconder el
+   * dock no los pierde.
    */
-  files: AiFile[];
+  files: DraftFile[];
+  /**
+   * Las peticiones que se enviaron mientras la IA trabajaba y esperan turno.
+   *
+   * Viven en el navegador y no en el servidor: la que esta en marcha ya
+   * sobrevive a recargar porque el servidor la reconoce, pero lo encolado
+   * todavia no existe para el. Por eso, al recargar, vuelve al campo de texto
+   * en vez de perderse. Ver `design.md` D7.
+   */
+  queue: QueuedAsk[];
   /**
    * Lo que ocupo la ultima peticion de esta conversacion. Se queda para poder
    * seguir viendo cuanto contexto se gasto despues de que termine.
@@ -105,7 +136,7 @@ export interface Conversation {
   usage?: AiUsage;
 }
 
-const EMPTY: Conversation = { entries: [], chatId: "", draft: "", picks: [], files: [] };
+const EMPTY: Conversation = { entries: [], chatId: "", draft: "", picks: [], files: [], queue: [] };
 
 const store = new SvelteMap<string, Conversation>();
 
@@ -172,6 +203,50 @@ export function clearConversation(key: string): void {
   store.delete(key);
   resumed.delete(key);
   hydrated.delete(key);
+}
+
+/* ------------------------------------------------------------------ */
+/* Lo que quedo en cola al recargar                                     */
+/* ------------------------------------------------------------------ */
+
+/*
+ * La cola vive en esta pestana, asi que recargar la pierde. Perderla en
+ * silencio seria tragarse lo que alguien escribio, asi que lo encolado se
+ * apunta en el navegador y, al volver, se devuelve al campo de texto y se dice.
+ *
+ * Se apunta solo el texto. Lo senalado no sobrevive a recargar --el documento
+ * se volvio a dibujar-- y los adjuntos tampoco se reponen: el texto es lo que
+ * se escribio, y es lo unico que se puede prometer.
+ */
+const QUEUE_KEY = "plane_ai_queue";
+
+const queueKeyOf = (key: string) => `${QUEUE_KEY}:${key}`;
+
+/** Apunta lo que hay en cola, para que recargar no se lo trague. */
+export function rememberQueue(key: string, queue: QueuedAsk[]): void {
+  try {
+    const texts = queue.map((q) => q.text).filter(Boolean);
+    if (texts.length) localStorage.setItem(queueKeyOf(key), JSON.stringify(texts));
+    else localStorage.removeItem(queueKeyOf(key));
+  } catch {
+    /* sin sitio donde apuntarlo, recargar lo pierde y no hay mas que decir */
+  }
+}
+
+/**
+ * Lo que habia quedado en cola antes de recargar, y lo borra: se devuelve una
+ * sola vez, al campo de texto de quien vuelve.
+ */
+export function takeQueue(key: string): string[] {
+  try {
+    const raw = localStorage.getItem(queueKeyOf(key));
+    localStorage.removeItem(queueKeyOf(key));
+    if (!raw) return [];
+    const texts: unknown = JSON.parse(raw);
+    return Array.isArray(texts) ? texts.filter((t): t is string => typeof t === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 /* ------------------------------------------------------------------ */

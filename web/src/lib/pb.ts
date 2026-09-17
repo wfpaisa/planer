@@ -37,7 +37,11 @@ export const httpError = (res: Response, data: { error?: string } | null): ApiEr
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (pb.authStore.token) headers.set("authorization", pb.authStore.token);
-  if (init.body) headers.set("content-type", "application/json");
+  // Un formulario pone su propio tipo, con la frontera dentro: escribirlo aqui
+  // dejaria el cuerpo ilegible. Todo lo demas es JSON.
+  if (init.body && !(init.body instanceof FormData)) {
+    headers.set("content-type", "application/json");
+  }
 
   const res = await fetch(path, { ...init, headers });
   const text = await res.text();

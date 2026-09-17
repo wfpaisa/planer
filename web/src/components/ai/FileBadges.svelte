@@ -15,26 +15,36 @@
 </script>
 
 <script lang="ts">
-  import type { AiFile } from "@shared/types";
-
-  import { AI_FILE_ICON } from "../../lib/aiFiles";
+  import { AI_FILE_ICON, type DraftFile } from "../../lib/aiFiles";
   import Icon from "../Icon.svelte";
-  import { Tag } from "../ui";
+  import { Spinner, Tag } from "../ui";
 
-  let { files, onRemove }: { files: AiFile[]; onRemove: (id: string) => void } = $props();
+  let { files, onRemove }: { files: DraftFile[]; onRemove: (id: string) => void } = $props();
 </script>
 
 {#if files.length}
   <div class="file-badges flex flex-wrap">
     {#each files as file (file.id)}
+      <!--
+        Mientras se guarda, el badge lo dice: el archivo va en camino y todavia
+        no se puede mandar con una peticion. Quitarlo ahi corta la subida, que
+        es lo que hace que adjuntar algo grande no sea un compromiso.
+      -->
       <Tag
         tone="tint-2"
-        tip={`${file.name} · ${weigh(file.size)}${file.truncated ? " · va recortado" : ""}`}
-        removeLabel={`Quitar ${file.name}`}
+        tip={`${file.name} · ${weigh(file.size)}${file.uploading ? " · guardándose" : ""}`}
+        removeLabel={file.uploading ? `Cancelar ${file.name}` : `Quitar ${file.name}`}
         onRemove={() => onRemove(file.id)}
       >
-        <Icon name={AI_FILE_ICON[file.kind]} />
+        {#if file.uploading}
+          <Spinner />
+        {:else}
+          <Icon name={AI_FILE_ICON[file.kind]} />
+        {/if}
         <span class="file-name">{file.name}</span>
+        {#if file.uploading}
+          <span class="file-uploading">va en camino</span>
+        {/if}
       </Tag>
     {/each}
   </div>
@@ -43,6 +53,10 @@
 <style>
   .file-badges {
     gap: var(--sp-6);
+  }
+
+  .file-uploading {
+    color: var(--text-subtle);
   }
 
   .file-name {

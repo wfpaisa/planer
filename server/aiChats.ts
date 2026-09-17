@@ -17,12 +17,14 @@
  */
 import type {
   AiChat,
+  AiChatFile,
   AiChatSummary,
   AiMessage,
   AiOpenChat,
   AppRecord,
   PageRecord,
 } from "../shared/types.ts";
+import { pruneAiFiles } from "./aiFiles.ts";
 import { HttpError } from "./auth.ts";
 import { INTERNAL } from "./config.ts";
 import { quote } from "./filter.ts";
@@ -37,9 +39,9 @@ const MAX_MESSAGES = 60;
 const title = (text: string) => text.trim().replace(/\s+/g, " ").slice(0, 120) || "Sin título";
 
 /**
- * Los nombres que acompanaban a una peticion --archivos adjuntos, elementos
- * senalados-- tal como se guardan: texto corto y nada mas. Lo que no sea texto
- * se descarta en vez de viajar deformado.
+ * Los nombres que acompanaban a una peticion --los elementos senalados-- tal
+ * como se guardan: texto corto y nada mas. Lo que no sea texto se descarta en
+ * vez de viajar deformado.
  */
 function readNames(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -49,13 +51,46 @@ function readNames(value: unknown): string[] {
     .slice(0, 40);
 }
 
+/**
+ * Los adjuntos que nombraba una peticion.
+ *
+ * Una conversacion de antes del almacen de adjuntos guarda solo el nombre, en
+ * una lista de textos. Se lee igual --la burbuja sigue diciendo con que se
+ * pidio-- pero sin referencia: ese contenido no se guardo nunca y no hay forma
+ * de recuperarlo.
+ */
+function readFiles(value: unknown): AiChatFile[] {
+  if (!Array.isArray(value)) return [];
+  const out: AiChatFile[] = [];
+  for (const item of value.slice(0, 40)) {
+    if (typeof item === "string") {
+      const name = item.trim().slice(0, 200);
+      if (name) out.push({ ref: "", name, kind: "text", size: 0 });
+      continue;
+    }
+    if (!item || typeof item !== "object") continue;
+    const file = item as Record<string, unknown>;
+    const name = String(file.name ?? "")
+      .trim()
+      .slice(0, 200);
+    if (!name) continue;
+    out.push({
+      ref: String(file.ref ?? "").slice(0, 60),
+      name,
+      kind: (String(file.kind ?? "text") || "text") as AiChatFile["kind"],
+      size: Number(file.size ?? 0) || 0,
+    });
+  }
+  return out;
+}
+
 function readMessages(value: unknown): AiMessage[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((item) => {
       const raw = item as Partial<AiMessage>;
       if (raw.from !== "yo" && raw.from !== "ia") return null;
-      const files = readNames(raw.files);
+      const files = readFiles(raw.files);
       const picked = readNames(raw.picked);
       return {
         from: raw.from,
@@ -125,6 +160,9 @@ export async function appendToChat(opts: {
 
   await setOpenChat(opts.appId, created.id);
   await pruneChats(opts.appId);
+  // El tope se pudo llevar la ultima conversacion que nombraba algun adjunto:
+  // es el unico momento en que uno puede quedarse sin nadie que lo nombre.
+  await pruneAiFiles(opts.appId).catch(() => 0);
   return { ...created, messages };
 }
 

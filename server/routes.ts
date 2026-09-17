@@ -21,6 +21,7 @@ import type {
   AccessChange,
   AiActiveRun,
   AiChat,
+  AiChatFile,
   AiChatSummary,
   AiChoice,
   AiConfigView,
@@ -58,6 +59,7 @@ import {
 } from "./ai.ts";
 import { appendToChat, getChat, listChats, readOpenChat, setOpenChat } from "./aiChats.ts";
 import { clearAiDebug, readAiDebug } from "./aiDebug.ts";
+import { findAiFile, readAiFileBytes, saveAiFile } from "./aiFiles.ts";
 import { findCatalogModel, listCatalog, llamaCppCatalog, llamaCppModel } from "./aiModels.ts";
 import {
   appPages,
@@ -1035,63 +1037,113 @@ function pickedBlocks(raw: unknown): PickedBlock[] {
 
 /** Cuantos archivos se aceptan adjuntos a una peticion. */
 const MAX_AI_FILES = 8;
-/** Y cuanto texto de cada uno. Por encima se recorta, no se rechaza. */
-const MAX_AI_FILE_TEXT = 200_000;
-/** Una imagen en base64, en caracteres. Son ~5 MB de imagen. */
-const MAX_AI_IMAGE_DATA = 7_000_000;
 
 const AI_FILE_KINDS: AiFileKind[] = ["html", "css", "js", "json", "csv", "sheet", "text", "image"];
 
+const isAiFileKind = (value: unknown): value is AiFileKind =>
+  AI_FILE_KINDS.includes(String(value) as AiFileKind);
+
 /**
- * Los archivos adjuntos, tal como pueden usarse.
+ * Los adjuntos que nombra una peticion.
  *
- * Llegan del navegador con su contenido dentro, asi que llegan sin garantias:
- * se recortan a lo que cabe en un contexto y se quedan solo los que tienen
- * forma. Lo que venga mal se descarta en silencio --adjuntar mal no puede
- * tumbar una peticion-- y si no queda nada, la peticion sigue sin adjuntos.
+ * Ya no llegan con el contenido dentro: llegan como referencias a lo que el
+ * navegador subio al soltarlo. Aqui solo se comprueba que tengan forma y que la
+ * referencia sea de esta aplicacion; lo que se le ensena al modelo de cada uno
+ * lo decide el contexto (`server/aiPage.ts`).
+ *
+ * Una referencia que no existe se descarta en silencio: adjuntar mal no puede
+ * tumbar una peticion, y la peticion sigue sin ese adjunto.
  */
-function aiFiles(raw: unknown): AiFile[] {
+async function aiFiles(appId: string, raw: unknown): Promise<AiChatFile[]> {
   if (!Array.isArray(raw)) return [];
 
-  const out: AiFile[] = [];
+  const out: AiChatFile[] = [];
   for (const item of raw.slice(0, MAX_AI_FILES)) {
     if (!item || typeof item !== "object") continue;
     const file = item as Record<string, unknown>;
 
-    const kind = String(file.kind ?? "") as AiFileKind;
-    if (!AI_FILE_KINDS.includes(kind)) continue;
+    const ref = String(file.ref ?? "").trim();
+    if (!ref || out.some((f) => f.ref === ref)) continue;
 
-    const name = String(file.name ?? "")
-      .trim()
-      .slice(0, 200);
-    if (!name) continue;
+    const saved = await findAiFile(appId, ref);
+    if (!saved) continue;
 
-    const base = {
-      id: String(file.id ?? ""),
-      name,
-      kind,
-      mime: String(file.mime ?? "").slice(0, 100),
-      size: Number(file.size ?? 0) || 0,
-    };
-
-    if (kind === "image") {
-      const data = String(file.data ?? "");
-      if (!data || data.length > MAX_AI_IMAGE_DATA) continue;
-      out.push({ ...base, data });
-      continue;
-    }
-
-    const text = String(file.text ?? "");
-    if (!text.trim()) continue;
-    const long = text.length > MAX_AI_FILE_TEXT;
     out.push({
-      ...base,
-      text: long ? text.slice(0, MAX_AI_FILE_TEXT) : text,
-      // Recortado aqui, o ya recortado por el navegador antes de mandarlo.
-      truncated: long || file.truncated === true,
+      ref: saved.id,
+      // El nombre lo pone lo guardado, no lo que mande el navegador: es el
+      // mismo que la conversacion recuerda y el que la IA va a nombrar.
+      name: saved.name,
+      kind: isAiFileKind(saved.kind) ? saved.kind : "text",
+      size: saved.bytes,
     });
   }
   return out;
+}
+
+/**
+ * Guarda un archivo adjunto y devuelve su referencia.
+ *
+ * La subida arranca al soltar el archivo, no al enviar la peticion: para cuando
+ * se termina de escribir que hacer con el, el archivo ya esta guardado. Llega
+ * como formulario porque puede ser binario --una imagen, una hoja de calculo--
+ * y la clase la dice el navegador: una hoja de calculo sube ya convertida a
+ * filas y columnas, asi que su nombre sigue diciendo `.xlsx` y su contenido ya
+ * no lo es.
+ */
+export async function uploadAiFile(req: Request, appId: string) {
+  const me = await requireBuilder(req);
+  const app = await ownedApp(appId, me);
+
+  const form = await req.formData().catch(() => null);
+  const file = form?.get("archivo");
+  if (!form || !(file instanceof File)) {
+    throw new HttpError(400, "No llegó ningún archivo.");
+  }
+
+  const kind = form.get("clase");
+  if (!isAiFileKind(kind)) throw new HttpError(400, "No se sabe leer esa clase de archivo.");
+
+  const name =
+    String(form.get("nombre") ?? file.name)
+      .trim()
+      .slice(0, 200) || "adjunto";
+
+  const saved = await saveAiFile(app.id, {
+    name,
+    kind,
+    mime: String(form.get("tipo") ?? file.type ?? "").slice(0, 100),
+    content: new Uint8Array(await file.arrayBuffer()),
+  });
+
+  return json<Omit<AiFile, "id">>({
+    ref: saved.id,
+    name: saved.name,
+    kind,
+    mime: saved.mime,
+    size: saved.bytes,
+  });
+}
+
+/**
+ * El contenido de un adjunto, para poder abrir desde una burbuja lo que se
+ * adjunto. Se sirve tal cual se guardo, sin recortar.
+ */
+export async function getAiFile(req: Request, appId: string, fileId: string) {
+  const me = await requireBuilder(req);
+  const app = await ownedApp(appId, me);
+
+  const saved = await findAiFile(app.id, fileId);
+  if (!saved) throw new HttpError(404, "Ese archivo ya no está guardado");
+
+  const bytes = await readAiFileBytes(saved);
+  return new Response(new Blob([bytes], { type: saved.mime || "application/octet-stream" }), {
+    headers: {
+      "content-type": saved.mime || "application/octet-stream",
+      // Se abre, no se descarga: lo que se quiere es ver lo que se adjunto.
+      "content-disposition": `inline; filename*=UTF-8''${encodeURIComponent(saved.name)}`,
+      "cache-control": "private, max-age=300",
+    },
+  });
 }
 
 /**
@@ -1175,13 +1227,21 @@ async function executeRun(
     page: PageRecord;
     authorId: string;
     picked: PickedBlock[];
-    files: AiFile[];
+    files: AiChatFile[];
     chatId?: string;
     choice?: Partial<AiChoice>;
     debug?: boolean;
   },
 ): Promise<void> {
   try {
+    /*
+     * Lo que ya se hablo en esta conversacion. De aqui salen dos cosas: los
+     * ultimos turnos que se le ponen delante al modelo, y los adjuntos de esos
+     * turnos, que siguen estando mientras la conversacion siga abierta. Sin
+     * conversacion todavia --la primera peticion-- no hay nada que traer.
+     */
+    const before = opts.chatId ? await getChat(opts.app.id, opts.chatId).catch(() => null) : null;
+
     const result = await runPageRequest({
       app: opts.app,
       page: opts.page,
@@ -1189,6 +1249,7 @@ async function executeRun(
       authorId: opts.authorId,
       picked: opts.picked,
       files: opts.files,
+      history: before?.messages ?? [],
       choice: opts.choice,
       signal: run.stop.signal,
       debug: opts.debug,
@@ -1206,9 +1267,11 @@ async function executeRun(
         {
           from: "yo",
           text: run.prompt,
-          // Con que se pidio. Solo los nombres: el contenido de los archivos y
-          // el HTML de lo senalado ya viajaron, y para depurar esta el registro.
-          ...(opts.files.length ? { files: opts.files.map((f) => f.name) } : {}),
+          // Con que se pidio. De los archivos, su referencia guardada: es lo
+          // que hace que la IA los siga teniendo delante en los turnos
+          // siguientes, y lo que decide cuanto viven. De lo senalado solo el
+          // nombre: su HTML ya viajo, y para depurar esta el registro.
+          ...(opts.files.length ? { files: opts.files } : {}),
           ...(opts.picked.length ? { picked: opts.picked.map((p) => p.label) } : {}),
         },
         {
@@ -1251,7 +1314,7 @@ export async function askPage(req: Request, appId: string, pageId: string) {
     prompt?: string;
     chatId?: string;
     picked?: unknown;
-    /** Los archivos que se adjuntaron, ya leidos por el navegador. */
+    /** Los archivos que se adjuntaron, como referencias a lo ya guardado. */
     files?: unknown;
     /** Con que quiere que se atienda. Lo que no exista se cae en lo de por defecto. */
     choice?: Partial<AiChoice>;
@@ -1271,7 +1334,7 @@ export async function askPage(req: Request, appId: string, pageId: string) {
   }
 
   const picked = pickedBlocks(input.picked);
-  const files = aiFiles(input.files);
+  const files = await aiFiles(app.id, input.files);
   const chatId = typeof input.chatId === "string" ? input.chatId : undefined;
 
   const run = startRun({ appId: app.id, pageId: page.id, prompt });

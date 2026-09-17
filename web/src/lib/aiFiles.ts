@@ -2,30 +2,26 @@
  * Archivos sueltos convertidos en contexto para la IA.
  *
  * Es la unica puerta: un archivo que se suelta encima del editor y no se va a
- * volver ni pagina ni tabla acaba aqui, se lee en el navegador y viaja con la
- * siguiente peticion como un adjunto mas. Ni se guarda ni se sube a ningun
- * sitio, porque no es un documento de la aplicacion: es lo que hay que tener
- * delante para atender una peticion, y con la peticion se va.
+ * volver ni pagina ni tabla acaba aqui, se sube al almacen de adjuntos de la
+ * aplicacion y viaja con la siguiente peticion como una referencia.
+ *
+ * La subida arranca al soltarlo, no al enviar: para cuando se termina de
+ * escribir que hacer con el, el archivo ya esta guardado. Mientras va en
+ * camino, su badge lo dice y no impide seguir escribiendo; quitarlo antes de
+ * que termine cancela la subida.
  *
  * Lo que la IA sabe hacer con el lo decide quien escribe: aqui solo se le pone
  * delante. "Toma como referencia este HTML para crear la pantalla de pedidos"
  * es una peticion; el archivo es lo que la hace posible.
  *
- * Cada clase se lee como se tiene que leer --el texto tal cual, la hoja de
- * calculo convertida a CSV, la imagen en base64-- y todas terminan en el mismo
- * `AiFile`, que es lo que el servidor sabe poner en el contexto.
+ * Una hoja de calculo se sube ya convertida a filas y columnas: leer un `.xlsx`
+ * depende de una libreria que solo vive en el navegador, y lo que un modelo lee
+ * bien es el CSV. Lo demas se sube tal cual, sin recortar: lo que se recorta es
+ * lo que se le ensena al modelo, y eso lo decide el servidor.
  */
 import type { AiFile, AiFileKind } from "@shared/types";
 
-/**
- * Cuanto texto de un archivo viaja con la peticion.
- *
- * Es un tope generoso a proposito: una hoja de mil filas o una hoja de estilos
- * entera caben, que es lo que hace util adjuntarlas. Lo que pase de aqui se
- * recorta y se dice, en vez de rechazar el archivo: media hoja de estilos
- * sirve para copiar un estilo, y un archivo rechazado no sirve para nada.
- */
-export const MAX_AI_FILE_TEXT = 200_000;
+import { api } from "./pb";
 
 /** Y una imagen, en bytes. Por encima de esto casi ningun modelo la acepta. */
 export const MAX_AI_IMAGE_BYTES = 5_000_000;
@@ -175,62 +171,110 @@ export const AI_FILE_ICON: Record<AiFileKind, string> = {
 let counter = 0;
 const nextId = () => `f${++counter}`;
 
-/** El contenido de una imagen en base64, sin el prefijo `data:`. */
-async function imageData(file: File): Promise<string> {
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  // De golpe reventaria la pila con una imagen grande: `apply` recibe un
-  // argumento por byte.
-  let binary = "";
-  const CHUNK = 8192;
-  for (let i = 0; i < bytes.length; i += CHUNK) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
-  }
-  return btoa(binary);
+/**
+ * Un adjunto mientras se escribe la peticion.
+ *
+ * Es un `AiFile` con una marca mas: si todavia va en camino. Sin referencia no
+ * se puede mandar --el servidor no sabria que archivo es-- pero si se puede
+ * dibujar y se puede quitar, que es lo que hace que adjuntar algo grande no
+ * bloquee el campo de texto.
+ */
+export interface DraftFile extends AiFile {
+  /** La subida sigue en marcha: todavia no hay referencia. */
+  uploading: boolean;
+}
+
+/*
+ * Las subidas en marcha, por badge. Viven fuera del almacen de la conversacion
+ * porque un `AbortController` no es estado que se dibuje: es lo que hace falta
+ * para poder cortar una subida cuando su badge se quita.
+ */
+const uploads = new Map<string, AbortController>();
+
+/** Cortar la subida de un badge, si todavia iba en camino. */
+export function cancelUpload(id: string): void {
+  uploads.get(id)?.abort();
+  uploads.delete(id);
 }
 
 /**
- * Lee el archivo y lo deja listo para viajar con una peticion.
+ * El badge con el que un archivo entra en la conversacion, antes de subirlo.
  *
  * Falla con un mensaje en espanol cuando el archivo no se puede adjuntar: no
  * es de una clase que se sepa leer, o la imagen es mas grande de lo que ningun
- * modelo acepta.
+ * modelo acepta. Se comprueba antes de subir nada: rechazarlo despues de la
+ * espera seria hacer esperar para nada.
  */
-export async function readAiFile(file: File): Promise<AiFile> {
+export function draftAiFile(file: File): DraftFile {
   const kind = aiFileKind(file);
   if (!kind) {
     throw new Error(`No se sabe leer "${file.name}" como contexto de la inteligencia artificial.`);
   }
+  if (kind === "image" && file.size > MAX_AI_IMAGE_BYTES) {
+    throw new Error(`La imagen "${file.name}" pesa demasiado: el máximo son 5 MB.`);
+  }
 
-  const base = { id: nextId(), name: file.name, kind, mime: file.type, size: file.size };
+  return {
+    id: nextId(),
+    ref: "",
+    name: file.name,
+    kind,
+    mime: file.type,
+    size: file.size,
+    uploading: true,
+  };
+}
 
-  if (kind === "image") {
-    if (file.size > MAX_AI_IMAGE_BYTES) {
-      throw new Error(`La imagen "${file.name}" pesa demasiado: el máximo son 5 MB.`);
+/**
+ * Sube el archivo y devuelve el badge ya con su referencia.
+ *
+ * Lanza `AbortError` si se quito el badge mientras subia; quien llama lo
+ * distingue de un fallo de verdad para no contar como error lo que se pidio.
+ */
+export async function uploadAiFile(
+  appId: string,
+  draft: DraftFile,
+  file: File,
+): Promise<DraftFile> {
+  const stop = new AbortController();
+  uploads.set(draft.id, stop);
+
+  try {
+    // La hoja de calculo se sube en CSV: es lo que un modelo lee bien, lo que
+    // el servidor sabe trocear en filas, y de paso deja de importar en que
+    // formato venia. Su nombre no cambia: es con el que se la nombra.
+    let body = file;
+    if (draft.kind === "sheet") {
+      const { readSheet } = await import("./sheet");
+      const { csv, sheet, sheets } = await readSheet(file);
+      const note =
+        sheets.length > 1
+          ? `# Hoja "${sheet}" de ${sheets.length}: ${sheets.join(", ")}\n`
+          : `# Hoja "${sheet}"\n`;
+      body = new File([note + csv], file.name, { type: "text/csv" });
     }
-    return { ...base, data: await imageData(file) };
-  }
 
-  // La hoja de calculo se cuenta en CSV: es lo que un modelo lee bien, y de
-  // paso deja de importar en que formato venia.
-  if (kind === "sheet") {
-    const { readSheet } = await import("./sheet");
-    const { csv, sheet, sheets } = await readSheet(file);
-    const note =
-      sheets.length > 1
-        ? `# Hoja "${sheet}" de ${sheets.length}: ${sheets.join(", ")}\n`
-        : `# Hoja "${sheet}"\n`;
-    return cut({ ...base, text: note + csv });
-  }
+    const form = new FormData();
+    form.set("archivo", body);
+    form.set("nombre", draft.name);
+    form.set("clase", draft.kind);
+    form.set("tipo", draft.mime || body.type);
 
-  return cut({ ...base, text: await file.text() });
+    const saved = await api<Omit<AiFile, "id">>(`/api/apps/${appId}/ia/archivos`, {
+      method: "POST",
+      body: form,
+      signal: stop.signal,
+    });
+
+    return { ...draft, ...saved, id: draft.id, uploading: false };
+  } finally {
+    uploads.delete(draft.id);
+  }
 }
 
-/** Recorta el texto al tope y lo deja dicho. */
-function cut(file: AiFile): AiFile {
-  const text = file.text ?? "";
-  if (text.length <= MAX_AI_FILE_TEXT) return file;
-  return { ...file, text: text.slice(0, MAX_AI_FILE_TEXT), truncated: true };
-}
+/** Quien pidio cortar la subida, y no un fallo que contar. */
+export const wasCancelled = (err: unknown): boolean =>
+  err instanceof DOMException && err.name === "AbortError";
 
 /* ------------------------------------------------------------------ */
 /* El camino hasta la conversacion                                      */

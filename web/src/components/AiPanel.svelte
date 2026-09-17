@@ -44,11 +44,14 @@
     markOpenChat,
     markResumed,
     nextEntryId,
+    type QueuedAsk,
     readChoice,
     readConversation,
     readDebug,
+    rememberQueue,
     resolveChoice,
     setOpenChat,
+    takeQueue,
     wasHydrated,
     wasResumed,
     writeChoice,
@@ -57,12 +60,16 @@
   } from "../lib/aiConversation.svelte";
   import {
     AI_FILE_ACCEPT,
+    cancelUpload,
+    draftAiFile,
+    type DraftFile,
     MAX_AI_FILES,
     onFilesForAi,
     pastedAsFile,
     pastedFiles,
-    readAiFile,
     sendFilesToAi,
+    uploadAiFile,
+    wasCancelled,
   } from "../lib/aiFiles";
   import { NO_PROGRESS, type Progress, taken } from "../lib/aiProgress";
   import { closeRun, liveRun, markRun, openRun } from "../lib/aiRun.svelte";
@@ -83,10 +90,8 @@
   import ModelPicker from "./ai/ModelPicker.svelte";
   import Notices from "./ai/Notices.svelte";
   import PickedBadges from "./ai/PickedBadges.svelte";
+  import Process from "./ai/Process.svelte";
   import Question from "./ai/Question.svelte";
-  import Reasoning from "./ai/Reasoning.svelte";
-  import Steps from "./ai/Steps.svelte";
-  import Working from "./ai/Working.svelte";
   import Icon from "./Icon.svelte";
   import Markdown from "./Markdown.svelte";
   import OmniPanel from "./OmniPanel.svelte";
@@ -276,6 +281,40 @@
     }
   }
 
+  /*
+   * Lo que habia quedado en cola antes de recargar.
+   *
+   * La cola vive en esta pestana, asi que recargar la pierde: se devuelve al
+   * campo de texto y se dice, que es la unica forma honesta de no prometer lo
+   * que no se guardo. Se hace una vez por pagina y visita, con la misma marca
+   * que repone la conversacion abierta.
+   */
+  $effect(() => {
+    const mine = key;
+    const pending = takeQueue(mine);
+    if (!pending.length) return;
+    const now = readConversation(mine);
+    update(
+      {
+        ...now,
+        draft: [now.draft, ...pending].filter(Boolean).join("\n\n"),
+        entries: [
+          ...now.entries,
+          {
+            id: nextEntryId(),
+            from: "ia",
+            text:
+              pending.length === 1
+                ? "Lo que habías dejado en cola no se envió: al recargar se pierde. Te lo devolví al campo de texto."
+                : `Las ${pending.length} peticiones que habías dejado en cola no se enviaron: al recargar se pierden. Te las devolví al campo de texto.`,
+          },
+        ],
+      },
+      mine,
+    );
+    if (mine === key) phase = "gone";
+  });
+
   $effect(() => {
     api<AiConfigView>("/api/ai/config")
       .then((cfg) => {
@@ -320,75 +359,92 @@
   let focusRequests = $state(0);
 
   /*
-   * Los archivos que se sueltan encima del editor y se mandan a la
-   * conversacion. Se leen aqui, en el navegador, y se quedan como badges hasta
-   * que se envie la peticion: lo que el archivo aporta lo decide quien escribe,
-   * asi que el foco se va al campo de texto para que lo diga.
+   * Las subidas que esta pestana tiene en marcha, y las que ya terminaron.
    *
-   * El que no se pueda leer se cuenta como una respuesta de la IA. Es un aviso,
-   * no una peticion fallida: los demas del mismo lote entran igual.
+   * La primera sirve para que enviar espere lo justo --lo que falte por subir,
+   * no mas-- y la segunda para recoger la referencia de un archivo cuyo badge
+   * ya salio de la conversacion al enviarla.
+   */
+  const inFlight = new Map<string, Promise<unknown>>();
+  const settled = new Map<string, DraftFile>();
+
+  /** Un aviso escrito como si lo dijera la IA. No es una peticion fallida. */
+  function say(text: string, forKey: string = key): void {
+    const now = readConversation(forKey);
+    update({ ...now, entries: [...now.entries, { id: nextEntryId(), from: "ia", text }] }, forKey);
+    if (forKey === key) phase = "gone";
+  }
+
+  /*
+   * Los archivos que se sueltan encima del editor y se mandan a la
+   * conversacion.
+   *
+   * Se suben en cuanto se sueltan, no al enviar: para cuando se termina de
+   * escribir que hacer con ellos, ya estan guardados. Mientras suben, su badge
+   * lo dice y el campo de texto sigue libre --escribir no espera a nadie--, y
+   * quitar el badge antes de que termine corta la subida.
+   *
+   * El que no se pueda adjuntar se cuenta como una respuesta de la IA. Es un
+   * aviso, no una peticion fallida: los demas del mismo lote entran igual.
    */
   $effect(() =>
     onFilesForAi((dropped) => {
-      void (async () => {
-        for (const file of dropped) {
-          const now = readConversation(key);
-          if (now.files.length >= MAX_AI_FILES) {
-            update({
-              ...now,
-              entries: [
-                ...now.entries,
-                {
-                  id: nextEntryId(),
-                  from: "ia",
-                  text: `No caben más de ${MAX_AI_FILES} archivos en una misma petición.`,
-                },
-              ],
-            });
-            phase = "gone";
-            return;
-          }
-          try {
-            const read = await readAiFile(file);
-            const before = readConversation(key);
-            /*
-             * Un modelo sin vista no puede mirar la imagen. Se adjunta igual
-             * --su nombre sigue contando en el contexto-- pero se dice, en
-             * vez de dejar que responda como si la hubiera visto.
-             */
-            const unseen = read.kind === "image" && blind;
-            update({
-              ...before,
-              files: [...before.files, read],
-              entries: unseen
-                ? [
-                    ...before.entries,
-                    {
-                      id: nextEntryId(),
-                      from: "ia",
-                      text: "El modelo elegido no mira imágenes. Se adjunta igual, pero solo verá su nombre: elige uno con vista para que la lea.",
-                    },
-                  ]
-                : before.entries,
-            });
-            if (unseen) phase = "gone";
-          } catch (err) {
-            const before = readConversation(key);
-            update({
-              ...before,
-              entries: [
-                ...before.entries,
-                { id: nextEntryId(), from: "ia", text: errorMessage(err) },
-              ],
-            });
-            phase = "gone";
-          }
+      const mine = key;
+      for (const file of dropped) {
+        const now = readConversation(mine);
+        if (now.files.length >= MAX_AI_FILES) {
+          say(`No caben más de ${MAX_AI_FILES} archivos en una misma petición.`, mine);
+          break;
         }
-        // El foco no se lleva aqui: la pregunta que trajo el archivo todavia
-        // puede estar en pantalla, y al cerrarse se lo llevaria detras. Se
-        // pide, y se cumple despues del siguiente dibujado.
-        focusRequests += 1;
-      })();
+
+        let draft: DraftFile;
+        try {
+          draft = draftAiFile(file);
+        } catch (err) {
+          say(errorMessage(err), mine);
+          continue;
+        }
+
+        /*
+         * Un modelo sin vista no puede mirar la imagen. Se adjunta igual --su
+         * nombre sigue contando en el contexto-- pero se dice, en vez de dejar
+         * que responda como si la hubiera visto.
+         */
+        update({ ...now, files: [...now.files, draft] }, mine);
+        if (draft.kind === "image" && blind) {
+          say(
+            "El modelo elegido no mira imágenes. Se adjunta igual, pero solo verá su nombre: elige uno con vista para que la lea.",
+            mine,
+          );
+        }
+
+        const climbing = (async () => {
+          try {
+            const saved = await uploadAiFile(appId, draft, file);
+            settled.set(draft.id, saved);
+            const before = readConversation(mine);
+            // Quitar el badge mientras subia es cancelar: si ya no esta, lo
+            // subido no vuelve a la conversacion.
+            if (!before.files.some((f) => f.id === draft.id)) return;
+            update(
+              { ...before, files: before.files.map((f) => (f.id === draft.id ? saved : f)) },
+              mine,
+            );
+          } catch (err) {
+            if (wasCancelled(err)) return;
+            const before = readConversation(mine);
+            update({ ...before, files: before.files.filter((f) => f.id !== draft.id) }, mine);
+            say(errorMessage(err), mine);
+          } finally {
+            inFlight.delete(draft.id);
+          }
+        })();
+        inFlight.set(draft.id, climbing);
+      }
+      // El foco no se lleva aqui: la pregunta que trajo el archivo todavia
+      // puede estar en pantalla, y al cerrarse se lo llevaria detras. Se
+      // pide, y se cumple despues del siguiente dibujado.
+      focusRequests += 1;
     }),
   );
 
@@ -595,8 +651,11 @@
       notices?: string[],
       reasoning?: string,
       context?: string,
+      /** Termino sin respuesta: fallo o se detuvo. Su proceso no se pliega. */
+      unfinished = false,
     ) => {
       const now = readConversation(mine);
+      const id = nextEntryId();
       update(
         {
           ...now,
@@ -604,13 +663,14 @@
           entries: [
             ...now.entries,
             {
-              id: nextEntryId(),
+              id,
               from: "ia",
               text,
               steps,
               notices,
               reasoning,
               context,
+              ...(unfinished ? { unfinished: true } : {}),
               ...(asked ? { question: asked } : {}),
               ...(grants.length ? { access: grants } : {}),
             },
@@ -618,6 +678,14 @@
         },
         mine,
       );
+      // Lo que se desplego mientras trabajaba sigue desplegado: es la misma
+      // fila en otro estado, no una nueva.
+      if (opened.has(LIVE)) {
+        const next = new Set(opened);
+        next.delete(LIVE);
+        next.add(id);
+        opened = next;
+      }
       // El servidor ya la dejo abierta al guardarla: apuntarlo aqui es lo que
       // hace que ir a otra pagina la encuentre en blanco en vez de reponer la
       // que tuvo alli alguna vez.
@@ -684,7 +752,16 @@
       if (result) {
         const done: AiPageResult = result;
         grants = done.access ?? [];
-        land(done.message, done.steps, done.notices, done.reasoning, seen.context || undefined);
+        land(
+          done.message,
+          done.steps,
+          done.notices,
+          done.reasoning,
+          seen.context || undefined,
+          // Detenida a mitad: no hay respuesta que dejar encima, asi que lo
+          // que se alcanzo a hacer se queda a la vista.
+          done.stopped,
+        );
         if (done.changed || done.notices.length) await onChanged();
         if (done.impact) onImpact(done.impact);
       } else {
@@ -695,6 +772,7 @@
           undefined,
           seen.reasoning || undefined,
           seen.context || undefined,
+          true,
         );
       }
     } catch (err) {
@@ -706,6 +784,7 @@
         undefined,
         seen.reasoning || undefined,
         seen.context || undefined,
+        true,
       );
     } finally {
       seen = NO_PROGRESS;
@@ -723,18 +802,42 @@
    * corto en espanol--. `keepDraft` deja el campo de texto como estaba: un
    * atajo se manda solo, sin tocar lo que se llevaba escrito para lo
    * siguiente.
+   *
+   * Con una peticion en marcha no se descarta: se encola. El campo se vacia
+   * igual --lo escrito ya salio de ahi-- y lo encolado se ve y se puede quitar
+   * antes de que le llegue el turno.
    */
   async function dispatch(
     text: string,
     opts?: { label?: string; keepDraft?: boolean },
   ): Promise<void> {
-    if (working) return;
     // La IA trabaja en otra pagina: lo escrito se queda donde esta, esperando
     // a que aquello termine.
     if (blocked) return;
     const value = text.trim();
     if (!value) return;
     const asked = readConversation(key);
+
+    if (working) {
+      const queued: QueuedAsk = {
+        id: nextEntryId(),
+        text: value,
+        ...(opts?.label ? { label: opts.label } : {}),
+        picks: asked.picks,
+        files: asked.files,
+      };
+      const queue = [...asked.queue, queued];
+      update({
+        ...asked,
+        ...(opts?.keepDraft ? {} : { draft: "" }),
+        picks: [],
+        files: [],
+        queue,
+      });
+      rememberQueue(key, queue);
+      return;
+    }
+
     // La primera peticion echa a la portada: sube y se desvanece.
     if (phase === "hero") {
       phase = "leaving";
@@ -746,6 +849,7 @@
     // la siguiente no arrastra lo que se preparo para esta.
     const picked = asked.picks;
     const files = asked.files;
+    const entryId = nextEntryId();
     update({
       ...asked,
       ...(opts?.keepDraft ? {} : { draft: "" }),
@@ -754,26 +858,113 @@
       entries: [
         ...asked.entries,
         {
-          id: nextEntryId(),
+          id: entryId,
           from: "yo",
           text: value,
           ...(opts?.label ? { label: opts.label } : {}),
           // Los adjuntos quedan nombrados en el mensaje: al releer la
           // conversacion se entiende con que se pidio lo que se pidio.
-          ...(files.length ? { files: files.map((f) => f.name) } : {}),
+          ...(files.length ? { files: files.map(asChatFile) } : {}),
           ...(picked.length ? { picked: picked.map((p) => p.label) } : {}),
         },
       ],
     });
 
+    /*
+     * Lo que falte por subir se espera aqui y no antes: el campo ya se vacio y
+     * la burbuja ya esta puesta, asi que escribir nunca espero a una subida.
+     * Lo que se manda son referencias, y un archivo sin ella todavia no es una
+     * referencia.
+     */
+    const ready = await settle(files);
+    // Los que subieron mientras se enviaba se reponen en la burbuja ya con su
+    // referencia: es lo que la deja abrirse.
+    if (files.some((f) => !f.ref)) patchFiles(entryId, ready);
+
     await listen(`/api/apps/${appId}/paginas/${page.id}/ia`, {
       prompt: value,
-      chatId: asked.chatId || undefined,
+      chatId: readConversation(key).chatId || undefined,
       ...(picked.length ? { picked } : {}),
-      ...(files.length ? { files } : {}),
+      ...(ready.length ? { files: ready.map(asChatFile) } : {}),
       ...(choice ? { choice } : {}),
       ...(debug && config?.debugButton ? { debug: true } : {}),
     });
+  }
+
+  /** Lo que de un adjunto queda nombrado en la conversacion. */
+  const asChatFile = (file: DraftFile) => ({
+    ref: file.ref,
+    name: file.name,
+    kind: file.kind,
+    size: file.size,
+  });
+
+  /**
+   * Espera lo que falte por subir y devuelve los adjuntos que ya son
+   * referencia. El que no llego a subirse se queda fuera: su fallo ya se conto
+   * en la conversacion cuando ocurrio.
+   */
+  async function settle(files: DraftFile[]): Promise<DraftFile[]> {
+    const waiting = files.map((f) => inFlight.get(f.id)).filter(Boolean);
+    if (waiting.length) await Promise.allSettled(waiting);
+    return files.map((f) => (f.ref ? f : (settled.get(f.id) ?? f))).filter((f) => !!f.ref);
+  }
+
+  /** Repone en la burbuja los adjuntos ya con su referencia, para poder abrirlos. */
+  function patchFiles(entryId: number, files: DraftFile[]): void {
+    const now = readConversation(key);
+    update({
+      ...now,
+      entries: now.entries.map((entry) =>
+        entry.id === entryId
+          ? {
+              ...entry,
+              ...(files.length ? { files: files.map(asChatFile) } : { files: undefined }),
+            }
+          : entry,
+      ),
+    });
+  }
+
+  /*
+   * Atender lo siguiente de la cola en cuanto haya sitio.
+   *
+   * Va como efecto y no dentro del cierre de la peticion porque una peticion
+   * puede terminar cuando ya se esta mirando otra pagina, y mandarla desde alli
+   * la escribiria sobre la pagina equivocada. Asi, lo encolado espera a estar
+   * delante, que es donde se puede atender.
+   *
+   * `starting` cubre el hueco entre sacar algo de la cola y que el servidor
+   * reconozca la peticion: sin el, el efecto volveria a correr y sacaria
+   * tambien la siguiente.
+   */
+  let starting = false;
+
+  $effect(() => {
+    if (blocked || working || starting) return;
+    const [first, ...rest] = chat.queue;
+    if (!first) return;
+
+    starting = true;
+    const mine = key;
+    update(
+      { ...readConversation(mine), queue: rest, picks: first.picks, files: first.files },
+      mine,
+    );
+    rememberQueue(mine, rest);
+    void dispatch(first.text, { label: first.label, keepDraft: true }).finally(() => {
+      starting = false;
+    });
+  });
+
+  /** Quitar algo de la cola antes de que le llegue el turno. */
+  function dropQueued(id: number): void {
+    const now = readConversation(key);
+    const going = now.queue.find((q) => q.id === id);
+    for (const file of going?.files ?? []) cancelUpload(file.id);
+    const queue = now.queue.filter((q) => q.id !== id);
+    update({ ...now, queue });
+    rememberQueue(key, queue);
   }
 
   const send = (text: string) => dispatch(text);
@@ -781,23 +972,14 @@
   /**
    * Contestar una pregunta de la IA.
    *
-   * La peticion anterior ya termino y cada peticion abre una conversacion
-   * nueva con el modelo: una respuesta suelta llegaria sin nada a lo que
-   * contestar. Por eso el prompt lleva dentro las tres cosas que hacen falta
-   * --lo que se pidio, lo que se pregunto y lo que se eligio-- y la burbuja
-   * muestra solo lo elegido, que es lo unico que se decidio aqui.
+   * Lo que se manda es lo que se eligio, y nada mas: la peticion lleva los
+   * turnos anteriores de la conversacion, asi que el modelo ya tiene delante lo
+   * que se pidio y lo que el mismo pregunto. Repetirselo dentro del texto era
+   * la forma de suplir una memoria que ahora si existe.
    */
-  function answer(question: AiQuestion, option: AiQuestionOption): void {
-    // Lo que motivo la pregunta: sin ello el modelo sabe la respuesta pero no
-    // para que. Es el ultimo turno de quien construye, que es el que pregunto.
-    const asked = [...readConversation(key).entries].reverse().find((e) => e.from === "yo");
-    const lines = [
-      asked ? `Lo que se pidió: ${asked.label ?? asked.text}` : "",
-      `Se preguntó: ${question.question}`,
-      `Se eligió: ${option.label}${option.description ? ` (${option.description})` : ""}`,
-      "Continúa con eso: no vuelvas a preguntar lo mismo.",
-    ].filter(Boolean);
-    void dispatch(lines.join("\n"), { label: option.label, keepDraft: true });
+  function answer(option: AiQuestionOption): void {
+    const chosen = option.description ? `${option.label} (${option.description})` : option.label;
+    void dispatch(chosen, { label: option.label, keepDraft: true });
   }
 
   /** Un atajo, a un clic: manda de una vez, sin pasar por el campo de texto. */
@@ -944,6 +1126,7 @@
         draft: now.draft,
         picks: now.picks,
         files: now.files,
+        queue: now.queue,
         entries: saved.messages.map(toEntry),
       });
       // Abrir una es dejarla abierta: es la que se repone al volver, aqui y
@@ -978,15 +1161,21 @@
     update({ ...now, picks: now.picks.filter((p) => p.id !== id) });
   }
 
-  /** Quitar un archivo adjunto. Lo escrito no se toca. */
+  /**
+   * Quitar un archivo adjunto. Lo escrito no se toca, y si todavia se estaba
+   * guardando, se corta: quitarlo es decir que ya no hace falta.
+   */
   function removeFile(id: string): void {
+    cancelUpload(id);
+    settled.delete(id);
     const now = readConversation(key);
     update({ ...now, files: now.files.filter((f) => f.id !== id) });
   }
 
   /** Empezar de cero es un acto pedido, nunca un efecto de cerrar y abrir. */
   function startNew(): void {
-    update({ entries: [], chatId: "", draft: "", picks: [], files: [] });
+    update({ entries: [], chatId: "", draft: "", picks: [], files: [], queue: [] });
+    rememberQueue(key, []);
     // La aplicacion se queda sin ninguna abierta: volver aqui --o entrar desde
     // otro navegador-- empieza igual de limpio, no con la de antes repuesta.
     setOpenChat(appId, null, key);
@@ -1005,6 +1194,26 @@
   async function loadSavedContext(): Promise<{ text: string; truncated: boolean } | null> {
     const saved = await api<AiDebugRead>(`/api/apps/${appId}/paginas/${page.id}/ia/depuracion`);
     return saved ? { text: saved.context, truncated: saved.truncated } : null;
+  }
+
+  /*
+   * Lo que se desplego a mano sigue desplegado durante la visita.
+   *
+   * Vive aqui y no dentro de cada fila porque el turno cambia de componente al
+   * cerrarse --la fila viva pasa a ser la del turno guardado-- y con el estado
+   * dentro, desplegar mientras trabaja se perdia justo al terminar.
+   *
+   * No se guarda entre visitas: es una decision de este rato, no una
+   * preferencia.
+   */
+  const LIVE = 0;
+  let opened = $state(new Set<number>());
+
+  function toggleProcess(id: number): void {
+    const next = new Set(opened);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    opened = next;
   }
 
   /** La ultima respuesta de la IA: la unica a la que pertenece lo guardado. */
@@ -1072,7 +1281,7 @@
   {:else}
     <div class="panel-body-ai flex h-full flex-col">
       <div class="panel-scroll-ai flex-1">
-        <div bind:this={scroller} onscroll={onScroll} class="chat-log h-full flex flex-col gap-5">
+        <div bind:this={scroller} onscroll={onScroll} class="chat-log h-full flex flex-col">
           {#if phase !== "gone"}
             <div
               class={cx(
@@ -1142,11 +1351,27 @@
                      para que se lean como parte del mismo turno. -->
                 {#if entry.files?.length || entry.picked?.length}
                   <div class="group-user-files flex flex-wrap justify-end gap-1">
-                    {#each entry.files ?? [] as name (name)}
-                      <Tag tone="tint-2" class="badge-user-file">
-                        <Icon name="attachment-01" />
-                        <span class="entry-file-name">{name}</span>
-                      </Tag>
+                    {#each entry.files ?? [] as file (file.name)}
+                      <!-- Un archivo que sigue guardado se puede abrir para ver
+                           lo que se adjunto; uno de antes del almacen, no. -->
+                      {#if file.ref}
+                        <a
+                          href={`/api/apps/${appId}/ia/archivos/${file.ref}`}
+                          target="_blank"
+                          rel="noopener"
+                          class="link-user-file"
+                        >
+                          <Tag tone="tint-2" class="badge-user-file" tip={`Ver ${file.name}`}>
+                            <Icon name="attachment-01" />
+                            <span class="entry-file-name">{file.name}</span>
+                          </Tag>
+                        </a>
+                      {:else}
+                        <Tag tone="tint-2" class="badge-user-file">
+                          <Icon name="attachment-01" />
+                          <span class="entry-file-name">{file.name}</span>
+                        </Tag>
+                      {/if}
                     {/each}
                     {#each entry.picked ?? [] as label (label)}
                       <Tag class="badge-user-picked">
@@ -1165,8 +1390,22 @@
                 La respuesta no va en burbuja: ocupa el ancho entero y se lee
                 como un texto, que es lo que es. Lo que la separa del turno
                 anterior es su encabezado, no un marco.
+
+                El proceso va encima de la respuesta: lo que ocurrio antes se
+                dibuja antes, y saber que hizo la IA no obliga a pasar por
+                debajo de lo que respondio.
               -->
               <div class="chat-entry-ai rise group" style="animation-delay: 100ms">
+                {#if entry.reasoning || entry.steps?.length}
+                  <Process
+                    reasoning={entry.reasoning}
+                    steps={entry.steps}
+                    folded={!entry.unfinished}
+                    open={opened.has(entry.id)}
+                    onToggle={() => toggleProcess(entry.id)}
+                  />
+                {/if}
+
                 <div class="header-ai-response flex items-center">
                   <Icon name="ai-magic" size={16} />
                   <span class="header-ai-label">Inteligencia artificial</span>
@@ -1176,11 +1415,6 @@
                 <div class="content-ai-response">
                   <Markdown text={entry.text} />
                 </div>
-
-                <!-- Lo que penso antes de responder, plegado por defecto. -->
-                {#if entry.reasoning}
-                  <Reasoning text={entry.reasoning} />
-                {/if}
 
                 <!--
                   Lo que se le mando al modelo. El de esta visita llega con la
@@ -1198,20 +1432,11 @@
                   </div>
                 {/if}
 
-                {#if entry.steps?.length}
-                  <Steps steps={entry.steps} />
-                {/if}
-
                 <!-- Lo que no tenia riesgo ya esta hecho: se cuenta, no se pregunta. -->
                 {#if entry.notices?.length}
                   <Notices notices={entry.notices} />
                 {/if}
 
-                <!--
-                  La IA cerro el turno preguntando. Solo se contesta la del
-                  ultimo turno: mas atras, la pregunta ya se resolvio y se
-                  queda como lo que es, parte de lo que se lee.
-                -->
                 <!--
                   Dar acceso no se hizo: se autoriza aqui, leyendo lo que esa
                   persona va a poder hacer. Quitarlo ya se aplico y sale como
@@ -1223,11 +1448,16 @@
                   {/each}
                 {/if}
 
+                <!--
+                  La IA cerro el turno preguntando. Solo se contesta la del
+                  ultimo turno: mas atras, la pregunta ya se resolvio y se
+                  queda como lo que es, parte de lo que se lee.
+                -->
                 {#if entry.question}
                   <Question
                     question={entry.question}
                     live={!working && entry.id === chat.entries[chat.entries.length - 1]?.id}
-                    onChoose={(option) => answer(entry.question as AiQuestion, option)}
+                    onChoose={(option) => answer(option)}
                   />
                 {/if}
               </div>
@@ -1236,9 +1466,38 @@
 
           {#if working}
             <div class="rise" style="animation-delay: 140ms">
-              <Working {progress} since={startedAt} />
+              <!--
+                Empieza cerrada: lo que va escribiendo es HTML, y para la
+                mayoria de peticiones eso es ruido. Quien quiera mirar la abre,
+                y una vez abierta se queda abierta mientras dure la visita.
+              -->
+              <Process
+                {progress}
+                since={startedAt}
+                open={opened.has(LIVE)}
+                onToggle={() => toggleProcess(LIVE)}
+              />
             </div>
           {/if}
+
+          <!--
+            Lo que se escribio mientras la IA trabajaba y espera turno. Se ve
+            --no se descarta en silencio-- y se puede quitar antes de que le
+            llegue el turno.
+          -->
+          {#each chat.queue as queued (queued.id)}
+            <div class="chat-entry-queued rise flex flex-col items-end gap-1">
+              <p class="bubble-user-message is-queued">{queued.label ?? queued.text}</p>
+              <button
+                type="button"
+                onclick={() => dropQueued(queued.id)}
+                class="btn-drop-queued flex items-center gap-1"
+              >
+                <Icon name="clock-01" size={12} />
+                <span>En cola · quitar</span>
+              </button>
+            </div>
+          {/each}
         </div>
 
         <!-- Se dejo de seguir el final: un toque para volver a el. -->
@@ -1582,13 +1841,21 @@
   }
 
   .chat-log {
+    /* El acolchado de arriba lo nombra una variable porque no es solo aire: la
+       cabecera pegajosa del proceso lo descuenta para pegarse al borde de
+       verdad de la columna. Ver `components/ai/Process.svelte`. */
+    --chat-pad-top: var(--sp-16);
+    /* Un turno se separa del siguiente mas de lo que sus partes se separan
+       entre si --`--sp-8` dentro del turno, ver `.header-ai-response`-- para
+       que se vea donde acaba uno y empieza otro sin leerlo. */
+    gap: var(--sp-24);
     overflow-y: auto;
     /* La barra de desplazamiento se aparta del borde derecho los 12px que
        ocupa el asa del dock --`components/AiDock.svelte`--, que si no queda
        encima de ella. El acolchado devuelve esos pixeles, asi que lo escrito
        cae donde caia. */
     margin-right: var(--sp-12);
-    padding: var(--sp-16) var(--sp-4) var(--sp-16) var(--sp-16);
+    padding: var(--chat-pad-top) var(--sp-4) var(--sp-16) var(--sp-16);
   }
 
   /* --- La portada de la conversacion vacia --- */
@@ -1808,8 +2075,10 @@
     }
   }
 
+  /* Los controles respiran: a `--sp-6` se leian como un bloque y no como
+     cuatro cosas distintas --adjuntar, senalar, el modelo, enviar--. */
   .chat-composer-actions {
-    gap: var(--sp-6);
+    gap: var(--sp-12);
     padding: 0 var(--sp-8) var(--sp-8);
   }
 
@@ -1825,6 +2094,32 @@
     margin-top: var(--sp-6);
     font-size: 0.6875rem;
     line-height: 1.5;
+    color: var(--text-subtle);
+  }
+
+  /* --- Lo que espera turno --- */
+
+  .bubble-user-message.is-queued {
+    background: transparent;
+    border: var(--border-width) dashed var(--border-strong);
     color: var(--text-muted);
+  }
+
+  .btn-drop-queued {
+    cursor: pointer;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--text-subtle);
+    transition: color 150ms;
+
+    &:hover {
+      color: var(--text-secondary);
+    }
+  }
+
+  /* El badge de un adjunto que se puede abrir: el enlace no lo redecora. */
+  .link-user-file {
+    text-decoration: none;
+    color: inherit;
   }
 </style>

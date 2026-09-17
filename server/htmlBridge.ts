@@ -17,7 +17,7 @@ import { CHARTS_REF, USES_CHARTS } from "./htmlCharts.ts";
 import { PAGE_STYLES } from "./pageStyles.ts";
 
 /** Nombres de las ordenes que el HTML puede pedir. */
-export const HTML_OPS = ["listar", "obtener", "crear", "actualizar", "borrar"] as const;
+export const HTML_OPS = ["listar", "contar", "obtener", "crear", "actualizar", "borrar"] as const;
 export type HtmlOp = (typeof HTML_OPS)[number];
 
 export const BRIDGE_SCRIPT = `(function () {
@@ -168,6 +168,7 @@ export const BRIDGE_SCRIPT = `(function () {
     // semaforo de un donut, una insignia -- se quedaria sin color.
     paletaId: null,
     listar: function (fuente, opciones) { return pedir("listar", [fuente, opciones || {}]); },
+    contar: function (fuente, opciones) { return pedir("contar", [fuente, opciones || {}]); },
     obtener: function (fuente, id) { return pedir("obtener", [fuente, id]); },
     crear: function (fuente, valores) { return pedir("crear", [fuente, valores]); },
     actualizar: function (fuente, id, valores) { return pedir("actualizar", [fuente, id, valores]); },

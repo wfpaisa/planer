@@ -1,5 +1,5 @@
 /**
- * Las cinco ordenes de datos de una pagina publicada, resueltas en el servidor.
+ * Las seis ordenes de datos de una pagina publicada, resueltas en el servidor.
  *
  * El navegador no habla con la base: pasa por aqui. Lo que este archivo decide
  * es quien pregunta --desde su sesion, nunca desde la peticion-- y si puede
@@ -9,6 +9,11 @@
  * las tablas que esa pagina declara, y el total que acompana a una lista las
  * cuenta todas. Lo que se le muestra de ellas lo decide el HTML de la pagina.
  *
+ * Lo que si esta acotado es cuantas filas viajan de una vez: `listar` tiene
+ * techo (`MAX_LIST_ROWS`), lo dice en su respuesta, y para contar sin traerse nada
+ * esta `contar`. Sin esa pareja, una pagina que contaba lo que recibio contaba
+ * el techo en vez de la tabla, y el numero corto parecia el bueno.
+ *
  * El orden de las comprobaciones no es casual. Primero la aplicacion --si exige
  * cuenta, sin ella no hay nada mas que hablar--, luego la pagina, luego la
  * sesion al escribir, y por ultimo la fuente declarada: el documento solo pide
@@ -17,7 +22,9 @@
 import {
   buildFilter,
   buildSort,
+  DEFAULT_LIST_ROWS,
   expandOf,
+  MAX_LIST_ROWS,
   type Resolved,
   resolveSource,
   SourceError,
@@ -46,10 +53,7 @@ import { quote } from "./filter.ts";
 import { createRecord, deleteRecord, firstRecord, listRecords, updateRecord } from "./pb.ts";
 import { parkReferences } from "./rowDelete.ts";
 
-/** Tope de registros que puede pedir una sola llamada. */
-const MAX_LIMIT = 200;
-
-const OPS: AccessOp[] = ["listar", "obtener", "crear", "actualizar", "borrar"];
+const OPS: AccessOp[] = ["listar", "contar", "obtener", "crear", "actualizar", "borrar"];
 
 /** Las tres ordenes que dejan rastro, y que por eso exigen cuenta iniciada. */
 const WRITE_OPS: AccessOp[] = ["crear", "actualizar", "borrar"];
@@ -222,7 +226,7 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
   switch (input.op) {
     case "listar": {
       const opts = (args[1] ?? {}) as Record<string, unknown>;
-      const limite = Math.min(Math.max(Number(opts.limite) || 30, 1), MAX_LIMIT);
+      const limite = Math.min(Math.max(Number(opts.limite) || DEFAULT_LIST_ROWS, 1), MAX_LIST_ROWS);
       const pagina = Math.max(Number(opts.pagina) || 1, 1);
       const res = await listRecords<Record<string, unknown>>(collection, {
         filter: buildFilter(resolved, opts),
@@ -236,7 +240,37 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
         total: res.totalItems,
         pagina: res.page,
         paginas: res.totalPages,
+        /*
+         * Cuantas filas se sirvieron de verdad por pagina.
+         *
+         * Va en la respuesta porque el techo se aplicaba en silencio: quien
+         * pedia 500 recibia 200 y nada le decia que le habian recortado, asi
+         * que contar lo recibido daba un numero corto que parecia el bueno.
+         * Con esto, una pagina puede ver que pidio mas de lo que cabe.
+         */
+        limite,
+        recortado: limite < (Number(opts.limite) || 0),
       });
+    }
+
+    /*
+     * Cuantas filas cumplen algo, sin traerse ninguna.
+     *
+     * Es la unica forma honesta de contar: `listar` tiene techo, y contar lo
+     * que `listar` devuelve cuenta el techo, no la tabla. Acepta el mismo
+     * filtro y la misma busqueda para que la cifra sea de lo mismo que la
+     * lista de al lado.
+     */
+    case "contar": {
+      const opts = (args[1] ?? {}) as Record<string, unknown>;
+      const res = await listRecords<Record<string, unknown>>(collection, {
+        filter: buildFilter(resolved, opts),
+        // Ni una fila: lo unico que se quiere es el recuento que trae la
+        // respuesta, y las filas costarian el viaje entero para tirarlas.
+        perPage: 1,
+        fields: "id",
+      });
+      return json({ total: res.totalItems });
     }
 
     case "obtener": {

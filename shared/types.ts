@@ -327,14 +327,19 @@ export interface AppRecord {
 /* ------------------------------------------------------------------ */
 
 /**
- * Las cinco ordenes de datos de una pagina publicada.
+ * Las seis ordenes de datos de una pagina publicada.
  *
  * Vive aqui porque es lo que viaja por la red: el documento nombra la orden y
  * el servidor la reparte. No queda ninguna otra decision colgada de ella --el
  * reparto de filas por rol se retiro-- salvo que las tres de escritura exigen
  * sesion iniciada.
+ *
+ * `contar` no trae filas: cuenta en el servidor. Existe porque `listar` tiene
+ * techo, y sin ella la unica forma de saber cuantas filas cumplen algo era
+ * bajarselas todas y contarlas en el navegador --que es justo lo que el techo
+ * impide, asi que la cuenta salia corta y nadie se enteraba--.
  */
-export type AccessOp = "listar" | "obtener" | "crear" | "actualizar" | "borrar";
+export type AccessOp = "listar" | "contar" | "obtener" | "crear" | "actualizar" | "borrar";
 
 /**
  * Una tabla que usa el HTML de una pagina, con nombres propios.
@@ -704,10 +709,12 @@ export interface AiMessage {
    */
   reasoning?: string;
   /**
-   * Nombre de cada archivo que se adjunto a la peticion. Solo el nombre: el
-   * contenido ya viajo con la peticion y no se guarda en la conversacion.
+   * Los archivos que se adjuntaron a la peticion: su nombre y la referencia de
+   * lo guardado. El contenido no se guarda aqui --vive en el almacen de
+   * adjuntos-- pero la referencia si, y es lo que hace que la IA los siga
+   * teniendo delante en los turnos siguientes.
    */
-  files?: string[];
+  files?: AiChatFile[];
   /**
    * Como se llamaba cada elemento senalado con el cursor (`PickedBlock.label`).
    * El HTML del elemento no se guarda, por lo mismo que el de los archivos.
@@ -890,30 +897,50 @@ export type AiFileKind = "html" | "css" | "js" | "json" | "csv" | "sheet" | "tex
 /**
  * Un archivo adjunto a una peticion a la IA.
  *
- * Nace en el navegador --se suelta encima del editor-- vive como badge en la
- * conversacion mientras se escribe la peticion, y viaja con ella al servidor.
- * No se guarda en ningun sitio: es contexto de una peticion, no un documento
- * de la aplicacion.
+ * Nace en el navegador --se suelta encima del editor-- se sube al almacen de
+ * adjuntos en cuanto se suelta, y vive como badge en la conversacion mientras
+ * se escribe la peticion.
  *
- * Lleva su contenido dentro, no una referencia: cuando llega al servidor ya no
- * hay navegador al que volver a pedirselo.
+ * Lleva la referencia de lo guardado, no el contenido: el contenido se guarda
+ * una sola vez (`server/aiFiles.ts`) y de ahi lo leen tanto la muestra que se
+ * le cuenta al modelo como las ordenes que lo abren entero. Asi un archivo de
+ * varios megabytes no engorda ninguna peticion, y sigue estando en los turnos
+ * siguientes de la conversacion.
  */
 export interface AiFile {
   /** Identidad del badge en el panel. No significa nada fuera de el. */
   id: string;
+  /**
+   * El adjunto guardado. Vacio mientras la subida va en camino: un badge sin
+   * referencia todavia no se puede mandar con una peticion.
+   */
+  ref: string;
   /** El nombre del archivo, tal como venia. */
   name: string;
   kind: AiFileKind;
   /** El tipo que declaro el navegador. Puede venir vacio. */
   mime: string;
-  /** Lo que ocupaba el original, en bytes. */
+  /** Lo que ocupa el original, en bytes. */
   size: number;
-  /** El contenido en texto. Lo llevan todas las clases menos `image`. */
-  text?: string;
-  /** El contenido en base64, sin el prefijo `data:`. Solo las imagenes. */
-  data?: string;
-  /** El texto va recortado: no es todo lo que traia el archivo. */
-  truncated?: boolean;
+}
+
+/**
+ * Un adjunto tal y como queda nombrado dentro de una conversacion guardada.
+ *
+ * Es lo que hace que preguntar por un archivo dos turnos despues no obligue a
+ * adjuntarlo otra vez: la conversacion recuerda que adjuntos nombro cada
+ * peticion, y el contexto de la siguiente los vuelve a poner delante.
+ *
+ * Tambien es lo que decide cuanto vive un adjunto: uno que ninguna conversacion
+ * nombra se puede borrar.
+ */
+export interface AiChatFile {
+  /** El adjunto guardado. */
+  ref: string;
+  name: string;
+  kind: AiFileKind;
+  /** Lo que ocupa, en bytes. Se lee en la burbuja de la peticion. */
+  size: number;
 }
 
 /* ------------------------------------------------------------------ */

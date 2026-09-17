@@ -41,6 +41,7 @@ export const INTERNAL = {
   versions: "app_versions",
   htmlDocs: "html_docs",
   chats: "ai_chats",
+  aiFiles: "ai_files",
   aiDebug: "ai_debug",
   settings: "settings",
 } as const;

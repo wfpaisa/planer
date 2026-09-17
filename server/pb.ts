@@ -90,7 +90,12 @@ export async function pb<T = unknown>(
   const headers = new Headers(rest.headers);
   // Si quien llama trae su propio token (por ejemplo, para validarlo), se respeta.
   if (!headers.has("authorization")) headers.set("authorization", await adminToken());
-  if (rest.body && !headers.has("content-type")) headers.set("content-type", "application/json");
+  // Un formulario pone su propio tipo, con la frontera dentro: escribirlo aqui
+  // dejaria el cuerpo ilegible para PocketBase. Todo lo demas es JSON.
+  const form = rest.body instanceof FormData;
+  if (rest.body && !form && !headers.has("content-type")) {
+    headers.set("content-type", "application/json");
+  }
 
   const res = await fetch(url, { ...rest, headers });
 
@@ -249,4 +254,66 @@ export function updateRecord<T = Record<string, unknown>>(
 
 export function deleteRecord(collection: string, id: string): Promise<void> {
   return pb<void>(recordPath(collection, id), { method: "DELETE" });
+}
+
+/**
+ * Crea un registro mandando un formulario, que es la unica forma de escribir un
+ * campo de archivo: un campo de archivo no cabe en JSON.
+ */
+export function createRecordForm<T = Record<string, unknown>>(
+  collection: string,
+  form: FormData,
+): Promise<T> {
+  return pb<T>(`/api/collections/${encodeURIComponent(collection)}/records`, {
+    method: "POST",
+    body: form,
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Archivos                                                             */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Los archivos de un campo protegido no se sirven por su direccion a secas:
+ * hay que pedir antes una llave de lectura. Dura poco --dos minutos de
+ * fabrica-- asi que se guarda un rato y se pide otra cuando caduca, en vez de
+ * una por cada lectura.
+ */
+let fileKey = "";
+let fileKeyAt = 0;
+const FILE_KEY_TTL = 60 * 1000;
+
+async function fileToken(): Promise<string> {
+  if (fileKey && Date.now() - fileKeyAt < FILE_KEY_TTL) return fileKey;
+  const res = await pb<{ token: string }>("/api/files/token", { method: "POST" });
+  fileKey = res.token;
+  fileKeyAt = Date.now();
+  return fileKey;
+}
+
+/** El contenido de un campo de archivo, en bytes. */
+export async function readFileField(
+  collection: string,
+  recordId: string,
+  filename: string,
+): Promise<Uint8Array<ArrayBuffer>> {
+  const path =
+    `/api/files/${encodeURIComponent(collection)}` +
+    `/${encodeURIComponent(recordId)}/${encodeURIComponent(filename)}`;
+
+  const fetchWith = async (token: string) =>
+    fetch(`${config.pbUrl}${path}?token=${encodeURIComponent(token)}`);
+
+  let res = await fetchWith(await fileToken());
+  // La llave pudo caducar entre pedirla y usarla: se pide una nueva y se
+  // reintenta una sola vez.
+  if (!res.ok && [400, 401, 403, 404].includes(res.status)) {
+    fileKey = "";
+    res = await fetchWith(await fileToken());
+  }
+  if (!res.ok) {
+    throw new PbError(res.status, `No se pudo leer el archivo guardado (${res.status})`);
+  }
+  return new Uint8Array(await res.arrayBuffer());
 }

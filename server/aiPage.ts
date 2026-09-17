@@ -11,15 +11,18 @@
  * presenta todos juntos en el dialogo de impacto (ver `dataImpact.ts`).
  */
 import { buildHtmlContract } from "../shared/htmlContract.ts";
+import { IMPORT_BATCH_CHUNK, MAX_IMPORT_ROWS } from "../shared/importBatch.ts";
+import { detectSeparator, type ParsedTable, parseImport } from "../shared/importParse.ts";
+import { convertValue } from "../shared/importValues.ts";
 import { cleanPageName, isDefaultPageName } from "../shared/pages.ts";
 import { isPeopleNameField, isPeopleTable, normalizeRole } from "../shared/people.ts";
 import { keyCandidates } from "../shared/relations.ts";
 import type {
   AccessChange,
   AccessDirection,
+  AiChatFile,
   AiChoice,
-  AiFile,
-  AiFileKind,
+  AiMessage,
   AiPageResult,
   AiProgress,
   AiQuestion,
@@ -41,6 +44,17 @@ import { isFieldType } from "../shared/types.ts";
 import { peopleOf, setPersonAccess } from "./access.ts";
 import { AI_MISSING, aiEnabled, askAi, startConversation, type ToolDef } from "./ai.ts";
 import { saveAiDebug } from "./aiDebug.ts";
+import {
+  type AiFileSample,
+  findAiFile,
+  findByName,
+  MAX_READ_LINES,
+  nameAiFiles,
+  READ_LINES,
+  readAiFileBase64,
+  readAiFileChunk,
+  sampleAiFile,
+} from "./aiFiles.ts";
 import { HttpError } from "./auth.ts";
 import { INTERNAL } from "./config.ts";
 import { accessRisky, describeChange, impactOptions, pagesForChanges } from "./dataImpact.ts";
@@ -50,7 +64,7 @@ import { BlockError, insertBlock, readBlock, removeBlock, replaceBlock } from ".
 import { pruneDocs, readDoc, saveDoc } from "./htmlDocs.ts";
 import { openProbe, tidyIssues } from "./htmlProbe.ts";
 import { injectPageRefs, type PageRef } from "./pageAssets.ts";
-import { createRecord, listRecords, updateRecord } from "./pb.ts";
+import { createRecord, listRecords, pb, updateRecord } from "./pb.ts";
 import {
   createDataCollection,
   dataCollectionName,
@@ -250,6 +264,43 @@ That sentence, "consecuencia", is the whole point of the filing: it has to say w
 
 It is applied straight away, and **you always say what it changed**: who can open the page now and who stopped being able to. Narrowing it can leave somebody out --that is the point-- and widening it hands the declared tables to whoever holds the link.
 
+## The files they attached
+
+Two commands work on an attached file, and both name it by the name you were given for it, never by anything else.
+
+- **"leer_archivo"** brings back what the file really carries, by ranges. Use it whenever the answer depends on the whole file and not on the sample: a count, a sum, whether some value is in there, what the last rows say. It changes nothing --not the page, not the tables, not the data-- so there is no reason to hold back from it.
+- **"llenar_tabla"** writes the file's rows into a table that already exists. You send which column of the file goes into which column of the table; the rows themselves you never write out.
+
+What you must not do:
+
+- **Never state a figure about a file you did not read.** The sample in the context is a few rows out of however many it has. "Trae 5.000 registros" said from a twenty-row sample is made up, and it is read as fact.
+- Never type a file's rows into the page's HTML, and never ask for them one by one with "crear_tabla". That is what "llenar_tabla" is for.
+
+## Filling a table from a file
+
+"llenar_tabla" **adds** rows. It never replaces and never empties: what the table already had stays exactly as it was. If they ask you to replace what is there, say that you can only add, and that emptying a table is not yours to do.
+
+- The table has to exist first. Create it with "crear_tabla" --its columns taken from the file's columns-- and then fill it.
+- "columnas" is the pairing: for each column of the file, which column of the table it goes into. A column of the file you leave out stays out, and that is said back to you.
+- The reply tells you how many rows went in, how many stayed out and why. **Say those figures in your summary**, exactly as they came back. If rows stayed out, say how many and why.
+- If the file has more rows than a single import takes, nothing is written: it comes back saying how many it had and what the cap is. Do not try to split it yourself.
+
+## Counting rows
+
+There is one rule and it has no exceptions: **a count comes from \`total\`, never from counting the rows you were handed.**
+
+- "consultar_datos" brings back a handful of rows so you can see what the data looks like. Its \`total\` is how many the table has. Saying "trae 197 registros" after looking at twenty of them is making it up.
+- The same holds inside the page you write: \`plane.listar\` has a ceiling per call, \`r.total\` is the real figure and \`r.filas.length\` is the page size. To count something a filter can express, the page uses \`plane.contar\`.
+- **If a figure looks short, it is the page size before it is anything else.** Do not explain it away with a story about the data --rows that did not import, a file that was cut off--. Rows that were saved do not disappear, and what an import did is not something you can see from here. Check \`total\` first.
+
+## What you never claim
+
+The summary you close a turn with says what was left done **by your commands**, and nothing else.
+
+- If you did not call the command, it did not happen. A table is not filled because you created it; a page is not written because you described it.
+- If what was asked cannot be done with the commands you have, say so plainly and say what you did instead. "Listo" over something that did not happen is the worst answer you can give: it is read as fact and it is found out later.
+- If a command came back with an error you could not fix, say it, quoting what it said.
+
 ## What you always warn about
 
 Two things get said out loud, in one sentence, without being asked:
@@ -289,56 +340,87 @@ ${blocks.join("\n\n")}
 Each edit targets one block. If what is asked touches several, do them one at a time.`;
 }
 
-/** Con que lenguaje se escribe el bloque de codigo de cada clase de archivo. */
-const FILE_LANGUAGE: Record<AiFileKind, string> = {
-  html: "html",
-  css: "css",
-  js: "javascript",
-  json: "json",
-  csv: "csv",
-  sheet: "csv",
-  text: "",
-  image: "",
-};
+/**
+ * Un adjunto de la conversacion, ya nombrado y con lo que se le ensena de el.
+ *
+ * `label` es con lo que la IA lo nombra en una orden: el nombre del archivo,
+ * desempatado cuando la conversacion trae dos que se llaman igual. La huella es
+ * cosa del almacen y el modelo no la ve nunca.
+ */
+export interface ShownFile {
+  file: AiChatFile & { label: string };
+  sample: AiFileSample;
+  /** Se adjunto en un turno anterior, no en esta peticion. */
+  earlier: boolean;
+}
+
+/** El tamano de un archivo, dicho en la unidad que se lee de un vistazo. */
+function weigh(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 /**
- * Los archivos que se adjuntaron a la peticion.
+ * Los archivos adjuntados a esta conversacion.
  *
- * Van en el contexto, como lo senalado: son material que hay que tener
- * delante, no la peticion. Quien escribe dice que hacer con ellos --"toma como
+ * Van en el contexto, como lo senalado: son material que hay que tener delante,
+ * no la peticion. Quien escribe dice que hacer con ellos --"toma como
  * referencia este HTML", "crea una tabla con estas columnas"-- y aqui solo se
  * ponen a la vista con su nombre, para que se les pueda nombrar.
  *
- * Lo que se lee como texto va entero en un bloque de codigo. Una imagen no
- * cabe aqui: viaja en la propia peticion, en bloques de contenido, y en esta
- * lista solo deja constancia de que esta y de como se llama.
+ * Lo que viaja es una muestra, no el archivo: de una hoja de calculo o un CSV,
+ * sus columnas y unas pocas filas; de un JSON que es una lista, sus claves y
+ * sus primeros elementos; de un texto o un HTML, el archivo entero mientras
+ * quepa. El archivo guardado esta entero, y "leer_archivo" lo abre por tramos.
+ *
+ * Entran tambien los de turnos anteriores: un adjunto sigue estando mientras la
+ * conversacion siga abierta, asi que preguntar por el dos turnos despues no
+ * obliga a adjuntarlo otra vez.
  */
-function filesSection(files: AiFile[]): string {
-  const blocks = files.map((file, i) => {
-    if (file.kind === "image") {
-      return `### ${i + 1}. ${file.name}
+function filesSection(shown: ShownFile[]): string {
+  const blocks = shown.map((item, i) => {
+    const { file, sample } = item;
+    const head = [
+      `### ${i + 1}. ${file.label}`,
+      "",
+      `- To name it in a command, write it exactly like this: \`${file.label}\``,
+      `- ${weigh(file.size)}${item.earlier ? ", attached in an earlier turn of this conversation" : ""}`,
+      ...(sample.detail ? [`- It carries ${sample.detail}`] : []),
+    ];
 
-It is an image and it is attached to this same request: look at it there.`;
+    if (file.kind === "image") {
+      head.push("- It is an image and it is attached to this same request: look at it there.");
+      return head.join("\n");
     }
 
-    const cut = file.truncated
-      ? "\n\nIt is **trimmed**: it is not everything the file carried."
-      : "";
-    const language = FILE_LANGUAGE[file.kind];
-    return `### ${i + 1}. ${file.name}
-
-\`\`\`${language}
-${file.text ?? ""}
-\`\`\`${cut}`;
+    head.push(
+      sample.truncated
+        ? `- What you see below is **only part of it**. To read the rest, use "leer_archivo" with \`${file.label}\`.`
+        : `- What you see below is the whole file. "leer_archivo" reads it again by ranges if you need it.`,
+      "",
+      `\`\`\`${sample.language}`,
+      sample.body,
+      "```",
+    );
+    return head.join("\n");
   });
 
-  return `## The files they attached
+  const one = shown.length === 1;
+  return `## The files attached to this conversation
 
-The builder attached ${files.length === 1 ? "this file" : "these files"} to this request. ${files.length === 1 ? "It is material" : "They are material"} for handling it, not the request itself: what to do with ${files.length === 1 ? "it" : "them"} is said in the text they wrote.
+${one ? "This file was attached" : "These files were attached"} to the conversation. ${
+    one ? "It is material" : "They are material"
+  } for handling what is being asked, not the request itself: what to do with ${
+    one ? "it" : "them"
+  } is said in the text they wrote.
 
 ${blocks.join("\n\n")}
 
-None of this is stored in the app yet. If what is being asked is for something here to be stored --a table with this data, a screen with this HTML-- it has to be created with the usual commands.`;
+Two things to hold on to:
+
+- **Do not state a figure you did not read.** What you have above is a sample. Counting rows, adding up a column or checking whether a value appears means reading the file first with "leer_archivo"; answering from the sample would be inventing.
+- None of this is stored in the app yet. If what is being asked is for something here to be stored --a table with this data, a screen with this HTML-- it has to be created with the usual commands, and a table is filled from a file with "llenar_tabla", never by typing the rows out.`;
 }
 
 /**
@@ -355,7 +437,7 @@ function systemPrompt(
   page: PageRecord,
   tables: TableRecord[],
   picked: PickedBlock[],
-  files: AiFile[],
+  files: ShownFile[],
   people: AppPerson[],
 ): string {
   const contract = buildHtmlContract({
@@ -555,9 +637,66 @@ const TOOLS: ToolDef[] = [
     },
   },
   {
-    name: "consultar_datos",
+    name: "leer_archivo",
     description:
-      "Reads rows from a table so you can answer a question. It changes nothing: neither the table nor the page.",
+      "Returns what an attached file really carries, by ranges of lines. Use it whenever the answer depends on the whole file and not on the sample you were shown: a count, a sum, whether a value appears. It changes nothing: neither the page, nor the tables, nor the data.",
+    schema: {
+      type: "object",
+      properties: {
+        archivo: {
+          type: "string",
+          description: "The file's name, exactly as the context gave it to you",
+        },
+        desde: {
+          type: "number",
+          description: "First line to read, counting from 1. Leave it out to start at the top.",
+        },
+        lineas: {
+          type: "number",
+          description: `How many lines to bring back, up to ${MAX_READ_LINES}. Default ${READ_LINES}.`,
+        },
+      },
+      required: ["archivo"],
+    },
+  },
+  {
+    name: "llenar_tabla",
+    description:
+      "Writes the rows of an attached file into a table that already exists. You send the pairing --which column of the file goes into which column of the table-- and the rows are read from the stored file: you never write the data out. It ADDS: nothing already in the table is replaced or deleted.",
+    schema: {
+      type: "object",
+      properties: {
+        tabla: { type: "string", description: "The table name" },
+        archivo: {
+          type: "string",
+          description: "The file's name, exactly as the context gave it to you",
+        },
+        columnas: {
+          type: "array",
+          description:
+            "One entry per column of the file you want to bring in. A column of the file you leave out stays out.",
+          items: {
+            type: "object",
+            properties: {
+              columna: {
+                type: "string",
+                description: "The column's name in the file, as its header says it",
+              },
+              destino: {
+                type: "string",
+                description: "The technical name of the table column it goes into",
+              },
+            },
+            required: ["columna", "destino"],
+          },
+        },
+      },
+      required: ["tabla", "archivo", "columnas"],
+    },
+  },
+  {
+    name: "consultar_datos",
+    description: `Reads rows from a table so you can answer a question. It changes nothing: neither the table nor the page. It brings back at most ${MAX_QUERY_ROWS} rows, and \`total\` says how many the table really has: those are different numbers and the rows are a sample, never the count.`,
     schema: {
       type: "object",
       properties: {
@@ -806,6 +945,13 @@ export interface ToolContext {
   page: PageRecord;
   tables: TableRecord[];
   pages: PageRecord[];
+  /**
+   * Los adjuntos que esta conversacion tiene delante, ya nombrados: los de esta
+   * peticion y los de los turnos anteriores. Es la lista contra la que se
+   * resuelve el nombre que la IA escribe en "leer_archivo" y "llenar_tabla", y
+   * lo que hace que un archivo de otra conversacion no se alcance desde aqui.
+   */
+  files: ShownFile[];
   steps: AiStep[];
   /** Avisos cortos de lo que se aplico solo. */
   notices: string[];
@@ -954,6 +1100,182 @@ function unescapeHtml(text: string): string {
       ? String.fromCodePoint(point)
       : whole;
   });
+}
+
+/* ------------------------------------------------------------------ */
+/* Los adjuntos, desde una orden                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Lo que se le contesta cuando nombra un archivo que no es de esta
+ * conversacion. Se dice y se falla, con los que si tiene delante: nombrar mal
+ * se corrige en la vuelta siguiente, inventar el contenido no.
+ */
+function missingFile(ctx: ToolContext, wanted: string, tool: string): string {
+  ctx.steps.push({ tool, summary: `No hay ningún archivo "${wanted}"`, ok: false });
+  const names = ctx.files.map((f) => `"${f.file.label}"`).join(", ");
+  return names
+    ? `Error: no file called "${wanted}" is attached to this conversation. The ones that are: ${names}. Name it exactly as the context gave it to you.`
+    : `Error: nothing is attached to this conversation, so there is no file to read. Ask them to attach it.`;
+}
+
+/** Un adjunto leido como filas y columnas, o por que no se pudo. */
+async function parseAiFile(saved: {
+  id: string;
+  kind: string;
+  content: string;
+}): Promise<ParsedTable | string> {
+  const record = saved as Parameters<typeof readAiFileChunk>[0];
+  const text = (await readAiFileChunk(record, { from: 1, lines: Number.MAX_SAFE_INTEGER })).text;
+  const parsed = parseImport(text, detectSeparator(text));
+  if (!parsed.ok) return parsed.error;
+  return parsed.data;
+}
+
+/** A que columna de la tabla va cada columna del archivo. */
+interface FillPlan {
+  /** Columna del archivo --por su posicion-- y columna de la tabla. */
+  pairs: { index: number; column: string; field: FieldDef }[];
+  /** Las columnas del archivo que no se emparejaron con ninguna. */
+  unmapped: string[];
+}
+
+/**
+ * Lee el emparejamiento que mando la IA y lo comprueba contra la tabla.
+ *
+ * Devuelve un texto cuando algo no cuadra, y ese texto es lo que la IA lee: lo
+ * corrige en la vuelta siguiente, dentro de la misma peticion. Un rechazo para
+ * el emparejamiento entero, no columna a columna: llenar la tabla a medias deja
+ * filas que hay que buscar despues.
+ */
+function planFill(parsed: ParsedTable, table: TableRecord, raw: unknown): FillPlan | string {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return `"columnas" is missing: say which column of the file goes into which column of "${table.name}". The file's columns are: ${parsed.columns.join(", ")}.`;
+  }
+
+  const fields = table.fields ?? [];
+  const pairs: FillPlan["pairs"] = [];
+  const taken = new Set<string>();
+
+  for (const item of raw) {
+    const entry = item as Record<string, unknown>;
+    const column = String(entry.columna ?? "").trim();
+    const target = String(entry.destino ?? "").trim();
+    if (!column || !target) continue;
+
+    const index = parsed.columns.findIndex(
+      (c) => c === column || c.toLowerCase() === column.toLowerCase(),
+    );
+    if (index === -1) {
+      return `the file has no column called "${column}". Its columns are: ${parsed.columns.join(", ")}.`;
+    }
+
+    const field =
+      fields.find((f) => f.name === target) ??
+      fields.find((f) => f.label.toLowerCase() === target.toLowerCase());
+    if (!field) {
+      const names = fields.filter((f) => !f.system).map((f) => f.name);
+      return `"${table.name}" has no column called "${target}". Its columns are: ${names.join(", ")}. Add the one you need with "agregar_columnas" before filling.`;
+    }
+    if (field.system !== undefined) {
+      return `"${field.name}" holds the app's access (the account or the roles) and is not written from a file.`;
+    }
+    if (field.type === "file") {
+      return `"${field.name}" is a file column and cannot be filled from a data file.`;
+    }
+    // Dos columnas del archivo a la misma columna de la tabla: la segunda
+    // pisaria a la primera sin que se vea. Se dice antes de escribir nada.
+    if (taken.has(field.name)) {
+      return `two columns of the file are pointed at "${field.name}". Each column of the table takes one.`;
+    }
+    taken.add(field.name);
+    pairs.push({ index, column: parsed.columns[index], field });
+  }
+
+  if (!pairs.length) {
+    return `no column of the file was paired with a column of "${table.name}". The file's columns are: ${parsed.columns.join(", ")}.`;
+  }
+
+  return {
+    pairs,
+    unmapped: parsed.columns.filter((_, i) => !pairs.some((p) => p.index === i)),
+  };
+}
+
+/**
+ * Escribe las filas, en lotes.
+ *
+ * En lotes y no una a una porque son las mismas escrituras que hace la
+ * importacion manual y el mismo tope las gobierna: el tramo es una transaccion,
+ * asi que del que falle no entra ninguna fila. Las que no se pudieron convertir
+ * se quedan fuera contadas, con lo que dijo la conversion.
+ */
+async function fillTable(
+  ctx: ToolContext,
+  table: TableRecord,
+  parsed: ParsedTable,
+  plan: FillPlan,
+): Promise<{ written: number; before: number; reasons: string[] }> {
+  const before = await listRecords<{ id: string }>(table.dataCollection, {
+    perPage: 1,
+    fields: "id",
+  })
+    .then((res) => res.totalItems)
+    .catch(() => 0);
+
+  /** Lo que dejo fuera cada fila, agrupado: una razon repetida se cuenta. */
+  const counted = new Map<string, number>();
+  const bodies: Record<string, unknown>[] = [];
+
+  for (const row of parsed.rows) {
+    const values: Record<string, unknown> = {};
+    let reason = "";
+    for (const pair of plan.pairs) {
+      const cell = String(row[pair.index] ?? "");
+      const converted = convertValue(pair.field, cell);
+      if (!converted.ok) {
+        reason = `${pair.column}: ${converted.error}`;
+        break;
+      }
+      if (converted.value !== null) values[pair.field.name] = converted.value;
+    }
+    if (reason) {
+      counted.set(reason, (counted.get(reason) ?? 0) + 1);
+      continue;
+    }
+    bodies.push(values);
+  }
+
+  const url = `/api/collections/${table.dataCollection}/records`;
+  let written = 0;
+  for (let i = 0; i < bodies.length; i += IMPORT_BATCH_CHUNK) {
+    const chunk = bodies.slice(i, i + IMPORT_BATCH_CHUNK);
+    const res = await pb<Record<string, { status: number }>>("/api/batch", {
+      method: "POST",
+      body: JSON.stringify({
+        requests: chunk.map((body) => ({ method: "POST", url, body })),
+      }),
+    }).catch(() => null);
+
+    if (!res) {
+      counted.set(
+        "la base rechazó el lote",
+        (counted.get("la base rechazó el lote") ?? 0) + chunk.length,
+      );
+      continue;
+    }
+    for (const result of Object.values(res)) {
+      if (result.status < 400) written++;
+      else counted.set("la base la rechazó", (counted.get("la base la rechazó") ?? 0) + 1);
+    }
+  }
+
+  if (written > 0) ctx.changed = true;
+
+  const reasons = [...counted.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([reason, n]) => `${n} ${n === 1 ? "fila" : "filas"} — ${reason}`);
+  return { written, before, reasons };
 }
 
 /** Apunta un cambio con riesgo en vez de hacerlo. */
@@ -1295,6 +1617,128 @@ export async function runTool(
       }
     }
 
+    /*
+     * Leer un adjunto entero, por tramos. No cambia nada: es la unica forma de
+     * contestar con una cifra en vez de con la muestra, que son unas pocas
+     * filas de las que traiga.
+     */
+    case "leer_archivo": {
+      const wanted = String(input.archivo ?? "");
+      const found = findByName(
+        ctx.files.map((f) => f.file),
+        wanted,
+      );
+      if (!found) return missingFile(ctx, wanted, name);
+
+      if (found.kind === "image") {
+        note(`No se puede leer "${found.label}" como texto`, false);
+        return `Error: "${found.label}" is an image. It is attached to the request itself: look at it there.`;
+      }
+
+      const saved = await findAiFile(ctx.app.id, found.ref);
+      if (!saved) return missingFile(ctx, wanted, name);
+
+      const chunk = await readAiFileChunk(saved, {
+        from: Number(input.desde) || undefined,
+        lines: Number(input.lineas) || undefined,
+      });
+      note(
+        `Se leyó "${found.label}": ${chunk.lines === 1 ? "1 línea" : `${chunk.lines} líneas`} de ${chunk.total}`,
+      );
+      return JSON.stringify({
+        archivo: found.label,
+        desde: chunk.from,
+        lineas: chunk.lines,
+        total_lineas: chunk.total,
+        hay_mas: chunk.more,
+        contenido: chunk.text,
+        ...(chunk.more
+          ? { nota: `There is more. Ask again with "desde": ${chunk.from + chunk.lines}.` }
+          : {}),
+      });
+    }
+
+    /*
+     * Llenar una tabla desde un adjunto. Lo que llega es el emparejamiento, no
+     * los datos: el servidor lee el archivo guardado, convierte cada celda al
+     * tipo de su columna y escribe las filas. Anade, nunca reemplaza.
+     */
+    case "llenar_tabla": {
+      const table = findTable(ctx, input.tabla);
+      if (!table) return "Error: that table does not exist.";
+
+      const wanted = String(input.archivo ?? "");
+      const found = findByName(
+        ctx.files.map((f) => f.file),
+        wanted,
+      );
+      if (!found) return missingFile(ctx, wanted, name);
+      if (found.kind === "image") {
+        note(`No se puede llenar "${table.label}" desde una imagen`, false);
+        return `Error: "${found.label}" is an image: there are no rows and columns in it to bring in.`;
+      }
+
+      const saved = await findAiFile(ctx.app.id, found.ref);
+      if (!saved) return missingFile(ctx, wanted, name);
+
+      const parsed = await parseAiFile(saved);
+      if (typeof parsed === "string") {
+        note(`No se pudo leer "${found.label}" como filas y columnas`, false);
+        return `Error: ${parsed}`;
+      }
+
+      const plan = planFill(parsed, table, input.columnas);
+      if (typeof plan === "string") {
+        note(`Emparejamiento inválido para "${table.label}"`, false);
+        return `Error: ${plan}`;
+      }
+
+      if (parsed.rows.length === 0) {
+        note(`"${found.label}" no trae filas`, false);
+        return `Error: "${found.label}" has a header but no rows under it. Nothing was written.`;
+      }
+
+      // Un archivo mas grande que el tope no se escribe a medias: media tabla
+      // dentro es peor que ninguna, porque no se ve cual falta.
+      if (parsed.rows.length > MAX_IMPORT_ROWS) {
+        note(`"${found.label}" trae ${parsed.rows.length} filas: más del tope`, false);
+        return `Error: "${found.label}" carries ${parsed.rows.length} rows and a single import takes at most ${MAX_IMPORT_ROWS}. Nothing was written. Say this in your answer: the file has to be split before it can be brought in.`;
+      }
+
+      await ctx.step();
+      const done = await fillTable(ctx, table, parsed, plan);
+
+      // Una tabla que ya tenia filas se avisa: lo que se anade convive con lo
+      // que habia, y quien construye tiene que enterarse sin preguntarlo.
+      if (done.before > 0) {
+        ctx.notices.push(
+          `"${table.label}" ya tenía ${done.before} ${done.before === 1 ? "fila" : "filas"}; las ${done.written} del archivo se añadieron a ellas.`,
+        );
+      }
+
+      const left = parsed.rows.length - done.written;
+      note(
+        `"${table.label}": ${done.written} ${done.written === 1 ? "fila" : "filas"} desde "${found.label}"` +
+          (left > 0 ? ` · ${left} fuera` : ""),
+        done.written > 0,
+      );
+      ctx.notices.push(
+        `Se llenó "${table.label}" con ${done.written} ${done.written === 1 ? "fila" : "filas"} de "${found.label}".`,
+      );
+
+      return JSON.stringify({
+        tabla: table.name,
+        archivo: found.label,
+        filas_leidas: parsed.rows.length,
+        filas_escritas: done.written,
+        filas_fuera: left,
+        motivos: done.reasons,
+        columnas_sin_emparejar: plan.unmapped,
+        filas_que_ya_tenia: done.before,
+        nota: "Rows were added; nothing that was already in the table was replaced. Say these figures in your summary, as they came back.",
+      });
+    }
+
     case "consultar_datos": {
       const table = findTable(ctx, input.tabla);
       if (!table) return "Error: that table does not exist.";
@@ -1305,12 +1749,23 @@ export async function runTool(
       });
       const columns = (table.fields ?? []).map((f) => f.name);
       note(`Consulta a "${table.label}"`);
+      const shown = res.items.length;
       return JSON.stringify({
         tabla: table.name,
+        // Cuantas filas tiene la tabla, y cuantas de ellas van aqui. Las dos,
+        // separadas y dichas: contar las de la muestra era lo que hacia que
+        // una tabla de cientos de filas se contara por decenas.
         total: res.totalItems,
+        filas_en_esta_muestra: shown,
+        muestra: shown < res.totalItems,
         filas: res.items.map((row) =>
           Object.fromEntries([["id", row.id], ...columns.map((c) => [c, row[c]])]),
         ),
+        ...(shown < res.totalItems
+          ? {
+              nota: `"total" is how many rows the table has. The ${shown} below are a sample. Never report a count taken from them.`,
+            }
+          : {}),
       });
     }
 
@@ -1457,6 +1912,58 @@ export async function runTool(
 }
 
 /* ------------------------------------------------------------------ */
+/* Los turnos anteriores                                                */
+/* ------------------------------------------------------------------ */
+
+/** Cuantos turnos anteriores se le ponen delante al modelo. */
+const MAX_HISTORY_TURNS = 10;
+
+/** Y cuanto pueden ocupar entre todos, en caracteres. */
+const MAX_HISTORY_CHARS = 40_000;
+
+/** Lo que se conserva de un mensaje suelto de esos turnos. */
+const MAX_HISTORY_MESSAGE = 6_000;
+
+/**
+ * Los turnos anteriores de la conversacion, listos para mandarlos.
+ *
+ * Por cada turno, dos mensajes: lo que escribio quien construye y el texto con
+ * el que la IA cerro. Ni el razonamiento ni las llamadas a herramientas: el
+ * razonamiento de un turno cerrado no aporta al siguiente, hay servidores que
+ * lo rechazan al reenviarlo, y las herramientas ya dejaron su efecto en la
+ * aplicacion, que la IA vuelve a leer en el contexto de cada peticion.
+ *
+ * Al pasarse del tope se deja fuera lo mas antiguo, nunca lo mas reciente: lo
+ * que se acaba de decir es lo que explica lo que se esta pidiendo ahora.
+ */
+export function priorTurns(history: AiMessage[]): { role: "user" | "assistant"; text: string }[] {
+  const turns: { role: "user" | "assistant"; text: string }[] = [];
+  for (const message of history) {
+    const text = String(message.text ?? "")
+      .trim()
+      .slice(0, MAX_HISTORY_MESSAGE);
+    if (!text) continue;
+    turns.push({ role: message.from === "yo" ? "user" : "assistant", text });
+  }
+
+  // Se cuentan turnos --peticion y respuesta-- y no mensajes sueltos.
+  let kept = turns.slice(-MAX_HISTORY_TURNS * 2);
+  let size = kept.reduce((sum, t) => sum + t.text.length, 0);
+  while (kept.length && size > MAX_HISTORY_CHARS) {
+    size -= kept[0].text.length;
+    kept = kept.slice(1);
+  }
+
+  /*
+   * El primero tiene que ser de quien pide: los dos formatos de proveedor
+   * esperan que la conversacion empiece por ahi, y recortar por tamano puede
+   * dejar arriba una respuesta suelta.
+   */
+  while (kept.length && kept[0].role !== "user") kept = kept.slice(1);
+  return kept;
+}
+
+/* ------------------------------------------------------------------ */
 /* Una peticion                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -1540,8 +2047,17 @@ async function pageRequest(
     authorId: string;
     /** Lo que se senalo con el cursor, si se senalo algo. */
     picked?: PickedBlock[];
-    /** Los archivos que se adjuntaron, ya leidos por el navegador. */
-    files?: AiFile[];
+    /** Los archivos que se adjuntaron a esta peticion, como referencias. */
+    files?: AiChatFile[];
+    /**
+     * Los turnos anteriores de la conversacion, del mas viejo al mas nuevo.
+     *
+     * Dos cosas salen de aqui: los ultimos turnos que se le ponen delante al
+     * modelo --hasta que "ahora ponle un buscador" sepa a que pantalla se
+     * refiere-- y los adjuntos de esos turnos, que siguen estando mientras la
+     * conversacion siga abierta.
+     */
+    history?: AiMessage[];
     /**
      * Con que atenderla: que modelo y cuanto se le pide pensar. Sin esto va con
      * lo que este puesto por defecto en los ajustes.
@@ -1587,6 +2103,10 @@ async function pageRequest(
     page: opts.page,
     tables,
     pages,
+    // Se llenan en cuanto se sepa que adjuntos tiene delante la conversacion:
+    // leerlos del almacen es una ida a la base, y el contexto los necesita ya
+    // nombrados.
+    files: [],
     steps: [],
     notices: [],
     pending: [],
@@ -1618,19 +2138,57 @@ async function pageRequest(
     },
   };
 
-  const files = opts.files ?? [];
+  /*
+   * Los adjuntos que la conversacion tiene delante: los de esta peticion y los
+   * de los turnos anteriores, en el orden en que se adjuntaron. El nombre con
+   * el que se ofrece cada uno se desempata aqui, una sola vez, para que sea el
+   * mismo en el contexto y en las ordenes.
+   */
+  const earlier = (opts.history ?? []).flatMap((message) => message.files ?? []);
+  const mine = opts.files ?? [];
+  const named = nameAiFiles([...earlier, ...mine]);
+  const shown: ShownFile[] = [];
+  for (const file of named) {
+    const saved = await findAiFile(opts.app.id, file.ref);
+    // Un adjunto que ya no esta guardado no se nombra: ofrecerlo seria ofrecer
+    // algo que despues falla al abrirlo.
+    if (!saved) continue;
+    shown.push({
+      file,
+      sample: await sampleAiFile(saved).catch(() => ({
+        body: "",
+        language: "",
+        truncated: false,
+        detail: "",
+      })),
+      earlier: !mine.some((f) => f.ref === file.ref),
+    });
+  }
+  ctx.files = shown;
+
+  /*
+   * Las imagenes viajan en la peticion, no en el contexto: no se pueden contar
+   * con palabras. Se leen del almacen --ya no llegan dentro de la peticion del
+   * navegador-- y un modelo sin vista las suelta por su cuenta.
+   */
+  const images: { mime: string; data: string }[] = [];
+  for (const item of shown) {
+    if (item.file.kind !== "image" || item.earlier) continue;
+    const saved = await findAiFile(opts.app.id, item.file.ref);
+    if (!saved) continue;
+    const data = await readAiFileBase64(saved).catch(() => "");
+    if (data) images.push({ mime: saved.mime || "image/png", data });
+  }
+
   const chat = await startConversation(
-    systemPrompt(opts.app, opts.page, tables, opts.picked ?? [], files, people),
+    systemPrompt(opts.app, opts.page, tables, opts.picked ?? [], shown, people),
     opts.prompt,
     TOOLS,
     {
       signal: opts.signal,
       choice: opts.choice,
-      // Una imagen no se puede contar con palabras: viaja en la peticion, no
-      // en el contexto. Un modelo sin vista la suelta por su cuenta.
-      images: files
-        .filter((file) => file.kind === "image" && file.data)
-        .map((file) => ({ mime: file.mime || "image/png", data: file.data ?? "" })),
+      images,
+      history: priorTurns(opts.history ?? []),
     },
   );
 

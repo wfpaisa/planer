@@ -17,6 +17,20 @@ import {
   type TableRecord,
 } from "./types.ts";
 
+/**
+ * Cuantas filas trae como mucho una sola llamada a `plane.listar`.
+ *
+ * Vive aqui porque tiene dos lados y los dos tienen que decir lo mismo: el
+ * servidor lo aplica (`runPageData` en `server/pageData.ts`) y el contrato se lo
+ * cuenta al modelo (`shared/htmlContract.ts`). Cuando los dos numeros no
+ * cuadran, una pagina cuenta el techo creyendo que cuenta la tabla y el numero
+ * corto parece el bueno.
+ */
+export const MAX_LIST_ROWS = 200;
+
+/** Y cuantas trae cuando nadie pidio un tamano. */
+export const DEFAULT_LIST_ROWS = 30;
+
 /** Un fallo por culpa de lo que pidio el HTML, no de la base. */
 export class SourceError extends Error {}
 

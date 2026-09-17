@@ -373,3 +373,22 @@ Puntero
 .order-6 {
   order: 6;
 }
+
+/* ==========================================================
+   Solo para lectores de pantalla
+   ----------------------------------------------------------
+   Lo que hay que decir y no hay que dibujar: un aviso de que
+   algo esta pasando, el nombre de un control que ya se
+   entiende por su icono. Se saca de la vista sin sacarlo del
+   arbol --`display: none` lo callaria tambien--.
+   ========================================================== */
+.sr-only {
+  position: absolute;
+  clip-path: inset(50%);
+  margin: -1px;
+  border: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+}

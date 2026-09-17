@@ -27,6 +27,7 @@ import {
   type PageRecord,
   type TableRecord,
 } from "../shared/types.ts";
+import { MAX_AI_FILE_BYTES } from "./aiFiles.ts";
 import { config, INTERNAL } from "./config.ts";
 import { quote } from "./filter.ts";
 import { readDoc } from "./htmlDocs.ts";
@@ -609,6 +610,43 @@ export async function bootstrap() {
   }));
 
   await migrateChatsToPageRelation(pages.id);
+
+  // --- Archivos adjuntados a una peticion de la IA -----------------------
+  // El contenido no viaja dentro de la conversacion: se guarda aqui una sola
+  // vez, identificado por la huella de lo que trae dentro, y la conversacion
+  // guarda esa referencia. Asi el mismo archivo adjuntado dos veces ocupa una,
+  // y un archivo de varios megabytes no engorda ninguna peticion.
+  //
+  // El contenido va como archivo y no como texto porque un adjunto puede ser
+  // binario --una imagen, una hoja de calculo-- y un campo de texto obligaria a
+  // base64. Va protegido: sin eso, su direccion serviria a cualquiera que la
+  // tuviera, y un adjunto es material de quien construye.
+  await ensure(INTERNAL.aiFiles, "base", (base) => ({
+    fields: [
+      ...base.fields,
+      {
+        name: "app",
+        type: "relation",
+        required: true,
+        collectionId: apps.id,
+        cascadeDelete: true,
+        maxSelect: 1,
+      },
+      { name: "hash", type: "text", required: true, max: 64 },
+      { name: "name", type: "text", required: true, max: 200 },
+      { name: "kind", type: "text", max: 20 },
+      { name: "mime", type: "text", max: 100 },
+      { name: "bytes", type: "number" },
+      { name: "content", type: "file", maxSelect: 1, maxSize: MAX_AI_FILE_BYTES, protected: true },
+      ...timestamps,
+    ],
+    indexes: ["CREATE UNIQUE INDEX `idx_ai_files_app_hash` ON `ai_files` (`app`, `hash`)"],
+    listRule: null,
+    viewRule: null,
+    createRule: null,
+    updateRule: null,
+    deleteRule: null,
+  }));
 
   // --- Registro de depuracion de la IA -----------------------------------
   // Una fila por pagina, la de su ultima peticion, sobrescrita en cada una.

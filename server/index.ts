@@ -298,6 +298,8 @@ const ROUTES: [RegExp, string, Handler][] = [
   [/^\/api\/ai\/catalogo$/, "POST", api.aiCatalog],
   [/^\/api\/ai\/depuracion$/, "DELETE", api.clearAiDebugAll],
   [/^\/api\/apps\/([^/]+)\/ia\/enMarcha$/, "GET", api.listAppRuns],
+  [/^\/api\/apps\/([^/]+)\/ia\/archivos$/, "POST", api.uploadAiFile],
+  [/^\/api\/apps\/([^/]+)\/ia\/archivos\/([^/]+)$/, "GET", api.getAiFile],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/ia$/, "POST", api.askPage],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/ia$/, "GET", api.getPageRun],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/ia\/seguir$/, "POST", api.followPageRun],
@@ -327,7 +329,7 @@ const ROUTES: [RegExp, string, Handler][] = [
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html$/, "GET", api.getPageHtml],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html$/, "PUT", api.savePageHtml],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/convertir$/, "POST", api.convertPage],
-  // Las cinco ordenes de datos de una pagina. El navegador ya no habla con la
+  // Las seis ordenes de datos de una pagina. El navegador ya no habla con la
   // base: el permiso se aplica aqui, antes de entregar nada.
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/datos$/, "POST", api.pageData],
   [/^\/api\/apps\/([^/]+)\/html\/contrato$/, "POST", api.htmlContract],

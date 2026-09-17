@@ -11,7 +11,7 @@
  * la pantalla y su respuesta en el chat-- sigue siendo espanol, y eso se le
  * dice de forma expresa en `LANGUAGE_SECTION`.
  */
-import { LINK_SUFFIX } from "./htmlSources.ts";
+import { LINK_SUFFIX, MAX_LIST_ROWS } from "./htmlSources.ts";
 import { PAGE_ICONS } from "./icons.ts";
 import {
   ADMIN_ROLE,
@@ -740,7 +740,11 @@ var r = await plane.listar("equipos", {
   limite: 50,
   pagina: 1
 });
-// r = { filas: [...], total: 120, pagina: 1, paginas: 3 }
+// r = { filas: [...], total: 120, pagina: 1, paginas: 3, limite: 50, recortado: false }
+
+// Contar, sin traerse ninguna fila. Toma el mismo filtro y la misma busqueda.
+var cuantos = await plane.contar("equipos", { filtro: { estado: "Operativo" } });
+// cuantos = { total: 120 }
 
 var uno   = await plane.obtener("equipos", "id-del-registro");
 var nuevo = await plane.crear("equipos", { nombre: "Turbina", estado: "Operativo" });
@@ -754,6 +758,17 @@ Rules:
 
 - Only the declared sources and columns can be named. Any other one is rejected without ever being queried.
 - The permissions are those of whoever is looking at the screen. An operation can fail for lack of permission: wrap the calls in \`try / catch\` and show \`error.message\`.
+
+### How many there are
+
+**\`limite\` has a ceiling of ${MAX_LIST_ROWS}, and one call never brings back more than that.** Asking for more is not an error: you get ${MAX_LIST_ROWS} rows, \`limite\` says how many really came, and \`recortado\` comes back \`true\`. There is no way to pull a whole table down in one go, and there is not meant to be.
+
+That is why counting has one rule with no exceptions:
+
+- **\`r.total\` is how many rows there are. \`r.filas.length\` is how many arrived.** They are the same number only while the table is smaller than one page. Writing \`filas.length\` into a "total" figure paints the page size, and on a table of 410 rows the screen says 200 and looks right.
+- **To count anything the filter can express, use \`plane.contar\`.** How many are operativo, how many this month, how many of one person: a filter and a count, with nothing travelling. It is exact whatever the table's size.
+- **To count something the filter cannot express** --distinct values, a grouping, a deduplication-- walk the pages with \`pagina\` until \`pagina === paginas\`, accumulating as you go. Do it because the figure needs it, never to paint: what gets painted is one page at a time.
+- **Never explain a figure that does not add up by guessing at the data.** If a number looks short, it is the page size before it is anything else. Rows that were saved do not vanish, and an import that did not finish is not something you can tell from here.
 - Wait for \`plane\` before asking for anything:
 
 \`\`\`js
