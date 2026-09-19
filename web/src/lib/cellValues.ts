@@ -35,9 +35,34 @@ export function formatDate(value: unknown): string {
   return Number.isNaN(date.getTime()) ? "" : dateFmt.format(date);
 }
 
-/** Texto plano de una celda, para busquedas y exportaciones. */
-export function cellText(field: FieldDef, row: Row): string {
-  if (isRelationField(field)) return relationCell(row, field).label;
+/**
+ * Convierte el valor guardado al que espera un `<input>`.
+ *
+ * Vive aqui y no dentro del control que lo usa porque tambien es lo que se
+ * copia al portapapeles: una fecha en formato de lectura ("12 sept 2025") no se
+ * vuelve a entender al pegarla, y la del `<input>` --ISO corta-- si.
+ */
+export function toInputValue(field: FieldDef, value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (field.type === "date") {
+    const iso = String(value).replace(" ", "T");
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "";
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+  return String(value);
+}
+
+/**
+ * Texto plano de una celda, para busquedas, exportaciones y el portapapeles.
+ *
+ * La lista de invitados es opcional porque no todo el que pregunta la tiene a
+ * mano; sin ella una celda que apunta a una persona se lee vacia, que es lo
+ * mismo que le pasa a la celda dibujada.
+ */
+export function cellText(field: FieldDef, row: Row, people: AppPerson[] = []): string {
+  if (isRelationField(field)) return relationCell(row, field, people).label;
   const value = row[field.name];
   if (value === null || value === undefined || value === "") return "";
   if (field.type === "date") return formatDate(value);

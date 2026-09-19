@@ -22,7 +22,9 @@
   - Columnas
 
     - 11 tipos: texto, texto largo, número, sí/no, correo, enlace, fecha, opciones, archivo, relación, persona
-    - Reordenar, ocultar, redimensionar ancho
+    - Reordenar, ocultar
+    - Redimensionar el ancho arrastrando el borde del título (o con las flechas
+      del teclado); doble clic lo devuelve al ancho automático
     - Renombrar sin perder datos
     - Columna persona como dueño de fila ("ver solo lo mío")
   - Filas
@@ -30,6 +32,24 @@
     - Crear, editar, borrar (una o selección múltiple)
     - Buscar/filtrar en la grilla
     - Ver impacto antes de borrar (relaciones afectadas)
+    - Abrir la fila completa en el cajón lateral
+  - Edición en vivo en la grilla
+
+    - Cursor de celda y navegación con teclado (flechas, Tab, Inicio/Fin)
+    - Selección de rango con el ratón o con Mayúsculas, y todo con Ctrl+A
+    - Escribir en la celda: un clic sobre la celda ya elegida, doble clic,
+      Enter o empezar a teclear
+    - Cada tipo abre su control y lo despliega solo: calendario en las fechas,
+      lista en las opciones, buscador de llave en las relaciones
+    - Las columnas que no se escriben desde la celda lo dicen al pasar por
+      encima (las del sistema, los archivos, las relaciones múltiples)
+    - En personas, correo y roles se escriben en su celda una a una (pasan por
+      la cuenta, no por la tabla)
+    - Copiar el rango al portapapeles y pegarlo en Excel o en otra tabla
+    - Pegar un rango convirtiendo cada celda al tipo de su columna y enlazando
+      las relaciones por su llave
+    - Al pegar de más: crear las filas que faltan o quedarse con las que caben
+    - Vaciar el rango con Supr
   - Importar / exportar CSV y JSON, con resumen previo y reemplazo total
   - Panel de valores huérfanos (relaciones rotas)
 - **Páginas** (constructor visual)

@@ -399,3 +399,13 @@ body,
     }
   }
 }
+
+/*
+ * Mientras se arrastra el borde de una columna de la cuadricula, el cursor es
+ * el mismo pase por donde pase el raton y no se selecciona texto por el camino.
+ * Lo pone y lo quita `ColumnHead`.
+ */
+body.is-resizing-column {
+  cursor: col-resize;
+  user-select: none;
+}

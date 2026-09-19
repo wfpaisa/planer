@@ -1,28 +1,13 @@
 <!--
   El control con el que se edita una celda, segun el tipo de su columna.
 -->
-<script lang="ts" module>
-  import { type FieldDef, isRelationField } from "@shared/types";
-
-  /** Convierte el valor de PocketBase al que espera un `<input>`. */
-  export function toInputValue(field: FieldDef, value: unknown): string {
-    if (value === null || value === undefined) return "";
-    if (field.type === "date") {
-      const iso = String(value).replace(" ", "T");
-      const date = new Date(iso);
-      if (Number.isNaN(date.getTime())) return "";
-      const pad = (n: number) => String(n).padStart(2, "0");
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    }
-    return String(value);
-  }
-</script>
-
 <script lang="ts">
-  import type { TableRecord } from "@shared/types";
+  import { type FieldDef, isRelationField, type TableRecord } from "@shared/types";
   import type PocketBase from "pocketbase";
 
-  import type { Row } from "../../../lib/cellValues";
+  // `toInputValue` vive en `lib/cellValues`: el portapapeles de la grilla copia
+  // con ella y no dibuja ningun control.
+  import { type Row, toInputValue } from "../../../lib/cellValues";
   import { Input, Select, Textarea } from "../../ui";
   import KeyPicker from "./KeyPicker.svelte";
   import MultiSelect from "./MultiSelect.svelte";

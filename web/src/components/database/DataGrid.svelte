@@ -35,6 +35,7 @@
 
 <script lang="ts">
   import {
+    isOverlayField,
     isPeopleNameField,
     isPeopleTable,
     MEMBER_FIELD,
@@ -54,6 +55,7 @@
   import { useBuilder } from "../../lib/builderContext";
   import type { Row } from "../../lib/cellValues";
   import { cx } from "../../lib/cx";
+  import { rangeToText, textToRange } from "../../lib/dataGridClipboard";
   import {
     isSystem,
     SYSTEM_COLUMN_LABELS,
@@ -63,11 +65,22 @@
     toggleSystemVisible as toggleColumnSystemVisible,
   } from "../../lib/dataGridColumns";
   import {
+    clearRange,
+    inlineEditable,
+    notEditableReason,
+    type PasteFit,
+    pasteFit,
+    pasteRange,
+    rangeSummary,
+    writeCell,
+  } from "../../lib/dataGridEdit";
+  import {
     exportAll as exportAllRows,
     type ExportFormat,
     exportSelected as exportSelectedRows,
   } from "../../lib/dataGridExport";
   import { ROW_ORDER } from "../../lib/dropFiles";
+  import { type CellRef, createSelection } from "../../lib/gridSelection.svelte";
   import { DEFAULT_TABLE_ICON } from "../../lib/icons";
   import { type ImportNote, peopleImportNote } from "../../lib/importPlan";
   import {
@@ -90,7 +103,7 @@
     savePersonRow,
   } from "../../lib/peopleGrid";
   import { guessPersonFields, type PersonTextColumn } from "../../lib/personGuess";
-  import { linkParkedValues } from "../../lib/relations";
+  import { linkParkedValues, uniqueClashMessage } from "../../lib/relations";
   import Icon from "../Icon.svelte";
   import {
     Button,
@@ -103,13 +116,14 @@
     MenuItem,
     MenuLabel,
     MenuSeparator,
+    Modal,
     SuccessNote,
     WarnNote,
   } from "../ui";
-  import { CellView } from "./cells";
   import ColumnHead, { type Sort } from "./ColumnHead.svelte";
   import ColumnModal from "./ColumnModal.svelte";
   import FieldIcon from "./FieldIcon.svelte";
+  import GridCell from "./GridCell.svelte";
   import ImportModal from "./ImportModal.svelte";
   import OrphanPanel from "./OrphanPanel.svelte";
   import PasswordBlock from "./PasswordBlock.svelte";
@@ -402,6 +416,14 @@
     void page;
     void pageSize;
     void onlyOrphans;
+    /*
+     * El cursor se suelta aqui y no dentro de `load`: el rango se elige por
+     * sitio, asi que sobrevive a una relectura de la misma pagina --la de
+     * despues de pegar-- pero no a un orden, un filtro o una pagina distintos,
+     * donde esas mismas coordenadas serian ya otras filas.
+     */
+    selection.clear();
+    editing = null;
     void load();
   });
 
@@ -500,6 +522,384 @@
 
   function toggleAll() {
     selected = selected.size === rows.length ? new Set() : new Set(rows.map((r) => r.id));
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* La edicion en vivo: el cursor, el rango y el portapapeles            */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * El cursor y el rango elegido, por sitio y nunca por id.
+   *
+   * La grilla se ordena, se filtra y se repagina, y una seleccion guardada por
+   * id tendria que sobrevivir a todo eso senalando filas que ya no estan donde
+   * estaban. Se suelta cuando cambia lo que se ve --es lo que hace cualquier
+   * hoja de calculo al reordenar-- y por eso aqui basta con fila y columna.
+   */
+  const selection = createSelection(() => ({ rows: rows.length, cols: visible.length }));
+
+  /**
+   * La celda que se esta escribiendo, y con que empezo.
+   *
+   * `seed` es la tecla que abrio la edicion cuando se empezo a teclear sobre la
+   * celda: sin ella, la primera letra de lo que se escribe se perderia.
+   */
+  let editing = $state<{ row: number; col: number; seed?: string } | null>(null);
+  /** Mientras una celda o un bloque de ellas se estan guardando. */
+  let writing = $state(false);
+  /** Como le fue a la ultima escritura en bloque. */
+  let editNote = $state<ImportNote | null>(null);
+  /** Lo pegado que no cabe, esperando a que se diga que hacer con ello. */
+  let pasteAsk = $state<{ start: CellRef; matrix: string[][]; fit: PasteFit } | null>(null);
+  /**
+   * Donde se escuchan las teclas y el portapapeles.
+   *
+   * En la caja de la cuadricula y no en la ventana: con el cajon lateral o un
+   * dialogo abiertos, las flechas y el pegado son suyos, y un escucha global
+   * habria que apagarlo desde cada uno de ellos.
+   */
+  let gridBox = $state<HTMLTableElement | null>(null);
+
+  /* ------------------------------------------------------------------ */
+  /* El ancho de las columnas                                             */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * El ancho que se esta arrastrando, antes de guardarlo.
+   *
+   * Mientras dura el tiron el ancho vive aqui y no en la tabla: guardar en cada
+   * pixel serian cien peticiones por un arrastre, y la tabla entera se volveria
+   * a leer con cada una.
+   */
+  let dragWidth = $state<{ name: string; width: number } | null>(null);
+
+  const widths = $derived(table.meta?.widths ?? {});
+
+  /** Lo que mide una columna ahora: lo arrastrado, lo guardado, o nada. */
+  function widthOf(name: string): number | undefined {
+    if (dragWidth?.name === name) return dragWidth.width;
+    const saved = widths[name];
+    return saved && saved > 0 ? saved : undefined;
+  }
+
+  /**
+   * Recoge el arrastre del borde de una columna.
+   *
+   * Un ancho de cero es "que vuelva a medirse solo": es lo que deja el doble
+   * clic sobre el tirador, y por eso se borra de los guardados en vez de
+   * guardarse como cero.
+   */
+  async function resizeColumn(name: string, width: number, done: boolean) {
+    if (!done) {
+      dragWidth = { name, width };
+      return;
+    }
+    dragWidth = null;
+    const next = { ...widths };
+    if (width > 0) next[name] = width;
+    else delete next[name];
+    if (next[name] === widths[name]) return;
+    try {
+      await patch(`/api/tables/${table.id}`, { meta: { ...table.meta, widths: next } });
+      await onSchemaChange();
+    } catch (err) {
+      error = errorMessage(err);
+    }
+  }
+
+  /** Si la columna que ocupa ese sitio se escribe desde la celda. */
+  function editableAt(col: number): boolean {
+    const field = visible[col];
+    return !!field && inlineEditable(table, field);
+  }
+
+  /**
+   * La celda que se pulso estando ya elegida, a la espera de soltar el boton.
+   *
+   * Es lo que convierte el segundo clic en una edicion: el primero elige y el
+   * segundo escribe, sin pedir un doble clic. No es una runa porque no se
+   * dibuja con ella --solo vive entre apretar y soltar-- y como estado haria
+   * redibujar la cuadricula entera en cada pulsacion.
+   */
+  let clickedActive: CellRef | null = null;
+
+  function cellDown(row: number, col: number, e: MouseEvent) {
+    if (e.button !== 0) return;
+    // Lo que se estaba escribiendo no se pierde: el control pierde el foco y
+    // eso ya lo guarda.
+    if (editing && (editing.row !== row || editing.col !== col)) editing = null;
+    if (e.shiftKey) {
+      selection.focus({ row, col }, true);
+      gridBox?.focus();
+      return;
+    }
+
+    /*
+     * Se anota, pero no se abre todavia: abrir aqui dejaria sin arrastre a la
+     * celda que tiene el cursor --el editor se comeria el gesto-- asi que la
+     * decision se toma al soltar, cuando ya se sabe si hubo arrastre.
+     */
+    const at = selection.active;
+    clickedActive =
+      !editing && at?.row === row && at?.col === col && selection.size === 1 ? { row, col } : null;
+
+    selection.beginDrag({ row, col });
+    gridBox?.focus();
+  }
+
+  const cellOver = (row: number, col: number) => selection.dragTo({ row, col });
+
+  /*
+   * Se suelta el arrastre aunque el raton se levante fuera de la cuadricula, y
+   * ahi se decide si aquel clic sobre la celda ya elegida era para escribirla:
+   * lo es solo si no se arrastro a ninguna otra.
+   */
+  $effect(() => {
+    const stop = () => {
+      const again = clickedActive;
+      clickedActive = null;
+      selection.endDrag();
+      const at = selection.active;
+      if (again && at?.row === again.row && at?.col === again.col && selection.size === 1) {
+        void startEdit(again);
+      }
+    };
+    window.addEventListener("mouseup", stop);
+    return () => window.removeEventListener("mouseup", stop);
+  });
+
+  /**
+   * Abre una celda para escribirla.
+   *
+   * Una casilla de si/no no abre nada: la tecla la da la vuelta y se guarda. Un
+   * editor para elegir entre dos valores es un paso de mas en la unica columna
+   * donde el valor cabe entero en la celda.
+   */
+  async function startEdit(at: CellRef, seed?: string) {
+    if (!editableAt(at.col)) return;
+    const field = visible[at.col];
+    const row = rows[at.row];
+    if (!field || !row) return;
+    selection.focus(at);
+    if (field.type === "bool") {
+      await saveCell(row, field, !row[field.name]);
+      return;
+    }
+    editing = { row: at.row, col: at.col, seed };
+  }
+
+  /** Guarda una celda y deja la fila en la grilla como quedo. */
+  async function saveCell(row: Row, field: FieldDef, value: unknown) {
+    writing = true;
+    error = "";
+    try {
+      const saved = await writeCell({
+        table,
+        tables,
+        people: people.list,
+        row,
+        field,
+        value,
+        overlay,
+      });
+      /*
+       * En personas, el correo, el nivel y los roles no vuelven con la fila: no
+       * estan en la coleccion. Sin reponerlos, guardar una columna propia
+       * dejaria esas tres en blanco hasta la siguiente lectura.
+       */
+      const next = isPeople ? (mergeOverlay([saved], overlay)[0] ?? saved) : saved;
+      rows = rows.map((r) => (r.id === next.id ? next : r));
+      /*
+       * Cambiar el correo o los roles cambia la cuenta, no la fila: lo que hay
+       * que releer es la lista de invitados, que es de donde salen esas dos
+       * columnas aqui y las celdas de persona de las demas tablas.
+       */
+      if (isPeople && isOverlayField(table, field.name)) {
+        overlay = await loadPeopleOverlay(table.app);
+        rows = mergeOverlay(rows, overlay);
+        await builder.reloadPeople();
+      }
+    } catch (err) {
+      const clash = await uniqueClashMessage(table, { [field.name]: value }, err, row.id).catch(
+        () => "",
+      );
+      error = clash || errorMessage(err);
+    } finally {
+      writing = false;
+    }
+  }
+
+  /**
+   * Cierra la celda abierta y devuelve el foco a la cuadricula.
+   *
+   * El foco vuelve a mano porque el control que lo tenia deja de existir: sin
+   * esto se quedaba en el documento y las flechas no movian nada.
+   */
+  function closeEdit() {
+    editing = null;
+    gridBox?.focus();
+  }
+
+  /** Cierra la celda que se estaba escribiendo y guarda si cambio algo. */
+  async function commitCell(value: unknown) {
+    const at = editing;
+    closeEdit();
+    if (!at) return;
+    const field = visible[at.col];
+    const row = rows[at.row];
+    if (!field || !row) return;
+    // `undefined` es una relacion que no se llego a tocar: su campo arranca sin
+    // valor porque la llave vive en el registro enlazado, no en la celda.
+    if (value === undefined) return;
+    if (!isRelationField(field) && value === row[field.name]) return;
+    await saveCell(row, field, value);
+  }
+
+  /** Vacia las celdas del rango. */
+  async function clearCells() {
+    const range = selection.range;
+    if (!range) return;
+    writing = true;
+    error = "";
+    editNote = null;
+    try {
+      const report = await clearRange({ table, rows, fields: visible, range });
+      editNote = rangeSummary(report, "vaciaron");
+      await load();
+    } catch (err) {
+      error = errorMessage(err);
+    } finally {
+      writing = false;
+    }
+  }
+
+  /** Escribe lo pegado y vuelve a leer: lo guardado no es lo que se pego. */
+  async function runPaste(start: CellRef, matrix: string[][], createMissing: boolean) {
+    pasteAsk = null;
+    writing = true;
+    error = "";
+    editNote = null;
+    try {
+      const report = await pasteRange({
+        table,
+        tables,
+        people: people.list,
+        rows,
+        fields: visible,
+        start,
+        matrix,
+        createMissing,
+      });
+      editNote = rangeSummary(report, "pegaron");
+      /*
+       * Se vuelve a leer y no se remienda la grilla a mano: una relacion se
+       * guarda como el id del registro que encontro y una fecha como la
+       * normalizo la base, asi que lo que hay que ensenar no es lo que se pego.
+       */
+      await load();
+    } catch (err) {
+      error = errorMessage(err);
+    } finally {
+      writing = false;
+    }
+  }
+
+  function copyRange(e: ClipboardEvent) {
+    const range = selection.range;
+    if (!range || editing) return;
+    e.clipboardData?.setData(
+      "text/plain",
+      rangeToText({ rows, fields: visible, range, people: people.list }),
+    );
+    e.preventDefault();
+  }
+
+  function pasteIntoGrid(e: ClipboardEvent) {
+    if (editing) return;
+    /*
+     * Se pega desde la esquina de arriba a la izquierda del rango, no desde
+     * donde quedo el cursor: extender la seleccion con mayusculas deja el
+     * cursor en el extremo contrario, y pegar ahi metia lo copiado en la
+     * columna equivocada aunque lo marcado fuera justo lo que se queria llenar.
+     */
+    const range = selection.range;
+    const at = range ? { row: range.top, col: range.left } : null;
+    const text = e.clipboardData?.getData("text/plain") ?? "";
+    if (!at || !text.trim()) return;
+    e.preventDefault();
+    const matrix = textToRange(text);
+    if (matrix.length === 0) return;
+
+    const fit = pasteFit({ table, rows, fields: visible, start: at, matrix });
+    // Con filas de sobra se pregunta antes de escribir nada: crear veinte filas
+    // por un pegado en el sitio equivocado no tiene vuelta atras.
+    if (fit.extra > 0 && fit.canCreate) {
+      pasteAsk = { start: at, matrix, fit };
+      return;
+    }
+    void runPaste(at, matrix, false);
+  }
+
+  /**
+   * Las teclas de la cuadricula.
+   *
+   * Mientras se escribe una celda no se atiende ninguna: las suyas --Enter,
+   * Escape-- las maneja el propio control, y el tabulador lo mueve el navegador
+   * como en cualquier formulario, guardando de paso al salir.
+   */
+  function gridKeys(e: KeyboardEvent) {
+    if (editing) return;
+    const meta = e.ctrlKey || e.metaKey;
+
+    if (meta && e.key.toLowerCase() === "a") {
+      selection.all();
+      e.preventDefault();
+      return;
+    }
+
+    const at = selection.active;
+    if (!at) return;
+
+    switch (e.key) {
+      case "ArrowUp":
+        selection.move(-1, 0, e.shiftKey);
+        break;
+      case "ArrowDown":
+        selection.move(1, 0, e.shiftKey);
+        break;
+      case "ArrowLeft":
+        selection.move(0, -1, e.shiftKey);
+        break;
+      case "ArrowRight":
+        selection.move(0, 1, e.shiftKey);
+        break;
+      case "Tab":
+        selection.move(0, e.shiftKey ? -1 : 1, false);
+        break;
+      case "Home":
+        selection.edge(meta ? "col-start" : "row-start", e.shiftKey);
+        break;
+      case "End":
+        selection.edge(meta ? "col-end" : "row-end", e.shiftKey);
+        break;
+      case "Enter":
+      case "F2":
+        void startEdit(at);
+        break;
+      case "Escape":
+        selection.clear();
+        break;
+      case "Delete":
+      case "Backspace":
+        void clearCells();
+        break;
+      default:
+        // Empezar a teclear sobre una celda la abre y esa tecla es lo primero
+        // que lleva escrito, como en cualquier hoja de calculo.
+        if (meta || e.altKey || e.key.length !== 1) return;
+        void startEdit(at, e.key);
+    }
+    e.preventDefault();
   }
 
   /** Abre el panel lateral en blanco, para una fila que todavia no existe. */
@@ -1331,6 +1731,14 @@
     {/if}
   {/if}
 
+  {#if editNote}
+    {#if editNote.ok}
+      <SuccessNote message={editNote.text} />
+    {:else}
+      <WarnNote message={editNote.text} />
+    {/if}
+  {/if}
+
   {#if onlyOrphans}
     <div class="grid-db-orphans-banner flex items-center gap-2">
       <span>Solo las filas cuyo valor todavía no encontró registro.</span>
@@ -1363,7 +1771,21 @@
     {#if loading && rows.length === 0}
       <Loading />
     {:else}
-      <table class="grid-db-table table">
+      <!--
+        `role="grid"` y `tabindex`: la tabla recibe el foco al pulsar una celda,
+        y con el le llegan las teclas y el portapapeles. Sin foco propio, copiar
+        y pegar irian al documento y habria que escucharlos en la ventana,
+        quitandoselos al cajon lateral y a los dialogos.
+      -->
+      <table
+        bind:this={gridBox}
+        role="grid"
+        tabindex="-1"
+        onkeydown={gridKeys}
+        oncopy={copyRange}
+        onpaste={pasteIntoGrid}
+        class="grid-db-table table"
+      >
         <!--
           Por encima de las celdas pegajosas del cuerpo (z-10): los menus de cada
           columna se abren sobre las filas, no debajo.
@@ -1383,10 +1805,13 @@
                 <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
               </label>
             </th>
+            <th class="grid-db-expand-cell"><span class="sr-only">Abrir la fila</span></th>
             {#each visible as field (field.name)}
               <ColumnHead
                 {field}
                 {sort}
+                width={widthOf(field.name)}
+                onResize={(w, done) => void resizeColumn(field.name, w, done)}
                 onSort={applySort}
                 onEdit={isSystem(field.name) ||
                 field.system !== undefined ||
@@ -1402,7 +1827,7 @@
         </thead>
 
         <tbody>
-          {#each rows as row (row.id)}
+          {#each rows as row, rowIndex (row.id)}
             <!--
               La fila marcada se pinta con el lavado opaco: las celdas pegajosas
               se desplazan por encima de las otras y con un color translucido se
@@ -1428,21 +1853,47 @@
               </td>
 
               <!--
-                La grilla es de lectura: cualquier celda abre la fila en el
-                panel, y el boton ocupa la celda entera para que el cursor de
-                mano no prometa mas de lo que cumple.
+                La fila se abre desde su propia columna y no desde cualquier
+                celda: el clic sobre una celda ahora la elige, que es lo que
+                hace falta para escribir, copiar y pegar por rangos.
               -->
-              {#each visible as field (field.name)}
-                <td class={cx(cell, "grid-db-read-cell")}>
-                  <button
-                    type="button"
-                    onclick={() => (openRow = { row })}
-                    aria-label={`Abrir la fila (${field.label})`}
-                    class="btn-open-row grid-db-cell-btn"
-                  >
-                    <CellView {field} {row} />
-                  </button>
-                </td>
+              <td class={cx(cell, "grid-db-expand-data")}>
+                <button
+                  type="button"
+                  onclick={() => (openRow = { row })}
+                  data-tip="Abrir la fila"
+                  aria-label="Abrir la fila"
+                  class="btn-open-row grid-db-expand-btn"
+                >
+                  <Icon name="arrow-expand-diagonal-01" size={13} />
+                </button>
+              </td>
+
+              {#each visible as field, col (field.name)}
+                <GridCell
+                  {field}
+                  {row}
+                  {tables}
+                  {marked}
+                  selected={selection.has(rowIndex, col)}
+                  active={selection.active?.row === rowIndex && selection.active?.col === col}
+                  edges={selection.edges(rowIndex, col)}
+                  editing={editing?.row === rowIndex && editing?.col === col}
+                  seed={editing?.row === rowIndex && editing?.col === col
+                    ? editing.seed
+                    : undefined}
+                  width={widthOf(field.name)}
+                  editable={inlineEditable(table, field)}
+                  reason={notEditableReason(table, field)}
+                  saving={writing &&
+                    selection.active?.row === rowIndex &&
+                    selection.active?.col === col}
+                  onDown={(e) => cellDown(rowIndex, col, e)}
+                  onOver={() => cellOver(rowIndex, col)}
+                  onEdit={() => void startEdit({ row: rowIndex, col })}
+                  onCommit={(value) => void commitCell(value)}
+                  onCancel={closeEdit}
+                />
               {/each}
             </tr>
           {/each}
@@ -1558,6 +2009,38 @@
   {/if}
 
   <RolesModal open={rolesOpen} onClose={() => (rolesOpen = false)} />
+
+  <!--
+    Lo pegado trae mas filas de las que hay. Se pregunta antes de escribir nada:
+    crear filas no tiene vuelta atras, y recortar en silencio perderia datos que
+    quien pega da por puestos. La tabla de personas no llega hasta aqui --una
+    fila suya es una cuenta invitada, y eso lo hace el servidor--.
+  -->
+  <Modal
+    open={!!pasteAsk}
+    onClose={() => (pasteAsk = null)}
+    title="Lo pegado no cabe"
+    class="modal-paste-overflow"
+  >
+    {#if pasteAsk}
+      <p class="grid-db-paste-message">
+        Se pegan {pasteAsk.matrix.length} filas y desde aquí hay {pasteAsk.fit.fits}.
+        {pasteAsk.fit.extra === 1 ? "Sobra 1 fila" : `Sobran ${pasteAsk.fit.extra} filas`}.
+      </p>
+    {/if}
+    {#snippet footer()}
+      <Button onclick={() => (pasteAsk = null)}>Cancelar</Button>
+      <Button onclick={() => pasteAsk && void runPaste(pasteAsk.start, pasteAsk.matrix, false)}>
+        Solo las que caben
+      </Button>
+      <Button
+        variant="secondary"
+        onclick={() => pasteAsk && void runPaste(pasteAsk.start, pasteAsk.matrix, true)}
+      >
+        Crear {pasteAsk?.fit.extra ?? 0} filas
+      </Button>
+    {/snippet}
+  </Modal>
 
   {#if columnModal}
     <ColumnModal
@@ -1978,6 +2461,11 @@
       background-color: color-mix(in srgb, var(--bg-level1) 97%, var(--text-primary));
     }
 
+    /*
+      Solo viste las dos columnas fijas: las de datos las dibuja `GridCell`, que
+      lleva las mismas medidas en su propia hoja porque el CSS de un componente
+      no alcanza al marcado de otro.
+    */
     & .grid-db-data-cell {
       height: 2.25rem;
       vertical-align: middle;
@@ -1985,12 +2473,10 @@
       &.grid-db-data-cell-marked {
         background: color-mix(in oklab, var(--text-primary) 4%, transparent);
       }
+    }
 
-      &.grid-db-data-cell-idle {
-        &:global(.group:hover) & {
-          background: var(--bg-hover);
-        }
-      }
+    & tr:hover > .grid-db-data-cell-idle {
+      background: var(--bg-hover);
     }
 
     & .grid-db-checkbox-data {
@@ -2001,22 +2487,58 @@
       text-align: center;
     }
 
-    & .grid-db-read-cell {
-      padding: 0;
+    /*
+      La columna que abre la fila. Va fija junto a la casilla: es lo que
+      sustituye al clic sobre cualquier celda, que ahora elige en vez de abrir,
+      y desplazandose a lo ancho tiene que seguir estando donde se la busca.
+    */
+    & .grid-db-expand-cell {
+      position: sticky;
+      left: 2.5rem;
+      z-index: 30;
+      width: 2rem;
+      background-color: color-mix(in srgb, var(--bg-level1) 97%, var(--text-primary));
+    }
 
-      & .grid-db-cell-btn {
-        display: flex;
-        height: 2.25rem;
-        width: 100%;
-        cursor: pointer;
-        align-items: center;
-        padding: 0 var(--sp-12);
-        text-align: left;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    & .grid-db-expand-data {
+      position: sticky;
+      left: 2.5rem;
+      z-index: 10;
+      width: 2rem;
+      padding: 0;
+      text-align: center;
+    }
+
+    & .grid-db-expand-btn {
+      display: inline-flex;
+      height: 1.5rem;
+      width: 1.5rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+
+      /* Se ve al pasar por la fila; con el teclado, siempre que reciba el foco. */
+      opacity: 0;
+
+      &:focus-visible {
+        opacity: 1;
+      }
+
+      &:hover {
+        background: var(--bg-field);
+        color: var(--text-primary);
       }
     }
+
+    & .group:hover .grid-db-expand-btn {
+      opacity: 1;
+    }
+  }
+
+  .grid-db-paste-message {
+    color: var(--text-secondary);
   }
 
   /* -------------------------------------------------- */
