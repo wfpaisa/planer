@@ -56,7 +56,7 @@
       {disabled}
       onclick={toggle}
       aria-label="Elegir modelo y cuánto piensa"
-      class="btn-pick-ai-model flex items-center gap-1"
+      class="btn-pick-ai-model btn sm"
     >
       <Icon name="ai-brain-03" size={16} class="model-thinking-icon" />
       <span class="model-name">{model ? aiModelLabel(model) : "Sin modelo"}</span>
@@ -119,19 +119,10 @@
   }
 
   .btn-pick-ai-model {
-    min-width: 0;
-    cursor: pointer;
-    border-radius: 62.5rem;
-    padding: var(--sp-4) var(--sp-8);
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    border-radius: var(--radius-lg);
     color: var(--text-secondary);
-    transition:
-      background-color 150ms,
-      color 150ms;
 
     &:hover:not(:disabled) {
-      background: var(--bg-field);
       color: var(--text-primary);
     }
 

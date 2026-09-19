@@ -13,11 +13,17 @@
 <script lang="ts" module>
   export type ToastKind = "error" | "warning" | "success" | "info";
 
-  /** Lo que se ve por cada tipo: el tono de la alerta del sistema y su icono. */
+  /**
+   * Lo que se ve por cada tipo: el tono de la alerta del sistema y su icono.
+   *
+   * Los cuatro son los del catalogo, los mismos que ensena `/demo`: un icono
+   * distinto por tono y siempre el mismo para el mismo tono, aqui y en los
+   * avisos en linea de cualquier pantalla.
+   */
   const KINDS: Record<ToastKind, { className: string; icon: string }> = {
     error: { className: "danger", icon: "cancel-circle" },
     warning: { className: "warn", icon: "alert-02" },
-    success: { className: "ok", icon: "tick-02" },
+    success: { className: "ok", icon: "checkmark-circle-02" },
     info: { className: "info", icon: "information-circle" },
   };
 
@@ -121,9 +127,10 @@
     role={kind === "success" ? "status" : "alert"}
     onmouseenter={() => (hover = true)}
     onmouseleave={() => (hover = false)}
-    class="notice-toast toast-item alert w-full items-start gap-2 {look.className}"
+    class="notice-toast toast-item alert w-full {look.className}"
   >
-    <Icon name={look.icon} size={14} class="icon-notice-toast" />
+    <!-- Sin medida: `.alert i` la pone, y asi el icono acompana al texto. -->
+    <Icon name={look.icon} class="icon-notice-toast" />
     <!--
       `select-text` y `cursor-text`: el texto del aviso se copia arrastrando,
       como cualquier otro texto. Es lo unico que hay que hacer con el --el
@@ -171,15 +178,13 @@
   .notice-toast {
     max-width: 24rem;
     padding: var(--sp-8) var(--sp-12);
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    /* Mas grande que el `.alert` del catalogo (--text-xs) a proposito: este se
+       lee de reojo y desde lejos, en la esquina y sobre lo que se este
+       haciendo. */
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
     box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.18);
     pointer-events: auto;
-
-    & :global(.icon-notice-toast) {
-      margin-top: 0.0625rem;
-      flex-shrink: 0;
-    }
 
     & .notice-toast-body {
       min-width: 0;

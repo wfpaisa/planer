@@ -65,7 +65,11 @@ La propia escritura recarga la cuadrícula al terminar. Si `load()` descartara l
 
 ### Dónde se ofrece
 
-Botón **Deshacer** dentro del aviso que ya sale tras pegar o vaciar (`SuccessNote` y `WarnNote` aceptan contenido), y `Ctrl+Z` en la cuadrícula. Sin botón en la barra de herramientas: la barra es de acciones sobre la tabla y un botón que casi siempre está apagado es ruido. El aviso se va solo a los pocos segundos; el atajo sigue valiendo mientras lo recordado viva.
+Botón **Deshacer** en la barra de herramientas de la tabla —a la derecha de Roles, o de Refrescar cuando la tabla no es la de personas— y `Ctrl+Z` / `Cmd+Z` en la cuadrícula. Icono y etiqueta, con la etiqueta escondiéndose cuando la barra aprieta, igual que sus vecinos.
+
+Va en la barra y no dentro del aviso: el aviso se va solo a los pocos segundos y con él se iría la única forma visible de deshacer, justo cuando alguien está mirando lo que acaba de pasar y decidiendo. La barra está siempre en el mismo sitio.
+
+Se muestra solo cuando hay algo que deshacer. Es la única acción de la barra que existe por algo que se acaba de hacer, y verla aparecer es parte de decir que se puede deshacer; un botón apagado de forma permanente es ruido en una barra donde todo lo demás siempre sirve.
 
 ## Risks / Trade-offs
 

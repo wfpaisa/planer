@@ -4,7 +4,7 @@
    Una pagina recibe las mismas hojas que el panel (theme, paletas,
    catalogo, compat y contract, servidas juntas en
    `/plane/estilos.css`). Esto es lo unico que se le anade, y son
-   cuatro cosas que ahi si hacen falta y en el panel no:
+   cinco cosas que ahi si hacen falta y en el panel no:
 
    1. El documento es la pantalla entera, no un trozo de otra.
    2. Una etiqueta desnuda tiene que verse bien. El panel escribe
@@ -18,7 +18,10 @@
    3. `hidden` tiene que esconder. El panel esconde con logica --lo
       que no toca no se dibuja-- y una pagina esconde con el
       atributo, que el catalogo anula sin avisar.
-   4. Los nombres que las paginas de antes usaban (`plane-tarjeta`,
+   4. Dos campos seguidos tienen que separarse. La separacion la
+      pone el contenedor, y el que agrupa campos en una pagina sale
+      a menudo como un <div> sin nada: aqui se apila el solo.
+   5. Los nombres que las paginas de antes usaban (`plane-tarjeta`,
       `plane-boton`) siguen valiendo, apuntando al catalogo.
    ========================================================== */
 
@@ -142,6 +145,44 @@ textarea:not([class]) {
   padding: 0.5rem 0.75rem;
   line-height: 1.5;
   resize: vertical;
+}
+
+/* ----------------------------------------------------------
+   Varios campos seguidos
+   ----------------------------------------------------------
+   Un `.field` separa sus propias partes --etiqueta, control y
+   ayuda-- y nada mas: la separacion con el campo de al lado la
+   pone el contenedor. El panel la escribe siempre porque sus
+   contenedores los escribe una persona; una pagina la escribe un
+   modelo, y el agrupador que se rellena desde JavaScript sale
+   como un `<div>` sin nada. Entonces los campos salen pegados,
+   que es lo unico del formulario que se ve mal sin que nada
+   falle.
+
+   Asi que el contenedor que tiene dos campos seguidos los apila
+   el solo. Lo que decide es `:has()`, mirando a los hijos
+   directos: es el unico modo de que la separacion la ponga quien
+   puede ponerla --el padre-- a partir de lo que hay dentro.
+
+   VA CON PESO CERO, y eso es el todo de la regla. `:where()`
+   deja el selector en (0,0,0), asi que pierde contra cualquier
+   clase: la que trae el catalogo --`.field-row` los pone en
+   fila, `.modal-body` los separa con su medida-- y la que se
+   escriba en la pagina --un grid propio, otro `gap`--. Solo
+   alcanza a lo que nadie coloco, que es justo lo que esta roto.
+   Es el caso contrario al de los botones de aqui arriba, donde
+   `:where()` no valia: alli habia que ganarle al reset, y aqui
+   hay que perder contra todos.
+
+   La contrapartida es que `.field-row` tiene que declarar
+   `flex-direction: row` en el catalogo. Se apoyaba en el valor
+   inicial, y el valor inicial no le gana ni a un peso cero.
+   ---------------------------------------------------------- */
+
+:where(div, section, form, fieldset, li):where(:has(> .field + .field)) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
 }
 
 /* Una tabla suelta se lee como la del catalogo: sin rayas verticales,

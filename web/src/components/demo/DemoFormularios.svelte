@@ -62,6 +62,36 @@
         </div>
       </div>
     </article>
+    <!-- Field stack / field row -->
+    <article class="card gallery-item wide">
+      {@render head(
+        "Grupo de campos",
+        "Varios campos juntos, apilados o en fila. Ej.: los datos de un paciente",
+      )}
+      <div class="card-body">
+        <div class="field-stack">
+          <div class="field">
+            <label for="demoStackNombre">Nombre</label>
+            <input type="text" id="demoStackNombre" value="Ana Restrepo" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="demoStackCedula">Cédula</label>
+              <input type="text" id="demoStackCedula" value="71543298" />
+            </div>
+            <div class="field">
+              <label for="demoStackTel">Teléfono</label>
+              <input type="tel" id="demoStackTel" value="300 555 1234" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="demoStackNota">Nota</label>
+            <textarea id="demoStackNota" rows="2">Viene remitida por su EPS.</textarea>
+            <span class="field-hint">La ve quien atiende la cita.</span>
+          </div>
+        </div>
+      </div>
+    </article>
     <!-- Join -->
     <article class="card gallery-item wide">
       {@render head("Campo con botón", "Entrada y botón pegados. Ej.: el enlace al publicar")}

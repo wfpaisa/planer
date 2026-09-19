@@ -196,6 +196,16 @@
   --font-family: "Quicksand", system-ui, -apple-system, sans-serif;
   --font-mono: "Reddit Mono", monospace;
 
+  /*
+   * Cuanto crece la letra de una aplicacion sobre la del panel. Aqui vale
+   * uno --el panel no escala-- y lo pisa `lib/appTheme.ts` en el contenedor
+   * de la aplicacion cuando quien la construye eligio otro tamano. Se
+   * declara aunque casi nadie lo lea: quien necesita resolver "un rem de la
+   * aplicacion" (el marco de una pagina, ver `HtmlFrame`) no puede depender
+   * de que el atributo inline exista.
+   */
+  --font-scale: 1;
+
   /*Wrapper - container*/
   --container: 90rem; /*1440px*/
 }

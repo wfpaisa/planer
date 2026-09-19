@@ -365,6 +365,7 @@ The foot anchors itself to the bottom, so two cards side by side line their feet
   <select id="estado"><option>All</option><option>Paid</option></select>
 </div>
 
+<div class="field-stack">…fields one under another…</div>
 <div class="field-row">…two fields side by side…</div>
 
 <div class="join">
@@ -372,6 +373,8 @@ The foot anchors itself to the bottom, so two cards side by side line their feet
   <button class="btn btn-primary"><i class="hgi-stroke hgi-search-01"></i>Search</button>
 </div>
 \`\`\`
+
+**Two fields in a row do not separate on their own.** A \`.field\` only spaces its own parts --label, control, hint--, so every container holding more than one field carries \`.field-stack\` (one under another) or \`.field-row\` (side by side). This includes the container you fill from JavaScript: \`<div id="ed-campos" class="field-stack"></div>\`, never a bare \`<div>\`. Write it even where it seems unnecessary: \`.modal-body\` happens to space the fields hanging directly off it, \`.card-body\` does not, and telling the two apart is not worth the mistake.
 
 Inside a \`.field\` the control needs no class. **Loose** --a search box in a bar, a cell being edited-- it takes \`class="field-control"\`, which is the same dress on its own; add \`sm\` for the short size. A checkbox or a radio has its own markup:
 
@@ -508,6 +511,8 @@ The alert has four tones: \`info\`, \`ok\`, \`warn\`, \`danger\`.
 \`.menu\` with \`.menu-btn\` and \`.menu-sep\` for a dropdown (native \`popover\`, no JavaScript), \`.modal\` and \`.drawer\` with \`.modal-head\` / \`.modal-body\` / \`.modal-foot\` inside, \`.crumbs\` for a breadcrumb, \`.steps\` for a flow, \`.pager\` for pages of results, \`.divider\` for a separating line (\`.divider-text\` when it carries a word, like "o continúa con"), \`.link\` for a link with an outward icon, \`.fieldset\` with its \`<legend>\`, \`.tip\` with \`data-tip="…"\` for a hint on hover, \`.dots\` and \`.legend\` with \`.legend-item\` for a chart's key, \`.rating\` (hidden radios plus star labels, the same mechanism as \`.tabs\`) for a star score, \`.tag-remove\` for the little cross on a dismissible filter tag, \`.swatch\` for a small colour square beside a chart's own legend (\`<i class="swatch" style="background: var(--chart-1)">\`), \`.range-val\` for the live value beside a \`type="range"\` input, and \`.btn-warning\` for a button whose action is pending, not wrong.
 
 \`.toast\` is a notice that appears over the screen rather than inside it, built the same \`popover\` way as \`.menu\`: give it an \`id\`, open it with \`popovertarget="ese-id"\` on the button that triggers it, and close it with a \`.close\` button carrying \`popovertargetaction="hide"\` pointed at the same id. Its tones are \`ok\`, \`info\`, \`warn\` and \`danger\`, same meaning as \`.alert\`.
+
+\`.modal\`, \`.drawer\`, \`.menu\` and \`.toast\` are \`popover\`s: the browser draws them in a layer of its own, and they are written as **siblings of the screen's container, not inside it**. A rule of yours that begins with that container --\`.pantalla .field-control { … }\`-- therefore reaches nothing inside them: the modal quietly keeps the catalogue's own measurements while the rest of the screen carries yours, and nothing warns you. A rule that has to reach both is written without the prefix.
 
 A small status dot that pulses --something changed and has not been looked at yet-- is \`.badge-success\` / \`.badge-warning\` / \`.badge-error\` added beside an icon or a button, not a tag of its own.
 
@@ -954,7 +959,11 @@ A single complete HTML file, with its \`<head>\` and its \`<body>\`, and its \`<
 
 The stylesheet goes in a single \`<style>\`, in this order: the few values of your own that you need, then the layout of the screen, then each piece. Classes are named in Spanish and with meaning --\`cabecera\`, \`lista-citas\`, \`tarjeta-total\`--, never \`div1\` or \`col-md-6\`.
 
-Do not repeat what the platform already provides: the \`box-sizing\`, the typeface, the text colour and the starting look of buttons, fields and tables arrive in Planer's stylesheet. Write only what changes.`;
+Do not repeat what the platform already provides: the \`box-sizing\`, the typeface, the text colour and the starting look of buttons, fields and tables arrive in Planer's stylesheet. Write only what changes.
+
+The type scale is the clearest case. **Do not rewrite the size of a field, a label, a button or a table cell**, neither with a literal (\`font-size: 1.0625rem\`) nor with a token: the catalogue already sizes them all, together. If the screen reads too small, the control for that is the app's own *Tamaño de letra*, which scales every rem at once; a size rewritten by hand stops answering to it. Type of your own belongs to what the catalogue does not dress --the screen's title, a figure that matters, a caption-- and even there it is written with \`var(--type-*)\`.
+
+The same goes for the height of a control: \`.field-control\` sets it with \`height\`, so adding \`padding\` to make a field taller changes nothing.`;
 }
 
 /** La lista de tablas, con el nombre logico que usara el HTML. */

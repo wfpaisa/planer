@@ -48,10 +48,10 @@
         ? "Plan cerrado: decide en la tarjeta del plan"
         : "Elegir como trabaja la IA"}
       aria-label="Elegir como trabaja la IA"
-      class="btn-pick-ai-mode flex items-center gap-1"
+      class="btn-pick-ai-mode btn sm"
       class:on={plan}
     >
-      <Icon name={plan ? "route-01" : "ai-magic"} size={15} class="mode-icon" />
+      <Icon name={plan ? "route-01" : "zap"} size={16} class="mode-icon" />
       <span class="mode-name">{plan ? "Plan" : "Crear"}</span>
       <Icon name="chevron-down" size={12} class="mode-chevron" />
     </button>
@@ -95,19 +95,10 @@
   }
 
   .btn-pick-ai-mode {
-    min-width: 0;
-    cursor: pointer;
-    border-radius: 62.5rem;
-    padding: var(--sp-4) var(--sp-8);
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    border-radius: var(--radius-lg);
     color: var(--text-secondary);
-    transition:
-      background-color 150ms,
-      color 150ms;
 
     &:hover:not(:disabled) {
-      background: var(--bg-field);
       color: var(--text-primary);
     }
 

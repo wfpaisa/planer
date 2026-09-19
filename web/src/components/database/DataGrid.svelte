@@ -79,6 +79,7 @@
     type ExportFormat,
     exportSelected as exportSelectedRows,
   } from "../../lib/dataGridExport";
+  import { type GridUndo, revertGrid, undoFits, undoSummary } from "../../lib/dataGridUndo";
   import { ROW_ORDER } from "../../lib/dropFiles";
   import { type CellRef, createSelection } from "../../lib/gridSelection.svelte";
   import { DEFAULT_TABLE_ICON } from "../../lib/icons";
@@ -424,6 +425,13 @@
      */
     selection.clear();
     editing = null;
+    /*
+     * Y con el cursor se va lo que se podia deshacer: la escritura anterior se
+     * hizo sobre otras filas de las que ahora se van a ver, y aunque la vuelta
+     * atras vaya por id, ofrecerla sobre una pantalla que ya no es la suya seria
+     * mentir sobre lo que va a cambiar.
+     */
+    undoable = null;
     void load();
   });
 
@@ -443,6 +451,9 @@
   async function refresh() {
     if (refreshing) return;
     refreshing = true;
+    // Se vuelve a pedir todo porque algo cambio fuera de esta pantalla: lo que
+    // se recordaba para deshacer se escribio sobre lo de antes.
+    undoable = null;
     try {
       await onSchemaChange();
       // Las celdas de persona de cualquier tabla leen esta lista; quien acaba
@@ -552,6 +563,21 @@
   /** Lo pegado que no cabe, esperando a que se diga que hacer con ello. */
   let pasteAsk = $state<{ start: CellRef; matrix: string[][]; fit: PasteFit } | null>(null);
   /**
+   * El inverso de la ultima escritura hecha desde aqui, mientras se pueda usar.
+   *
+   * Un solo paso: cada escritura reemplaza al anterior y deshacer lo gasta. Lo
+   * que lo tira esta en el efecto que vuelve a pedir las filas --otra pagina,
+   * otro orden, otro filtro, otra tabla-- y en lo que escribe por otra puerta
+   * --importar, borrar filas--. Ver `dataGridUndo.ts`.
+   */
+  let undoable = $state<GridUndo | null>(null);
+  /**
+   * Si lo recordado todavia se puede escribir: es de esta tabla y sus columnas
+   * siguen siendo las de entonces. Cambiar una columna no hace falta vigilarlo
+   * aparte, la firma ya no coincide.
+   */
+  const canUndo = $derived(undoFits(table, undoable));
+  /**
    * Donde se escuchan las teclas y el portapapeles.
    *
    * En la caja de la cuadricula y no en la ventana: con el cajon lateral o un
@@ -594,16 +620,26 @@
       dragWidth = { name, width };
       return;
     }
-    dragWidth = null;
     const next = { ...widths };
     if (width > 0) next[name] = width;
     else delete next[name];
-    if (next[name] === widths[name]) return;
+    if (next[name] === widths[name]) {
+      dragWidth = null;
+      return;
+    }
+    /*
+     * El ancho arrastrado se sostiene hasta que la tabla recargada ya lo trae.
+     * Soltarlo aqui devolvia la columna al ancho viejo durante lo que tarda el
+     * guardado, y se veia un brinco al soltar el raton.
+     */
+    dragWidth = { name, width };
     try {
       await patch(`/api/tables/${table.id}`, { meta: { ...table.meta, widths: next } });
       await onSchemaChange();
     } catch (err) {
       error = errorMessage(err);
+    } finally {
+      dragWidth = null;
     }
   }
 
@@ -693,7 +729,7 @@
     writing = true;
     error = "";
     try {
-      const saved = await writeCell({
+      const { row: saved, undo } = await writeCell({
         table,
         tables,
         people: people.list,
@@ -702,6 +738,7 @@
         value,
         overlay,
       });
+      undoable = undo;
       /*
        * En personas, el correo, el nivel y los roles no vuelven con la fila: no
        * estan en la coleccion. Sin reponerlos, guardar una columna propia
@@ -766,6 +803,9 @@
       const report = await clearRange({ table, rows, fields: visible, range });
       editNote = rangeSummary(report, "vaciaron");
       await load();
+      // Despues de recargar y no antes: la recarga no toca lo recordado, pero
+      // el efecto que la dispara si, y el orden deja claro cual manda.
+      undoable = report.undo ?? null;
     } catch (err) {
       error = errorMessage(err);
     } finally {
@@ -791,15 +831,43 @@
         createMissing,
       });
       editNote = rangeSummary(report, "pegaron");
+      const undo = report.undo ?? null;
       /*
        * Se vuelve a leer y no se remienda la grilla a mano: una relacion se
        * guarda como el id del registro que encontro y una fecha como la
        * normalizo la base, asi que lo que hay que ensenar no es lo que se pego.
        */
       await load();
+      undoable = undo;
     } catch (err) {
       error = errorMessage(err);
     } finally {
+      writing = false;
+    }
+  }
+
+  /**
+   * Deshace la ultima escritura hecha desde la cuadricula.
+   *
+   * Es una escritura mas, no una vuelta atras de la base: se manda el valor que
+   * habia. Por eso se gasta al usarla --volver a mandarla escribiria otra vez
+   * lo mismo sobre lo que ya se repuso-- y por eso se vuelve a leer la tabla al
+   * terminar, igual que despues de pegar.
+   */
+  async function undoLast() {
+    const undo = undoable;
+    if (!undoFits(table, undo)) return;
+    writing = true;
+    error = "";
+    editNote = null;
+    try {
+      const report = await revertGrid(undo);
+      editNote = undoSummary(report);
+      await load();
+    } catch (err) {
+      error = errorMessage(err);
+    } finally {
+      undoable = null;
       writing = false;
     }
   }
@@ -857,6 +925,19 @@
       return;
     }
 
+    /*
+     * Deshacer. Con una celda abierta no se llega hasta aqui --la salida de
+     * arriba-- y ahi el atajo es el del propio campo de texto, que es lo que se
+     * espera mientras se escribe. Con Mayusculas no se hace nada: eso es
+     * rehacer, y todavia no existe.
+     */
+    if (meta && !e.shiftKey && e.key.toLowerCase() === "z") {
+      if (!canUndo) return;
+      e.preventDefault();
+      void undoLast();
+      return;
+    }
+
     const at = selection.active;
     if (!at) return;
 
@@ -910,6 +991,10 @@
   /** Mete en la grilla lo que el panel acaba de guardar. */
   function rowSaved(saved: Row, created: boolean) {
     error = "";
+    // El cajon lateral escribe la fila entera por su cuenta: lo que se
+    // recordaba para deshacer puede ser de esa misma fila, y reponerlo borraria
+    // tambien lo que se acaba de guardar ahi.
+    undoable = null;
     /*
      * En personas, el correo, el nivel y los roles no estan en la fila que
      * vuelve: viven en la cuenta y en el enlace con la aplicacion, y de ahi los
@@ -1100,6 +1185,9 @@
   async function confirmDeleteRows() {
     deleting = true;
     error = "";
+    // Borrar no se deshace, y lo que se recordaba puede ser de una fila que se
+    // va con el borrado.
+    undoable = null;
     try {
       const ids = [...selected];
       let failed = 0;
@@ -1472,7 +1560,7 @@
 
     <!--
       Traer lo de fuera sin recargar el sitio: columnas, filas y enlaces sin
-      dueno. Va sin etiqueta --el icono se lee solo, y la barra ya aprieta-- y
+      dueno. La etiqueta se esconde cuando la barra aprieta, como las demas, y
       mientras trabaja gira, que es lo que hace `loading` en el sistema.
     -->
     <Button
@@ -1486,6 +1574,7 @@
       class="grid-db-tool-action"
     >
       <Icon name="arrow-reload-horizontal" size={16} />
+      <span class="grid-db-refresh-label">Refrescar</span>
     </Button>
 
     <!--
@@ -1504,6 +1593,27 @@
       >
         <Icon name={ROLE_ICON} size={16} />
         <span class="grid-db-roles-label">Roles</span>
+      </Button>
+    {/if}
+
+    <!--
+      Deshacer la ultima escritura hecha desde la cuadricula. Solo esta cuando
+      hay algo que deshacer: es la unica accion de la barra que aparece por algo
+      que se acaba de hacer, y verla salir es parte de decir que se puede.
+    -->
+    {#if canUndo}
+      <Button
+        size="sm"
+        variant="ghost"
+        buttonClass="btn-undo-write"
+        disabled={writing}
+        onclick={() => void undoLast()}
+        tip="Deshacer lo último que se escribió"
+        aria-label="Deshacer lo último que se escribió"
+        class="grid-db-tool-action"
+      >
+        <Icon name="undo-02" size={16} />
+        <span class="grid-db-undo-label">Deshacer</span>
       </Button>
     {/if}
 
@@ -2095,6 +2205,8 @@
       people={people.list}
       onClose={() => (seeOrphans = false)}
       onChanged={async () => {
+        // Enlazar valores sueltos escribe filas por otra puerta.
+        undoable = null;
         await load();
         await onSchemaChange();
         orphans = await loadOrphans(table);
@@ -2113,6 +2225,9 @@
       }}
       onDone={async (note) => {
         page = 1;
+        // Una importacion no se deshace desde aqui, y puede haber escrito sobre
+        // las mismas filas.
+        undoable = null;
         await load();
         await onSchemaChange();
         // Importar personas no termina al guardarlas: hay filas de otras tablas
@@ -2349,7 +2464,9 @@
     & :global(.grid-db-sort-label),
     & :global(.grid-db-columns-label),
     & :global(.grid-db-add-column-label),
+    & :global(.grid-db-refresh-label),
     & :global(.grid-db-roles-label),
+    & :global(.grid-db-undo-label),
     & :global(.grid-db-export-label),
     & :global(.grid-db-import-label),
     & :global(.grid-db-delete-label),

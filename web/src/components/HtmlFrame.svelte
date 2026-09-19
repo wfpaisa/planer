@@ -761,7 +761,18 @@
     }
   }
 
+  /*
+   * El contenedor es quien resuelve cuanto vale un rem dentro del documento:
+   * `readTheme` mide su `font-size` y lo manda como el de la raiz de la
+   * pagina. Sin esta linea heredaba el del panel --`body` esta en
+   * `--text-sm`-- y la pagina entera se dibujaba al 87,5%: un campo del
+   * catalogo salia a 12,25px y su etiqueta a 10,5px. Con `1rem` la medida
+   * sale de la raiz del panel, y `--font-scale` anade el tamano propio de la
+   * aplicacion cuando lo tiene (ver `lib/appTheme.ts`).
+   */
   .holder-frame-html {
+    font-size: calc(1rem * var(--font-scale));
+
     &.frame-holder-fill {
       height: 100%;
     }

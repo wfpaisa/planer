@@ -6,7 +6,7 @@ La cuadrícula SHALL recordar la última escritura hecha desde ella —pegar un 
 
 Se SHALL recordar un solo nivel: deshacer no se encadena y no hay rehacer.
 
-Deshacer SHALL ofrecerse desde dos sitios: un botón **Deshacer** en el aviso que se muestra tras pegar o vaciar, y el atajo `Ctrl+Z` (`Cmd+Z`) con el foco en la cuadrícula. El atajo SHALL NO actuar mientras hay una celda abierta para escribir: ahí es el deshacer del propio campo de texto.
+Deshacer SHALL ofrecerse desde dos sitios: un botón **Deshacer** en la barra de herramientas de la tabla, a la derecha de Roles en la tabla de personas y de Refrescar en cualquier otra, y el atajo `Ctrl+Z` en Windows y Linux o `Cmd+Z` en Mac, con el foco en la cuadrícula. El botón SHALL mostrarse solo cuando hay algo que deshacer, y SHALL desaparecer cuando no lo hay. El atajo SHALL NO actuar mientras hay una celda abierta para escribir: ahí es el deshacer del propio campo de texto.
 
 El resultado de deshacer SHALL contarse igual que el de la escritura que revierte: cuántas celdas volvieron, cuántas filas se borraron y qué quedó fuera.
 
@@ -30,10 +30,15 @@ El resultado de deshacer SHALL contarse igual que el de la escritura que reviert
 - **WHEN** el constructor escribe una celda y pulsa `Ctrl+Z` con el foco en la cuadrícula
 - **THEN** la celda vuelve a su valor anterior
 
+#### Scenario: Sin nada que deshacer no hay botón
+
+- **WHEN** el constructor abre una tabla y todavía no ha escrito nada desde la cuadrícula
+- **THEN** el botón de deshacer no está en la barra
+
 #### Scenario: Deshacer solo una vez
 
-- **WHEN** el constructor deshace una escritura y vuelve a pulsar `Ctrl+Z` sin haber escrito nada más
-- **THEN** no se deshace nada más y no se muestra la opción de deshacer
+- **WHEN** el constructor deshace una escritura y vuelve a pulsar el atajo sin haber escrito nada más
+- **THEN** no se deshace nada más y el botón desaparece de la barra
 
 #### Scenario: El atajo no se roba al editar una celda
 
@@ -61,17 +66,17 @@ Deshacer SHALL escribir de nuevo sobre la tabla, sin comprobar si alguien más t
 #### Scenario: Cambiar de página olvida lo recordado
 
 - **WHEN** el constructor pega un rango y luego cambia de página, de filtro, de búsqueda o de orden
-- **THEN** la opción de deshacer deja de estar disponible
+- **THEN** el botón de deshacer desaparece y el atajo deja de hacer nada
 
 #### Scenario: Cambiar de tabla olvida lo recordado
 
 - **WHEN** el constructor pega un rango y abre otra tabla
-- **THEN** la opción de deshacer deja de estar disponible
+- **THEN** el botón de deshacer desaparece y el atajo deja de hacer nada
 
 #### Scenario: Cambiar las columnas olvida lo recordado
 
 - **WHEN** el constructor pega un rango y luego añade, borra o cambia una columna de la tabla
-- **THEN** la opción de deshacer deja de estar disponible
+- **THEN** el botón de deshacer desaparece y el atajo deja de hacer nada
 
 #### Scenario: Ordenar no desplaza la vuelta atrás
 
@@ -89,14 +94,14 @@ Las columnas de la tabla de personas que no viven en la colección —el correo,
 #### Scenario: Borrar filas no ofrece deshacer
 
 - **WHEN** el constructor borra las filas seleccionadas
-- **THEN** no se ofrece deshacer y el aviso no cambia
+- **THEN** el botón de deshacer no aparece y el aviso del borrado no cambia
 
 #### Scenario: Importar no ofrece deshacer
 
 - **WHEN** el constructor importa un archivo sobre la tabla abierta
-- **THEN** no se ofrece deshacer
+- **THEN** el botón de deshacer no aparece
 
 #### Scenario: El correo de una persona no ofrece deshacer
 
 - **WHEN** el constructor cambia desde su celda el correo, el nivel o los roles de una fila de personas
-- **THEN** no se ofrece deshacer para ese cambio
+- **THEN** el botón de deshacer no aparece para ese cambio

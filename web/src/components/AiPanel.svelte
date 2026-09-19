@@ -1670,14 +1670,14 @@
                 {:else}
                   <Button
                     variant="secondary"
-                    size="sm"
+                    size="md"
                     disabled={!canSend}
                     tip="Enviar (Enter)"
                     tipSide="left"
                     class="btn-icon btn-rounded btn-send-ai"
                     onclick={() => void send(chat.draft)}
                   >
-                    <Icon name="arrow-up-01" size={16} />
+                    <Icon name="arrow-up-01" size={24} />
                   </Button>
                 {/if}
               </div>
@@ -1904,7 +1904,7 @@
     white-space: pre-wrap;
     border-radius: var(--radius-lg);
     border-bottom-right-radius: 0px;
-    background: color-mix(in srgb, var(--accent) 40%, var(--bg-field));
+    background: color-mix(in srgb, var(--accent) 50%, #000);
     padding: var(--sp-8) var(--sp-14);
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);

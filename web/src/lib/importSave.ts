@@ -245,12 +245,17 @@ export function buildRequests(opts: {
  *
  * `leftover` entra con las que ni se intentaron --traian error de conversion--
  * y sale con esas mas las que fallaron al escribir.
+ *
+ * `created` es opcional y se llena aqui, igual que `leftover`: por cada fila
+ * que nacio, el id que le puso la base. Solo lo pide quien tenga que volver
+ * sobre ella --deshacer un pegado que creo filas es borrarlas-- y por eso la
+ * importacion no lo pasa.
  */
 export async function writeBatches(
   requests: ImportRequest[],
-  opts: { continueOnError: boolean; leftover: Set<number> },
+  opts: { continueOnError: boolean; leftover: Set<number>; created?: Map<number, string> },
 ): Promise<Set<number>> {
-  const { continueOnError, leftover } = opts;
+  const { continueOnError, leftover, created } = opts;
   let failures = 0;
   let parado = -1;
 
@@ -290,13 +295,21 @@ export async function writeBatches(
         errorMessage({ message: `La API de lote respondio ${res.status}`, response: fallo }),
       );
     }
-    const data = (await res.json()) as Record<string, { status: number }>;
+    const data = (await res.json()) as Record<string, { status: number; body?: { id?: string } }>;
     // La respuesta viene en el orden del tramo, asi que la posicion dice de
     // que pedido --y de que fila del archivo-- habla cada resultado.
     for (const [key, r] of Object.entries(data)) {
-      if (r.status < 400) continue;
+      const pedido = chunk[Number(key)];
+      if (r.status < 400) {
+        // El id de una fila recien nacida no esta en ningun otro sitio: el
+        // pedido lo mando sin el y la base se lo puso al guardarla.
+        if (created && pedido?.method === "POST" && pedido.row >= 0 && r.body?.id) {
+          created.set(pedido.row, r.body.id);
+        }
+        continue;
+      }
       failures++;
-      const row = chunk[Number(key)]?.row ?? -1;
+      const row = pedido?.row ?? -1;
       if (row >= 0) leftover.add(row);
     }
     if (failures > 0 && !continueOnError) {

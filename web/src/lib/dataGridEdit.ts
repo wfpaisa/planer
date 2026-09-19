@@ -13,6 +13,11 @@
  * de relacion queda enlazada al registro que le toca --o con su valor a la
  * vista, sin enlace, que tambien es un estado valido--. Sin eso, pegar una
  * columna desde Excel llenaria la tabla de texto en columnas que no lo son.
+ *
+ * Cada escritura devuelve ademas su inverso: los mismos campos que mando, con
+ * el valor que la fila tenia antes. Se arma aqui y no en la cuadricula porque
+ * solo aqui se sabe que campos viajan --una relacion son dos-- y se tiene la
+ * fila de antes a mano, sin volver a pedirla. Ver `dataGridUndo.ts`.
  */
 import { isOverlayField, isPeopleTable, MEMBER_FIELD } from "@shared/people";
 import { type Match, relationCellValues } from "@shared/relations";
@@ -20,6 +25,7 @@ import { type AppPerson, type FieldDef, isRelationField, type TableRecord } from
 
 import type { Row } from "./cellValues";
 import { isSystem } from "./dataGridColumns";
+import { columnSignature, type GridUndo, type UndoRow } from "./dataGridUndo";
 import type { CellRange, CellRef } from "./gridSelection.svelte";
 import { convertValue, matchRelationColumns } from "./importParse";
 import { type ImportRequest, writeBatches } from "./importSave";
@@ -66,17 +72,35 @@ function columnsOf(fields: FieldDef[], range: CellRange): { index: number; field
   return out;
 }
 
+/**
+ * Lo que la fila tenia en los campos que se van a escribir.
+ *
+ * Se recorre el cuerpo del pedido y no las columnas del rango: una relacion
+ * escribe dos campos por una sola celda, y solo el cuerpo sabe cuales. Un campo
+ * que la fila no trae vuelve como vacio, que es lo que era.
+ */
+function previousValues(row: Row, body: Record<string, unknown>): Record<string, unknown> {
+  const before: Record<string, unknown> = {};
+  for (const key of Object.keys(body)) before[key] = row[key] ?? null;
+  return before;
+}
+
 /* ------------------------------------------------------------------ */
 /* Una celda                                                            */
 /* ------------------------------------------------------------------ */
 
 /**
- * Guarda lo que se escribio en una celda y devuelve la fila como quedo.
+ * Guarda lo que se escribio en una celda y devuelve la fila como quedo, con el
+ * inverso de lo que acaba de escribir.
  *
  * Por el mismo camino que el cajon lateral: lo que se escribe en una relacion
  * es la llave, y `resolveRowValues` decide cual de sus dos columnas reales se
  * llena. La fila vuelve con los enlaces expandidos porque la celda ensena la
  * llave del registro, no su id.
+ *
+ * El correo, el nivel y los roles de una persona vuelven sin inverso: no se
+ * escriben en la coleccion sino por la API de miembros, y esa puerta no tiene
+ * vuelta atras en bloque.
  */
 export async function writeCell(opts: {
   table: TableRecord;
@@ -87,7 +111,7 @@ export async function writeCell(opts: {
   value: unknown;
   /** Lo que se sabe de cada persona fuera de su coleccion. Solo en personas. */
   overlay?: Map<string, PersonOverlay>;
-}): Promise<Row> {
+}): Promise<{ row: Row; undo: GridUndo | null }> {
   const { table, tables, people, row, field, value } = opts;
 
   /*
@@ -96,13 +120,14 @@ export async function writeCell(opts: {
    * miembros, que es la misma puerta que usa el cajon lateral.
    */
   if (isOverlayField(table, field.name)) {
-    return await savePersonRow({
+    const saved = await savePersonRow({
       appId: table.app,
       table,
       overlay: opts.overlay ?? new Map(),
       row,
       values: { [field.name]: value },
     });
+    return { row: saved, undo: null };
   }
 
   const resolved = await resolveRowValues({
@@ -119,11 +144,24 @@ export async function writeCell(opts: {
     if (v !== undefined) body[key] = v;
   }
 
+  const before = previousValues(row, body);
+
   const expand = table.fields
     .filter((f) => isRelationField(f) && f.multiple !== true)
     .map((f) => f.name)
     .join(",");
-  return await pb.collection(table.dataCollection).update<Row>(row.id, body, { expand });
+  const saved = await pb.collection(table.dataCollection).update<Row>(row.id, body, { expand });
+  return {
+    row: saved,
+    undo: {
+      tableId: table.id,
+      collection: table.dataCollection,
+      columns: columnSignature(table),
+      done: "escribir",
+      rows: [{ id: row.id, body: before, cells: 1 }],
+      born: [],
+    },
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -143,19 +181,35 @@ export interface RangeReport {
    * que no son de su tipo, filas que no cabian.
    */
   notes: string[];
+  /**
+   * El inverso de lo que se escribio, listo para deshacerlo. Falta cuando no
+   * se escribio nada. Ver `dataGridUndo.ts`.
+   */
+  undo?: GridUndo;
 }
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-/** Manda los PATCH ya armados y cuenta como fue. */
+/**
+ * Manda los pedidos ya armados y cuenta como fue.
+ *
+ * `bornIds` entra vacio y sale con el id de cada fila que nacio, por el sitio
+ * que ocupaba en el pedido: sin el no se puede deshacer un pegado que creo
+ * filas, porque ese id no esta en ningun otro sitio.
+ */
 async function send(
   requests: ImportRequest[],
   cells: number,
   notes: string[],
   created = 0,
+  bornIds?: Map<number, string>,
 ): Promise<RangeReport> {
   if (requests.length === 0) return { cells: 0, created: 0, failed: 0, notes };
-  const leftover = await writeBatches(requests, { continueOnError: true, leftover: new Set() });
+  const leftover = await writeBatches(requests, {
+    continueOnError: true,
+    leftover: new Set(),
+    created: bornIds,
+  });
   return { cells, created, failed: leftover.size, notes };
 }
 
@@ -188,6 +242,7 @@ export async function clearRange(opts: {
   }
 
   const requests: ImportRequest[] = [];
+  const undoRows: UndoRow[] = [];
   let cells = 0;
   for (let r = range.top; r <= range.bottom; r++) {
     const row = rows[r];
@@ -201,6 +256,7 @@ export async function clearRange(opts: {
       else body[field.name] = field.type === "select" && field.multiple ? [] : null;
       cells++;
     }
+    undoRows.push({ id: row.id, body: previousValues(row, body), cells: columns.length });
     requests.push({
       method: "PATCH",
       url: `/api/collections/${table.dataCollection}/records/${row.id}`,
@@ -209,7 +265,18 @@ export async function clearRange(opts: {
     });
   }
 
-  return await send(requests, cells, notes);
+  const report = await send(requests, cells, notes);
+  return {
+    ...report,
+    undo: {
+      tableId: table.id,
+      collection: table.dataCollection,
+      columns: columnSignature(table),
+      done: "vaciar",
+      rows: undoRows,
+      born: [],
+    },
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -339,10 +406,15 @@ export async function pasteRange(opts: {
     `/api/collections/${table.dataCollection}/records${id ? `/${id}` : ""}`;
 
   const requests: ImportRequest[] = [];
+  const undoRows: UndoRow[] = [];
   let cells = 0;
   for (let r = 0; r < height; r++) {
     const row = rows[start.row + r];
     const body: Record<string, unknown> = {};
+    // Cuantas celdas de esta fila llegan a escribirse: no es el ancho del area
+    // --una columna que no se escribe o un valor que no era de su tipo se
+    // saltan-- y es lo que hay que contar al reponerla.
+    let rowCells = 0;
     for (let c = 0; c < width; c++) {
       const field = targets[c];
       if (!field) continue;
@@ -353,6 +425,7 @@ export async function pasteRange(opts: {
         const match = matches.get(field.name)?.get(value) ?? { id: "", value };
         Object.assign(body, relationCellValues(field, match));
         cells++;
+        rowCells++;
         continue;
       }
 
@@ -380,8 +453,12 @@ export async function pasteRange(opts: {
       }
       body[field.name] = converted.value;
       cells++;
+      rowCells++;
     }
     if (Object.keys(body).length === 0) continue;
+    // Una fila que todavia no existe no tiene nada que reponer: deshacerla es
+    // borrarla, y su id solo se sabe cuando la base se lo pone.
+    if (row) undoRows.push({ id: row.id, body: previousValues(row, body), cells: rowCells });
     requests.push(
       row
         ? { method: "PATCH", url: records(row.id), body, row: start.row + r }
@@ -395,13 +472,25 @@ export async function pasteRange(opts: {
     );
   }
 
-  const report = await send(requests, cells, notes, create);
+  const bornIds = new Map<number, string>();
+  const report = await send(requests, cells, notes, create, bornIds);
   /*
    * Una fila nueva a la que le falta una columna obligatoria la rechaza la
    * base, y eso ya viene contado en las fallidas: lo que se dice es cuantas
    * nacieron de verdad.
    */
-  return { ...report, created: Math.max(0, create - report.failed) };
+  return {
+    ...report,
+    created: Math.max(0, create - report.failed),
+    undo: {
+      tableId: table.id,
+      collection: table.dataCollection,
+      columns: columnSignature(table),
+      done: "pegar",
+      rows: undoRows,
+      born: [...bornIds.values()],
+    },
+  };
 }
 
 /* ------------------------------------------------------------------ */
