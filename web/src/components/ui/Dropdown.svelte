@@ -92,6 +92,17 @@
   .menu {
     margin: 0;
     margin-top: var(--sp-6);
+    /*
+      El area de `position-area` no recorta: un menu mas alto que el hueco que
+      le toca se sale de la pantalla en vez de encogerse --y hacia arriba se
+      sale por el borde de arriba, que es donde esta el principio de la lista.
+      Con tope y desplazamiento, el menu largo cabe siempre; quien quiera uno
+      mas corto pisa la medida con la variable.
+    */
+    max-height: var(--menu-max-height, 60vh);
+    overflow-y: auto;
+    /* Si del lado que le toca no cabe, que se vaya al otro. */
+    position-try-fallbacks: flip-block;
   }
 
   .menu-up {

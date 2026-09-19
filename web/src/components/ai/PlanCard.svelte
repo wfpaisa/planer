@@ -70,8 +70,8 @@
   .plan-ai-text {
     margin-top: 0.125rem;
     color: var(--text-primary);
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
   }
 
   :global(.btn-implement-plan) {

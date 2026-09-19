@@ -703,6 +703,7 @@ const conAdjuntos = await ask(app.id, casa.id, "Pon un título que diga Clientes
       id: "p1",
       name: "",
       label: "tabla Clientes",
+      tag: "table",
       path: "body > table",
       html: "<table></table>",
       truncated: false,

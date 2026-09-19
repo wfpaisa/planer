@@ -1027,6 +1027,13 @@ function pickedBlocks(raw: unknown): PickedBlock[] {
         String(pick.label ?? "")
           .trim()
           .slice(0, 120) || "un elemento",
+      /* La etiqueta HTML, que en el panel decide como se dibuja el badge. Un
+         nombre de etiqueta no tiene mas que letras, digitos y guiones: lo que
+         no tenga esa forma no es una etiqueta y se queda en nada. */
+      tag: (/^[a-z][a-z0-9-]*$/i.test(String(pick.tag ?? "").trim())
+        ? String(pick.tag).trim().toLowerCase()
+        : ""
+      ).slice(0, 40),
       path: path.slice(0, 300),
       html: long ? html.slice(0, MAX_PICKED_HTML) : html,
       // Recortado aqui, o ya recortado por el puente antes de mandarlo.

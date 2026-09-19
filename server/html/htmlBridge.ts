@@ -420,12 +420,22 @@ export const BRIDGE_SCRIPT = `(function () {
   /* Los que no tienen texto propio del que sacar un nombre. */
   var MANDOS = { INPUT: 1, SELECT: 1, TEXTAREA: 1 };
 
+  /* El color de la casa, tal como llega al documento con el tema. El valor de
+     repuesto es por si el recuadro se dibuja antes del primer tema. */
+  var ACENTO = "var(--color-accent-500, #6366f1)";
+
   var cursor = false;
   var marco = null;
+  var rotulo = null;
 
   /* Lo ultimo que toco el raton, y cuantos padres se ha subido desde ahi. */
   var apuntado = null;
   var subidas = 0;
+
+  /* Donde esta el raton, que es donde va el rotulo. Se guarda porque tambien
+     se redibuja sin que el raton se mueva: al ensanchar con las flechas. */
+  var ratonX = 0;
+  var ratonY = 0;
 
   /* El recuadro que ilumina. Cuelga de la raiz y no del cuerpo: dentro del
      cuerpo despertaria al observador que mide el alto en cada movimiento. */
@@ -437,16 +447,62 @@ export const BRIDGE_SCRIPT = `(function () {
     s.position = "fixed";
     s.pointerEvents = "none";
     s.zIndex = "2147483647";
-    s.border = "2px solid #6366f1";
-    s.background = "rgba(99, 102, 241, 0.12)";
+    s.border = "1px solid " + ACENTO;
+    s.background = "color-mix(in srgb, " + ACENTO + " 12%, transparent)";
     s.borderRadius = "3px";
     s.display = "none";
     document.documentElement.appendChild(marco);
     return marco;
   }
 
+  /* El rotulo que dice que etiqueta se esta senalando: "div", "span". Va junto
+     al raton y no pegado al recuadro, porque lo que se quiere saber es que hay
+     debajo del cursor, y en un contenedor grande el borde queda lejos de donde
+     se esta mirando. Lleva sus medidas escritas una a una para que las hojas
+     del documento no se lo lleven por delante. */
+  function letrero() {
+    if (rotulo) return rotulo;
+    rotulo = document.createElement("div");
+    rotulo.setAttribute("data-plane-cursor-rotulo", "");
+    var s = rotulo.style;
+    s.position = "fixed";
+    s.pointerEvents = "none";
+    s.zIndex = "2147483647";
+    s.background = ACENTO;
+    s.color = "#fff";
+    s.font = "500 11px/1.5 ui-sans-serif, system-ui, -apple-system, sans-serif";
+    s.letterSpacing = "0";
+    s.textTransform = "none";
+    s.boxSizing = "content-box";
+    s.padding = "1px 6px";
+    s.borderRadius = "4px";
+    s.whiteSpace = "nowrap";
+    s.boxShadow = "0 1px 4px rgba(0, 0, 0, 0.25)";
+    s.display = "none";
+    document.documentElement.appendChild(rotulo);
+    return rotulo;
+  }
+
+  function rotular(el) {
+    var tag = letrero();
+    if (!el) { tag.style.display = "none"; return; }
+    tag.textContent = el.tagName.toLowerCase();
+    /* Se ensena antes de medirlo: escondido no tiene ancho, y sin el ancho no
+       se sabe si cabe a la derecha del raton o hay que pasarlo al otro lado. */
+    tag.style.display = "block";
+    var ancho = tag.offsetWidth;
+    var alto = tag.offsetHeight;
+    var x = ratonX + 14;
+    var y = ratonY + 16;
+    if (x + ancho > window.innerWidth - 4) x = ratonX - ancho - 10;
+    if (y + alto > window.innerHeight - 4) y = ratonY - alto - 10;
+    tag.style.left = (x < 4 ? 4 : x) + "px";
+    tag.style.top = (y < 4 ? 4 : y) + "px";
+  }
+
   function iluminar(el) {
     var caja = recuadro();
+    rotular(el);
     if (!el) { caja.style.display = "none"; return; }
     var r = el.getBoundingClientRect();
     caja.style.display = "block";
@@ -459,7 +515,7 @@ export const BRIDGE_SCRIPT = `(function () {
   /* Un elemento de verdad del documento, no el recuadro ni la raiz. */
   function valido(nodo) {
     return !!nodo && nodo.nodeType === 1 &&
-      nodo !== document.documentElement && nodo !== marco;
+      nodo !== document.documentElement && nodo !== marco && nodo !== rotulo;
   }
 
   /*
@@ -582,6 +638,7 @@ export const BRIDGE_SCRIPT = `(function () {
       plane: "picked",
       nombre: el.getAttribute("data-plane") || "",
       etiqueta: etiqueta(el),
+      tag: el.tagName.toLowerCase(),
       ruta: ruta(el),
       html: recortado ? html.slice(0, TOPE_HTML) : html,
       recortado: recortado
@@ -590,6 +647,8 @@ export const BRIDGE_SCRIPT = `(function () {
 
   function alMover(evento) {
     if (!cursor) return;
+    ratonX = evento.clientX;
+    ratonY = evento.clientY;
     var destino = evento.target;
     /* El hueco vacio de la pagina no senala nada: para llevarse el cuerpo
        entero se apunta a algo y se sube con las flechas. */

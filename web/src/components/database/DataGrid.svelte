@@ -1865,7 +1865,7 @@
                   aria-label="Abrir la fila"
                   class="btn-open-row grid-db-expand-btn btn-icon btn-ghost btn-rounded"
                 >
-                  <Icon name="arrow-expand-diagonal-01" size={13} />
+                  <Icon name="edit-03" size={18} />
                 </button>
               </td>
 

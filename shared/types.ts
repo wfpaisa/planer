@@ -898,6 +898,8 @@ export interface PickedBlock {
   name: string;
   /** Como se le llama en la conversacion: "tabla Clientes", "seccion Precios". */
   label: string;
+  /** La etiqueta HTML que es, en minuscula: "h1", "div", "span". */
+  tag: string;
   /** Donde esta dentro del documento, en forma de selector. */
   path: string;
   /** El HTML que tiene ahora. */

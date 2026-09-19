@@ -5,6 +5,11 @@
   verdad ocupa: la conversacion entera vuelve a ir delante en cada turno. Un
   modelo sin ventana declarada solo puede decir el numero, sin contra que
   medirlo.
+
+  El anillo va en SVG y no en conic-gradient: el degradado conico rasteriza el
+  corte y el contorno sin suavizado y el circulo sale dentado. Un trazo con
+  stroke-dasharray lo dibuja el mismo rasterizador que las curvas, con
+  antialias en los dos bordes.
 -->
 <script lang="ts">
   import type { AiUsage } from "@shared/types";
@@ -22,10 +27,23 @@
 </script>
 
 <span data-tip={detail} class="meter-ai-context flex shrink-0 items-center">
-  <span
+  <!-- pathLength=100 vuelve el perimetro una escala de 0 a 100: el trazo se
+       recorta con el porcentaje tal cual, sin calcular la circunferencia. -->
+  <svg
     class={cx("meter-ring block", share > 0.85 && "meter-ring-high")}
-    style="--meter-fill: {share * 100}%"
-  ></span>
+    viewBox="0 0 20 20"
+    aria-hidden="true"
+  >
+    <circle class="meter-track" cx="10" cy="10" r="8.5" pathLength="100" />
+    <circle
+      class="meter-arc"
+      cx="10"
+      cy="10"
+      r="8.5"
+      pathLength="100"
+      stroke-dasharray="{share * 100} 100"
+    />
+  </svg>
 </span>
 
 <style>
@@ -34,20 +52,41 @@
   }
 
   .meter-ring {
-    width: 0.85rem;
-    height: 0.85rem;
-    border-radius: 50%;
-    background: conic-gradient(var(--accent) var(--meter-fill), var(--bg-field) 0);
-    mask-image: radial-gradient(farthest-side, transparent calc(100% - 0.16rem), #000 calc(100% - 0.16rem));
-    -webkit-mask-image: radial-gradient(
-      farthest-side,
-      transparent calc(100% - 0.16rem),
-      #000 calc(100% - 0.16rem)
-    );
+    width: 1.2rem;
+    height: 1.2rem;
+
+    & circle {
+      fill: none;
+      stroke-width: 3;
+    }
+
+    & .meter-track {
+      stroke: var(--border);
+    }
+
+    /* El trazo arranca a las tres en punto: se gira para empezar arriba. */
+    & .meter-arc {
+      stroke: var(--accent);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dasharray 180ms ease-out;
+    }
 
     /* Casi lleno: avisa en ambar, que es lo unico que hay que mirar. */
     &.meter-ring-high {
-      background: conic-gradient(var(--warning) var(--meter-fill), var(--bg-field) 0);
+      & .meter-track {
+        stroke: var(--bg-field);
+      }
+
+      & .meter-arc {
+        stroke: var(--warning);
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .meter-ring .meter-arc {
+      transition: none;
     }
   }
 </style>

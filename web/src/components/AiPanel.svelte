@@ -83,9 +83,11 @@
   import DebugContext from "./ai/DebugContext.svelte";
   import FileBadges from "./ai/FileBadges.svelte";
   import ModelPicker from "./ai/ModelPicker.svelte";
+  import ModePicker from "./ai/ModePicker.svelte";
   import Notices from "./ai/Notices.svelte";
   import PickedBadges from "./ai/PickedBadges.svelte";
   import PlanCard from "./ai/PlanCard.svelte";
+  import PlanCut from "./ai/PlanCut.svelte";
   import Process from "./ai/Process.svelte";
   import Question from "./ai/Question.svelte";
   import Icon from "./Icon.svelte";
@@ -803,19 +805,32 @@
     void dispatch(chosen, { label: option.label, keepDraft: true });
   }
 
+  /**
+   * Contestar una pregunta de la IA con algo que no estaba entre las opciones.
+   *
+   * Va sin `label`: lo que se escribio es lo que se lee en la burbuja, porque
+   * aqui no hay un rotulo corto que lo resuma --lo elegido, en las otras, era
+   * el boton-- y esconderlo detras de "Otro" dejaria la conversacion sin lo
+   * unico que dijo esa respuesta.
+   */
+  function answerOther(text: string): void {
+    void dispatch(text, { keepDraft: true });
+  }
+
   /** Un atajo, a un clic: manda de una vez, sin pasar por el campo de texto. */
   const runQuickAsk = (id: QuickAskId) =>
     dispatch(QUICK_ASK[id].prompt, { label: QUICK_ASK[id].label, keepDraft: true });
 
   /**
-   * Encender o apagar la intencion de modo Plan.
+   * Elegir con que animo se pide: Crear (cambiar ya) o Plan (conversar antes).
    *
-   * Apagarlo con un plan ya cerrado sin implementar no lo descarta: la
-   * tarjeta se queda en el hilo como esta, y la siguiente peticion se
-   * comporta como hoy (D5 de `ia-modo-plan`).
+   * Solo manda la intencion; quien decide el estado real es el servidor, a
+   * partir del hilo (D1 de `ia-modo-plan`). Volver a Crear con un plan ya
+   * cerrado sin implementar no lo descarta: la tarjeta se queda en el hilo
+   * como esta, y la siguiente peticion se comporta como hoy (D5).
    */
-  function togglePlan(): void {
-    planWanted = planStatus === "off";
+  function setPlan(on: boolean): void {
+    planWanted = on;
   }
 
   /**
@@ -1145,6 +1160,16 @@
   dejaria caer la respuesta en la que no es. Se espera, o se detiene.
 -->
 {#snippet actions()}
+  <Button
+    variant="soft"
+    disabled={working}
+    tip={working ? "Espera a que termine o detenla" : "Conversaciones anteriores"}
+    buttonClass="btn-previous-conversations"
+    class="btn-icon"
+    onclick={() => void openList()}
+  >
+    <Icon name="bubble-chat-delay" size={24} />
+  </Button>
   {#if chat.entries.length > 0}
     <Button
       variant="soft"
@@ -1154,19 +1179,9 @@
       class="btn-icon"
       onclick={startNew}
     >
-      <Icon name="square-pen" size={20} />
+      <Icon name="bubble-chat-add" size={24} />
     </Button>
   {/if}
-  <Button
-    variant="soft"
-    disabled={working}
-    tip={working ? "Espera a que termine o detenla" : "Conversaciones anteriores"}
-    buttonClass="btn-previous-conversations"
-    class="btn-icon"
-    onclick={() => void openList()}
-  >
-    <Icon name="messages-square" size={20} />
-  </Button>
 {/snippet}
 
 <!-- Sin titulo: la cabecera de la conversacion la llenan sus propios mandos. -->
@@ -1274,7 +1289,7 @@
                     {/each}
                     {#each entry.picked ?? [] as label (label)}
                       <Tag class="badge-user-picked">
-                        <Icon name="cursor-01" />
+                        <Icon name="square-dashed" />
                         <span class="entry-file-name">{label}</span>
                       </Tag>
                     {/each}
@@ -1357,6 +1372,7 @@
                     question={entry.question}
                     live={!working && entry.id === chat.entries[chat.entries.length - 1]?.id}
                     onChoose={(option) => answer(option)}
+                    onOther={(text) => answerOther(text)}
                   />
                 {/if}
 
@@ -1372,6 +1388,16 @@
                     live={!working && entry.id === chat.entries[chat.entries.length - 1]?.id}
                     onImplement={() => entry.plan && implementPlan(entry.id, entry.plan)}
                   />
+                {/if}
+
+                <!--
+                  Cortar el plan a mitad de conversacion (D4). Solo al pie del
+                  ultimo turno, con el modo activo y sin nada en marcha: si ese
+                  turno ya trae plan cerrado, quien ofrece construir es su
+                  tarjeta, no esto.
+                -->
+                {#if planStatus === "active" && !working && !entry.plan && entry.id === lastAiEntry}
+                  <PlanCut onCut={cutPlan} />
                 {/if}
               </div>
             {/if}
@@ -1514,7 +1540,7 @@
                 atajo. Va primero porque es la puerta de entrada de las dos
                 cosas que no son texto.
               -->
-                <Dropdown wrapClass="composer-quick-wrap">
+                <Dropdown up wrapClass="composer-quick-wrap">
                   {#snippet trigger({ toggle, open })}
                     <Button
                       size="sm"
@@ -1539,30 +1565,6 @@
                       }}
                     >
                       Adjuntar archivo
-                    </MenuItem>
-
-                    <!--
-                    El modo Plan: conversar y preguntar antes de construir. El
-                    item solo manda la intencion; quien decide el estado real
-                    es el servidor, a partir del hilo (D1 de `ia-modo-plan`).
-                    Cerrado no tiene accion: se espera la decision del server.
-                  -->
-                    {#snippet planIcon()}
-                      <Icon name="route-01" size={14} />
-                    {/snippet}
-                    <MenuItem
-                      icon={planIcon}
-                      disabled={planStatus === "closed"}
-                      onclick={() => {
-                        close();
-                        togglePlan();
-                      }}
-                    >
-                      {planStatus === "closed"
-                        ? "Plan cerrado: esperando decisión"
-                        : planStatus === "active"
-                          ? "Modo Plan activo"
-                          : "Activar modo Plan"}
                     </MenuItem>
 
                     <!--
@@ -1617,27 +1619,8 @@
                   class="btn-icon btn-rounded"
                   onclick={() => setPickerActive(!picker.active)}
                 >
-                  <Icon name="cursor-01" size={15} />
+                  <Icon name="square-dashed-mouse-pointer" size={18} />
                 </Button>
-
-                <!--
-                Cortar el plan a mitad de conversacion (D4): un boton, no un
-                texto que el usuario escriba para que el modelo lo interprete
-                como orden de cierre. Solo mientras el modo esta activo y sin
-                cerrar todavia.
-              -->
-                {#if planStatus === "active" && !working}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    tip="Cerrar el plan con lo que hay hasta ahora y pasar a construir"
-                    buttonClass="btn-cut-plan"
-                    class="btn-icon btn-rounded"
-                    onclick={cutPlan}
-                  >
-                    <Icon name="arrow-right-01" size={15} />
-                  </Button>
-                {/if}
 
                 <!--
                 Con que se va a pedir. Vive pegado al campo porque es parte de la
@@ -1655,6 +1638,13 @@
                 {#if chat.usage}
                   <ContextMeter usage={chat.usage} />
                 {/if}
+
+                <!--
+                Con que animo se pide: cambiar ya, o conversar el plan antes.
+                Vive pegado al boton de enviar porque es lo ultimo que se mira
+                antes de mandar, y porque el rotulo dice en cual se esta.
+              -->
+                <ModePicker status={planStatus} onPick={setPlan} />
 
                 <!--
                 El mismo sitio manda y para. Mientras la IA trabaja, el boton de
@@ -1916,8 +1906,8 @@
     border-bottom-right-radius: 0px;
     background: color-mix(in srgb, var(--accent) 40%, var(--bg-field));
     padding: var(--sp-8) var(--sp-14);
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
     color: var(--text-primary);
   }
 
@@ -1935,8 +1925,8 @@
   }
 
   .content-ai-response {
-    font-size: var(--text-sm);
-    /* line-height: var(--text-sm--line-height); */
+    font-size: var(--text-base);
+    /* line-height: var(--text-base--line-height); */
     line-height: var(--text-md--line-height);
     color: var(--text-primary);
     padding-left: 1rem;
@@ -2027,8 +2017,8 @@
     resize: none;
     background: transparent;
     padding: var(--sp-16) var(--sp-12);
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
     color: var(--text-primary);
     outline: none;
 

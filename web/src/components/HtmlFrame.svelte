@@ -595,6 +595,7 @@
           id: nextPickId(),
           name: String(data.nombre ?? ""),
           label: String(data.etiqueta ?? "") || "un elemento",
+          tag: String(data.tag ?? "").toLowerCase(),
           path: String(data.ruta ?? ""),
           html: String(data.html ?? ""),
           truncated: data.recortado === true,

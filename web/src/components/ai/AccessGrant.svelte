@@ -113,8 +113,8 @@
   .access-grant-consequence {
     margin-top: var(--sp-4);
     color: var(--text-primary);
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
   }
 
   .access-grant-actions {

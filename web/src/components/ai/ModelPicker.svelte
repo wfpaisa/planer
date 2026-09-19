@@ -115,8 +115,7 @@
 <style>
   /* La clase lleva el menu de Dropdown (un componente): sale del ambito. */
   :global(.menu-ai-models) {
-    max-height: 20rem;
-    overflow-y: auto;
+    --menu-max-height: 20rem;
   }
 
   .btn-pick-ai-model {
