@@ -12,9 +12,8 @@
     aiProviderReady,
     aiThinkingLabel,
     aiThinkingLevels,
-    aiWindowLabel,
   } from "@shared/aiCatalog";
-  import { AI_THINKING_OFF, type AiChoice, type AiConfigView } from "@shared/types";
+  import { type AiChoice, type AiConfigView } from "@shared/types";
 
   import Icon from "../Icon.svelte";
   import { Dropdown, MenuItem, MenuLabel, MenuSeparator } from "../ui";
@@ -59,14 +58,8 @@
       aria-label="Elegir modelo y cuánto piensa"
       class="btn-pick-ai-model flex items-center gap-1"
     >
+      <Icon name="ai-brain-03" size={16} class="model-thinking-icon" />
       <span class="model-name">{model ? aiModelLabel(model) : "Sin modelo"}</span>
-      {#if model?.thinking && choice.thinking !== AI_THINKING_OFF}
-        <Icon name="brain" size={12} class="model-thinking-icon" />
-        <span class="model-thinking">{aiThinkingLabel(choice.thinking)}</span>
-      {/if}
-      {#if model?.contextWindow}
-        <span class="model-window">{aiWindowLabel(model.contextWindow)}</span>
-      {/if}
       <Icon name="chevron-down" size={12} class="model-chevron" />
     </button>
   {/snippet}
@@ -169,7 +162,6 @@
   /* El icono de pensamiento va dentro del Icon: fuera del ambito del boton. */
   :global(.model-thinking-icon) {
     flex-shrink: 0;
-    color: var(--accent);
   }
 
   /* El cheuron va dentro del Icon: fuera del ambito del boton. */

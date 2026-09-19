@@ -4,7 +4,7 @@
   Es la pieza `.tag` de `styles/components.css` --pastilla redonda, letra
   pequena y en negrita-- y el unico sitio donde se escribe su marcado. El
   color no se elige a mano ni viaja en un `style`: se pide por `tone`, que
-  son las clases de tinte del tema (`tint-1`..`tint-4`) y las semanticas
+  son las clases de tinte del tema (`tint-1`..`tint-10`) y las semanticas
   (`tag-success`, `tag-warning`, `tag-error`), nombradas por lo que
   significan y no por el color que tienen hoy.
 
@@ -27,7 +27,20 @@
   import Icon from "../Icon.svelte";
 
   export type Tone =
-    "tint-1" | "tint-2" | "tint-3" | "tint-4" | "tag-success" | "tag-warning" | "tag-error" | "off";
+    | "tint-1"
+    | "tint-2"
+    | "tint-3"
+    | "tint-4"
+    | "tint-5"
+    | "tint-6"
+    | "tint-7"
+    | "tint-8"
+    | "tint-9"
+    | "tint-10"
+    | "tag-success"
+    | "tag-warning"
+    | "tag-error"
+    | "off";
 
   let {
     tone = "tint-1",

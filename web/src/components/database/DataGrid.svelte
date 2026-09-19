@@ -1863,7 +1863,7 @@
                   onclick={() => (openRow = { row })}
                   data-tip="Abrir la fila"
                   aria-label="Abrir la fila"
-                  class="btn-open-row grid-db-expand-btn"
+                  class="btn-open-row grid-db-expand-btn btn-icon btn-ghost btn-rounded"
                 >
                   <Icon name="arrow-expand-diagonal-01" size={13} />
                 </button>
@@ -2443,6 +2443,10 @@
       font-size: var(--text-sm);
       line-height: var(--text-sm--line-height);
       background-color: var(--bg-card);
+
+      &:focus-visible {
+        outline: 0px solid transparent;
+      }
     }
 
     & .grid-db-head {
@@ -2516,8 +2520,7 @@
       cursor: pointer;
       align-items: center;
       justify-content: center;
-      border-radius: var(--radius-sm);
-      color: var(--text-muted);
+      background-color: transparent;
 
       /* Se ve al pasar por la fila; con el teclado, siempre que reciba el foco. */
       opacity: 0;
@@ -2527,7 +2530,6 @@
       }
 
       &:hover {
-        background: var(--bg-field);
         color: var(--text-primary);
       }
     }

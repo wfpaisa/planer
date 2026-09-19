@@ -404,7 +404,7 @@ The tick needs **both** classes, \`hgi-stroke\` and \`hgi-tick-02\`: with only o
 </div>
 \`\`\`
 
-A tag is always \`class="tag"\` plus **one** colour class, and never an inline style: writing \`style="background: …"\` or \`--tag\` on a tag is wrong, and so is a colour class of your own invention. \`tint-1\` is the normal one; \`tint-2\` to \`tint-4\` exist to tell several categories apart in the same list, all four already contrasting in both modes. \`tag-success\` / \`tag-warning\` / \`tag-error\` are for what really does mean fine, careful or wrong.
+A tag is always \`class="tag"\` plus **one** colour class, and never an inline style: writing \`style="background: …"\` or \`--tag\` on a tag is wrong, and so is a colour class of your own invention. \`tint-1\` is the normal one; \`tint-2\` to \`tint-10\` exist to tell several categories apart in the same list --ten fixed colours (blue, violet, plum, red, terracotta, amber, olive, green, turquoise, slate), the same in both modes and under any palette, all ten already contrasting. \`tag-success\` / \`tag-warning\` / \`tag-error\` are for what really does mean fine, careful or wrong.
 
 The bare pill --\`class="tag"\` with no colour class-- is the **off** state, and that is the whole mechanism of a tag that switches: on is \`tag tint-1\`, off is \`tag\`. A row of filters is written that way, adding and removing \`tint-1\`. There are no sizes and no other variants.
 

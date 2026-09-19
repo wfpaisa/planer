@@ -3,8 +3,8 @@
  *
  * Lo guardado es la eleccion (`shared/brand.ts`: id de paleta, color a mano,
  * tamano de letra). Lo que se pinta son los atributos que la activan:
- * `palettes.css` hace el resto, derivando acento, tintes y serie de datos de
- * los cuatro colores de la paleta. El unico punto donde el color pasa por
+ * `palettes.css` hace el resto, derivando acento y serie de datos de los
+ * cuatro colores de la paleta (los tintes no: son fijos, de theme.css). El unico punto donde el color pasa por
  * JavaScript es el personalizado, que viaja como `--palette-1` en linea.
  *
  * El `data-palette` va **en el mismo elemento que `data-theme`**:
@@ -65,14 +65,26 @@ export function paletteAttrs(
 /* ------------------------------------------------------------------ */
 
 /**
- * Los cuatro tintes del sistema con los que se reparten las etiquetas. Son
- * las clases de `styles/components.css`, no colores sueltos: cada una lleva
- * su fondo y su tinta ya medidos para contrastar, y se recolorean solas al
- * cambiar la paleta del contenedor.
+ * Los diez tintes del sistema con los que se reparten las etiquetas. Son las
+ * clases de `styles/components.css`, no colores sueltos: cada una lleva su
+ * fondo y su tinta ya medidos para contrastar. No dependen de la paleta del
+ * contenedor --son los mismos diez colores en cualquier app y en los dos
+ * temas-- porque lo que distinguen es la categoria, no la marca.
  */
-const TAG_TONES = ["tint-1", "tint-2", "tint-3", "tint-4"] as const;
+const TAG_TONES = [
+  "tint-1",
+  "tint-2",
+  "tint-3",
+  "tint-4",
+  "tint-5",
+  "tint-6",
+  "tint-7",
+  "tint-8",
+  "tint-9",
+  "tint-10",
+] as const;
 
-/** El mismo texto recibe siempre el mismo tinte de la paleta activa. */
+/** El mismo texto recibe siempre el mismo tinte. */
 export function colorFor(value: string): (typeof TAG_TONES)[number] {
   let hash = 0;
   for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;

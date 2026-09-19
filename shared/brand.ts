@@ -12,7 +12,7 @@
  *
  * El hexadecimal se guarda tal cual porque es lo que una empresa tiene a mano
  * de su manual de marca; lo que se dibuja no es ese color crudo sino la
- * derivacion que hace `palettes.css` (acento, tintes, serie de datos), medida
+ * derivacion que hace `palettes.css` (acento, serie de datos), medida
  * para contrastar en claro y en oscuro.
  */
 import { CUSTOM_PALETTE, isPaletteId } from "./palettes.ts";

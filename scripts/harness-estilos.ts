@@ -64,7 +64,7 @@ for (const m of contract.matchAll(/class="([^"]+)"/g)) {
  * anidados (`&.sm`, `&.info`) y por eso no aparecen como clase de primer nivel.
  */
 const OWN =
-  /^(?:hgi-[\w-]+|tint-\d|b-(?:success|warning|error|wait)|num|sm|round|error|done|active|info|ok|warn|danger|left|right|wide)$/;
+  /^(?:hgi-[\w-]+|tint-\d+|b-(?:success|warning|error|wait)|num|sm|round|error|done|active|info|ok|warn|danger|left|right|wide)$/;
 /**
  * Las que el contrato inventa como ejemplo de "una clase tuya, descriptiva".
  * Van en espanol porque eso es justo lo que el contrato pide para ellas, y es

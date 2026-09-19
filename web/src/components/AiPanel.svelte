@@ -1565,6 +1565,29 @@
                           : "Activar modo Plan"}
                     </MenuItem>
 
+                    <!--
+                    Para quien quiere ver por que la IA respondio lo que
+                    respondio: el sistema, las herramientas y los mensajes tal
+                    cual se le mandaron. Se aplica a la proxima peticion, no a
+                    la que este en marcha. Solo aparece si se encendio en
+                    Ajustes: no es algo que la mayoria necesite ver siempre.
+                  -->
+                    {#if config?.debugButton}
+                      {#snippet debugIcon()}
+                        <Icon name="code-xml" size={14} />
+                      {/snippet}
+                      <MenuItem
+                        icon={debugIcon}
+                        onclick={() => {
+                          close();
+                          debug = !debug;
+                          writeDebug(debug);
+                        }}
+                      >
+                        {debug ? "Modo debug activo" : "Ver el contexto enviado"}
+                      </MenuItem>
+                    {/if}
+
                     <MenuSeparator />
                     <MenuLabel>Autocomando</MenuLabel>
                     {#each QUICK_ASK_IDS as id (id)}
@@ -1627,31 +1650,6 @@
                 {/if}
 
                 <div class="composer-spacer flex-1"></div>
-
-                <!--
-                Para quien quiere ver por que la IA respondio lo que respondio:
-                el sistema, las herramientas y los mensajes tal cual se le
-                mandaron. Se aplica a la proxima peticion, no a la que este en
-                marcha. Solo aparece si se encendio en Ajustes: no es algo que
-                la mayoria necesite ver siempre.
-              -->
-                {#if config?.debugButton}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    tip={debug
-                      ? "Modo debug activo: ver contexto enviado"
-                      : "Ver el contexto enviado"}
-                    aria-pressed={debug}
-                    class="btn-icon btn-rounded btn-toggle-debug"
-                    onclick={() => {
-                      debug = !debug;
-                      writeDebug(debug);
-                    }}
-                  >
-                    <Icon name="code-xml" size={14} />
-                  </Button>
-                {/if}
 
                 <!-- Cuanto contexto lleva gastado lo que se esta pidiendo. -->
                 {#if chat.usage}

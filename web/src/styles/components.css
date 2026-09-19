@@ -1652,8 +1652,10 @@ input[type="range"].field-control {
 /* Tag: etiqueta de categoria o de estado.
 
    El color lo pone SIEMPRE una clase, nunca un estilo en linea: `.tint-1` es
-   la normal, `.tint-2`..`.tint-4` reparten categorias, y `.tag-success` /
-   `.tag-warning` / `.tag-error` son las que de verdad significan algo.
+   la normal, `.tint-2`..`.tint-10` reparten categorias --diez colores fijos,
+   iguales en claro y en oscuro y con cualquier paleta puesta--, y
+   `.tag-success` / `.tag-warning` / `.tag-error` son las que de verdad
+   significan algo.
 
    La pastilla a secas --sin ninguna de esas clases-- es el estado apagado:
    solo su linea, que es como se queda un filtro que no esta puesto. Encender
@@ -1678,11 +1680,29 @@ input[type="range"].field-control {
     cursor: pointer;
     border: 0;
   }
+  &:is(.tag-1, .tag-2, .tag-3, .tag-4, .tag-5, .tag-6, .tag-7, .tag-8, .tag-9, .tag-10) {
+    background: color-mix(in oklab, var(--tint) 14%, transparent);
+    color: color-mix(in oklab, var(--tint) 72%, var(--ink));
+  }
 
   /* Apagada: sin fondo, solo el anillo. La lista se escribe entera a
      proposito --un `[class*="tint-"]` tambien casaria con una clase de la
      pantalla que solo se llame parecido. */
-  &:not(.tint-1, .tint-2, .tint-3, .tint-4, .tag-success, .tag-warning, .tag-error) {
+  &:not(
+    .tint-1,
+    .tint-2,
+    .tint-3,
+    .tint-4,
+    .tint-5,
+    .tint-6,
+    .tint-7,
+    .tint-8,
+    .tint-9,
+    .tint-10,
+    .tag-success,
+    .tag-warning,
+    .tag-error
+  ) {
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-primary) 12%, transparent);
 
     &:hover {
@@ -1954,7 +1974,10 @@ input[type="range"].field-control {
     border-color: color-mix(in srgb, var(--chart-1) 30%, var(--border));
 
     & i.deco {
-      color: var(--tint-1-fg);
+      color: light-dark(
+        oklch(from color-mix(in oklab, var(--tinte-1) 72%, var(--text-primary)) min(l, 0.48) c h),
+        oklch(from color-mix(in oklab, var(--tinte-1) 72%, var(--text-primary)) max(l, 0.72) c h)
+      );
     }
   }
 
@@ -1967,7 +1990,10 @@ input[type="range"].field-control {
     border-color: color-mix(in srgb, var(--chart-2) 30%, var(--border));
 
     & i.deco {
-      color: var(--tint-2-fg);
+      color: light-dark(
+        oklch(from color-mix(in oklab, var(--tinte-2) 72%, var(--text-primary)) min(l, 0.48) c h),
+        oklch(from color-mix(in oklab, var(--tinte-2) 72%, var(--text-primary)) max(l, 0.72) c h)
+      );
     }
   }
 
@@ -1980,7 +2006,10 @@ input[type="range"].field-control {
     border-color: color-mix(in srgb, var(--chart-3) 30%, var(--border));
 
     & i.deco {
-      color: var(--tint-3-fg);
+      color: light-dark(
+        oklch(from color-mix(in oklab, var(--tinte-3) 72%, var(--text-primary)) min(l, 0.48) c h),
+        oklch(from color-mix(in oklab, var(--tinte-3) 72%, var(--text-primary)) max(l, 0.72) c h)
+      );
     }
   }
 }
@@ -3209,22 +3238,68 @@ input[type="range"].field-control {
   color: var(--text-muted);
 }
 
-/* Fondo + tinta de cada color de la serie, en una sola clase */
+/* Fondo + tinta de cada uno de los diez tintes.
+
+   Cada clase solo elige SU color --`--tinte`-- y la mezcla se escribe una
+   sola vez debajo. Los dos valores salen de ese unico color, no de una pareja
+   de tokens medidos a mano.
+
+   La mezcla va en la propiedad y no en un token de theme.css: `var()` dentro
+   de una variable se resuelve DONDE SE DECLARA, y la tinta lleva dentro
+   --text-primary; calculada en :root se quedaria con el gris del documento de
+   fuera y una vista previa clara dentro del panel oscuro saldria con la tinta
+   del tema equivocado. Aqui se resuelve en la propia etiqueta, que es quien
+   conoce su tema. */
 .tint-1 {
-  background: var(--tint-1-bg);
-  color: var(--tint-1-fg);
+  --tinte: var(--tinte-1);
 }
 .tint-2 {
-  background: var(--tint-2-bg);
-  color: var(--tint-2-fg);
+  --tinte: var(--tinte-2);
 }
 .tint-3 {
-  background: var(--tint-3-bg);
-  color: var(--tint-3-fg);
+  --tinte: var(--tinte-3);
 }
 .tint-4 {
-  background: var(--tint-4-bg);
-  color: var(--tint-4-fg);
+  --tinte: var(--tinte-4);
+}
+.tint-5 {
+  --tinte: var(--tinte-5);
+}
+.tint-6 {
+  --tinte: var(--tinte-6);
+}
+.tint-7 {
+  --tinte: var(--tinte-7);
+}
+.tint-8 {
+  --tinte: var(--tinte-8);
+}
+.tint-9 {
+  --tinte: var(--tinte-9);
+}
+.tint-10 {
+  --tinte: var(--tinte-10);
+}
+
+:is(.tint-1, .tint-2, .tint-3, .tint-4, .tint-5, .tint-6, .tint-7, .tint-8, .tint-9, .tint-10) {
+  /* El fondo es el tinte casi entero en transparencia, no un color opaco: asi
+     la pastilla se apoya igual sobre la tarjeta, sobre el campo o sobre una
+     fila marcada, sin una variante por superficie. */
+  background: color-mix(in oklab, var(--tinte) 14%, transparent);
+
+  /* La tinta es el mismo tinte empujado hacia el texto de la pagina, que es
+     lo que la oscurece en claro y la aclara en oscuro sin escribir dos veces
+     nada. El tope de luminosidad es lo unico que no sale de la mezcla: los
+     tintes ya de por si claros (ambar, oliva) se quedaban en 3:1 sobre el
+     fondo palido, y los oscuros (pizarra) en 4,4:1 sobre el fondo de noche.
+     Recortando en 0.48 / 0.72 el peor de los diez queda en 4,8:1 --medido
+     sobre las seis superficies del sistema, con 4,5:1 (AA de texto normal)
+     como suelo-- y los que ya pasaban no se mueven. */
+  --tinta: color-mix(in oklab, var(--tinte) 72%, var(--text-primary));
+  color: light-dark(
+    oklch(from var(--tinta) min(l, 0.48) c h),
+    oklch(from var(--tinta) max(l, 0.72) c h)
+  );
 }
 
 .title {

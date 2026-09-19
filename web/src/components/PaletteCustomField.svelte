@@ -5,10 +5,10 @@
   el catalogo entero: se elige un color y afinar la paleta viene despues en
   los ajustes.
 
-  El color se pinta como se elige: `palettes.css` deriva de el el acento y sus
-  tintes, midiendo la tinta de encima para que contraste (igual que hace con
-  las 46 del catalogo). Por eso el hexadecimal se admite entero, sin
-  regatear.
+  El color se pinta como se elige: `palettes.css` deriva de el el acento y la
+  serie de datos, midiendo la tinta de encima para que contraste (igual que
+  hace con las 46 del catalogo). Por eso el hexadecimal se admite entero, sin
+  regatear. Los tintes de las etiquetas no salen de aqui: son fijos.
 -->
 <script lang="ts">
   import { parseBrandColor } from "@shared/brand";

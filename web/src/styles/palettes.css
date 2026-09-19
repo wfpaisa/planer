@@ -2,8 +2,10 @@
    PALETTES — las paletas, en CSS
    ----------------------------------------------------------
    Una paleta son CUATRO colores crudos y nada mas. Todo lo que
-   el panel ve (acento, tintes, serie de datos, halo de foco) se
-   deriva de esos cuatro aqui abajo, en un unico bloque.
+   el panel ve de la marca (acento, serie de datos, halo de foco)
+   se deriva de esos cuatro aqui abajo, en un unico bloque. Los
+   tintes de las etiquetas NO: son diez colores fijos que declara
+   theme.css y que ninguna paleta toca.
 
    Se pone en el HTML, sin JavaScript:
 
@@ -152,57 +154,10 @@
   );
 
   /* ---- Tintes ----
-     El fondo se fija por LUMINOSIDAD, no mezclando una proporcion de
-     blanco o negro: mezclando, un color de partida oscuro daba un
-     tinte aun mas oscuro que la propia tarjeta y el tinte desaparecia.
-     Asi todos caen en la misma banda visible. El sumando `l` es
-     pequeno a proposito: mantiene separados entre si los cuatro
-     tintes de una paleta que solo se diferencian en luminosidad (los
-     neutros de las monocromas).
-
-     La tinta se fija igual y por el mismo motivo: mezclando, un color
-     oscuro daba texto oscuro sobre un fondo ya aclarado y se quedaba
-     sin contraste (los neutros de las monocromas bajaban a 2.3:1).
-
-     El croma es lo unico que se mueve libre, y va alto a proposito:
-     con multiplicadores bajos el tinte sale gris y no se distingue de
-     la tarjeta. El techo no es el gusto sino el contraste entre tinta
-     y fondo: medido sobre las 46 paletas x 2 temas x 4 tintes, con
-     estos numeros el peor par queda en 5.5:1 en claro y 6.7:1 en
-     oscuro, con 4.5:1 (AA de texto normal) como suelo. Subir la tinta
-     de c*1 a c*1.4 ya rompe seis casos, asi que ahi esta el margen. */
-  --tint-1-bg: light-dark(
-    oklch(from var(--palette-1) calc(0.91 + l * 0.03) calc(c * 0.35) h),
-    oklch(from var(--palette-1) calc(0.2 + l * 0.07) calc(c * 0.7) h)
-  );
-  --tint-1-fg: light-dark(
-    oklch(from var(--palette-1) 0.42 calc(c * 1) h),
-    oklch(from var(--palette-1) 0.82 calc(c * 0.75) h)
-  );
-  --tint-2-bg: light-dark(
-    oklch(from var(--palette-2) calc(0.91 + l * 0.03) calc(c * 0.35) h),
-    oklch(from var(--palette-2) calc(0.2 + l * 0.07) calc(c * 0.7) h)
-  );
-  --tint-2-fg: light-dark(
-    oklch(from var(--palette-2) 0.42 calc(c * 1) h),
-    oklch(from var(--palette-2) 0.82 calc(c * 0.75) h)
-  );
-  --tint-3-bg: light-dark(
-    oklch(from var(--palette-3) calc(0.91 + l * 0.03) calc(c * 0.35) h),
-    oklch(from var(--palette-3) calc(0.2 + l * 0.07) calc(c * 0.7) h)
-  );
-  --tint-3-fg: light-dark(
-    oklch(from var(--palette-3) 0.42 calc(c * 1) h),
-    oklch(from var(--palette-3) 0.82 calc(c * 0.75) h)
-  );
-  --tint-4-bg: light-dark(
-    oklch(from var(--palette-4) calc(0.91 + l * 0.03) calc(c * 0.35) h),
-    oklch(from var(--palette-4) calc(0.2 + l * 0.07) calc(c * 0.7) h)
-  );
-  --tint-4-fg: light-dark(
-    oklch(from var(--palette-4) 0.42 calc(c * 1) h),
-    oklch(from var(--palette-4) 0.82 calc(c * 0.75) h)
-  );
+     No estan aqui a proposito: los diez tintes son fijos y los declara
+     theme.css. Son el color de una categoria, no el de la marca, y
+     recolorearlos con la paleta haria que dos categorias distintas se
+     vieran iguales en cuanto la app eligiera un color plano. */
 }
 
 /* ==========================================================

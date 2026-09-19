@@ -106,16 +106,30 @@
   --chart-3: oklch(0.38 0.03 269);
   --chart-4: oklch(0.93 0.02 212);
 
-  /* ---- Tinte: la version suave de cada color de la serie, para
-          pastillas y avatares. -bg es el fondo y -fg su texto. ---- */
-  --tint-1-bg: oklch(0.918 0.03 271.1);
-  --tint-1-fg: oklch(0.357 0.182 264.9);
-  --tint-2-bg: oklch(0.926 0 0);
-  --tint-2-fg: oklch(0.301 0 0);
-  --tint-3-bg: oklch(0.941 0 0);
-  --tint-3-fg: oklch(0.475 0 0);
-  --tint-4-bg: oklch(0.914 0 0);
-  --tint-4-fg: oklch(0.218 0 0);
+  /* ---- Tinte: diez colores para repartir categorias ----
+     No salen de la paleta ni del acento: son DIEZ COLORES FIJOS, los
+     mismos en claro y en oscuro y los mismos con cualquier paleta
+     puesta. Una etiqueta azul sigue siendo azul aunque la app sea
+     verde, que es justo lo que se quiere de un color que solo sirve
+     para distinguir una categoria de otra.
+
+     Aqui esta el color crudo y nada mas: el fondo y la tinta de la
+     pastilla los mezcla `.tint-1`..`.tint-10` (components.css), y se
+     mezclan ALLI y no aqui en un token a proposito. La tinta lleva un
+     28% de --text-primary, y una variable con var() dentro se resuelve
+     DONDE SE DECLARA: calculada en :root se quedaria con el gris del
+     documento de fuera, y una vista previa clara dentro del panel
+     oscuro saldria con tinta de tema equivocado. ---- */
+  --tinte-1: oklch(69.233% 0.17294 245.533); /* azul */
+  --tinte-2: oklch(50.389% 0.25656 283.684); /* violeta */
+  --tinte-3: oklch(55.836% 0.22662 330.954); /* ciruela */
+  --tinte-4: oklch(60.686% 0.2265 20.948); /* rojo */
+  --tinte-5: oklch(62.568% 0.17632 42.476); /* teja */
+  --tinte-6: oklch(82.532% 0.13612 78.042); /* ambar */
+  --tinte-7: oklch(91.639% 0.21589 128.078); /* oliva */
+  --tinte-8: oklch(68.346% 0.16513 154.993); /* verde */
+  --tinte-9: oklch(65.985% 0.11189 194.821); /* turquesa */
+  --tinte-10: oklch(45.388% 0.0445 246.544); /* pizarra */
 
   /* Rejilla de fondo de las graficas y halo del elemento enfocado */
   --chart-grid: oklch(0.943 0 0);
@@ -234,15 +248,6 @@
   --chart-3: oklch(61% 0.01 212);
   --chart-4: oklch(33% 0.01 266);
 
-  --tint-1-bg: oklch(0.918 0.03 271.1);
-  --tint-1-fg: oklch(0.357 0.182 264.9);
-  --tint-2-bg: oklch(0.926 0 0);
-  --tint-2-fg: oklch(24.47% 0.05183 266.728);
-  --tint-3-bg: oklch(90.845% 0.02369 232.025);
-  --tint-3-fg: oklch(44.251% 0.01942 254.089);
-  --tint-4-bg: oklch(86.516% 0.02058 250.511);
-  --tint-4-fg: oklch(22.216% 0.01447 266.936);
-
   --chart-grid: oklch(0.943 0 0);
   --focus-ring: oklch(0.47 0.244 264.7 / 0.2);
 }
@@ -287,15 +292,6 @@
   --chart-2: oklch(0.6 0.04 269);
   --chart-3: oklch(0.38 0.03 269);
   --chart-4: oklch(0.93 0.02 212);
-
-  --tint-1-bg: oklch(0.318 0.058 270.4);
-  --tint-1-fg: oklch(0.818 0.091 273.2);
-  --tint-2-bg: oklch(26.085% 0.01594 224.339);
-  --tint-2-fg: oklch(79.877% 0.03351 254.082);
-  --tint-3-bg: oklch(26.713% 0.01265 258.411);
-  --tint-3-fg: oklch(64.202% 0.02508 242.179);
-  --tint-4-bg: oklch(28.443% 0.01014 229.393);
-  --tint-4-fg: oklch(86.22% 0.03734 244.532);
 
   --chart-grid: oklch(0.235 0 0);
   --focus-ring: oklch(0.631 0.197 269.6 / 0.32);

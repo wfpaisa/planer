@@ -496,10 +496,18 @@
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
-            <span class="tag tint-1">Tint-1</span>
-            <span class="tag tint-2">Tint-2</span>
-            <span class="tag tint-3">Tint-3</span>
-            <span class="tag tint-4">Tint-4</span>
+            <span class="tag tint-1">Azul</span>
+            <span class="tag tint-2">Violeta</span>
+            <span class="tag tint-3">Ciruela</span>
+            <span class="tag tint-4">Rojo</span>
+            <span class="tag tint-5">Teja</span>
+          </div>
+          <div class="gallery-row">
+            <span class="tag tint-6">Ámbar</span>
+            <span class="tag tint-7">Oliva</span>
+            <span class="tag tint-8">Verde</span>
+            <span class="tag tint-9">Turquesa</span>
+            <span class="tag tint-10">Pizarra</span>
           </div>
           <div class="gallery-row">
             <span class="tag tag-success">

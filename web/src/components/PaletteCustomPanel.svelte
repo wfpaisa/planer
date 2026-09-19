@@ -56,7 +56,7 @@
     <div class="custom-field-palette flex-1">
       <PaletteCustomField
         label="Color principal"
-        hint="De el salen el acento y los tintes, con la tinta medida para que se lea encima."
+        hint="De el salen el acento y la serie de datos, con la tinta medida para que se lea encima."
         {value}
         {onChange}
       />
