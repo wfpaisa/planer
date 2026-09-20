@@ -16,6 +16,7 @@
  * que borrarla. `admin` no se marca a mano en ningun caso: lo pone
  * `withPageAdmin` en cuanto la pagina deja de ser de todos.
  */
+import { DEFAULT_ICON, iconName } from "./icons.ts";
 import { ADMIN_ROLE } from "./people.ts";
 import type { PageRecord } from "./types.ts";
 
@@ -125,4 +126,53 @@ export function cleanPageName(value: unknown): string | null {
   const cut = flat.slice(0, PAGE_NAME_MAX);
   const space = cut.lastIndexOf(" ");
   return (space > 12 ? cut.slice(0, space) : cut).trim();
+}
+
+/* ------------------------------------------------------------------ */
+/* El icono de la pagina                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * El icono con el que nace una pagina recien creada.
+ *
+ * Es relleno igual que el nombre --un archivo generico no dice de que va la
+ * pantalla-- y por eso se reconoce: mientras siga puesto, la IA puede cambiarlo
+ * por uno que hable de lo que la pagina tiene dentro.
+ */
+export const DEFAULT_PAGE_ICON = "file-01";
+
+/**
+ * Si la pagina todavia lleva el icono con el que nacio.
+ *
+ * Uno elegido a mano en el selector es una decision de quien construye y no se
+ * toca, igual que el nombre. Una pagina sin icono guardado cuenta como recien
+ * nacida: no hay nada que perder.
+ */
+export function isDefaultPageIcon(icon: string | undefined | null): boolean {
+  const flat = (icon ?? "").trim();
+  return !flat || flat === DEFAULT_PAGE_ICON;
+}
+
+/**
+ * Deja un icono de pagina en condiciones de guardarse, o `null` si lo que llego
+ * no sirve.
+ *
+ * Lo que no este en la fuente se descarta en vez de caer en el icono por
+ * defecto: un nombre inventado no da error --dibuja un hueco-- y guardarlo
+ * convertido en otro icono cualquiera seria elegir por el modelo. Si no se
+ * reconoce, la pagina se queda con el que tenia.
+ */
+export function cleanPageIcon(value: unknown): string | null {
+  const flat = String(value ?? "")
+    .trim()
+    .replace(/^["'“”«»]+|["'“”«»]+$/g, "")
+    .replace(/^hgi-/, "")
+    .trim();
+  if (!flat) return null;
+
+  const name = iconName(flat);
+  /* `iconName` devuelve el icono por defecto ante un nombre que no existe: eso
+     es lo que se descarta aqui, salvo que el nombre pedido sea justo ese. */
+  if (name === DEFAULT_ICON && flat !== DEFAULT_ICON) return null;
+  return name;
 }

@@ -660,7 +660,7 @@ export interface AiConfig {
   /** Lo que se usa cuando quien pide no elige otra cosa. */
   fallback: AiChoice;
   enabled: boolean;
-  /** Ofrece en el chat el boton para ver el contexto que se le manda al modelo. */
+  /** Muestra en cada respuesta del chat el contexto que se le manda al modelo. */
   debugButton: boolean;
   /**
    * Minutos que se deja correr una peticion antes de cortarla sola, como si

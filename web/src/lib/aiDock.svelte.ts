@@ -62,7 +62,7 @@ export interface AiDockState {
 }
 
 export function aiDock(appId: () => string): AiDockState {
-  let wanted = $state(false);
+  let wanted = $state(true);
   let width = $state(DEFAULT);
   let tooNarrow = $state(window.innerWidth < NARROW);
   let focusAsks = $state(0);
@@ -72,13 +72,13 @@ export function aiDock(appId: () => string): AiDockState {
   $effect(() => {
     const id = appId();
     try {
-      // Escondido la primera vez: el documento se ve entero, y el boton de la
-      // barra superior es la senal de que la IA esta ahi.
-      wanted = localStorage.getItem(openKey(id)) === "1";
+      // Abierta la primera vez: la IA es la forma de construir aqui, y sin
+      // verla no hay pista de que exista. Solo se esconde si se pidio esconder.
+      wanted = localStorage.getItem(openKey(id)) !== "0";
       const saved = Number(localStorage.getItem(widthKey(id)));
       width = clampDock(Number.isFinite(saved) && saved > 0 ? saved : DEFAULT);
     } catch {
-      wanted = false;
+      wanted = true;
       width = DEFAULT;
     }
   });

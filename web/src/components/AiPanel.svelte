@@ -41,7 +41,6 @@
     type QueuedAsk,
     readChoice,
     readConversation,
-    readDebug,
     rememberQueue,
     resolveChoice,
     setOpenChat,
@@ -50,7 +49,6 @@
     wasResumed,
     writeChoice,
     writeConversation,
-    writeDebug,
   } from "../lib/aiConversation.svelte";
   import {
     AI_FILE_ACCEPT,
@@ -155,8 +153,6 @@
    * eligio la ultima vez, o de lo que dejo puesto quien administra.
    */
   let choice = $state<AiChoice | null>(null);
-  /** Ver el contexto que se le manda al modelo. Dura entre visitas. */
-  let debug = $state(untrack(() => readDebug()));
   /**
    * La IA quiere ver si la pagina que escribio se dibuja sin errores.
    *
@@ -709,7 +705,7 @@
       ...(picked.length ? { picked } : {}),
       ...(ready.length ? { files: ready.map(asChatFile) } : {}),
       ...(choice ? { choice } : {}),
-      ...(debug && config?.debugButton ? { debug: true } : {}),
+      ...(config?.debugButton ? { debug: true } : {}),
       ...(planIntent ? { plan: planIntent } : {}),
     });
   }
@@ -1331,10 +1327,10 @@
                 </div>
 
                 <!--
-                  Lo que se le mando al modelo. El de esta visita llega con la
-                  peticion, si se pidio en modo debug; sin el, el ultimo turno
-                  ofrece el que quedo guardado en el servidor, que es lo que
-                  sobrevive a recargar despues de un fallo.
+                  Lo que se le mando al modelo, solo si esta encendido en
+                  Ajustes. El de esta visita llega con la peticion; sin el, el
+                  ultimo turno ofrece el que quedo guardado en el servidor, que
+                  es lo que sobrevive a recargar despues de un fallo.
                 -->
                 {#if entry.context}
                   <div class="context-debug-wrap">
@@ -1566,29 +1562,6 @@
                     >
                       Adjuntar archivo
                     </MenuItem>
-
-                    <!--
-                    Para quien quiere ver por que la IA respondio lo que
-                    respondio: el sistema, las herramientas y los mensajes tal
-                    cual se le mandaron. Se aplica a la proxima peticion, no a
-                    la que este en marcha. Solo aparece si se encendio en
-                    Ajustes: no es algo que la mayoria necesite ver siempre.
-                  -->
-                    {#if config?.debugButton}
-                      {#snippet debugIcon()}
-                        <Icon name="code-xml" size={14} />
-                      {/snippet}
-                      <MenuItem
-                        icon={debugIcon}
-                        onclick={() => {
-                          close();
-                          debug = !debug;
-                          writeDebug(debug);
-                        }}
-                      >
-                        {debug ? "Modo debug activo" : "Ver el contexto enviado"}
-                      </MenuItem>
-                    {/if}
 
                     <MenuSeparator />
                     <MenuLabel>Autocomando</MenuLabel>

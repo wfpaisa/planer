@@ -72,7 +72,7 @@ export interface Entry {
   access?: AccessChange[];
   /** Lo que penso el modelo antes de responder, si su servidor lo envio. */
   reasoning?: string;
-  /** El contexto que se le mando al modelo, si se pidio verlo en modo debug. */
+  /** El contexto que se le mando al modelo, si se pidio verlo desde Ajustes. */
   context?: string;
   /**
    * Los archivos que se adjuntaron a esta peticion: su nombre y la referencia
@@ -374,30 +374,6 @@ export function writeChoice(choice: AiChoice): void {
     localStorage.setItem(CHOICE_KEY, JSON.stringify(choice));
   } catch {
     /* sin sitio donde guardarlo la eleccion dura lo que dure la visita */
-  }
-}
-
-/**
- * Ver el contexto que se le manda al modelo en cada ronda.
- *
- * Es de quien construye, no de la conversacion: dura entre visitas y aplica a
- * cualquier pagina en la que pida algo, hasta que lo apague.
- */
-const DEBUG_KEY = "plane_ai_debug";
-
-export function readDebug(): boolean {
-  try {
-    return localStorage.getItem(DEBUG_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function writeDebug(on: boolean): void {
-  try {
-    localStorage.setItem(DEBUG_KEY, on ? "1" : "0");
-  } catch {
-    /* sin sitio donde guardarlo dura lo que dure la visita */
   }
 }
 

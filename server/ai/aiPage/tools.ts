@@ -90,6 +90,11 @@ const TOOLS: ToolDef[] = [
           description:
             "A short name for the page, in Spanish, two or three words at most: `Clientes`, `Panel de ventas`. It is read in the sidebar, so it names the screen rather than describing it. It is only taken while the page still carries the filler name it was born with (`Página 3`); once it has a name of its own, this is ignored.",
         },
+        icono: {
+          type: "string",
+          description:
+            "The name of the icon the page is read with in the sidebar, taken from the safe list of icon names you were given (without the `hgi-` prefix): `user-group` for people, `invoice-01` for billing, `analytics-01` for a dashboard. It says what the screen holds, so never a generic file or page. A name outside the font is ignored. It is only taken while the page still carries the filler icon it was born with; once it has one of its own, this is ignored.",
+        },
       },
       required: ["html"],
     },

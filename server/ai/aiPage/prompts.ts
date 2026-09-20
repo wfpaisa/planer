@@ -3,7 +3,7 @@
  * trabaja, cuando pregunta, cuando propone y como se dirige a quien construye.
  */
 import { buildHtmlContract } from "../../../shared/htmlContract.ts";
-import { isDefaultPageName } from "../../../shared/pages.ts";
+import { isDefaultPageIcon, isDefaultPageName } from "../../../shared/pages.ts";
 import type {
   AppPerson,
   AppRecord,
@@ -168,6 +168,15 @@ Two things get said out loud, in one sentence, without being asked:
 const UNNAMED_PAGE = `This page still carries the name it was born with, which says nothing about what it holds. When you write it with "escribir_pagina", send \`nombre\` as well: a short name in Spanish, two or three words at most, taken from what they asked you to build --"Clientes", "Panel de ventas", "Alta de pedidos"--. It is read in the sidebar, so it names the screen, it does not describe it: no article in front, no verb, no sentence. If they named the screen themselves in what they wrote, use their name.`;
 
 /**
+ * Lo que se le dice cuando la pagina todavia lleva el icono de relleno.
+ *
+ * Va aparte del nombre porque se ponen por separado: quien renombro una pagina
+ * a mano puede no haberle tocado el icono, y entonces esto sigue ofreciendose y
+ * lo otro no.
+ */
+const UNICONED_PAGE = `This page still carries the icon it was born with, a generic file that says nothing. When you write it with "escribir_pagina", send \`icono\` as well: one name from the safe list of icons above, without the \`hgi-\` prefix, saying what the screen holds --\`user-group\` for people, \`invoice-01\` for billing, \`analytics-01\` for a dashboard, \`calendar-01\` for a diary--. It is read beside the name in the sidebar, at the size of its line, so what matters is that it is recognisable at a glance. Never invent a name: one outside the font is dropped and the page keeps its filler icon.`;
+
+/**
  * La guia que se agrega mientras el modo Plan esta activo (D3 de
  * `ia-modo-plan`). Las herramientas que escriben la pagina o las tablas no
  * estan en la lista que se le ofrece --eso es lo que de verdad lo impide--
@@ -218,7 +227,9 @@ export function systemPrompt(
     contract,
     `## This page\n\nYou are writing the page "${page.name}"${
       page.isHome ? ", which is the app's home screen" : ""
-    }.${isDefaultPageName(page.name) ? `\n\n${UNNAMED_PAGE}` : ""}`,
+    }.${isDefaultPageName(page.name) ? `\n\n${UNNAMED_PAGE}` : ""}${
+      isDefaultPageIcon(page.icon) ? `\n\n${UNICONED_PAGE}` : ""
+    }`,
   ];
 
   if (planActive) parts.push(PLAN_MODE_GUIDE);

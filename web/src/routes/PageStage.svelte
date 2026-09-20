@@ -27,7 +27,7 @@
   aplicacion, que es el que el marco lee de su contenedor y le pasa al HTML.
 -->
 <script lang="ts">
-  import { canOpenPage, defaultPageName } from "@shared/pages";
+  import { canOpenPage, DEFAULT_PAGE_ICON, defaultPageName } from "@shared/pages";
   import { ADMIN_ROLE, ROLE_ICON } from "@shared/people";
   import type { AppPerson, PageRecord } from "@shared/types";
   import { untrack } from "svelte";
@@ -342,7 +342,7 @@
         app: app.id,
         name: defaultPageName(count),
         slug: `pagina-${Math.random().toString(36).slice(2, 8)}`,
-        icon: "file-01",
+        icon: DEFAULT_PAGE_ICON,
         order: count,
         isHome: count === 0,
       });

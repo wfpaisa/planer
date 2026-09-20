@@ -5,7 +5,12 @@
 import { IMPORT_BATCH_CHUNK, MAX_IMPORT_ROWS } from "../../../shared/importBatch.ts";
 import { detectSeparator, type ParsedTable, parseImport } from "../../../shared/importParse.ts";
 import { convertValue } from "../../../shared/importValues.ts";
-import { cleanPageName, isDefaultPageName } from "../../../shared/pages.ts";
+import {
+  cleanPageIcon,
+  cleanPageName,
+  isDefaultPageIcon,
+  isDefaultPageName,
+} from "../../../shared/pages.ts";
 import { isPeopleNameField, isPeopleTable, normalizeRole } from "../../../shared/people.ts";
 import type {
   AccessChange,
@@ -78,25 +83,35 @@ async function saveEdit(ctx: ToolContext, html: string, sources: HtmlSource[]): 
 }
 
 /**
- * Le pone nombre a una pagina que todavia se llama como nacio.
+ * Le pone nombre e icono a una pagina que todavia se llama como nacio.
  *
- * Una pagina recien creada se llama "Pagina 3" y esta en blanco: ese nombre es
- * relleno, no una decision, asi que la primera vez que se escribe se cambia por
- * uno que diga de que va la pantalla. El que manda es el que propuso la IA, que
- * es quien leyo lo que se pidio; si no mando ninguno, se saca del titulo de lo
- * que acaba de escribir, que dice lo mismo.
+ * Una pagina recien creada se llama "Pagina 3", lleva un archivo generico por
+ * icono y esta en blanco: las dos cosas son relleno, no una decision, asi que
+ * la primera vez que se escribe se cambian por unas que digan de que va la
+ * pantalla. El que manda es lo que propuso la IA, que es quien leyo lo que se
+ * pidio; si no mando nombre, se saca del titulo de lo que acaba de escribir,
+ * que dice lo mismo. Un icono no se deduce de nada: si no lo mando, o mando uno
+ * que la fuente no tiene, la pagina se queda con el suyo.
  *
- * Un nombre escrito a mano no se toca nunca, aunque la pagina se reescriba
- * entera: renombrarle a alguien lo que ya nombro es perderle algo suyo.
+ * Lo elegido a mano no se toca nunca, aunque la pagina se reescriba entera:
+ * cambiarle a alguien lo que ya decidio es perderle algo suyo. Cada uno mira su
+ * propio relleno, porque se pueden haber puesto por separado.
  */
-async function namePage(ctx: ToolContext, proposed: unknown, html: string): Promise<string | null> {
-  if (!isDefaultPageName(ctx.page.name)) return null;
-  const name = cleanPageName(proposed) ?? cleanPageName(titleFromHtml(html));
-  if (!name) return null;
+async function namePage(
+  ctx: ToolContext,
+  input: Record<string, unknown>,
+  html: string,
+): Promise<{ name: string | null; icon: string | null }> {
+  const name = isDefaultPageName(ctx.page.name)
+    ? (cleanPageName(input.nombre) ?? cleanPageName(titleFromHtml(html)))
+    : null;
+  const icon = isDefaultPageIcon(ctx.page.icon) ? cleanPageIcon(input.icono) : null;
+  if (!name && !icon) return { name: null, icon: null };
 
-  await updateRecord(INTERNAL.pages, ctx.page.id, { name });
-  ctx.page = { ...ctx.page, name };
-  return name;
+  const patch = { ...(name ? { name } : {}), ...(icon ? { icon } : {}) };
+  await updateRecord(INTERNAL.pages, ctx.page.id, patch);
+  ctx.page = { ...ctx.page, ...patch };
+  return { name, icon };
 }
 
 /** Un adjunto leido como filas y columnas, o por que no se pudo. */
@@ -466,15 +481,17 @@ async function runEscribirPagina(
 
   // El nombre va despues de guardar: lo que se nombra es una pantalla que
   // ya existe, y si la escritura falla no se renombra nada.
-  const named = await namePage(ctx, input.nombre, html);
-  if (named) note(`Página nombrada "${named}"`);
+  const named = await namePage(ctx, input, html);
+  if (named.name) note(`Página nombrada "${named.name}"`);
+  if (named.icon) note(`Icono de la página: ${named.icon}`);
 
   return JSON.stringify({
     guardado: true,
     tablas: sources.map((s) => s.name),
     repuesto: restored,
     estilo,
-    ...(named ? { nombre: named } : {}),
+    ...(named.name ? { nombre: named.name } : {}),
+    ...(named.icon ? { icono: named.icon } : {}),
   });
 }
 

@@ -261,10 +261,10 @@
 
   <div class="row-ai-toggle opt-row">
     <div class="opt-body">
-      <p class="opt-label">Botón de depuración en el chat</p>
+      <p class="opt-label">Mostrar el contexto enviado al modelo</p>
       <p class="opt-hint">
-        Añade en el chat un botón para ver el contexto —sistema, herramientas y mensajes— que se le
-        manda al modelo en cada ronda.
+        Mientras esté encendido, cada respuesta del chat deja ver el contexto —sistema, herramientas
+        y mensajes— que se le mandó al modelo en esa ronda. Apagado, el chat no lo muestra.
       </p>
     </div>
     <Switch checked={config.debugButton} onchange={(v) => set({ debugButton: v })} />
