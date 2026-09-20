@@ -93,7 +93,7 @@
   <div class="gallery-grid">
     <!-- Typography -->
     <article class="card gallery-item wide">
-      {@render head("Tipografía", "Los tamaños de letra del sistema")}
+      {@render head("Typography", "Los tamaños de letra del sistema")}
       <div class="card-body">
         <div class="type-scale">
           <div class="ty-row">
@@ -124,7 +124,7 @@
     </article>
     <!-- Card -->
     <article class="card gallery-item wide">
-      {@render head("Tarjeta", "Cabecera, cuerpo y pie. Ej.: cada bloque de los ajustes")}
+      {@render head("Card", "Cabecera, cuerpo y pie. Ej.: cada bloque de los ajustes")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-cards">
@@ -152,7 +152,7 @@
     </article>
     <!-- Inset -->
     <article class="card gallery-item wide">
-      {@render head("Caja interior", "Agrupa dentro de otra caja. Ej.: dentro de un modal")}
+      {@render head("Inner box", "Agrupa dentro de otra caja. Ej.: dentro de un modal")}
       <div class="card-body">
         <div class="gallery-demo">
           <!-- prettier-ignore -->
@@ -186,7 +186,7 @@
     </article>
     <!-- Eyebrow -->
     <article class="card gallery-item">
-      {@render head("Rótulo de grupo", "Encabeza un grupo, en versalitas. Ej.: sobre una lista")}
+      {@render head("Group label", "Encabeza un grupo, en versalitas. Ej.: sobre una lista")}
       <div class="card-body">
         <div class="gallery-demo">
           <p class="demo-note">
@@ -205,7 +205,7 @@
     </article>
     <!-- Identity -->
     <article class="card gallery-item">
-      {@render head("Identidad", "Quién ha entrado. Ej.: los ajustes, los miembros de una página")}
+      {@render head("Identity", "Quién ha entrado. Ej.: los ajustes, los miembros de una página")}
       <div class="card-body">
         <div class="gallery-demo">
           <p class="demo-note">
@@ -232,7 +232,7 @@
     </article>
     <!-- Insight -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Sugerencia", "Un apunte destacado. En páginas generadas")}
+      {@render head("Tip", "Un apunte destacado. En páginas generadas")}
       <div class="card-body">
         <div class="insights">
           <article class="insight a">
@@ -255,7 +255,7 @@
     </article>
     <!-- Stat -->
     <article class="card gallery-item">
-      {@render head("Cifra", "Un número con su etiqueta. En páginas generadas")}
+      {@render head("Stat", "Un número con su etiqueta. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="stat">
@@ -273,7 +273,7 @@
     </article>
     <!-- List -->
     <article class="card gallery-item">
-      {@render head("Lista", "Filas con avatar, texto y estado. Ej.: las tablas huérfanas")}
+      {@render head("List", "Filas con avatar, texto y estado. Ej.: las tablas huérfanas")}
       <div class="card-body">
         <ul class="list">
           <li>
@@ -328,7 +328,7 @@
     {/snippet}
     <article class="card gallery-item col-span-2 table-card">
       {@render head(
-        "Tabla",
+        "Table",
         "Datos con filtro, orden y páginas. Ej.: la rejilla de una tabla",
         tableFilters,
       )}
@@ -444,7 +444,7 @@
     </article>
     <!-- Timeline -->
     <article class="card gallery-item wide">
-      {@render head("Cronología", "Eventos en orden. Ej.: los pasos de la IA")}
+      {@render head("Timeline", "Eventos en orden. Ej.: los pasos de la IA")}
       <div class="card-body">
         <ol class="timeline">
           <li class="done">
@@ -492,7 +492,7 @@
     </article>
     <!-- Tag -->
     <article class="card gallery-item">
-      {@render head("Etiqueta", "Categoría o estado. Ej.: una versión de solo lectura")}
+      {@render head("Tag", "Categoría o estado. Ej.: una versión de solo lectura")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -537,7 +537,7 @@
     </article>
     <!-- Badge -->
     <article class="card gallery-item">
-      {@render head("Distintivo", "Aviso sobre un elemento. Ej.: un archivo en el chat")}
+      {@render head("Badge", "Aviso sobre un elemento. Ej.: un archivo en el chat")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -550,7 +550,7 @@
     </article>
     <!-- Button -->
     <article class="card gallery-item wide">
-      {@render head("Botones", "Variantes, tamaños y estados")}
+      {@render head("Buttons", "Variantes, tamaños y estados")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -620,7 +620,7 @@
 
     <!-- Link -->
     <article class="card gallery-item">
-      {@render head("Enlace", "Con icono de salida. Ej.: abrir la página publicada")}
+      {@render head("Link", "Con icono de salida. Ej.: abrir la página publicada")}
       <div class="card-body">
         <div class="gallery-demo">
           <a class="link" href="/">

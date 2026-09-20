@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { AppRecord, AppTheme } from "@shared/types";
+  import { type AppRecord, type AppTheme, slugify } from "@shared/types";
 
   import AppFontSize from "../components/AppFontSize.svelte";
   import BrandPreview from "../components/BrandPreview.svelte";
@@ -24,7 +24,6 @@
   const app = $derived(builder.app);
 
   let name = $state(builder.app.name);
-  let slug = $state(builder.app.slug);
   let icon = $state(builder.app.icon);
   let theme = $state<AppTheme>(appBrand(builder.app.theme));
 
@@ -35,10 +34,14 @@
 
   const dirty = $derived(
     name !== app.name ||
-      slug !== app.slug ||
       icon !== app.icon ||
       JSON.stringify(theme) !== JSON.stringify(appBrand(app.theme)),
   );
+
+  /* El enlace lo escribe el servidor a partir del nombre, y le anade un numero
+     si ya lo tiene otra aplicacion. Mientras el nombre no se guarda se ensena
+     el que va a salir; guardado, el que salio de verdad. */
+  const link = $derived(name.trim() === app.name ? app.slug : slugify(name, "..."));
 
   async function remove() {
     deleting = true;
@@ -58,12 +61,10 @@
     try {
       const updated = await patch<AppRecord>(`/api/apps/${app.id}`, {
         name,
-        slug,
         icon,
         theme,
       });
       builder.setApp(updated);
-      slug = updated.slug;
       onClose();
     } catch (err) {
       error = errorMessage(err);
@@ -97,7 +98,7 @@
   open
   {onClose}
   title="Ajustes de la aplicación"
-  description="Nombre, enlace y apariencia con los que se publica."
+  description="Nombre, icono y apariencia con los que se publica."
   width="modal-settings-width"
   fill
 >
@@ -105,24 +106,19 @@
     <ErrorNote message={error} />
 
     {#snippet identity()}
-      <div class="settings-identity-grid grid gap-4">
-        <div class="settings-icon-name flex items-end gap-2">
-          <IconPicker value={icon} onChange={(next) => (icon = next)} />
-          <div class="settings-name-field flex-1">
-            <Field label="Nombre">
-              <Input bind:value={name} />
-            </Field>
-          </div>
+      <div class="settings-icon-name flex items-start gap-2">
+        <IconPicker value={icon} onChange={(next) => (icon = next)} />
+        <div class="settings-name-field flex-1">
+          <Field label="Nombre" hint="Se abrira en /p/{link}">
+            <Input bind:value={name} />
+          </Field>
         </div>
-        <Field label="Enlace" hint="Se abrira en /p/{slug || '...'}">
-          <Input bind:value={slug} placeholder="directorio-de-empleados" />
-        </Field>
       </div>
     {/snippet}
     {@render section(
       "app-settings-identity-section",
       "Identidad",
-      "El nombre y el enlace con los que se publica.",
+      "El nombre con el que se publica; de el sale el enlace.",
       "section-app-identity",
       identity,
     )}
@@ -217,17 +213,6 @@
       & > * + * {
         margin-top: var(--sp-16);
       }
-    }
-  }
-
-  /* Arriba y no estiradas: la ayuda debajo del enlace hace su columna mas
-     alta, y estiradas la otra se descolgaria. Asi las dos etiquetas y los dos
-     campos empiezan a la misma altura. */
-  .settings-identity-grid {
-    align-items: start;
-
-    @media (min-width: 40rem) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 

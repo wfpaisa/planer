@@ -276,7 +276,7 @@
   .form-page-panel {
     & .row-page-panel-name {
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       gap: var(--sp-8);
 
       & .field-page-panel-name {

@@ -1546,7 +1546,7 @@
                       class="btn-icon btn-rounded"
                       onclick={toggle}
                     >
-                      <Icon name="add-01" size={16} />
+                      <Icon name="add-01" size={16} class="icon-quick-menu" />
                     </Button>
                   {/snippet}
                   {#snippet children(close)}
@@ -2075,6 +2075,25 @@
   .chat-composer-actions {
     gap: var(--sp-12);
     padding: 0 var(--sp-8) var(--sp-8);
+
+    /* Con el menu abierto, el "+" de adjuntar gira 45 grados y se queda hecho
+       una equis: mientras esta abierto, lo que hace el boton es cerrarlo, y
+       asi lo dice. Gira el icono y no el boton --es redondo, el
+       giro del borde no se veria-- y lo dispara `aria-pressed`, que es lo que
+       ya anuncia que esta abierto. */
+    & :global(.icon-quick-menu) {
+      transition: transform 0.18s ease;
+    }
+
+    & :global([aria-pressed="true"] .icon-quick-menu) {
+      transform: rotate(45deg);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      & :global(.icon-quick-menu) {
+        transition: none;
+      }
+    }
   }
 
   .composer-spacer {

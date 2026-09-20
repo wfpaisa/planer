@@ -21,10 +21,7 @@
   <div class="gallery-grid">
     <!-- Input field -->
     <article class="card gallery-item wide">
-      {@render head(
-        "Campos de texto",
-        "Con etiqueta, ayuda y error. Ej.: el nombre de una aplicación",
-      )}
+      {@render head("Text fields", "Con etiqueta, ayuda y error. Ej.: el nombre de una aplicación")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="field">
@@ -65,7 +62,7 @@
     <!-- Field stack / field row -->
     <article class="card gallery-item wide">
       {@render head(
-        "Grupo de campos",
+        "Field group",
         "Varios campos juntos, apilados o en fila. Ej.: los datos de un paciente",
       )}
       <div class="card-body">
@@ -94,7 +91,7 @@
     </article>
     <!-- Join -->
     <article class="card gallery-item wide">
-      {@render head("Campo con botón", "Entrada y botón pegados. Ej.: el enlace al publicar")}
+      {@render head("Field with button", "Entrada y botón pegados. Ej.: el enlace al publicar")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="field">
@@ -135,7 +132,7 @@
     </article>
     <!-- Textarea -->
     <article class="card gallery-item">
-      {@render head("Área de texto", "Texto largo en varias líneas. Ej.: pegar un CSV al importar")}
+      {@render head("Textarea", "Texto largo en varias líneas. Ej.: pegar un CSV al importar")}
       <div class="card-body">
         <div class="field">
           <label for="demoTextarea">Nota interna</label>
@@ -149,7 +146,7 @@
     <!-- Select -->
     <article class="card gallery-item">
       {@render head(
-        "Desplegable",
+        "Select",
         "Una opción de una lista cerrada. Ej.: ver la página como otra persona",
       )}
       <div class="card-body">
@@ -186,7 +183,7 @@
     </article>
     <!-- Range -->
     <article class="card gallery-item">
-      {@render head("Deslizador", "Un número dentro de un rango. Ej.: el tamaño de letra")}
+      {@render head("Slider", "Un número dentro de un rango. Ej.: el tamaño de letra")}
       <div class="card-body">
         <div class="field">
           <span class="field-label">
@@ -199,7 +196,7 @@
     </article>
     <!-- Checkbox -->
     <article class="card gallery-item">
-      {@render head("Casillas", "Varias opciones a la vez. Ej.: las opciones al importar")}
+      {@render head("Checkboxes", "Varias opciones a la vez. Ej.: las opciones al importar")}
       <div class="card-body">
         <div class="gallery-demo">
           <label class="choice">
@@ -222,7 +219,7 @@
     </article>
     <!-- Radio -->
     <article class="card gallery-item">
-      {@render head("Opción única", "Una sola opción del grupo. En páginas generadas")}
+      {@render head("Radio", "Una sola opción del grupo. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <label class="choice">
@@ -245,7 +242,7 @@
     </article>
     <!-- Toggle -->
     <article class="card gallery-item">
-      {@render head("Interruptor", "Encender o apagar al momento. Ej.: la IA en los ajustes")}
+      {@render head("Switch", "Encender o apagar al momento. Ej.: la IA en los ajustes")}
       <div class="card-body">
         <div class="gallery-demo">
           <label class="choice switch">
@@ -261,7 +258,7 @@
     </article>
     <!-- Rating -->
     <article class="card gallery-item">
-      {@render head("Valoración", "Estrellas. En páginas generadas")}
+      {@render head("Rating", "Estrellas. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="rating" role="radiogroup" aria-label="Valoración">
@@ -292,7 +289,7 @@
     </article>
     <!-- Opciones -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Opciones", "Tarjetas de selección. Ej.: el tipo de una columna")}
+      {@render head("Option cards", "Tarjetas de selección. Ej.: el tipo de una columna")}
       <div class="card-body">
         <div class="gallery-demo">
           <!-- prettier-ignore -->
@@ -342,7 +339,7 @@
     <!-- Cuadros de color -->
     <article class="card gallery-item">
       {@render head(
-        "Cuadros de color",
+        "Color swatches",
         "Rejilla de colores para elegir. Ej.: la paleta de una aplicación",
       )}
       <div class="card-body">
@@ -401,7 +398,7 @@
     </article>
     <!-- Zona de arrastre -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Zona de arrastre", "Donde se sueltan archivos. Ej.: importar un CSV")}
+      {@render head("Dropzone", "Donde se sueltan archivos. Ej.: importar un CSV")}
       <div class="card-body">
         <div class="gallery-demo">
           <!-- prettier-ignore -->
@@ -433,7 +430,7 @@
     </article>
     <!-- Fieldset -->
     <article class="card gallery-item">
-      {@render head("Grupo de campos", "Controles bajo una leyenda. En páginas generadas")}
+      {@render head("Fieldset", "Controles bajo una leyenda. En páginas generadas")}
       <div class="card-body">
         <fieldset class="fieldset">
           <legend>Visibilidad del panel</legend>

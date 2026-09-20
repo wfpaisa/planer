@@ -93,7 +93,7 @@
   .create-app-fields {
     & .create-app-name-row {
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       gap: var(--sp-8);
 
       & .create-app-name {

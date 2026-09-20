@@ -23,7 +23,7 @@
   <div class="gallery-grid">
     <!-- Breadcrumbs -->
     <article class="card gallery-item">
-      {@render head("Migas de ruta", "La ruta hasta donde estás. En páginas generadas")}
+      {@render head("Breadcrumbs", "La ruta hasta donde estás. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <nav class="crumbs" aria-label="Ruta">
@@ -84,7 +84,7 @@
     </article>
     <!-- Tab -->
     <article class="card gallery-item wide">
-      {@render head("Pestañas", "Cambiar de vista sin salir. Ej.: los ajustes, importar")}
+      {@render head("Tabs", "Cambiar de vista sin salir. Ej.: los ajustes, importar")}
       <div class="card-body">
         <div class="tabs">
           <!-- `fit`: cada pestaña a su ancho (la pastilla va anclada, no
@@ -112,7 +112,7 @@
     </article>
     <!-- Steps -->
     <article class="card gallery-item wide">
-      {@render head("Pasos", "El avance de un proceso. Ej.: la IA trabajando")}
+      {@render head("Steps", "El avance de un proceso. Ej.: la IA trabajando")}
       <div class="card-body">
         <ol class="steps">
           <li class="done">Carrito</li>
@@ -124,7 +124,7 @@
     </article>
     <!-- Pagination -->
     <article class="card gallery-item">
-      {@render head("Paginación", "Saltar entre páginas. Ej.: la rejilla de datos")}
+      {@render head("Pagination", "Saltar entre páginas. Ej.: la rejilla de datos")}
       <div class="card-body">
         <nav class="pager" aria-label="Paginación">
           <button disabled aria-label="Anterior">
@@ -143,7 +143,7 @@
     </article>
     <!-- Menu -->
     <article class="card gallery-item">
-      {@render head("Menú", "Acciones en un desplegable. Ej.: la cabecera de una columna")}
+      {@render head("Menu", "Acciones en un desplegable. Ej.: la cabecera de una columna")}
       <div class="card-body">
         <div class="gallery-row">
           <button class="btn menu-btn" popovertarget="demoMenu">
@@ -174,7 +174,7 @@
     </article>
     <!-- Quiet trigger -->
     <article class="card gallery-item">
-      {@render head("Botón discreto", "Abre un menú sin pintar caja. Ej.: columnas al importar")}
+      {@render head("Ghost button", "Abre un menú sin pintar caja. Ej.: columnas al importar")}
       <div class="card-body">
         <div class="gallery-demo">
           <p class="demo-note">
@@ -198,7 +198,7 @@
     </article>
     <!-- Divider -->
     <article class="card gallery-item">
-      {@render head("Separador", "Línea entre bloques. Ej.: la barra superior")}
+      {@render head("Divider", "Línea entre bloques. Ej.: la barra superior")}
       <div class="card-body">
         <div class="gallery-demo">
           <hr class="divider" />

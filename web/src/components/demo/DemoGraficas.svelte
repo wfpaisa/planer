@@ -83,7 +83,7 @@
     {/snippet}
     <article class="card gallery-item wide col-span-2">
       {@render head(
-        "Gráfica de líneas",
+        "Line chart",
         "Dos series y el periodo anterior. En páginas generadas",
         lineRanges,
       )}
@@ -109,7 +109,7 @@
     </article>
     <!-- Donut -->
     <article class="card gallery-item">
-      {@render head("Gráfica de anillo", "Reparto con el total en el centro. En páginas generadas")}
+      {@render head("Doughnut chart", "Reparto con el total en el centro. En páginas generadas")}
       <div class="card-body">
         <div class="donut-wrap">
           <canvas bind:this={donut}></canvas>
@@ -132,14 +132,14 @@
     </article>
     <!-- Bar -->
     <article class="card gallery-item col-span-2">
-      {@render head("Gráfica de barras", "Una barra por categoría. En páginas generadas")}
+      {@render head("Bar chart", "Una barra por categoría. En páginas generadas")}
       <div class="card-body">
         <div class="bar-figure"><canvas bind:this={category}></canvas></div>
       </div>
     </article>
     <!-- KPI -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Indicador", "Cifra con tendencia y minigráfica. En páginas generadas")}
+      {@render head("Metric", "Cifra con tendencia y minigráfica. En páginas generadas")}
       <div class="card-body">
         <div class="kpis">
           {#each KPIS as k, i (k.label)}
@@ -166,7 +166,7 @@
     </article>
     <!-- Sparkline -->
     <article class="card gallery-item">
-      {@render head("Minigráfica", "La tendencia debajo de una cifra. En páginas generadas")}
+      {@render head("Sparkline", "La tendencia debajo de una cifra. En páginas generadas")}
       <div class="card-body">
         <div class="stat">
           <span class="s-label">Ingresos netos</span>

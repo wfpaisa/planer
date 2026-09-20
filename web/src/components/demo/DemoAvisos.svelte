@@ -21,7 +21,7 @@
   <div class="gallery-grid">
     <!-- Alert -->
     <article class="card gallery-item wide">
-      {@render head("Avisos", "Mensajes de estado. Ej.: el aviso de vista previa")}
+      {@render head("Alerts", "Mensajes de estado. Ej.: el aviso de vista previa")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="alert info" role="status">
@@ -57,7 +57,7 @@
     </article>
     <!-- Toast -->
     <article class="card gallery-item">
-      {@render head("Notificación", "Aviso que se va solo. Ej.: al guardar una fila")}
+      {@render head("Toast", "Aviso que se va solo. Ej.: al guardar una fila")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -131,7 +131,7 @@
     </article>
     <!-- Modal -->
     <article class="card gallery-item">
-      {@render head("Ventana modal", "Pide una decisión. Ej.: crear una columna")}
+      {@render head("Modal", "Pide una decisión. Ej.: crear una columna")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -303,7 +303,7 @@
     </article>
     <!-- Drawer -->
     <article class="card gallery-item">
-      {@render head("Panel lateral", "Entra desde un lado. Ej.: editar una fila")}
+      {@render head("Drawer", "Entra desde un lado. Ej.: editar una fila")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -464,10 +464,7 @@
         el que se ve en el resto de la pantalla.
       -->
     <article class="card gallery-item">
-      {@render head(
-        "Ayuda al apuntar",
-        "Texto corto al pasar el cursor. Ej.: los iconos de la barra",
-      )}
+      {@render head("Tooltip", "Texto corto al pasar el cursor. Ej.: los iconos de la barra")}
       <div class="card-body">
         <div class="gallery-row">
           <button class="btn" data-tip="Se aplica al periodo actual">Pasa el cursor</button>
@@ -483,7 +480,7 @@
     </article>
     <!-- Loading -->
     <article class="card gallery-item">
-      {@render head("Carga", "Actividad en curso. Ej.: mientras llega una tabla")}
+      {@render head("Loading", "Actividad en curso. Ej.: mientras llega una tabla")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -503,7 +500,7 @@
     </article>
     <!-- Progress -->
     <article class="card gallery-item">
-      {@render head("Progreso", "Cuánto falta. Ej.: la IA trabajando")}
+      {@render head("Progress", "Cuánto falta. Ej.: la IA trabajando")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="progress-label">

@@ -57,7 +57,17 @@ export async function ensurePeopleTable(app: AppForPeople): Promise<TableRecord 
   const members = await getCollection(INTERNAL.members);
   if (!members) return null;
 
-  const dataCollection = dataCollectionName(app.slug, PEOPLE_TABLE);
+  const existing = await firstRecord<TableRecord>(
+    INTERNAL.tables,
+    `app = "${quote(app.id)}" && name = "${quote(PEOPLE_TABLE)}"`,
+  );
+
+  // El enlace sale del nombre y cambia cuando la aplicacion se renombra, asi
+  // que el nombre de la coleccion solo vale para bautizarla: la que ya existe
+  // se busca por la tabla, que se lo guardo. Derivandolo del enlace de ahora,
+  // el primer arranque tras un renombrado creaba una coleccion vacia al lado
+  // de la que tiene las personas.
+  const dataCollection = existing?.dataCollection ?? dataCollectionName(app.slug, PEOPLE_TABLE);
 
   if (!(await getCollection(dataCollection))) {
     await createCollection({
@@ -86,11 +96,6 @@ export async function ensurePeopleTable(app: AppForPeople): Promise<TableRecord 
     });
     console.log(`  + coleccion "${dataCollection}"`);
   }
-
-  const existing = await firstRecord<TableRecord>(
-    INTERNAL.tables,
-    `app = "${quote(app.id)}" && name = "${quote(PEOPLE_TABLE)}"`,
-  );
 
   if (existing) {
     await syncPersonRows(app.id, existing.dataCollection);

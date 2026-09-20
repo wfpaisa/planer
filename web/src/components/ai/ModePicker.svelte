@@ -51,7 +51,7 @@
       class="btn-pick-ai-mode btn sm"
       class:on={plan}
     >
-      <Icon name={plan ? "route-01" : "zap"} size={16} class="mode-icon" />
+      <Icon name={plan ? "route-01" : "wand-sparkles"} size={18} class="mode-icon" />
       <span class="mode-name">{plan ? "Plan" : "Crear"}</span>
       <Icon name="chevron-down" size={12} class="mode-chevron" />
     </button>

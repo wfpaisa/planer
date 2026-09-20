@@ -168,11 +168,20 @@ async function ownedTable(
   return { table, app };
 }
 
-async function uniqueSlug(base: string): Promise<string> {
+/**
+ * El enlace publico de una aplicacion, sacado de su nombre.
+ *
+ * Nadie lo escribe: se genera aqui al crearla y se vuelve a generar cuando le
+ * cambian el nombre. Si ya lo tiene otra, se le anade un numero hasta que este
+ * libre. `skipId` es la propia aplicacion al renombrarse: sin el, una que ya
+ * ocupa "tienda" se encontraria a si misma y saldria de aqui como "tienda-2".
+ */
+async function uniqueSlug(base: string, skipId?: string): Promise<string> {
   const root = slugify(base, "app");
+  const mine = skipId ? ` && id != "${quote(skipId)}"` : "";
   for (let i = 0; i < 200; i++) {
     const candidate = i === 0 ? root : `${root}-${i + 1}`;
-    const hit = await firstRecord(INTERNAL.apps, `slug = "${quote(candidate)}"`);
+    const hit = await firstRecord(INTERNAL.apps, `slug = "${quote(candidate)}"${mine}`);
     if (!hit) return candidate;
   }
   return `${root}-${Date.now()}`;
@@ -321,9 +330,13 @@ export async function updateApp(req: Request, id: string) {
   if (typeof input.published === "boolean") patch.published = input.published;
   if (input.theme !== undefined) patch.theme = sanitizeTheme(input.theme);
   if (input.roles !== undefined) patch.roles = withAdminRole(sanitizeRoles(input.roles));
-  if (typeof input.slug === "string" && input.slug.trim()) {
-    const next = slugify(input.slug);
-    if (next !== app.slug) patch.slug = await uniqueSlug(next);
+  // El enlace acompana al nombre y no se escribe aparte: quien renombra la
+  // aplicacion no tiene que acordarse de nada, y un `slug` que llegue en el
+  // cuerpo se ignora a proposito. Lo que ya se publico con el enlace de antes
+  // deja de responder, que es lo que pasaba igual cuando se escribia a mano.
+  if (typeof patch.name === "string" && patch.name !== app.name) {
+    const next = await uniqueSlug(patch.name, app.id);
+    if (next !== app.slug) patch.slug = next;
   }
 
   let updated = await updateRecord<AppRecord>(INTERNAL.apps, id, patch);

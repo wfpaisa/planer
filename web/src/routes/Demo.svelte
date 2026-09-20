@@ -31,6 +31,85 @@
 
   // Sin tamano de letra: la demo es cromo del panel, no una aplicacion.
   const attrs = $derived(paletteAttrs(palette, { fontScale: false }));
+
+  /* ---- Donde se estaba mirando, al recargar ---- */
+
+  // El menu de la sidebar baja a cada seccion con `scrollIntoView` y no toca la
+  // URL, asi que al recargar no hay nada que diga donde se estaba. El navegador
+  // tampoco lo sabe: el alto de la pagina lo decide el masonry de la galeria
+  // midiendo, varios cuadros despues de cargar, y para cuando la demo mide lo
+  // que tiene que medir el navegador ya la dejo arriba. Se guarda a mano --en
+  // `sessionStorage`, que es por pestaña y es lo que dura una sesion de mirar
+  // la demo-- y se vuelve a poner cuando la pagina ya da de si.
+  const SCROLL_KEY = "demo:scroll";
+
+  // Sin almacen --ventana privada, permisos-- la demo funciona igual, solo que
+  // la recarga vuelve a empezar arriba.
+  function readTop(): number {
+    try {
+      return Number(sessionStorage.getItem(SCROLL_KEY)) || 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function saveTop(top: number) {
+    try {
+      sessionStorage.setItem(SCROLL_KEY, String(top));
+    } catch {
+      /* se sigue mirando la demo igual */
+    }
+  }
+
+  $effect(() => {
+    // El navegador restauraria su propia posicion sobre una pagina aun sin
+    // repartir --y se pelearia con esta.
+    const previous = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+
+    const top = readTop();
+    let frame = 0;
+
+    const save = () => {
+      frame = 0;
+      saveTop(Math.round(scrollY));
+    };
+
+    const onScroll = () => {
+      // Una vez por cuadro: el scroll avisa mucho mas a menudo que eso.
+      frame ||= requestAnimationFrame(save);
+    };
+
+    // Guardar solo cuando ya se esta donde se estaba: los cuadros de la
+    // restauracion tambien son scroll, y guardarlos seria pisar el destino.
+    const listen = () => {
+      frame = 0;
+      addEventListener("scroll", onScroll, { passive: true });
+    };
+
+    // Las fichas se colocan midiendo, asi que la pagina crece a trozos: hasta
+    // que no es lo bastante alta no admite bajar hasta donde se estaba. Se
+    // insiste un segundo y se deja estar --una demo mas corta que antes no
+    // tiene esa posicion.
+    const deadline = performance.now() + 1000;
+    const restore = () => {
+      scrollTo({ top });
+      if (Math.abs(scrollY - top) > 1 && performance.now() < deadline) {
+        frame = requestAnimationFrame(restore);
+        return;
+      }
+      listen();
+    };
+
+    if (top > 0) restore();
+    else listen();
+
+    return () => {
+      removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+      history.scrollRestoration = previous;
+    };
+  });
 </script>
 
 <div
