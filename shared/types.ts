@@ -431,6 +431,14 @@ export interface PageRecord {
    * `Todos`: es la consecuencia de que la lista este vacia. Ver `design.md` D2.
    */
   roles?: string[];
+  /**
+   * Las reglas funcionales de la pagina, en markdown plano y una por vineta:
+   * quien puede hacer que, que datos son obligatorios, que prohibe el negocio.
+   * Vacia: la pagina todavia no tiene ninguna regla guardada.
+   *
+   * No viaja a la aplicacion publicada: es del constructor. Ver `page-memory`.
+   */
+  memory?: string;
 }
 
 /** Todo lo que necesita una app publicada para dibujarse. */
@@ -659,6 +667,15 @@ export interface AiConfig {
   providers: AiProviderConfig[];
   /** Lo que se usa cuando quien pide no elige otra cosa. */
   fallback: AiChoice;
+  /**
+   * Con que se atiende la pasada que escribe la memoria de una pagina.
+   *
+   * Vacio --lo normal-- es el modelo con el que se atendio la peticion: una
+   * segunda configuracion que nadie mantiene se queda vieja. Esta por si mas
+   * adelante conviene uno mas barato para esta tarea, que es corta y siempre
+   * la misma. Ver `memoria-de-pagina/design.md` D7.
+   */
+  memoryChoice: AiChoice | null;
   enabled: boolean;
   /** Muestra en cada respuesta del chat el contexto que se le manda al modelo. */
   debugButton: boolean;

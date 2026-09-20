@@ -35,12 +35,18 @@ La memoria es un texto por pagina, se lee entera en cada peticion y se borra con
 **D3 -- La escritura es una pasada aparte al cerrar el turno, no instrucciones dentro del turno principal.**
 La alternativa era anadirle al prompt principal la orden de guardar memoria. Se descarta: ese prompt ya lleva veinte herramientas y toda la guia de construccion, y la memoria competiria con ellas; en la practica el modelo prioriza construir y la escritura queda irregular, que es justo lo que se quiere evitar. Una llamada aparte recibe solo tres cosas --el intercambio, la memoria actual y sus reglas de redaccion-- y es el unico sitio donde un texto de sistema estricto se puede afinar sin efectos colaterales. Cuesta una llamada corta por turno, del orden del tres por ciento del turno.
 
-**D4 -- La pasada devuelve una operacion sobre una vineta, nunca la memoria entera.**
-Se considero que devolviera el markdown completo, que es mas simple. Se descarta porque en la reescritura numero quince el modelo puede resumir de mas y borrar una regla que nadie estaba mirando: silenciosa y sin forma de detectarla. La pasada contesta `sin cambios`, o `agregar`, `reemplazar` o `borrar` nombrando la vineta.
+**D4 -- La pasada devuelve operaciones sobre vinetas nombradas, nunca la memoria entera.**
+Se considero que devolviera el markdown completo, que es mas simple. Se descarta porque en la reescritura numero quince el modelo puede resumir de mas y borrar una regla que nadie estaba mirando: silenciosa y sin forma de detectarla. La pasada contesta con una lista de operaciones --`agregar`, `reemplazar` o `borrar`, cada una nombrando su vineta-- que puede venir vacia.
 
 La vineta se nombra **por su texto exacto**, no por su posicion. Una posicion se desplaza en cuanto alguien edita la caja a mano, y una operacion sobre la posicion 3 aplicada a una lista que cambio borra la vineta equivocada. Si el texto nombrado ya no aparece, la operacion se descarta y la memoria queda como estaba: perder una escritura es recuperable, pisar una regla ajena no.
 
 La pasada puede operar sobre cualquier vineta, no solo la del pedido en curso: asi puede fundir dos que dicen lo mismo, que es lo que impide que la memoria crezca (D6).
+
+**Cuantas operaciones devuelve lo decide la pasada, no el sistema.** Se probo con una sola por turno y se descarta: a "agrega a las memorias el funcionamiento" --diez reglas de golpe-- contesto con una vineta de ochocientos caracteres que las llevaba todas dentro, y con una sola operacion por turno no hay forma de que la memoria recoja lo que ya se acordo, que es justo lo que D11 promete.
+
+Se considero entonces obligarla a partir: una regla por operacion, prohibido meter varias en una vineta. Tambien se descarta. Ese limite decide desde fuera algo que depende del caso --hay reglas que se entienden juntas y separarlas las deja cojas-- y sustituye por una cuenta lo que tiene que ser criterio. **El control es el texto de sistema, y por eso es ahi donde se es exigente:** dice con ejemplos que clase de cosas son reglas --quien puede hacer que, que datos son obligatorios, que prohibe el negocio, los estados y lo que exige cada cambio, como se calcula algo, que nace de que, que queda en registro-- y cuales no, y da una sola prueba para las dudosas: si la pagina se reconstruyera manana sin esa linea, ¿saldria mal? Si no, no es una regla.
+
+Lo unico que se le sigue negando es devolver la memoria entera reescrita, que es lo que este punto protege: cada operacion nombra la vineta que toca y lo que ninguna nombra sigue sin tocarse. Se aplican en el orden en que vienen, cada una sobre lo que dejo la anterior, y la que nombre una vineta que ya no esta se descarta sola sin detener a las demas: que falle una de diez no puede costar las otras nueve.
 
 **D5 -- Detectar la contradiccion es del turno principal; escribir sigue siendo de la pasada.**
 La confirmacion tiene que ocurrir antes de construir, asi que no puede vivir en una pasada posterior. El turno principal recibe la memoria en su contexto y, cuando el pedido choca con una regla, usa `preguntar` --que ya cierra el turno con opciones y reanuda con `choice`--. No hace falta un mecanismo nuevo; hace falta levantar la restriccion actual, que prohibe preguntar por decisiones de diseno. Una contradiccion no lo es: la opcion ya existe, es la regla guardada.
@@ -61,6 +67,18 @@ Se considero deducir una memoria inicial leyendo el HTML, y ofrecerlo como boton
 
 **D10 -- No se cachea el prompt de la pasada.**
 El cacheo es una coincidencia de prefijo: la pasada y el turno principal son prompts distintos y no comparten nada. El prefijo estable de la pasada --sus reglas de redaccion-- queda por debajo del minimo cacheable de cualquier modelo actual, asi que el cache no se crearia y no avisaria de ello. Donde el cacheo si pagaria es en el turno principal, que reenvia decenas de miles de tokens identicos en cada ronda de herramientas; eso es un cambio de la capa de modelos y va aparte.
+
+**D11 -- Lo que se pide recordar expresamente se recuerda, sea o no una regla funcional.**
+D6 le pone a la pasada una lista de lo que no guarda --apariencia, correcciones, preferencias de redaccion, el relato de lo que se pidio--. Esa lista se escribio contra un riesgo concreto: que la pasada, decidiendo sola, llene la memoria de ruido. No estaba pensada para desautorizar a quien construye, y en la primera prueba real se vio la diferencia: a "agrega a las memorias el funcionamiento" la IA contesto escribiendo una tarjeta de documentacion dentro de la pantalla, porque no tenia ninguna forma de obedecer y la palabra "memorias" ni siquiera estaba en su contexto.
+
+Asi que la exclusion vale para lo que el sistema decide por su cuenta, y una orden directa manda sobre ella. Se considero dejarla estricta y remitir siempre a la caja de los ajustes; se descarta porque convierte la peticion mas natural --"recuerda esto"-- en un rodeo, y porque quien es dueno de la aplicacion tiene mas derecho que la pasada a decidir que merece recordarse.
+
+Dos consecuencias:
+
+- **La seccion de la memoria viaja siempre, tambien vacia.** Sin ella la palabra no esta en el contexto y no hay nada que contestar. Vacia dice que todavia no hay reglas, que es un dato, no una lista fingida.
+- **La IA reescribe en su respuesta aquello que hay que recordar.** La pasada solo ve el intercambio de este turno, asi que lo acordado tres conversaciones atras solo le llega si la respuesta lo trae. No es adorno: es el unico camino. De ahi tambien que no se deduzca nada del HTML ya construido, que sigue siendo D9.
+
+Pedir que se recuerde algo y pedir administrar la memoria --borrar una regla, reescribirla entera, leerla-- se dicen con palabras parecidas y no son lo mismo. Lo segundo sigue siendo de la caja de los ajustes: son operaciones sobre una lista que hay que ver entera para hacerlas bien.
 
 ## Risks / Trade-offs
 

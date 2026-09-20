@@ -47,6 +47,7 @@ import { AI_MISSING, aiEnabled, askAi, startConversation } from "../ai.ts";
 import { saveAiDebug } from "../aiDebug.ts";
 import { findAiFile, nameAiFiles, readAiFileBase64, sampleAiFile } from "../aiFiles.ts";
 import { type ShownFile, sourcesFor, type ToolContext } from "./context.ts";
+import { runMemoryPass } from "./memory.ts";
 import { FIX_SYSTEM_TAIL, systemPrompt, USE_SYSTEM } from "./prompts.ts";
 import { MAX_PROBES, runTool } from "./toolRuntime.ts";
 import { toolsFor } from "./tools.ts";
@@ -157,6 +158,18 @@ export function priorTurns(history: AiMessage[]): { role: "user" | "assistant"; 
    */
   while (kept.length && kept[0].role !== "user") kept = kept.slice(1);
   return kept;
+}
+
+/**
+ * La pregunta con la que la IA cerro el turno anterior, si lo cerro asi.
+ *
+ * Es lo que le falta a la pasada para entender el turno que la contesta: "Si,
+ * cambiarlo" suelto no dice de que. Solo cuenta la del ultimo mensaje de la
+ * IA; mas atras la pregunta ya se resolvio y no es de este intercambio (D5).
+ */
+function lastQuestion(history: AiMessage[]): string | undefined {
+  const last = [...history].reverse().find((message) => message.from === "ia");
+  return last?.question?.question || undefined;
 }
 
 /* ------------------------------------------------------------------ */
@@ -603,9 +616,47 @@ async function pageRequest(
   // dicho que no escriba resumen, y la conversacion guardada tiene que leerse
   // igual de bien sin los botones delante.
   const closing = plan ? plan.texto : question ? question.question : "Listo.";
+  const answer = [message, ending].filter(Boolean).join("\n\n") || closing;
+
+  /*
+   * La memoria de la pagina se escribe aqui, con el turno ya cerrado: la
+   * respuesta lleva rato en la pantalla --salio por los avisos segun se
+   * escribia-- asi que esperar a la pasada no retrasa nada de lo que se ve. Lo
+   * que si espera es el `fin`, y eso es lo que se quiere: la caja de Memorias
+   * se desbloquea con el texto ya escrito, no con el de antes (D8).
+   *
+   * No se pasa por aqui cuando el turno cerro preguntando, cerrando un plan o
+   * detenido. En los tres la IA no construyo nada y el intercambio esta a
+   * medias: lo que se pidio todavia no tiene respuesta, y guardar la regla que
+   * se estaba proponiendo seria darla por aceptada antes de que nadie la
+   * acepte. Se guarda en el turno siguiente, que es el que trae la
+   * confirmacion y --por `question`-- tambien la pregunta (D5).
+   */
+  if (!question && !plan && !halted) {
+    await runMemoryPass({
+      app: opts.app,
+      page: opts.page,
+      choice: opts.choice,
+      exchange: {
+        prompt: opts.prompt,
+        question: lastQuestion(opts.history ?? []),
+        answer,
+        steps: ctx.steps,
+      },
+      // Que la pasada falle no puede tumbar un turno que ya salio bien: se
+      // deja constancia y la memoria queda como estaba (`page-memory`: "La
+      // pasada falla").
+    }).catch((err: unknown) => {
+      console.error(
+        `[memoria] La pasada de la página "${opts.page.name}" falló:`,
+        err instanceof Error ? err.message : err,
+      );
+      return null;
+    });
+  }
 
   return {
-    message: [message, ending].filter(Boolean).join("\n\n") || closing,
+    message: answer,
     steps: ctx.steps,
     notices: ctx.notices,
     changed: ctx.changed,

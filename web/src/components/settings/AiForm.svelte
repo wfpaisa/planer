@@ -28,6 +28,7 @@
   } from "@shared/aiCatalog";
   import {
     AI_THINKING_DEFAULT,
+    AI_THINKING_OFF,
     type AiConfigView,
     type AiProvider,
     type AiProviderView,
@@ -362,6 +363,44 @@
       >
         {#each defaultLevels as level (level)}
           <option value={level}>{aiThinkingLabel(level)}</option>
+        {/each}
+      </Select>
+    </Field>
+
+    <!--
+      La pasada que guarda las memorias de una pagina. Es corta y siempre la
+      misma, asi que puede convenirle un modelo mas barato que el del turno;
+      mientras no se senale ninguno va con el de la petición, que es lo que
+      evita una segunda configuracion que se quede vieja sin que nadie lo note.
+    -->
+    <Field
+      label="Modelo para las memorias de página"
+      hint="Con el que se guardan las reglas de una página al terminar cada petición. Es una llamada corta."
+    >
+      <Select
+        value={config.memoryChoice
+          ? choiceValue(config.memoryChoice.provider, config.memoryChoice.model)
+          : ""}
+        onchange={(e) => {
+          const raw = e.currentTarget.value;
+          if (!raw) return set({ memoryChoice: null });
+          const [provider, model] = raw.split(" ");
+          set({
+            memoryChoice: {
+              provider,
+              model,
+              thinking: config.memoryChoice?.thinking ?? AI_THINKING_OFF,
+            },
+          });
+        }}
+      >
+        <option value="">El mismo de la petición</option>
+        {#each usable as provider (provider.id)}
+          <optgroup label={aiProviderName(provider)}>
+            {#each provider.models as model (model.id)}
+              <option value={choiceValue(provider.id, model.id)}>{aiModelLabel(model)}</option>
+            {/each}
+          </optgroup>
         {/each}
       </Select>
     </Field>

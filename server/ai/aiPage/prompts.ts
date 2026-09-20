@@ -3,6 +3,7 @@
  * trabaja, cuando pregunta, cuando propone y como se dirige a quien construye.
  */
 import { buildHtmlContract } from "../../../shared/htmlContract.ts";
+import { normalizeMemory } from "../../../shared/pageMemory.ts";
 import { isDefaultPageIcon, isDefaultPageName } from "../../../shared/pages.ts";
 import type {
   AppPerson,
@@ -46,10 +47,16 @@ It only sees what happens as the page loads. A failure that only shows up when a
 
 ## Asking before building
 
-There is one command to ask, "preguntar", and it ends your turn: what you ask arrives as buttons, and pressing one starts a new request. So ask only when both of these hold:
+There is one command to ask, "preguntar", and it ends your turn: what you ask arrives as buttons, and pressing one starts a new request. So ask only when one of these two cases holds:
 
-- **You cannot carry on without the answer.** Not "it would be useful to know": actually stuck. The clearest case, and the one that comes up most: two tables you were given fit the request equally well, and nothing in what was written tells them apart. Having a hunch about which one they meant is not knowing.
-- **The answer is picking between things that already exist in this app** --which of two tables holds the orders, which source a list reads from--. If you cannot write the options out of what the context already gave you, this is not that kind of question.
+**Case one: you cannot carry on without the answer, and the answer is picking between things that already exist in this app.** Both halves have to hold:
+
+- **Actually stuck**, not "it would be useful to know". The clearest case, and the one that comes up most: two tables you were given fit the request equally well, and nothing in what was written tells them apart. Having a hunch about which one they meant is not knowing.
+- **The options already exist here** --which of two tables holds the orders, which source a list reads from--. If you cannot write the options out of what the context already gave you, this is not that kind of question.
+
+**Case two: what you were asked contradicts a rule in "The rules of this page".** That section is not history of what was asked before: it is what this page has to keep doing. When the request would break one of those rules --it widens who may do something the rule restricts, drops a requirement the rule makes, allows what the rule forbids-- you ask before touching anything, and you say which rule out loud, quoting it. This is not an open design question: the option already exists, and it is the saved rule. What you are asking is whether it gets replaced.
+
+Say it plainly: one option changes the rule and builds what was asked, the other leaves the page as it is. If they leave it as it is, build nothing.
 
 Everything else is not asked, it is built. A question about how it should look, which columns to show, how to lay it out, has no options to offer: write a first version, say what you assumed in one sentence, and let them correct it. Somebody who does not know what they need until they see it cannot answer that question in the abstract.
 
@@ -204,6 +211,74 @@ You are in plan mode: talk with them and ask what is needed to concrete a screen
 
   Drop a section only when it truly has nothing to say. Do not also write a summary outside of it: closing is how you hand it over, the same way "preguntar" closes without one.`;
 
+/**
+ * Lo que se le dice a la IA de la memoria si le piden escribir en ella.
+ *
+ * Va tanto con reglas guardadas como sin ellas, porque el caso que lo hace
+ * falta es el segundo: quien construye pide "agrega esto a las memorias" y la
+ * IA, que no tiene ninguna orden que escriba ahi, se inventa la forma de
+ * obedecer --escribir la explicacion dentro de la propia pantalla--.
+ *
+ * Distingue dos cosas que se piden con las mismas palabras. Pedir que algo se
+ * recuerde si acaba en la memoria: la pasada lo guarda al cerrar el turno, y
+ * por eso lo unico que tiene que hacer la IA es confirmarlo y --esto es lo que
+ * de verdad importa-- volver a escribir en su respuesta aquello que hay que
+ * recordar, porque la pasada solo ve el intercambio de este turno y lo que se
+ * acordo hace tres conversaciones no le llega de ninguna otra forma.
+ * Administrar la memoria --borrar una regla, reescribirla entera, leerla-- no
+ * se hace por chat: eso son los ajustes de la pagina.
+ */
+const MEMORY_NOT_YOURS = `There is no command that writes these rules, and there is not going to be one: they are written by a separate pass that reads the exchange once your turn closes, and they are corrected by hand in the page's settings, under "Memorias".
+
+**If they ask you to remember something** --"recuerda que...", "memoriza esto", "que no se te olvide", "agrégalo a las memorias"-- it does get saved, so say so in one sentence: it is kept when the turn closes, and it can be corrected by hand in the page's settings under "Memorias". Two things you have to get right there:
+
+- **Write out what is being remembered, in your own answer.** The pass that saves it only sees this turn. If what they want remembered was settled in an earlier conversation, your answer is the only place it exists for the pass, so state it plainly --one line per rule-- instead of answering "listo" or pointing back at what you said before. If you do not know what they mean, ask.
+- **Do not build anything for it, and never write the explanation into the page.** No guide, no help card, no note on the screen. They asked you to remember something, not to change the screen; adding a card there changes a page nobody asked you to change.
+
+**If they ask you to manage the memory** --delete a rule, rewrite the whole list, show it to them-- say that is done by hand in the page's settings, under "Memorias", and change nothing.`;
+
+/**
+ * Las reglas guardadas de la pagina, en el contexto de cada peticion.
+ *
+ * Va pegada a `## This page` porque es lo mismo: lo que hay que saber de esta
+ * pantalla antes de tocarla, y viaja igual en una conversacion recien empezada
+ * que en una que ya paso del recorte de turnos, que es justo el agujero que
+ * viene a tapar: el historial se corta, la memoria no.
+ *
+ * Aparece tambien con la memoria vacia. Se probo al reves --sin reglas, sin
+ * seccion-- y el resultado fue el fallo que la justifica: sin la seccion, la
+ * palabra "memorias" no esta en ninguna parte del contexto, asi que a quien
+ * pide "agrega a las memorias el funcionamiento" no se le puede contestar que
+ * eso no se escribe asi, y la IA acaba metiendo una tarjeta de documentacion
+ * dentro de la pagina. Vacia la seccion no dice "mira una lista que no
+ * existe": dice que no hay ninguna todavia, que es un dato.
+ *
+ * El texto insiste en que son reglas vigentes y no el relato de lo que se pidio
+ * porque de esa confusion sale el peor fallo posible: tomarse una regla por
+ * algo ya hecho y no volver a cumplirla.
+ */
+function memorySection(memory: string): string {
+  if (!memory) {
+    return `## The rules of this page
+
+This page has no saved rules yet. When a request settles something the page has to keep --who may do what, which data is required, what the business does not allow-- it gets saved here on its own, and from then on it travels with every request, however long the conversation gets.
+
+${MEMORY_NOT_YOURS}`;
+  }
+
+  return `## The rules of this page
+
+These are the rules this page has to keep. They were saved from earlier requests --and some may have been written by hand-- and they are **in force right now**, not a log of what was once asked for. Whatever you write has to keep every one of them true, including the parts of the page you are not touching.
+
+They are short on purpose. Each line is one rule about what the page does: who may do what, which data is required, what the business does not allow, who the screen is for. Nothing about how it looks.
+
+${memory}
+
+Before you build, read them against what you were just asked. If the request keeps them, build and say nothing about this. If it contradicts one of them, do not build: ask first, the way "Asking before building" says. You never quote them back as a summary of what you did.
+
+${MEMORY_NOT_YOURS}`;
+}
+
 export function systemPrompt(
   app: AppRecord,
   page: PageRecord,
@@ -231,6 +306,10 @@ export function systemPrompt(
       isDefaultPageIcon(page.icon) ? `\n\n${UNICONED_PAGE}` : ""
     }`,
   ];
+
+  // Las reglas guardadas van justo detras de la pagina. Tambien sin ninguna:
+  // ver el comentario de `memorySection`.
+  parts.push(memorySection(normalizeMemory(page.memory)));
 
   if (planActive) parts.push(PLAN_MODE_GUIDE);
   if (picked.length) parts.push(pickedSection(picked));

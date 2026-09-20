@@ -65,12 +65,16 @@
   - Revisar errores automáticamente (consola del navegador)
   - Convertir página antigua de bloques a HTML con IA
   - Roles por página / por separador de menú
+  - Memorias de la página: las reglas funcionales que debe cumplir, editables a mano en sus ajustes
 - **Inteligencia artificial**
 
   - Generar y editar páginas/tablas por chat (una petición por página a la vez)
   - Elegir proveedor, modelo y nivel de razonamiento por petición
   - Adjuntar archivos (CSV, JSON, texto, imagen) a la conversación
   - Herramientas del modelo: ver tablas, crear tabla, agregar columnas, crear/actualizar página, leer archivo, llenar tabla desde archivo, revisar errores
+  - Memoria de la página en el contexto de cada petición, y preguntar antes de contradecir una regla guardada
+  - La memoria se escribe sola al cerrar cada turno, con su propio modelo configurable
+  - Pedir expresamente que algo se recuerde lo guarda en la memoria, sea o no una regla funcional
   - Modo Plan: conversar y preguntar antes de construir, cerrar el plan
   - Cortar una petición en marcha
   - Diálogo de impacto para cambios riesgosos (borrar columna/tabla, cambiar tipo)

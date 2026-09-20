@@ -102,6 +102,7 @@
   .cell-view-date,
   .cell-view-number {
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
   }
 
   .cell-view-url {

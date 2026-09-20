@@ -13,12 +13,13 @@
   import type { AppRecord, PageRecord } from "@shared/types";
   import { untrack } from "svelte";
 
-  import { errorMessage, pb } from "../lib/pb";
+  import { aiActivity } from "../lib/aiActivity.svelte";
+  import { api, errorMessage, pb, put } from "../lib/pb";
   import Icon from "./Icon.svelte";
   import IconPicker from "./IconPicker.svelte";
   import OmniPanel from "./OmniPanel.svelte";
   import PageAccessPicker from "./PageAccessPicker.svelte";
-  import { Button, ConfirmDialog, ErrorNote, Field, Input } from "./ui";
+  import { Button, ConfirmDialog, ErrorNote, Field, Input, Textarea } from "./ui";
 
   let {
     app,
@@ -55,6 +56,33 @@
   let error = $state("");
   let deleting = $state(false);
 
+  /*
+   * La memoria no viene con la pagina que trae el constructor: se pide aparte.
+   * Es lo que hace que la caja ensene lo que la pasada acaba de escribir en
+   * cuanto la IA termina, sin esperar a que nadie recargue nada.
+   */
+  let memory = $state("");
+  /** Todavia no llego: la caja no se toca hasta saber que dice. */
+  let memoryLoading = $state(true);
+
+  /** La IA esta trabajando en esta pagina: la caja se mira pero no se escribe. */
+  const aiWorking = $derived(aiActivity.has(page.id));
+
+  async function loadMemory(pageId: string) {
+    memoryLoading = true;
+    try {
+      const res = await api<{ memoria: string }>(`/api/apps/${app.id}/paginas/${pageId}/memoria`);
+      // Cambiar de pagina mientras esta iba de camino: lo que llega es de la
+      // anterior y no tiene nada que hacer en la caja de esta.
+      if (pageId !== page.id) return;
+      memory = res.memoria;
+    } catch (err) {
+      if (pageId === page.id) error = errorMessage(err);
+    } finally {
+      if (pageId === page.id) memoryLoading = false;
+    }
+  }
+
   /** Como se nombra esto en los textos: la misma palabra en todos. */
   const thing = $derived(page.separator ? "separador" : "página");
 
@@ -67,6 +95,25 @@
     roles = withPageAdmin(page.roles ?? []);
     isHome = page.isHome;
     error = "";
+  });
+
+  /*
+   * La memoria se lee al abrir, al cambiar de pagina y cada vez que la senal de
+   * la IA cambia sobre esta --al empezar una peticion y al terminarla--.
+   *
+   * Lo que importa es la vuelta: la pasada escribe la memoria al cerrar el
+   * turno, asi que el texto que se leyo al abrir la caja ya no es el que hay
+   * cuando la caja se desbloquea. Sin esto se desbloquearia ensenando lo
+   * anterior, y guardar pisaria lo que la IA acaba de escribir. Ver D8.
+   */
+  $effect(() => {
+    const id = page.id;
+    // Un separador no es una pagina: no tiene reglas que cumplir ni caja donde
+    // leerlas, asi que no se pide nada.
+    if (page.separator) return;
+    // Se lee tambien la senal: es la mitad de lo que dispara la relectura.
+    void aiActivity.has(id);
+    void loadMemory(id);
   });
 
   async function save() {
@@ -94,6 +141,19 @@
         roles,
         ...(isHome && !page.isHome ? { isHome: true } : {}),
       });
+      /*
+       * La memoria va por su ruta y no con los demas campos: es lo unico de la
+       * pagina que se normaliza en el servidor antes de guardarse. Con la IA
+       * trabajando no se manda nada --la caja esta bloqueada y lo que hubiera
+       * escrito pisaria a la pasada-- y lo que se guarda vuelve ya limpio.
+       */
+      if (!aiWorking && !memoryLoading) {
+        const saved = await put<{ memoria: string }>(
+          `/api/apps/${app.id}/paginas/${page.id}/memoria`,
+          { memoria: memory },
+        );
+        memory = saved.memoria;
+      }
       await onChanged();
       onClose();
     } catch (err) {
@@ -130,6 +190,42 @@
     icon={ROLE_ICON}
   >
     <PageAccessPicker {roles} appRoles={app.roles ?? []} onChange={(next) => (roles = next)} />
+  </Field>
+{/snippet}
+
+<!--
+  Las reglas funcionales de la pagina, una por renglon.
+
+  Se escriben solas: al cerrar cada turno, una pasada aparte mira lo que se
+  pidio y guarda la regla que quedo, si quedo alguna. Esta caja es donde se
+  leen y donde se corrigen a mano, que es lo que hace recuperable que la pasada
+  se equivoque o se deje algo.
+
+  Vacia se ensena vacia: una pagina a la que todavia no se le ha pedido nada no
+  tiene reglas, y eso no es un error que avisar.
+
+  Mientras la IA trabaja en esta pagina la caja se mira pero no se escribe: la
+  pasada esta a punto de escribir ahi y guardar lo que se cargo antes borraria
+  lo que acaba de anadir. Ver `design.md` D8.
+-->
+{#snippet memories()}
+  <Field
+    label="Memorias"
+    icon="brain-02"
+    hint={aiWorking
+      ? "Bloqueadas mientras la inteligencia artificial trabaja en esta página: al terminar puede escribir aquí."
+      : "Lo que esta página tiene que cumplir, una regla por renglón. Se escriben solas con cada petición; corrígelas si hace falta."}
+  >
+    <Textarea
+      bind:value={memory}
+      class="textarea-page-memory"
+      rows={8}
+      disabled={aiWorking || memoryLoading}
+      placeholder={memoryLoading
+        ? ""
+        : "- Solo los auxiliares crean citas\n- El teléfono del paciente es obligatorio"}
+      aria-label="Memorias de la página"
+    />
   </Field>
 {/snippet}
 
@@ -250,6 +346,7 @@
       </div>
 
       {@render access()}
+      {@render memories()}
       {@render dangerZone()}
     </div>
   {/if}
@@ -290,6 +387,17 @@
     & .join-page-panel-name :global(.btn-home-page-panel) {
       flex: none;
       white-space: nowrap;
+    }
+
+    /* Las reglas se leen como una lista, asi que el renglon manda: alto
+       comodo, salto respetado y sin el ancho automatico del navegador, que
+       aqui saldria mas estrecho que el resto del formulario. El vestido --el
+       borde, el fondo, el estado apagado-- ya lo pone `field-control`. */
+    & :global(.textarea-page-memory) {
+      min-height: 9rem;
+      resize: vertical;
+      line-height: var(--text-sm--line-height);
+      white-space: pre-wrap;
     }
 
     /* La caja, el titulo y el subtitulo son `.card`, `.card-title` y

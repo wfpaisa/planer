@@ -329,6 +329,10 @@ const ROUTES: [RegExp, string, Handler][] = [
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html$/, "GET", api.getPageHtml],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html$/, "PUT", api.savePageHtml],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/convertir$/, "POST", api.convertPage],
+  // Las reglas funcionales de la pagina: solo las ve y las escribe quien la
+  // construye, y nunca salen a la aplicacion publicada.
+  [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/memoria$/, "GET", api.getPageMemory],
+  [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/memoria$/, "PUT", api.savePageMemory],
   // Las seis ordenes de datos de una pagina. El navegador ya no habla con la
   // base: el permiso se aplica aqui, antes de entregar nada.
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/datos$/, "POST", api.pageData],

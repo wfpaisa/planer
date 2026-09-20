@@ -10,6 +10,8 @@ Cada pagina SHALL tener una memoria propia: un texto en markdown plano donde cad
 
 Una regla funcional es lo que seguiria siendo cierto si la pagina se reconstruyera desde cero: quien puede hacer que, que datos son obligatorios, que prohibe el negocio, para quien es la pantalla. La memoria SHALL NO guardar apariencia, correcciones de errores, preferencias de redaccion ni el relato de lo que se pidio.
 
+Esa exclusion vale para lo que el sistema decide por su cuenta. Cuando quien construye pide expresamente que algo se recuerde, esa peticion SHALL guardarse aunque no sea una regla funcional. Ver "Lo que se pide recordar expresamente se recuerda".
+
 La memoria pertenece a la pagina: borrar la pagina SHALL llevarse su memoria.
 
 #### Scenario: Una regla de negocio
@@ -21,6 +23,11 @@ La memoria pertenece a la pagina: borrar la pagina SHALL llevarse su memoria.
 
 - **WHEN** quien construye pide que los botones se vean azules
 - **THEN** la memoria no cambia
+
+#### Scenario: Ese mismo ajuste, pedido para recordar
+
+- **WHEN** quien construye pide que se recuerde que los botones van azules
+- **THEN** la memoria recoge que los botones van azules
 
 #### Scenario: Cada pagina la suya
 
@@ -60,7 +67,7 @@ Cada peticion a la IA SHALL llevar la memoria de la pagina que se esta editando,
 
 ### Requirement: La memoria se escribe sola al cerrar el turno
 
-Al terminar un turno, el sistema SHALL ejecutar una pasada aparte que recibe el intercambio completo --lo que se pidio, lo que contesto la IA-- y la memoria actual, y devuelve o bien que no hay nada que guardar, o bien una operacion sobre la memoria.
+Al terminar un turno, el sistema SHALL ejecutar una pasada aparte que recibe el intercambio completo --lo que se pidio, lo que contesto la IA-- y la memoria actual, y devuelve las operaciones que el intercambio deje acordadas, que pueden ser ninguna.
 
 Quien construye SHALL NO tener que pedir que se guarde nada.
 
@@ -88,7 +95,22 @@ La pasada SHALL poder agregar una vineta, reemplazar una vineta existente o borr
 
 Lo que la pasada no nombra SHALL quedar intacto.
 
+La pasada SHALL poder devolver cuantas operaciones juzgue necesarias en un mismo turno, y el sistema SHALL NO limitar su numero ni decidir por ella como reparte las reglas entre vinetas. Las operaciones SHALL aplicarse en el orden en que vienen, cada una sobre el resultado de la anterior.
+
+Una operacion que nombre una vineta que ya no existe SHALL descartarse sin impedir que las demas se apliquen.
+
 La pasada SHALL poder operar sobre cualquier vineta, no solo sobre la relacionada con el pedido del momento: puede fundir dos vinetas que dicen lo mismo.
+
+#### Scenario: El turno deja acordadas varias reglas
+
+- **WHEN** un turno deja acordadas diez reglas de funcionamiento
+- **THEN** la memoria recoge las diez, sin que el sistema recorte la lista
+
+#### Scenario: Una operacion nombra una vineta que ya no esta
+
+- **WHEN** la pasada devuelve varias operaciones y una nombra una vineta que ya no existe
+- **THEN** esa operacion se descarta
+- **AND** las demas se aplican igual
 
 #### Scenario: Una regla cambia
 
@@ -101,11 +123,49 @@ La pasada SHALL poder operar sobre cualquier vineta, no solo sobre la relacionad
 - **WHEN** la pasada detecta dos vinetas que dicen lo mismo
 - **THEN** puede dejar una y borrar la otra
 
+### Requirement: Lo que se pide recordar expresamente se recuerda
+
+Cuando quien construye pida expresamente que algo se recuerde --"recuerda que...", "memoriza esto", "que no se te olvide", "agregalo a las memorias"-- la pasada SHALL guardarlo, y SHALL guardarlo aunque por su cuenta no lo habria considerado una regla funcional.
+
+Una orden directa de quien construye manda sobre el criterio de la pasada: la lista de lo que la memoria no guarda existe para que el sistema no adivine solo, no para desautorizar a quien es dueno de la aplicacion.
+
+La IA SHALL decir que queda guardado, y SHALL escribir en su respuesta aquello que se le pidio recordar. La pasada solo ve el intercambio de ese turno, asi que lo acordado en conversaciones anteriores solo llega hasta ella si la respuesta lo trae.
+
+Pedir que se recuerde algo SHALL NO hacer que la IA lo escriba dentro de la pagina.
+
+#### Scenario: Se pide recordar una regla
+
+- **WHEN** quien construye escribe "recuerda que solo se reserva en dias futuros"
+- **THEN** la memoria recoge que solo se reserva en dias futuros
+- **AND** la IA contesta que queda guardado, sin tocar la pagina
+
+#### Scenario: Se pide recordar algo de antes
+
+- **WHEN** quien construye pide que se recuerde el funcionamiento que se acordo en turnos anteriores
+- **THEN** la IA lo escribe en su respuesta
+- **AND** la memoria lo recoge desde ahi
+
+#### Scenario: Se pide recordar un funcionamiento entero
+
+- **WHEN** quien construye pide que se recuerde el funcionamiento de la pantalla y la IA lo escribe en su respuesta como una lista de reglas
+- **THEN** la memoria recoge ese funcionamiento entero, y no solo una parte
+
+#### Scenario: Se pide recordar algo que no es una regla funcional
+
+- **WHEN** quien construye pide que se recuerde una preferencia de como se ve o de como se escribe
+- **THEN** la memoria la recoge igual
+
+#### Scenario: Administrar la memoria no se hace por chat
+
+- **WHEN** quien construye le pide a la IA que borre una regla guardada o que reescriba la memoria entera
+- **THEN** la IA dice que eso se hace en los ajustes de la pagina, en `Memorias`
+- **AND** ni la memoria ni la pagina cambian
+
 ### Requirement: La memoria no tiene tope
 
 El sistema SHALL NO recortar la memoria ni rechazar una escritura por tamano. Ninguna regla guardada SHALL desaparecer por el crecimiento de la memoria.
 
-Lo que mantiene la memoria corta es como escribe la pasada: una regla por vineta, en presente y en una linea, reemplazando una vineta existente antes que agregar una parecida, y sin escribir nada cuando hay duda.
+Lo que mantiene la memoria corta es como escribe la pasada: en presente y en una linea, reemplazando una vineta existente antes que agregar una parecida, fundiendo las que digan lo mismo y sin escribir nada cuando hay duda. El texto de sistema de la pasada SHALL decir con detalle que clase de cosas se guardan y cuales no; el sistema SHALL NO sustituir ese criterio por un limite mecanico.
 
 #### Scenario: Una memoria larga
 

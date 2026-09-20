@@ -343,7 +343,7 @@ const TOOLS: ToolDef[] = [
   {
     name: "preguntar",
     description:
-      "Asks the person one question and ends your turn: after calling it you write nothing else, and choosing an option starts a new request. Use it only when the answer is picking between things that already exist in this app --which table, which source-- and you cannot carry on without it. Never for open design questions --which columns, which layout--: build a first version and let them correct it.",
+      'Asks the person one question and ends your turn: after calling it you write nothing else, and choosing an option starts a new request. Two cases only. One: the answer is picking between things that already exist in this app --which table, which source-- and you cannot carry on without it. Two: what you were asked contradicts a rule saved in "The rules of this page" --then you quote the rule and ask whether it gets replaced, before touching anything. Never for open design questions --which columns, which layout--: build a first version and let them correct it.',
     schema: {
       type: "object",
       properties: {

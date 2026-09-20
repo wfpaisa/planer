@@ -455,6 +455,12 @@ export async function bootstrap() {
       // Roles que pueden abrir la pagina. Vacio: la abre cualquiera. No hay un
       // segundo campo que diga el nivel: la lista vacia es `Todos`.
       { name: "roles", type: "json", maxSize: 20_000 },
+      // Las reglas funcionales de la pagina, una por vineta: lo que seguiria
+      // siendo cierto si se reconstruyera desde cero. Es del constructor y no
+      // viaja a la aplicacion publicada. El tope es holgado a proposito: nada
+      // recorta la memoria, lo que la mantiene corta es como escribe la pasada
+      // que la guarda. Ver `openspec/changes/memoria-de-pagina/design.md` D2.
+      { name: "memory", type: "text", max: 200_000 },
       ...timestamps,
     ],
     indexes: ["CREATE UNIQUE INDEX `idx_pages_app_slug` ON `pages` (`app`, `slug`)"],

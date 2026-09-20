@@ -64,6 +64,16 @@ const THINKING_BUDGET = [0, 1024, 2048, 8192, 16384, 24576, 32000];
 /** Lo minimo que Claude acepta como presupuesto de ideas. */
 const MIN_BUDGET = 1024;
 
+/**
+ * El sitio que se le deja pensar a un modelo en una pregunta suelta.
+ *
+ * Es el mayor presupuesto de la escala: en un servidor que piensa por su
+ * cuenta no somos nosotros quienes decidimos cuanto, asi que se deja el hueco
+ * mas ancho que el panel contempla. Es un techo, no un gasto; lo que no se
+ * piensa no se cobra.
+ */
+const THINKING_ROOM = THINKING_BUDGET[THINKING_BUDGET.length - 1] ?? 32_000;
+
 /* ------------------------------------------------------------------ */
 /* Configuracion guardada                                              */
 /* ------------------------------------------------------------------ */
@@ -83,6 +93,7 @@ const DEFAULT_RUN_TIMEOUT_MINUTES = 40;
 const EMPTY: StoredConfig = {
   providers: [],
   fallback: { provider: "", model: "", thinking: AI_THINKING_OFF },
+  memoryChoice: null,
   enabled: false,
   debugButton: false,
   runTimeoutMinutes: DEFAULT_RUN_TIMEOUT_MINUTES,
@@ -117,6 +128,24 @@ const speaksAnthropic = (provider: AiProvider) => provider === "anthropic";
  */
 const isThinking = (value: unknown): value is AiThinking =>
   typeof value === "string" && /^[a-z0-9_-]{1,24}$/i.test(value);
+
+/**
+ * Una eleccion guardada que puede no estar: la de la pasada de la memoria.
+ *
+ * Sin proveedor o sin modelo es que no se senalo ninguno, y eso no es un
+ * ajuste a medias: es lo normal, y significa "el mismo modelo del turno".
+ */
+function readChoice(value: unknown): AiChoice | null {
+  const raw = (value ?? {}) as Partial<AiChoice>;
+  const provider = String(raw.provider ?? "").trim();
+  const model = String(raw.model ?? "").trim();
+  if (!provider || !model) return null;
+  return {
+    provider,
+    model,
+    thinking: isThinking(raw.thinking) ? raw.thinking : AI_THINKING_OFF,
+  };
+}
 
 /** Lo que un modelo dice de si mismo, dejado en numeros que se pueden usar. */
 function readModel(raw: Partial<AiModel>): AiModel | null {
@@ -191,6 +220,7 @@ function readConfig(value: unknown): StoredConfig {
     return {
       providers: [provider],
       fallback: { provider: provider.id, model, thinking: AI_THINKING_OFF },
+      memoryChoice: null,
       enabled: raw.enabled === true,
       debugButton: false,
       runTimeoutMinutes: DEFAULT_RUN_TIMEOUT_MINUTES,
@@ -208,6 +238,7 @@ function readConfig(value: unknown): StoredConfig {
       model: String(fallback.model ?? "").trim(),
       thinking: isThinking(fallback.thinking) ? fallback.thinking : AI_THINKING_OFF,
     },
+    memoryChoice: readChoice(raw.memoryChoice),
     enabled: raw.enabled === true,
     debugButton: raw.debugButton === true,
     runTimeoutMinutes: readRunTimeoutMinutes(raw.runTimeoutMinutes),
@@ -253,6 +284,11 @@ function mergeConfig(input: Partial<StoredConfig>, current: StoredConfig): Store
       thinking: next.fallback.thinking,
     };
   }
+
+  // El de la pasada de la memoria no se cae en ninguno: se borra. Vacio ya
+  // significa algo --el modelo del turno-- y es lo correcto cuando el que se
+  // habia senalado ya no existe.
+  if (next.memoryChoice && !findModel(next, next.memoryChoice)) next.memoryChoice = null;
 
   return next;
 }
@@ -1079,14 +1115,33 @@ export const AI_MISSING =
  * Va siempre con el modelo que este puesto por defecto: son peticiones que
  * nadie pide a mano, asi que no hay quien elija.
  */
-export async function askAi(system: string, prompt: string, maxTokens = 8000): Promise<string> {
+export async function askAi(
+  system: string,
+  prompt: string,
+  maxTokens = 8000,
+  /**
+   * Con que atenderla. Sin esto va con lo que este puesto por defecto, que es
+   * lo que quieren las tareas de una sola pregunta --explicar para que se usa
+   * una columna, arreglar una pagina rota--. La pasada de la memoria si lo
+   * manda: por defecto atiende con el mismo modelo del turno que la disparo.
+   */
+  choice?: Partial<AiChoice>,
+): Promise<string> {
   const cfg = await loadAiConfig();
   if (!cfg.enabled) throw new HttpError(400, AI_MISSING);
-  const picked = resolveChoice(cfg);
+  const picked = resolveChoice(cfg, choice);
   const base = resolveBaseUrl(picked.provider);
-  // Nunca por encima de lo que el modelo puede escribir: quien llama pide lo
-  // que le cabe a su tarea, no lo que soporta el servidor.
-  const max = Math.min(maxTokens, picked.model.maxTokens);
+  /*
+   * Lo que pide quien llama es lo que ocupa la respuesta. Un modelo que
+   * piensa gasta de ese mismo tope antes de escribir la primera palabra, y si
+   * se lo termina la respuesta no llega recortada: llega vacia, que es
+   * indistinguible de un "no tengo nada que decir" --asi se perdio en silencio
+   * la primera memoria que se intento guardar--. Por eso al que piensa se le
+   * suma sitio para pensar, sin pasar nunca de lo que el modelo puede
+   * escribir.
+   */
+  const asked = picked.model.thinking ? maxTokens + THINKING_ROOM : maxTokens;
+  const max = Math.min(asked, picked.model.maxTokens);
 
   if (speaksAnthropic(picked.provider.provider)) {
     const client = new Anthropic({

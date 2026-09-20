@@ -226,7 +226,8 @@
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
 
-  --font-family: "Quicksand", system-ui, -apple-system, sans-serif;
+  /* --font-family: "Quicksand", system-ui, -apple-system, sans-serif; */
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "Reddit Mono", monospace;
 
   /*
@@ -391,6 +392,7 @@ body {
   color: var(--text-primary);
   font-size: var(--text-sm);
   line-height: 1.5;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased;
 }
 

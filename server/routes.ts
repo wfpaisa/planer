@@ -7,6 +7,7 @@
 import { aiHasCatalog, aiProviderName } from "../shared/aiCatalog.ts";
 import { normalizePalette } from "../shared/brand.ts";
 import { buildHtmlContract } from "../shared/htmlContract.ts";
+import { normalizeMemory } from "../shared/pageMemory.ts";
 import { canOpenPage, pageDenial } from "../shared/pages.ts";
 import {
   ADMIN_ROLE,
@@ -2087,6 +2088,43 @@ function sanitizeSources(value: unknown): HtmlSource[] {
   return out;
 }
 
+/* ------------------------------------------------------------------ */
+/* La memoria de una pagina                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Las reglas funcionales que la pagina tiene guardadas.
+ *
+ * Se pide por aqui y no directamente a la base porque la caja del panel tiene
+ * que poder releerla en el momento en que la IA termina un turno, sin esperar
+ * a que el constructor recargue sus paginas. Ver `page-memory`.
+ */
+export async function getPageMemory(req: Request, appId: string, pageId: string) {
+  const me = await requireBuilder(req);
+  const app = await ownedApp(appId, me);
+  const page = await pageOf(app.id, pageId);
+  return json({ memoria: normalizeMemory(page.memory) });
+}
+
+/**
+ * Guarda lo que quien construye escribio en la caja.
+ *
+ * Mismo control de acceso que el resto de los campos de la pagina --es suya y
+ * de nadie mas-- y sin tope: nada de lo que llega se recorta por tamano, solo
+ * se deja en texto plano conservando los saltos de linea que separan las
+ * vinetas. Ver `design.md` D6.
+ */
+export async function savePageMemory(req: Request, appId: string, pageId: string) {
+  const me = await requireBuilder(req);
+  const app = await ownedApp(appId, me);
+  const page = await pageOf(app.id, pageId);
+  const input = await body<{ memoria?: unknown }>(req);
+
+  const memory = normalizeMemory(input.memoria);
+  await updateRecord<PageRecord>(INTERNAL.pages, page.id, { memory });
+  return json({ memoria: memory });
+}
+
 /** El documento de una pagina que todavia no tiene HTML. */
 const NO_DOC = () => new HttpError(404, "Esta página todavía no tiene HTML");
 
@@ -2283,6 +2321,22 @@ async function publishedDesign(
   return snapshot ? designFromSnapshot(app.id, snapshot, live.tables) : live;
 }
 
+/**
+ * Una pagina sin su memoria.
+ *
+ * La memoria es del constructor y no tiene nada que hacer en el navegador de
+ * quien usa la aplicacion publicada. Una fotografia de version nunca la
+ * guardo --`buildSnapshot` elige campo por campo-- pero el borrador se sirve
+ * entero mientras la app no tenga ninguna version publicada, y por ahi si
+ * saldria. Se quita aqui, en el unico sitio por el que las paginas salen al
+ * publico. Ver `page-memory`: "La memoria es del constructor".
+ */
+function withoutMemory(page: PageRecord): PageRecord {
+  if (!page.memory) return page;
+  const { memory: _memory, ...rest } = page;
+  return rest;
+}
+
 export async function publicBundle(req: Request, slug: string) {
   const app = await publishedApp(slug);
 
@@ -2311,7 +2365,7 @@ export async function publicBundle(req: Request, slug: string) {
   // El filtro se hace aqui: al navegador nunca le llega una pagina que esa
   // persona no pueda abrir. El contenido tampoco: el HTML se pide por su
   // pagina, y esa ruta vuelve a comprobar el permiso.
-  const visiblePages = design.pages.filter((page) => canOpenPage(page, viewer));
+  const visiblePages = design.pages.filter((page) => canOpenPage(page, viewer)).map(withoutMemory);
 
   const bundle: AppBundle = {
     app: brand,

@@ -313,6 +313,10 @@ export function planAiImport(
     next: {
       providers: incoming,
       fallback: pickFallback(incoming, [file.fallback, current.fallback]),
+      // El archivo no lo trae --no esta en el formato-- asi que se conserva el
+      // que hubiera. Si senalaba un modelo que ya no existe, el servidor lo
+      // borra al guardar, que es donde se puede saber.
+      memoryChoice: current.memoryChoice,
       enabled: file.enabled,
       debugButton: file.debugButton,
       runTimeoutMinutes: file.runTimeoutMinutes,

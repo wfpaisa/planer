@@ -11,6 +11,7 @@ Hace falta un sitio, por pagina, donde esas reglas sobrevivan al recorte del his
 - La memoria viaja en el contexto de cada peticion a la IA, junto al resto de lo que ya se manda.
 - Al terminar un turno corre una **pasada aparte**: una llamada corta, con su propio texto de sistema, que recibe el intercambio y la memoria actual y contesta `sin cambios` o una operacion sobre una vinieta. Es automatica: nadie tiene que pedir que se guarde.
 - Esa pasada solo puede **agregar, reemplazar o borrar una vinieta nombrada**, nunca devolver la memoria entera. Lo que no nombra, no cambia.
+- Si quien construye **pide expresamente que algo se recuerde**, eso se guarda aunque la pasada no lo habria considerado una regla funcional: una orden directa manda sobre su criterio.
 - La IA compara el pedido con la memoria antes de construir. Si lo pedido **contradice una regla guardada**, pregunta antes de tocar nada; si le dicen que no, ni construye ni cambia la memoria.
 - La caja de texto de Memorias queda **bloqueada mientras la IA trabaja**, para que lo que guarda quien construye no pise lo que acaba de escribir la pasada.
 - La memoria **no tiene tope**. Lo que la mantiene corta es la estrictez del texto de sistema de la pasada, no un corte.
