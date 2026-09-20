@@ -842,10 +842,10 @@ select.field-control {
       scrollbar-width: thin;
       scrollbar-color: var(--border-strong) transparent;
       overscroll-behavior: contain;
-      border: var(--border-width) solid var(--border);
+      border: var(--border-width) solid var(--border-float);
       border-radius: var(--radius-md);
-      background: var(--bg-level2);
-      box-shadow: var(--shadow-lg);
+      background: var(--bg-float);
+      box-shadow: var(--shadow-xl);
       /* Si debajo no cabe, se abre hacia arriba */
       position-try-fallbacks: flip-block;
       opacity: 0;
@@ -2663,10 +2663,15 @@ input[type="range"].field-control {
   margin: 0;
   padding: 0.3125rem;
   min-width: 12.5rem;
-  border: var(--border-width) solid var(--border);
+  /* Se abre TAPANDO lo que hay detras, asi que se separa mas que el
+     resto de lo que flota: --border-float, --shadow-xl y --bg-float,
+     que en oscuro sube un punto sobre la tarjeta de debajo. Anadido
+     de este repo; antes compartia los tres con la card y contra una
+     se perdia el contorno. */
+  border: var(--border-width) solid var(--border-float);
   border-radius: var(--radius-md);
-  background: var(--bg-level2);
-  box-shadow: var(--shadow-lg);
+  background: var(--bg-float);
+  box-shadow: var(--shadow-xl);
   flex-direction: column;
   gap: 0.0625rem;
 

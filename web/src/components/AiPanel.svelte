@@ -1998,7 +1998,6 @@
   }
 
   .chat-composer-box {
-    box-shadow: var(--shadow-sm);
     transition: border-color 150ms;
 
     /* El cursor de seleccion esta encendido. */

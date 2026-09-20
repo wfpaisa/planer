@@ -171,7 +171,7 @@ Utilities live in `layout.css` (`flex`, `grid`, `gap-*`, `items-*`…), indexed 
 
 ## Elevation & Depth
 
-Three shadow tokens, by how far something leaves the page: `--shadow-sm` (buttons, chips barely detach), `--shadow-md` (cards resting on the canvas), `--shadow-lg` (modal, menu, drawer, toast — everything that floats). The primary button and danger also carry a colored glow (`0 .5rem 1.25rem -.625rem <accent>`) instead of a gray blur.
+Four shadow tokens, by how far something leaves the page: `--shadow-sm` (buttons, chips barely detach), `--shadow-md` (cards resting on the canvas), `--shadow-lg` (modal, drawer, toast — everything that floats), `--shadow-xl` (what opens *over* the content and covers it: the menu and a select's list, two layers and more ink). Those popovers also swap the card's surface and line for `--bg-float` and `--border-float`, a notch lighter and a notch stronger in dark, so a menu never melts into the card under it. The primary button and danger also carry a colored glow (`0 .5rem 1.25rem -.625rem <accent>`) instead of a gray blur.
 
 ### Named Rules
 **La Regla Plana por Defecto.** Hover is a fill (`oklch(from var(--text-primary) l c h / 6%)`), not a shadow. Shadows lift what floats; borders separate what rests.
