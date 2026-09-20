@@ -182,14 +182,12 @@
     class={cx("side-urlbar-left", showAi ? "side-urlbar-left-with-ai" : "side-urlbar-left-empty")}
   >
     {#if showAi && dock && !dock.open}
-      <!-- El halo de la IA (`aura aura-ia`, de la casa en `global.css`): un
-           anillo que gira. Solo se enciende cuando hay una peticion en marcha
-           en alguna pagina de la aplicacion; el resto del tiempo el boton no
-           indica nada, que es lo que hace que encenderse signifique algo.
-           Escondido el dock, esta es la unica senal que queda en la barra.
-           Cuando la ventana no da para la columna, el boton se retira con
-           ella. -->
-      <span class={cx("aura aura-ia dock-ai-wrap", !aiActivity.busy && "aura-ia-ghost")}>
+      <!-- El boton que abre el dock cuando esta cerrado. Que la IA este
+           trabajando se dice en el globo de ayuda y nada mas: el halo de
+           color que lo rodeaba se retiro. El envoltorio existe para que el
+           boton no se encoja; cuando la ventana no da para la columna, se
+           retira con ella. -->
+      <span class="dock-ai-wrap">
         <Button
           size="sm"
           tip={aiActivity.busy

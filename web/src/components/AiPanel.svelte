@@ -1483,7 +1483,7 @@
           pagina y vuelve a estar delante en cuanto el bloqueo se levanta.
         -->
         <div class="composer-shell-ai">
-          <div class="chat-composer aura aura-ia w-full" inert={blocked}>
+          <div class="chat-composer w-full" inert={blocked}>
             <div
               class={cx(
                 "chat-composer-box card card-solid ia-text",
@@ -1985,24 +1985,95 @@
     border: 0;
   }
 
-  /* La caja es `.card.card-solid` del catalogo --en oscuro la del catalogo
-     es translucida y esta se posa sobre el fondo del panel--; aqui solo la
-     sombra y el borde que se tine mientras el cursor de seleccion esta
-     encendido. */
-  /* `.aura` es `inline-block` --es lo que quiere el halo del boton de la
-     barra-- y se declara despues de las utilidades, asi que aqui gana el
-     catalogo: un `block` en el marcado no haria nada. De linea, la caja
-     arrastraria el hueco del descenso de la linea debajo del campo. */
-  .chat-composer {
-    display: block;
+  /*
+   * EL DESTELLO DEL CAMPO
+   *
+   * Al entrar el cursor, una luz recorre el contorno una sola vuelta y se
+   * apaga. Un anillo que gira sin parar --lo que habia antes-- dice "esto
+   * esta pasando" todo el rato, y aqui no pasa nada: solo se ha entrado a
+   * escribir. Una vuelta y silencio.
+   *
+   * El arco se dibuja con un cono que gira sobre `--sweep-angle` (la
+   * propiedad esta registrada en `global.css`: sin registro el degradado se
+   * quedaria quieto) y dos mascaras, la de fuera menos la de dentro, que
+   * dejan solo la franja del contorno.
+   */
+  @keyframes composer-sweep {
+    from {
+      --sweep-angle: 0deg;
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    to {
+      --sweep-angle: 360deg;
+      opacity: 0;
+    }
   }
 
+  /* La caja es `.card.card-solid` del catalogo --en oscuro la del catalogo
+     es translucida y esta se posa sobre el fondo del panel--; aqui la sombra
+     que la despega del panel, el contorno mas marcado que el de la tarjeta
+     --es el sitio donde se escribe, no una ficha que se lee-- y el borde que
+     se tine mientras el cursor de seleccion esta encendido. */
   .chat-composer-box {
+    --composer-ring: 2px;
+
+    /* La luz del destello y la sombra, una por tema. En oscuro la luz es
+       blanca; en claro el blanco no se ve contra el papel, asi que el
+       reflejo es azul. Es un azul fijo y no `--accent`: el destello no lo
+       tine la paleta de la aplicacion, que cambia cada dos apps. La sombra
+       en claro va mas floja --el mismo negro pesa mucho mas sobre el papel
+       que sobre el fondo oscuro--. Las dos se declaran aqui, en el elemento
+       que las usa: `light-dark()` mira el `color-scheme` de donde se declara
+       la variable, no el del ancestro. */
+    --composer-sweep: light-dark(oklch(62% 0.25 256), oklch(100% 0 271 / 0.5));
+    --composer-shadow: light-dark(oklch(0 0 0 / 0.18), oklch(0 0 0 / 0.4));
+
+    position: relative;
+    border-width: var(--composer-ring);
+    border-color: light-dark(var(--border), var(--border-strong));
+    box-shadow: 0 0 1.25rem var(--composer-shadow);
     transition: border-color 150ms;
 
     /* El cursor de seleccion esta encendido. */
     &.composer-picking {
       border-color: var(--accent);
+    }
+
+    /* El anillo va por fuera, encima del propio borde: de ahi el desplazado
+       negativo y el radio de la tarjeta mas esos dos pixeles, para que las
+       dos curvas sean concentricas y la luz no se despegue en las esquinas. */
+    &::after {
+      content: "";
+      position: absolute;
+      inset: calc(-1 * var(--composer-ring));
+      border-radius: calc(var(--radius-lg) + var(--composer-ring));
+      padding: var(--composer-ring);
+      background: conic-gradient(
+        from var(--sweep-angle),
+        transparent 0deg,
+        var(--composer-sweep) 14deg,
+        transparent 38deg
+      );
+      mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+      mask-clip: content-box, border-box;
+      mask-composite: exclude;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Una vuelta por cada vez que se entra al campo: la regla aparece con el
+       foco, y con ella la animacion arranca desde cero. */
+    &:has(textarea:focus)::after {
+      animation: composer-sweep 2100ms ease-out;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &:has(textarea:focus)::after {
+        animation: none;
+      }
     }
   }
 

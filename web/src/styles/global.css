@@ -293,111 +293,15 @@ body,
 }
 
 /*
- * EL HALO DE LA IA
- *
- * Un anillo de color que gira alrededor de lo que envuelve (el boton y el
- * campo de la conversacion). El angulo es una propiedad registrada: solo asi
- * se puede animar, y sin registro el degradado quedaria quieto.
+ * El angulo del destello que recorre el campo de la conversacion (`AiPanel`)
+ * al entrar el cursor. Es una propiedad registrada porque solo asi se puede
+ * animar: sin registro el degradado se quedaria quieto. Va aqui y no en el
+ * componente porque `@property` es global de todas formas.
  */
-@property --aura-angle {
+@property --sweep-angle {
   syntax: "<angle>";
   initial-value: 0deg;
   inherits: false;
-}
-
-@keyframes aura-spin {
-  to {
-    --aura-angle: 360deg;
-  }
-}
-
-.aura {
-  --aura-padding: 0.125rem;
-  --aura-radius: var(--radius-field);
-  padding: var(--aura-padding);
-  border-radius: calc(var(--aura-padding) + var(--aura-radius) + 0.1rem);
-  display: inline-block;
-  position: relative;
-  animation: aura-spin 6s linear infinite;
-
-  &:before,
-  &:after {
-    background-image: inherit;
-    border-radius: inherit;
-    z-index: 0;
-    opacity: 0.7;
-    filter: blur(0.25rem);
-    content: "";
-    width: 100%;
-    height: 100%;
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    translate: -50% -50%;
-  }
-
-  &:after {
-    opacity: 0.3;
-    filter: blur(1rem);
-  }
-
-  & > * {
-    z-index: 1;
-    position: relative;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation-duration: 24s;
-  }
-}
-
-/*
- * El halo va por fuera, a `--aura-padding` de lo que envuelve: para que las
- * dos curvas sean concentricas su radio tiene que ser el de dentro mas ese
- * hueco. Si no lo es, el anillo se despega en las cuatro esquinas --se ve un
- * hueco entre el color y la caja, justo lo que delata que son dos piezas--.
- * El valor de partida sirve al campo; lo que redondea distinto se dice aqui.
- */
-.aura:has(> .card) {
-  --aura-radius: var(--radius-lg);
-}
-
-.aura:has(> .btn-rounded) {
-  --aura-radius: 62.5rem;
-}
-
-/* El tono del halo cuando es la IA la que esta trabajando */
-.aura-ia {
-  --aura-padding: 0px;
-  transition-duration: 3000ms;
-  animation-play-state: paused;
-
-  background: repeating-conic-gradient(
-    from var(--aura-angle) in oklch longer hue,
-    oklch(87% 0.2 150 / 0.6),
-    oklch(87% 0.2 150 / 0.6)
-  );
-
-  &.aura-ia-ghost {
-    background: transparent;
-  }
-
-  &:before,
-  &:after {
-    opacity: 20%;
-    filter: blur(0.1rem);
-  }
-
-  &:has(textarea:focus) {
-    animation-play-state: running;
-
-    &:before,
-    &:after {
-      opacity: 40%;
-      filter: blur(0.2rem);
-    }
-  }
 }
 
 /*
