@@ -74,11 +74,11 @@
     </span>
 
     {#if model.vision}
-      <Tag tone="tint-3" class="capability-ai-model">Visión</Tag>
+      <Tag tone="tint-1" class="capability-ai-model">Visión</Tag>
     {/if}
     {#if model.thinking}
       <Tag
-        tone="tint-3"
+        tone="tint-1"
         class="capability-ai-model"
         tip={`Niveles: ${levels.map(aiThinkingLabel).join(", ")}`}
       >
@@ -86,7 +86,7 @@
       </Tag>
     {/if}
     {#if model.contextWindow > 0}
-      <Tag tone="tint-3" class="capability-ai-model capability-ai-model-numeric">
+      <Tag tone="tint-1" class="capability-ai-model capability-ai-model-numeric">
         {aiWindowLabel(model.contextWindow)}
       </Tag>
     {/if}

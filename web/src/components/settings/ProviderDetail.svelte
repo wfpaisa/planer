@@ -66,7 +66,7 @@
       otra forma de hablar, y arreglarlo a mano confunde mas de lo que ahorra.
       Quien quiera otra clase crea un servidor nuevo.
     -->
-    <Tag tone="tint-3" class="provider-kind-badge">
+    <Tag tone="tint-1" class="provider-kind-badge">
       {AI_PROVIDER_LABEL[provider.provider]}
     </Tag>
     <Switch

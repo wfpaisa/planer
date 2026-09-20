@@ -150,13 +150,13 @@
                   {/if}
                 </span>
                 {#if model.vision}
-                  <Tag tone="tint-3">Visión</Tag>
+                  <Tag tone="tint-1">Visión</Tag>
                 {/if}
                 {#if model.thinking}
-                  <Tag tone="tint-3">Piensa</Tag>
+                  <Tag tone="tint-1">Piensa</Tag>
                 {/if}
                 {#if model.contextWindow > 0}
-                  <Tag tone="tint-3" class="badge-model-window">
+                  <Tag tone="tint-1" class="badge-model-window">
                     {aiWindowLabel(model.contextWindow)}
                   </Tag>
                 {/if}
@@ -187,7 +187,7 @@
   {:else}
     <div class="known-models">
       {#each known as model (model.id)}
-        <Tag tone="tint-3" class="btn-add-known-model" onclick={() => add({ ...model })}>
+        <Tag tone="tint-1" class="btn-add-known-model" onclick={() => add({ ...model })}>
           <Icon name="plus-sign" />
           {aiModelLabel(model)}
         </Tag>

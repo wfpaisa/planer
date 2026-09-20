@@ -1315,11 +1315,21 @@ input[type="range"].field-control {
     left: 0.125rem;
     width: 1.125rem;
     height: 1.125rem;
-    border-radius: 50%;
+    /* Pastilla y no circulo: cuadrada en reposo las dos dan el mismo redondo,
+       pero al estirarse con el pulsado el 50% se deforma en huevo y la
+       pastilla mantiene la curva de la pista. */
+    border-radius: 62.5rem;
     background: var(--text-muted);
     box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.25);
+    /* Las tres medidas que mueven la perilla --el deslizar, el ancho y el
+       borde izquierdo-- van con el mismo reloj. Con relojes distintos el
+       estirado termina antes que el deslizamiento y al soltar se ve un
+       movimiento en dos tiempos. */
     transition:
       translate 0.22s cubic-bezier(0.34, 0.9, 0.32, 1),
+      left 0.22s cubic-bezier(0.34, 0.9, 0.32, 1),
+      width 0.22s cubic-bezier(0.34, 0.9, 0.32, 1),
+      opacity 0.22s ease,
       background-color 0.22s ease;
   }
 
@@ -1333,9 +1343,30 @@ input[type="range"].field-control {
     }
   }
 
+  /* Mientras se mantiene pulsado, la perilla se estira y se aclara: el gesto
+     del interruptor del movil, que avisa de que el dedo esta encima antes de
+     que el valor cambie. */
+  &:enabled:active::after {
+    width: 1.5rem;
+    opacity: 0.45;
+  }
+
+  /* Encendida, la perilla esta pegada al borde derecho: lo que crece es el
+     lado izquierdo. El `left` cede lo mismo que gana el ancho, asi que el
+     borde derecho se queda clavado y se ve estirarse, no desplazarse. */
+  &:enabled:checked:active::after {
+    left: -0.25rem;
+  }
+
   &:focus-visible {
     outline: none;
     box-shadow: 0 0 0 0.1875rem var(--focus-ring);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      transition: none;
+    }
   }
 }
 

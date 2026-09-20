@@ -1162,24 +1162,24 @@
 {#snippet actions()}
   <Button
     variant="soft"
+    size="sm"
     disabled={working}
-    tip={working ? "Espera a que termine o detenla" : "Conversaciones anteriores"}
+    tip={working ? "Espera a que termine o detenla" : undefined}
     buttonClass="btn-previous-conversations"
-    class="btn-icon"
     onclick={() => void openList()}
   >
-    <Icon name="bubble-chat-delay" size={24} />
+    <Icon name="bubble-chat-delay" size={18} /> Chats anteriores
   </Button>
   {#if chat.entries.length > 0}
     <Button
       variant="soft"
+      size="sm"
       disabled={working}
-      tip={working ? "Espera a que termine o detenla" : "Conversacion nueva"}
+      tip={working ? "Espera a que termine o detenla" : undefined}
       buttonClass="btn-new-conversation"
-      class="btn-icon"
       onclick={startNew}
     >
-      <Icon name="bubble-chat-add" size={24} />
+      <Icon name="bubble-chat-add" size={18} /> Nuevo
     </Button>
   {/if}
 {/snippet}

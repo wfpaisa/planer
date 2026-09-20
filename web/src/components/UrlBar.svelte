@@ -52,6 +52,7 @@
   import type { AiDockState } from "../lib/aiDock.svelte";
   import { cx } from "../lib/cx";
   import Icon from "./Icon.svelte";
+  import PlanerAvatar from "./PlanerAvatar.svelte";
   import { Button, Dropdown, MenuItem, MenuSeparator } from "./ui";
 
   let {
@@ -198,9 +199,11 @@
           onclick={dock.toggle}
           tipSide="bottom"
           buttonClass="btn-toggle-dock-ai"
-          class="btn-icon sm btn-rounded"
+          class="btn-rounded btn-primary"
         >
-          <Icon name="artificial-intelligence-08" size={16} />
+          <Icon name="bubble-chat" size={20} /> Abrir chat
+
+          <!-- <PlanerAvatar mood="normal" size={24} color="white" /> -->
         </Button>
       </span>
     {/if}
