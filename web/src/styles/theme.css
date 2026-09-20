@@ -139,14 +139,21 @@
      28% de --text-primary, y una variable con var() dentro se resuelve
      DONDE SE DECLARA: calculada en :root se quedaria con el gris del
      documento de fuera, y una vista previa clara dentro del panel
-     oscuro saldria con tinta de tema equivocado. ---- */
-  --tinte-1: oklch(69.233% 0.17294 245.533); /* azul */
+     oscuro saldria con tinta de tema equivocado.
+
+     Los diez tonos son los del sitio (planer-web): luminosidad pareja
+     y croma contenido, para que se distingan POR MATIZ y ninguno grite
+     mas que otro. Los de antes eran cinco puntos mas claros y algunos
+     se habian ido de matiz --el "rojo" caia en 338 grados, que es rosa,
+     y el "oliva" en 91,6% de luz, que es lima de neon--: al mezclarlos
+     salian pastel y dos de ellos no se distinguian de la ciruela. ---- */
+  --tinte-1: oklch(54.906% 0.24618 261.731); /* azul */
   --tinte-2: oklch(50.389% 0.25656 283.684); /* violeta */
-  --tinte-3: oklch(67.373% 0.28533 334.007); /* ciruela */
-  --tinte-4: oklch(73.368% 0.20838 338.227); /* rojo */
-  --tinte-5: oklch(71.796% 0.15688 45.529); /* teja */
+  --tinte-3: oklch(55.836% 0.22662 330.954); /* ciruela */
+  --tinte-4: oklch(60.686% 0.2265 20.948); /* rojo */
+  --tinte-5: oklch(62.568% 0.17632 42.476); /* teja */
   --tinte-6: oklch(82.532% 0.13612 78.042); /* ambar */
-  --tinte-7: oklch(91.639% 0.21589 128.078); /* oliva */
+  --tinte-7: oklch(74.655% 0.17288 120.755); /* oliva */
   --tinte-8: oklch(68.346% 0.16513 154.993); /* verde */
   --tinte-9: oklch(65.985% 0.11189 194.821); /* turquesa */
   --tinte-10: oklch(45.388% 0.0445 246.544); /* pizarra */
