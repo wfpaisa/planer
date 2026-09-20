@@ -295,7 +295,8 @@
       }
 
       & .column-head-required {
-        color: var(--accent-soft-text);
+        color: var(--danger);
+        font-size: 1rem;
       }
 
       & .column-head-label {

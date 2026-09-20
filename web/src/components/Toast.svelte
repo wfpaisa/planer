@@ -186,6 +186,11 @@
     box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.18);
     pointer-events: auto;
 
+    /* El alto del primer renglon del mensaje. Es la medida contra la que se
+       centran el icono y la equis, y sale de la letra del aviso: si manana
+       cambia el tamano, la alineacion se recalcula sola. */
+    --renglon: calc(var(--text-base) * var(--text-base--line-height));
+
     & .notice-toast-body {
       min-width: 0;
       flex: 1;
@@ -193,12 +198,26 @@
       user-select: text;
     }
 
+    /* El icono se centra en el PRIMER RENGLON, no en la caja entera: con dos
+       lineas se queda arriba, junto a la primera, que es donde lo busca la
+       vista. `.alert` lo deja arriba del todo y le da un empujon de un pixel,
+       medido para su letra --text-xs--; aqui el texto es --text-base y con el
+       renglon de 1.5 el icono quedaba tres pixeles alto. Dandole de alto el
+       renglon entero se centra solo, sin numero que ajustar a mano. */
+    & :global(.icon-notice-toast) {
+      height: var(--renglon);
+      align-items: center;
+      margin-top: 0;
+    }
+
+    /* La equis, por lo mismo: cuadrada y del alto del renglon, asi su centro
+       cae en el de la primera linea. Antes eran 1.25rem subidos dos pixeles,
+       y se quedaba cuatro por encima del texto. */
     & .btn-close-toast {
       margin-right: -0.25rem;
-      margin-top: -0.125rem;
-      height: 1.25rem;
+      height: var(--renglon);
       min-height: 0;
-      width: 1.25rem;
+      width: var(--renglon);
       flex-shrink: 0;
       padding: 0;
     }

@@ -2619,6 +2619,7 @@
       z-index: 30;
       width: 2rem;
       background-color: color-mix(in srgb, var(--bg-level1) 97%, var(--text-primary));
+      border-right: var(--border-width) solid var(--border);
     }
 
     & .grid-db-expand-data {
@@ -2628,6 +2629,39 @@
       width: 2rem;
       padding: 0;
       text-align: center;
+      border-right: var(--border-width) solid var(--border);
+    }
+
+    /*
+      Las dos columnas fijas se desplazan por encima de las demas, asi que
+      necesitan fondo propio y opaco: el de la tabla (--bg-card) es translucido
+      en el tema oscuro y por debajo se veria pasar el contenido. Se apila a
+      mano lo mismo que se ve en una celda normal: el lienzo de color de fondo
+      y encima, como capa de imagen, el lavado que le toca a la fila.
+
+      Va al final del bloque a proposito: estas reglas tienen que ganarle a las
+      del lavado generico, que se declaran mas arriba con la forma corta de
+      `background` y borrarian la capa.
+    */
+    & .grid-db-checkbox-data,
+    & .grid-db-expand-data {
+      background-color: var(--bg-level1);
+      background-image: linear-gradient(var(--bg-card), var(--bg-card));
+    }
+
+    & tr:hover > .grid-db-checkbox-data.grid-db-data-cell-idle,
+    & tr:hover > .grid-db-expand-data.grid-db-data-cell-idle {
+      background-image: linear-gradient(var(--bg-hover), var(--bg-hover));
+    }
+
+    & .grid-db-checkbox-data.grid-db-data-cell-marked,
+    & .grid-db-expand-data.grid-db-data-cell-marked {
+      background-image:
+        linear-gradient(
+          color-mix(in oklab, var(--text-primary) 4%, transparent),
+          color-mix(in oklab, var(--text-primary) 4%, transparent)
+        ),
+        linear-gradient(var(--bg-card), var(--bg-card));
     }
 
     & .grid-db-expand-btn {
