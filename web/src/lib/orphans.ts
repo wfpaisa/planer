@@ -1,10 +1,15 @@
 /**
  * Los valores que no encontraron a quien apuntar.
  *
- * Aparte de `components/OrphanPanel` porque no es marcado: la grilla cuenta lo
- * pendiente en su cinta y enlaza lo que estaba esperando al crear una fila, sin
- * abrir el panel. Antes esto vivia dentro del componente y la ruta importaba la
- * tarjeta entera solo por las funciones.
+ * Una fila cuya llave no existe en la tabla destino se guarda igual: el valor
+ * se queda a la vista en su columna de reserva y la celda lo ensena sin enlace.
+ * Aqui se cuenta cuantas hay --la grilla lo dice en su barra y avisa de que
+ * tabla no tiene esos valores-- y se recogen las que estaban esperando cuando
+ * el registro que les faltaba acaba naciendo.
+ *
+ * Resolverlos de uno en uno desde una pantalla aparte ya no existe: lo que la
+ * arreglaba de verdad era crear el registro en su tabla, y eso ya ofrece
+ * enlazar las filas que lo esperaban (ver `waitingFor`).
  */
 import { isPeopleTable, personKeyValue } from "@shared/people";
 import { firstUnique } from "@shared/relations";
@@ -219,29 +224,4 @@ export async function linkWaiting(waiting: Waiting): Promise<void> {
 /** Cuantas filas cuentan todavia: las aceptadas ya no. */
 export function pendingRows(orphans: OrphanValue[]): number {
   return orphans.filter((o) => !o.accepted).reduce((sum, o) => sum + o.rows, 0);
-}
-
-/**
- * La persona invitada a la que apunta un valor sin dueno, si hay una sola.
- *
- * Es lo que deja resolver desde aqui lo que quedo atras: alguien invita a la
- * persona que faltaba y sus filas siguen sin enlace, porque la oferta de
- * enlazarlas solo sale en el momento de crearla. Aqui vuelve a salir cada vez
- * que se abre el panel.
- */
-export function invitedFor(
-  orphan: OrphanValue,
-  people: AppPerson[],
-  tables: TableRecord[],
-): { id: string; label: string } | null {
-  // Se reconoce por la tabla a la que apunta y no por el tipo: el tipo aparte
-  // ya no existe, y lo que hace que una columna nombre personas es su destino.
-  const target = tables.find((t) => t.id === orphan.field.relationTableId) ?? null;
-  if (!isPeopleTable(target)) return null;
-  const key = displayFieldOf(orphan.field) || (target ? firstUnique(target) : "");
-  if (!key) return null;
-  const lower = orphan.value.toLowerCase();
-  const found = people.filter((p) => p.fila && personKeyValue(p, key).toLowerCase() === lower);
-  if (found.length !== 1) return null;
-  return { id: found[0].fila ?? "", label: found[0].name || found[0].email || orphan.value };
 }

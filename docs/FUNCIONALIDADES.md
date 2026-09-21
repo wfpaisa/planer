@@ -62,7 +62,9 @@
 
     - Exigirle a una columna del archivo que no se repita o que no venga vacía;
       la columna que nace del archivo se queda con esas marcas
-  - Panel de valores huérfanos (relaciones rotas)
+  - Aviso de los valores que no encontraron registro: qué tabla no los tiene,
+    en qué columna llegaron y cuántas filas dependen, con filtro para ver solo
+    esas filas
 - **Páginas** (constructor visual)
 
   - Crear página, ordenar el menú lateral

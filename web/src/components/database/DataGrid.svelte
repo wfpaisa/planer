@@ -127,7 +127,6 @@
   import FieldIcon from "./FieldIcon.svelte";
   import GridCell from "./GridCell.svelte";
   import ImportModal from "./ImportModal.svelte";
-  import OrphanPanel from "./OrphanPanel.svelte";
   import PasswordBlock from "./PasswordBlock.svelte";
   import PasswordField from "./PasswordField.svelte";
   import PasswordNote from "./PasswordNote.svelte";
@@ -193,8 +192,6 @@
 
   /** Filas de esta tabla cuyo valor no encontro a quien apuntar. */
   let orphans = $state<OrphanValue[]>([]);
-  /** La pantalla de valores sin dueno esta abierta. */
-  let seeOrphans = $state(false);
   /** La grilla ensena solo las filas cuyo valor no encontro registro. */
   let onlyOrphans = $state(false);
   /** Filas de otras tablas que estaban esperando al registro recien creado. */
@@ -1356,6 +1353,58 @@
   const paged = $derived(pageSize !== "all" && total > pageSize);
   const pending = $derived(pendingRows(orphans));
 
+  /**
+   * Lo que hay que decir de las filas cuyo valor no encontro registro.
+   *
+   * Dos frases y ninguna mas: cuanto falta y donde, y que hacer. Se nombra la
+   * tabla que no tiene el valor porque es lo unico con lo que se puede hacer
+   * algo; antes la cinta decia "Solo las filas cuyo valor todavia no encontro
+   * registro", que describe el filtro puesto y no el problema, y mandaba a un
+   * panel aparte.
+   *
+   * Los valores se cuentan ademas de las filas: cincuenta filas suelen ser
+   * tres cedulas mal escritas, y saber que son tres cambia lo que se va a
+   * hacer con ellas. La columna se nombra solo cuando hay mas de una rota: con
+   * una sola, el filtro ya deja la pantalla ensenando cual es.
+   */
+  const orphanWarning = $derived.by(() => {
+    const loose = orphans.filter((o) => !o.accepted);
+    if (loose.length === 0) return "";
+
+    /** Por columna: a donde apunta, cuantos valores distintos y cuantas filas. */
+    const byColumn = new Map<
+      string,
+      { column: string; target: string; values: number; rows: number }
+    >();
+    for (const orphan of loose) {
+      const seen = byColumn.get(orphan.field.name);
+      if (seen) {
+        seen.values += 1;
+        seen.rows += orphan.rows;
+        continue;
+      }
+      byColumn.set(orphan.field.name, {
+        column: orphan.field.label,
+        target: tables.find((t) => t.id === orphan.field.relationTableId)?.label ?? "la otra tabla",
+        values: 1,
+        rows: orphan.rows,
+      });
+    }
+
+    const list = [...byColumn.values()];
+    const frases = list.map((c) => {
+      const valores = `${c.values} ${c.values === 1 ? "valor" : "valores"}`;
+      const filas = `${c.rows} ${c.rows === 1 ? "fila" : "filas"}`;
+      const cual = list.length === 1 ? "" : ` de "${c.column}"`;
+      const existe = c.values === 1 ? "no existe" : "no existen";
+      return `${valores}${cual} en ${filas} ${existe} en "${c.target}".`;
+    });
+
+    const total = list.reduce((n, c) => n + c.values, 0);
+    const arreglar = total === 1 ? "Corrígelo o créalo" : "Corrígelos o créalos";
+    return `${frases.join(" ")} ${arreglar} para enlazar las filas pendientes.`;
+  });
+
   /** Por que columna se esta ordenando, dicho en el boton de la barra. */
   const sortLabel = $derived.by(() => {
     const by = sort;
@@ -1900,16 +1949,17 @@
     {/if}
   {/if}
 
-  {#if onlyOrphans}
-    <div class="grid-db-orphans-banner flex items-center gap-2">
-      <span>Solo las filas cuyo valor todavía no encontró registro.</span>
-      <button
-        type="button"
-        class="btn-open-orphans link grid-db-orphans-link"
-        onclick={() => (seeOrphans = true)}
-      >
-        Ver los valores y resolverlos
-      </button>
+  <!--
+    Lo que pasa con estas filas, dicho aqui mismo y en tono de aviso: antes era
+    una linea gris que describia el filtro puesto y un enlace a un panel donde
+    una columna que apunta a personas no ofrecia nada que hacer --no se invita a
+    nadie desde ahi-- asi que lo que se leia al abrirlo era una lista de valores
+    y ninguna salida. Lo que hace falta saber es que tabla no tiene el valor.
+  -->
+  {#if onlyOrphans && orphanWarning}
+    <div class="alert warn grid-db-orphans-banner" role="status">
+      <Icon name="unlink-01" size={16} />
+      <span>{orphanWarning}</span>
     </div>
   {/if}
 
@@ -2254,22 +2304,6 @@
         <span class="confirm-waiting-ask block">Enlazarlas a este registro ahora?</span>
       {/snippet}
     </ConfirmDialog>
-  {/if}
-
-  {#if seeOrphans}
-    <OrphanPanel
-      {table}
-      {tables}
-      people={people.list}
-      onClose={() => (seeOrphans = false)}
-      onChanged={async () => {
-        // Enlazar valores sueltos escribe filas por otra puerta.
-        undoable = null;
-        await load();
-        await onSchemaChange();
-        orphans = await loadOrphans(table);
-      }}
-    />
   {/if}
 
   {#if importing}
@@ -2633,15 +2667,14 @@
     }
   }
 
+  /*
+    El aviso es `.alert.warn` del catalogo --color, borde y acolchado salen de
+    ahi-- y lo de aqui es solo donde se pone: entre la barra y la cuadricula,
+    con el mismo margen lateral que el resto del contenido y sin pegarse a
+    ninguna de las dos.
+  */
   .grid-db-orphans-banner {
-    padding: var(--sp-12);
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    color: var(--text-secondary);
-
-    & .grid-db-orphans-link {
-      color: var(--accent-soft-text);
-    }
+    margin: 0 var(--sp-12) var(--sp-8);
   }
 
   /* -------------------------------------------------- */
