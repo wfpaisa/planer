@@ -754,10 +754,18 @@ export async function addMember(req: Request, appId: string) {
     password?: string;
     name?: string;
     roles?: string[];
+    /** Sus columnas propias en la tabla de personas, si ya se escribieron. */
+    campos?: Record<string, unknown>;
   }>(req);
 
   const email = (input.email ?? "").trim().toLowerCase();
   if (!email.includes("@")) throw new HttpError(400, "Correo no valido");
+  // La misma exigencia que al cambiarla despues: sin esto lo unico que para
+  // una clave corta es PocketBase, y lo dice sin nombrarla.
+  const chosen = (input.password ?? "").trim();
+  if (chosen && chosen.length < MIN_PASSWORD) {
+    throw new HttpError(400, `La clave necesita ${MIN_PASSWORD} caracteres o más`);
+  }
   const roles = sanitizeRoles(input.roles, app.roles ?? []);
 
   // La cuenta se busca dentro de esta aplicacion y en ninguna otra: el mismo
@@ -770,7 +778,7 @@ export async function addMember(req: Request, appId: string) {
   let generatedPassword: string | undefined;
 
   if (!member) {
-    generatedPassword = input.password?.trim() || newPassword();
+    generatedPassword = chosen || newPassword();
     member = await createRecord<{ id: string }>(INTERNAL.members, {
       app: app.id,
       cuenta: email,
@@ -790,9 +798,9 @@ export async function addMember(req: Request, appId: string) {
     ? await updateRecord(INTERNAL.access, (existing as { id: string }).id, { roles })
     : await createRecord(INTERNAL.access, { app: app.id, member: member.id, roles });
 
-  // Su fila en la tabla de personas de esta aplicacion, donde iran sus columnas
-  // propias. Nace vacia: de momento solo dice que es ella.
-  await ensurePersonRow(app.id, member.id);
+  // Su fila en la tabla de personas de esta aplicacion. Nace con lo que se haya
+  // escrito de ella: una columna obligatoria de la tabla no deja crearla vacia.
+  await ensurePersonRow(app.id, member.id, input.campos ?? {});
 
   return json({ access, email, password: generatedPassword }, 201);
 }

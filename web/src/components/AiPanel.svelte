@@ -2072,7 +2072,7 @@
   /* Los controles respiran: a `--sp-6` se leian como un bloque y no como
      cuatro cosas distintas --adjuntar, senalar, el modelo, enviar--. */
   .chat-composer-actions {
-    gap: var(--sp-12);
+    gap: var(--sp-8);
     padding: 0 var(--sp-8) var(--sp-8);
   }
 
@@ -2116,5 +2116,9 @@
     all: unset;
     cursor: pointer;
     color: inherit;
+  }
+
+  :global(.btn-send-ai) {
+    min-width: 2.375rem;
   }
 </style>

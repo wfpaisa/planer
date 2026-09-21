@@ -76,6 +76,19 @@ function split(fields: FieldDef[], values: Record<string, unknown>) {
   return { system, own };
 }
 
+/** Una fila de personas ya guardada. */
+export interface SavedPerson {
+  row: Row;
+  /**
+   * La clave con la que entra, solo cuando la cuenta acaba de nacer.
+   *
+   * Viene tanto si se escribio a mano como si la invento el servidor, y en los
+   * dos casos es la unica vez que se puede leer: no se guarda en ningun sitio
+   * del que volver a sacarla. Ver `PasswordForm.svelte`.
+   */
+  password?: string;
+}
+
 /**
  * Guarda una fila de personas, cada dato por su camino.
  *
@@ -93,14 +106,39 @@ export async function savePersonRow(opts: {
   /** La fila que se edita, o nada para una persona que todavia no esta invitada. */
   row: Row | null;
   values: Record<string, unknown>;
-}): Promise<Row> {
-  const { appId, table, overlay, row, values } = opts;
+  /**
+   * La clave con la que entrara, si se eligio una. Sin ella el servidor
+   * inventa una, que es lo que hace desde siempre; no es un dato obligatorio
+   * para dar de alta a nadie.
+   */
+  password?: string;
+}): Promise<SavedPerson> {
+  const { appId, table, overlay, row, values, password } = opts;
   const { system, own } = split(table.fields, values);
 
   if (!row) {
-    await post(`/api/apps/${appId}/members`, {
+    /*
+     * Lo que se escribio de ella viaja con el alta y no detras.
+     *
+     * La fila la crea el servidor, y una tabla de personas con una columna
+     * obligatoria --una cedula, un legajo-- no deja crearla vacia para llenarla
+     * despues: se quedaba sin fila, y lo que llegaba a la pantalla era el 404
+     * de aqui abajo, al ir a buscar una fila que nunca existio.
+     *
+     * Solo lo que trae algo: una columna en blanco no hace falta para que la
+     * fila nazca, y un vacio donde va un numero o una fecha no lo toma la base.
+     * Lo demas se escribe igual un poco mas abajo, como siempre.
+     */
+    const campos: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(own)) {
+      if (value !== undefined && value !== null && value !== "") campos[key] = value;
+    }
+
+    const alta = await post<{ password?: string }>(`/api/apps/${appId}/members`, {
       email: String(system.cuenta ?? "").trim(),
       roles: Array.isArray(system.roles) ? system.roles : [],
+      password: password || undefined,
+      campos,
     });
     // La fila la creo el servidor al invitar. Se busca por la cuenta para poder
     // dejarle encima las columnas propias que se escribieron a la vez.
@@ -119,7 +157,10 @@ export async function savePersonRow(opts: {
     const saved = Object.keys(own).length
       ? await pb.collection(table.dataCollection).update<Row>(created.id, own)
       : created;
-    return { ...saved, cuenta: person.cuenta, roles: person.roles };
+    return {
+      row: { ...saved, cuenta: person.cuenta, roles: person.roles },
+      password: alta.password,
+    };
   }
 
   const person = overlay.get(String(row[MEMBER_FIELD] ?? ""));
@@ -135,9 +176,11 @@ export async function savePersonRow(opts: {
     : row;
 
   return {
-    ...saved,
-    cuenta: "cuenta" in system ? String(system.cuenta ?? "") : (person?.cuenta ?? ""),
-    roles: "roles" in system ? (system.roles ?? []) : (person?.roles ?? []),
+    row: {
+      ...saved,
+      cuenta: "cuenta" in system ? String(system.cuenta ?? "") : (person?.cuenta ?? ""),
+      roles: "roles" in system ? (system.roles ?? []) : (person?.roles ?? []),
+    },
   };
 }
 

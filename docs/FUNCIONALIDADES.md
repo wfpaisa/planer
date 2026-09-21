@@ -36,6 +36,8 @@
     - Buscar/filtrar en la grilla
     - Ver impacto antes de borrar (relaciones afectadas)
     - Abrir la fila completa en el cajón lateral
+    - Al crear una persona, clave opcional en su fila, con botón de generarla y
+      copiarla; vacía la inventa el servidor y se enseña una sola vez
   - Edición en vivo en la grilla
 
     - Cursor de celda y navegación con teclado (flechas, Tab, Inicio/Fin)

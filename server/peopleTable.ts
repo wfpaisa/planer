@@ -165,8 +165,27 @@ export async function syncPersonRows(appId: string, dataCollection: string): Pro
   }
 }
 
-/** Le da fila propia a alguien que acaba de ser invitado. */
-export async function ensurePersonRow(appId: string, memberId: string): Promise<void> {
+/**
+ * Le da fila propia a alguien que acaba de ser invitado.
+ *
+ * `campos` son sus columnas propias, tal como se escribieron en el mismo
+ * formulario que la invito. Nacen con la fila y no en un segundo viaje: una
+ * tabla de personas con una columna obligatoria --una cedula, un legajo--
+ * rechaza la fila vacia, y entonces la persona se quedaba con cuenta y sin
+ * fila, invisible en su propia tabla.
+ *
+ * Y si aun asi no se puede crear, se dice. Antes el fallo se tragaba aqui y lo
+ * unico que llegaba a la pantalla era el 404 de mas adelante, al ir a buscar
+ * una fila que nunca existio.
+ *
+ * Lo que no sea una columna suya de verdad se ignora: el correo y los roles
+ * viven en otras colecciones y llegan por su propia puerta.
+ */
+export async function ensurePersonRow(
+  appId: string,
+  memberId: string,
+  campos: Record<string, unknown> = {},
+): Promise<void> {
   const table = await peopleTableFor(appId);
   if (!table) return;
   const existing = await firstRecord(
@@ -174,7 +193,12 @@ export async function ensurePersonRow(appId: string, memberId: string): Promise<
     `${MEMBER_FIELD} = "${quote(memberId)}"`,
   ).catch(() => null);
   if (existing) return;
-  await createRecord(table.dataCollection, { [MEMBER_FIELD]: memberId }).catch(() => {});
+
+  const own: Record<string, unknown> = {};
+  for (const field of storedFields(table.fields)) {
+    if (field.name in campos) own[field.name] = campos[field.name];
+  }
+  await createRecord(table.dataCollection, { [MEMBER_FIELD]: memberId, ...own });
 }
 
 /** La tabla de personas de una aplicacion, si ya la tiene. */

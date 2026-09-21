@@ -120,6 +120,8 @@ export async function writeCell(opts: {
    * miembros, que es la misma puerta que usa el cajon lateral.
    */
   if (isOverlayField(table, field.name)) {
+    // Sin clave: por aqui se corrige el correo o los roles de alguien que ya
+    // esta, nunca se da de alta. La clave solo se elige al crear la fila.
     const saved = await savePersonRow({
       appId: table.app,
       table,
@@ -127,7 +129,7 @@ export async function writeCell(opts: {
       row,
       values: { [field.name]: value },
     });
-    return { row: saved, undo: null };
+    return { row: saved.row, undo: null };
   }
 
   const resolved = await resolveRowValues({

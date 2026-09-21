@@ -39,6 +39,7 @@
     isPeopleNameField,
     isPeopleTable,
     MEMBER_FIELD,
+    MIN_PASSWORD,
     removeWarning,
     ROLE_ICON,
   } from "@shared/people";
@@ -128,6 +129,8 @@
   import ImportModal from "./ImportModal.svelte";
   import OrphanPanel from "./OrphanPanel.svelte";
   import PasswordBlock from "./PasswordBlock.svelte";
+  import PasswordField from "./PasswordField.svelte";
+  import PasswordNote from "./PasswordNote.svelte";
   import PersonColumnOffer from "./PersonColumnOffer.svelte";
   import RolesModal from "./RolesModal.svelte";
   import RowDrawer from "./RowDrawer.svelte";
@@ -217,6 +220,28 @@
    * editando.
    */
   let openRow = $state<{ row: Row | null } | null>(null);
+  /**
+   * La clave escrita para la persona que se esta creando, si se eligio una.
+   *
+   * Vive aqui y no en el cajon porque no es una columna de la tabla: el cajon
+   * la dibuja en su hueco de "lo que no cabe en una columna" y quien la manda
+   * al servidor es el guardado de personas de aqui abajo.
+   */
+  let newKey = $state("");
+  /**
+   * La clave de una persona recien creada, para ensenarla una vez.
+   *
+   * Al guardar, el cajon se cierra. La inventada por el servidor no esta en
+   * ningun otro sitio --no se guarda en ninguna parte de la que volver a
+   * sacarla-- asi que cerrar encima de ella seria perderla.
+   */
+  let madeKey = $state<{ email: string; password: string } | null>(null);
+
+  // Lo escrito no sobrevive al cajon: era de la persona que se estaba creando.
+  $effect(() => {
+    void openRow;
+    newKey = "";
+  });
   /** Separador del CSV exportado; el punto y coma es el que mejor lee Excel. */
   let csvSeparator = $state(";");
   /** Cuando esta abierto, el dialogo de importar de esta tabla. */
@@ -2286,19 +2311,41 @@
       ? // En personas cada dato va por su camino: el correo a la cuenta comun,
         // el nivel y los roles al enlace con la aplicacion, y lo demas a la
         // coleccion de la aplicacion como en cualquier tabla.
-        (opts) =>
-          savePersonRow({
+        async (opts) => {
+          const clave = newKey.trim();
+          // Antes de escribir nada: el cajon lo ensena en su aviso y no se
+          // llega a crear a medias una persona con una clave que no vale.
+          if (clave && clave.length < MIN_PASSWORD) {
+            throw new Error(`La clave necesita ${MIN_PASSWORD} caracteres o más.`);
+          }
+          const { row: saved, password } = await savePersonRow({
             appId: table.app,
             table,
             overlay,
             row: opts.row,
             values: opts.values,
-          })
+            password: clave || undefined,
+          });
+          /*
+           * Se ensena solo la que invento el servidor, que es la misma regla
+           * que al importar (`peopleImport.ts`): la escrita a mano ya se sabe,
+           * y devolverla seria un dialogo de mas en el camino. Esta, en cambio,
+           * no esta en ningun otro sitio y el cajon se acaba de cerrar encima.
+           */
+          if (password && !clave) {
+            madeKey = { email: String(opts.values[emailColumn] ?? "").trim(), password };
+          }
+          return saved;
+        }
       : undefined}
   >
     <!--
       La clave no es una columna: se pone desde la fila de la persona, se ensena
       una vez y no se puede volver a leer.
+
+      A quien ya existe se le cambia --un boton que abre el formulario, porque
+      se entra a su fila a cambiarle el area mucho mas a menudo que la clave-- y
+      a quien esta naciendo se le elige ahi mismo, como un renglon mas.
     -->
     {#snippet extra(values)}
       {#if isPeople && openRow?.row}
@@ -2311,9 +2358,35 @@
           {@const written = String(values[emailColumn] ?? "").trim()}
           <PasswordBlock accessId={person.accessId} email={written || person.cuenta} />
         {/if}
+      {:else if isPeople}
+        <PasswordField bind:value={newKey} />
       {/if}
     {/snippet}
   </RowDrawer>
+
+  <!--
+    La clave de quien acaba de entrar. En su propio dialogo y no en un aviso de
+    los que se van solos: es lo unico del producto que no se puede volver a
+    leer, asi que se cierra cuando se dice y no cuando pase el tiempo.
+  -->
+  <Modal
+    class="modal-new-password"
+    open={!!madeKey}
+    onClose={() => (madeKey = null)}
+    title="Persona creada"
+    icon="key-round"
+  >
+    {#if madeKey}
+      <PasswordNote
+        title={`Clave de ${madeKey.email}`}
+        password={madeKey.password}
+        onDone={() => (madeKey = null)}
+      />
+    {/if}
+    {#snippet footer()}
+      <Button onclick={() => (madeKey = null)}>Ya la copié</Button>
+    {/snippet}
+  </Modal>
 </div>
 
 <style>

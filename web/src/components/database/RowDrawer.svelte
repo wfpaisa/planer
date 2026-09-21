@@ -90,6 +90,10 @@
      * Lo que esta tabla tiene y no cabe en una columna. Hoy solo la clave de
      * una persona: se pone y se ensena una vez, y no se puede leer despues.
      *
+     * Se dibuja tanto en una fila que ya existe como en una que esta naciendo
+     * --a una persona se le elige la clave al darla de alta, no solo despues--
+     * y es quien lo pasa el que decide que ensena en cada caso.
+     *
      * Recibe lo que hay escrito ahora mismo, no lo que traia la fila: la clave
      * se cambia en el mismo panel donde se corrige el correo, y decir "clave
      * nueva para" el correo viejo es decir otra persona.
@@ -307,7 +311,7 @@
           </div>
         {/if}
 
-        {#if row && extra}
+        {#if extra}
           <div class="extra-drawer-row">{@render extra(values)}</div>
         {/if}
       </div>
@@ -459,6 +463,16 @@
     margin-top: var(--sp-24);
     border-top: var(--border-width) solid var(--border);
     padding-top: var(--sp-16);
+
+    /*
+      Quien lo pasa decide si tiene algo que poner --la clave solo sale en la
+      tabla de personas-- y cuando no lo tiene aqui quedaba una raya suelta
+      cerrando el formulario por debajo. Se mira si hay algun elemento dentro y
+      no `:empty`, que cuentan los espacios en blanco del propio fragmento.
+    */
+    &:not(:has(*)) {
+      display: none;
+    }
   }
 
   .footer-drawer-row {
