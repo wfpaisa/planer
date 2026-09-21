@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1"
    inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
-   sodipodi:docname="planer3.svg"
+   sodipodi:docname="planer-icon-ok.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -26,8 +26,8 @@
      inkscape:zoom="5.6340776"
      inkscape:cx="11.2707"
      inkscape:cy="83.953405"
-     inkscape:window-width="2560"
-     inkscape:window-height="1371"
+     inkscape:window-width="1920"
+     inkscape:window-height="1131"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -40,7 +40,7 @@
      id="layer1"
      transform="translate(-108.75574,-94.994145)">
     <rect
-       style="fill:none;fill-opacity:1;stroke:#8e27f3;stroke-width:1.1843;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-opacity:1;stroke:#0d31d0;stroke-width:1.1843;stroke-dasharray:none;stroke-opacity:1"
        id="rect12"
        width="32.698841"
        height="22.258612"
@@ -58,16 +58,16 @@
     <g
        id="g26"
        transform="matrix(0.60717746,0,0,0.60717746,54.886464,36.502665)"
-       style="fill:#8e27f3;fill-opacity:1">
+       style="fill:#0d31d0;fill-opacity:1">
       <ellipse
-         style="fill:#8e27f3;fill-opacity:1;stroke:none;stroke-width:1.65304;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#0d31d0;fill-opacity:1;stroke:none;stroke-width:1.65304;stroke-dasharray:none;stroke-opacity:1"
          id="ellipse25"
          cx="105.94093"
          cy="113.27419"
          rx="5.3178482"
          ry="7.4234543" />
       <path
-         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#8e27f3;fill-opacity:1;stroke-width:1.33497;stroke-linecap:round;enable-background:accumulate;stop-color:#000000"
+         style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#0d31d0;fill-opacity:1;stroke-width:1.33497;stroke-linecap:round;enable-background:accumulate;stop-color:#000000"
          d="m 127.18164,108.94445 c -5.9772,0.32022 -8.77611,7.17918 -6.02262,8.10418 2.4168,0.5347 1.77053,-4.18251 5.91339,-4.17215 4.36314,-0.13297 3.63053,4.43568 6.13726,4.2074 2.88161,-0.32713 -0.16504,-8.45354 -6.02803,-8.13943 z"
          id="path25"
          sodipodi:nodetypes="scccs" />

@@ -365,7 +365,7 @@ The foot anchors itself to the bottom, so two cards side by side line their feet
   <select id="estado"><option>All</option><option>Paid</option></select>
 </div>
 
-<div class="field-stack">…fields one under another…</div>
+<form class="field-stack">…fields one under another…</form>
 <div class="field-row">…two fields side by side…</div>
 
 <div class="join">
@@ -374,7 +374,7 @@ The foot anchors itself to the bottom, so two cards side by side line their feet
 </div>
 \`\`\`
 
-**Two fields in a row do not separate on their own.** A \`.field\` only spaces its own parts --label, control, hint--, so every container holding more than one field carries \`.field-stack\` (one under another) or \`.field-row\` (side by side). This includes the container you fill from JavaScript: \`<div id="ed-campos" class="field-stack"></div>\`, never a bare \`<div>\`. Write it even where it seems unnecessary: \`.modal-body\` happens to space the fields hanging directly off it, \`.card-body\` does not, and telling the two apart is not worth the mistake.
+**Two fields in a row do not separate on their own, and nothing puts that space in for you.** A \`.field\` only spaces its own parts --label, control, hint--, so **every container holding more than one field carries \`.field-stack\`** (one under another) or \`.field-row\` (side by side). It is a class, not a tag: a \`<form>\`, a \`<section>\` or an intermediate \`<div>\` that groups fields all need it written out --\`<form class="field-stack">\`--, and so does the container you fill from JavaScript: \`<div id="ed-campos" class="field-stack"></div>\`, never a bare \`<div>\`. Write it even where it seems unnecessary: \`.modal-body\` happens to space the fields hanging directly off it, \`.card-body\` does not, and telling the two apart is not worth the mistake. A form whose fields come out glued together is a missing \`field-stack\`.
 
 Inside a \`.field\` the control needs no class. **Loose** --a search box in a bar, a cell being edited-- it takes \`class="field-control"\`, which is the same dress on its own; add \`sm\` for the short size. A checkbox or a radio has its own markup:
 

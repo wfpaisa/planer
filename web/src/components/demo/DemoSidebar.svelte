@@ -25,6 +25,7 @@
   import { cx } from "../../lib/cx";
   import { link } from "../../lib/router.svelte";
   import { session } from "../../lib/session.svelte";
+  import Logo from "../Logo.svelte";
   import PalettePicker from "../PalettePicker.svelte";
   import ThemePicker from "../ThemePicker.svelte";
 
@@ -118,13 +119,7 @@
 
 <aside id="demo-sidebar" class="sidebar-demo sidebar" aria-label="Menú de la demo">
   <div class="brand">
-    <div class="brand-mark">
-      <i class="hgi-stroke hgi-sparkles"></i>
-    </div>
-    <div class="brand-text">
-      <span class="brand-name">Planer</span>
-      <span class="brand-sub">Sistema de estilos</span>
-    </div>
+    <Logo id="demo-brand-logo" class="brand-logo-demo" height="1.5rem" />
     <div class="brand-actions">
       <button
         type="button"
@@ -255,38 +250,13 @@
     gap: var(--sp-11);
     padding: 0.125rem 0.375rem;
 
-    & .brand-mark {
-      width: 2.125rem;
-      height: 2.125rem;
-      display: grid;
-      place-items: center;
-      border-radius: var(--radius-md);
-      background: linear-gradient(140deg, var(--chart-1), var(--chart-4));
-      color: oklch(1 0 0);
-      box-shadow: 0 0.375rem 1rem -0.5rem var(--chart-1);
-
-      & i {
-        font-size: var(--text-md);
-      }
-    }
-
-    & .brand-text {
-      flex: 1;
-      min-width: 0;
-    }
-
-    & .brand-name {
-      display: block;
-      font-size: var(--text-base);
-      font-weight: 800;
-      line-height: 1.2;
-    }
-
-    & .brand-sub {
-      display: block;
-      font-size: var(--text-xs);
-      font-weight: 500;
-      color: var(--text-muted);
+    /* El logotipo se lee solo, asi que no lleva nada al lado: donde habia
+       pastilla mas nombre y bajada, va el dibujo y ya. Se mide por alto, y el
+       `margin-right: auto` es quien empuja los botones al otro extremo --antes
+       lo hacia el `flex: 1` del texto--. */
+    & :global(.brand-logo-demo) {
+      flex: none;
+      margin-right: auto;
     }
 
     /* Los dos botones van juntos, con su propio hueco: el gap de .brand los

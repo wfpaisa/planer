@@ -1,34 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Planer">
   <!--
-    La marca en pequeno.
+    La marca en pequeno: el punto del logotipo, solo.
 
-    El dibujo es `activity-circle` del catalogo de Hugeicons, el mismo del que
-    sale la fuente de iconos del panel (ver `shared/icons.ts`), con un cambio:
-    el circulo deja de ser un trazo y pasa a ser el fondo, y la onda se dibuja
-    en blanco encima. Asi la onda cabe mucho mas grande y se sigue leyendo a
-    16 pixeles, que es el tamano al que el navegador dibuja esto casi siempre;
-    con el circulo a trazo, la onda quedaba dentro y se cerraba en un borron.
+    Es la misma pieza que cierra la palabra en `assets/planer-logo.svg`, aqui
+    a pantalla completa. Al ser color propio no depende del tema: un solo
+    archivo vale para pestana clara y oscura.
 
-    El degradado es el del logo de la entrada (`assets/plane-icon.svg`):
-    morado arriba, azul abajo. Son sus dos colores, recortados al tramo que
-    ese circulo deja ver, para que pestana y pantalla de entrada lleven la
-    misma marca. Al ser propios no dependen del tema: un solo archivo vale
-    para pestana clara y oscura.
+    El `.ico` y el de Apple que hay al lado se sacan de este mismo dibujo (ver
+    el comentario de `index.html`).
   -->
-  <defs>
-    <linearGradient id="marca" x1="16" y1="0.75" x2="16" y2="31.25" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#b240f3" />
-      <stop offset="1" stop-color="#0a34ff" />
-    </linearGradient>
-  </defs>
-  <circle cx="16" cy="16" r="15.25" fill="url(#marca)" />
-  <path
-    transform="translate(2.56 2.56) scale(1.12)"
-    d="M2 12.329H6.08839C6.48134 12.329 6.67782 12.329 6.8471 12.2488C6.9301 12.2095 7.0073 12.1565 7.07611 12.0917C7.21644 11.9595 7.30431 11.7644 7.48005 11.3742C8.43341 9.25756 8.91009 8.19922 9.52719 8.03926C9.81603 7.96439 10.119 7.9972 10.3894 8.13262C10.967 8.42196 11.2505 9.56261 11.8174 11.8439L12.087 12.929C12.6981 15.3882 13.0037 16.6179 13.627 16.8936C13.8758 17.0036 14.1485 17.029 14.4104 16.9665C15.0663 16.81 15.5522 15.6541 16.524 13.3424C16.7018 12.9196 16.7906 12.7082 16.9402 12.567C17.0032 12.5075 17.0732 12.458 17.1484 12.4198C17.3269 12.329 17.537 12.329 17.9573 12.329H22"
-    fill="none"
-    stroke="#fff"
-    stroke-width="2.3"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+  <circle cx="16" cy="16" r="16" fill="#0d31d0" />
 </svg>

@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { AppRecord } from "@shared/types";
 
-  import planeIcon from "../assets/plane-icon.svg";
   import AppIcon from "../components/app/AppIcon.svelte";
   import CreateAppModal from "../components/app/CreateAppModal.svelte";
   import Icon from "../components/Icon.svelte";
+  import Logo from "../components/Logo.svelte";
   import ThemePicker from "../components/ThemePicker.svelte";
   import Button from "../components/ui/Button.svelte";
   import Dropdown from "../components/ui/Dropdown.svelte";
@@ -27,8 +27,7 @@
 <div id="home-page" class="home-page">
   <header id="home-header" class="home-header">
     <div class="home-header-inner">
-      <img src={planeIcon} alt="Planer" class="home-brand-logo" />
-      <span class="home-brand">Planer</span>
+      <Logo id="home-brand-logo" class="home-brand-logo" height="1.25rem" />
       <div class="home-spacer"></div>
       <ThemePicker />
       <Dropdown align="right">
@@ -141,15 +140,10 @@
       padding: 0 var(--sp-20);
     }
 
-    & .home-brand-logo {
-      width: 1.75rem;
-      height: 1.75rem;
-    }
-
-    & .home-brand {
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--text-primary);
+    /* El logotipo ya dice el nombre; por eso a su lado no va ningun texto.
+       `Logo` se mide por alto y se estira a lo ancho lo que pida el dibujo. */
+    & :global(.home-brand-logo) {
+      flex: none;
     }
 
     & .home-spacer {

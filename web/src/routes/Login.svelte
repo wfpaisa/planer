@@ -1,5 +1,5 @@
 <script lang="ts">
-  import planeIcon from "../assets/plane-icon.svg";
+  import Logo from "../components/Logo.svelte";
   import ThemePicker from "../components/ThemePicker.svelte";
   import Button from "../components/ui/Button.svelte";
   import ErrorNote from "../components/ui/ErrorNote.svelte";
@@ -39,7 +39,7 @@
 
   <div class="login-card-wrap w-full">
     <div class="login-head flex flex-col items-center gap-3">
-      <img src={planeIcon} alt="Planer" class="brand-logo" />
+      <Logo id="login-brand-logo" class="login-brand-logo" height="2.25rem" />
       <div class="login-title-block text-center">
         <h1 class="login-title">Entrar a Planer</h1>
         <p class="login-subtitle">Crea aplicaciones, bases de datos, personas y roles.</p>
@@ -95,9 +95,10 @@
     margin-bottom: var(--sp-28);
   }
 
-  .brand-logo {
-    width: 5rem;
-    height: 5rem;
+  /* El logotipo es horizontal: se manda el alto y lo ancho lo pone el
+     dibujo, asi que aqui no hay medida que fijar. */
+  :global(.login-brand-logo) {
+    margin-bottom: var(--sp-4);
   }
 
   .login-title {

@@ -1082,11 +1082,6 @@ input[type="range"].field-control {
 /* Varios campos en fila, cada uno con su minimo antes de partir */
 .field-row {
   display: flex;
-  /* Declarada y no heredada del valor inicial: la capa de pagina apila los
-     campos de cualquier contenedor que no diga como los coloca, y lo hace con
-     peso cero para no estorbar a nadie. Sin esta linea no habria nada que
-     ganarle, y una fila de campos saldria en columna. Ver `styles/page.css`. */
-  flex-direction: row;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--sp-16);
