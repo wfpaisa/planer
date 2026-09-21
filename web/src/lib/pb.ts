@@ -1,3 +1,4 @@
+import { enEspanol } from "@shared/pbErrors";
 import PocketBase, { LocalAuthStore } from "pocketbase";
 
 /** Sesion del panel (quien construye). */
@@ -193,14 +194,26 @@ export function errorMessage(err: unknown): string {
   const fault: ApiFault = { fields: [], trail: [] };
   readFault(e.response, fault);
 
-  const head = fault.fields.length
-    ? fault.fields.map((f) => `${f.field}: ${f.message}`).join(" \u00b7 ")
-    : (fault.trail[0] ?? e.message?.trim() ?? "Algo salio mal");
+  /*
+   * La base contesta en ingles y aqui ya se dice en espanol: "cedula: Value
+   * must be unique." con un "Batch transaction failed." debajo era lo ultimo
+   * del panel que quedaba sin traducir, y justo en el momento en que hay que
+   * entenderlo. Lo que no este traducido pasa tal cual; ver `shared/pbErrors`.
+   *
+   * Lo repetido se quita otra vez porque dos frases suyas distintas pueden
+   * acabar en la misma nuestra.
+   */
+  const fields = fault.fields.map((f) => ({ ...f, message: enEspanol(f.message, f.code) }));
+  const trail = [...new Set(fault.trail.map((t) => enEspanol(t)))];
+
+  const head = fields.length
+    ? fields.map((f) => `${f.field}: ${f.message}`).join(" \u00b7 ")
+    : (trail[0] ?? (e.message ? enEspanol(e.message) : undefined) ?? "Algo salio mal");
 
   const parts: string[] = [];
-  const rest = fault.trail.filter((t) => t !== head);
+  const rest = trail.filter((t) => t !== head);
   if (rest.length) parts.push(rest.join(" \u2192 "));
-  const codes = [...new Set(fault.fields.map((f) => f.code).filter(Boolean))];
+  const codes = [...new Set(fields.map((f) => f.code).filter(Boolean))];
   if (codes.length) parts.push(codes.join(", "));
   /*
    * De la respuesta no salio nada legible --ni columnas ni un mensaje suyo--,
@@ -208,7 +221,7 @@ export function errorMessage(err: unknown): string {
    * unico que sirve cuando la forma no es ninguna de las previstas: sin esto el
    * aviso se quedaba en "Algo salio mal" y no habia nada que mirar ni copiar.
    */
-  if (!fault.trail.length && !fault.fields.length && e.response) {
+  if (!trail.length && !fields.length && e.response) {
     try {
       const raw = JSON.stringify(e.response);
       if (raw && raw !== "{}" && raw !== head) parts.push(raw);

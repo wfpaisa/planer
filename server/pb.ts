@@ -2,6 +2,7 @@
  * Cliente de PocketBase con permisos de administrador.
  * Solo vive en el servidor: el navegador nunca ve estas credenciales.
  */
+import { enEspanol } from "../shared/pbErrors.ts";
 import { config } from "./config.ts";
 
 export class PbError extends Error {
@@ -60,11 +61,19 @@ async function tokenStillValid(): Promise<boolean> {
   return res?.ok === true;
 }
 
-/** Aplana los errores de validacion de PocketBase en frases legibles. */
+/**
+ * Aplana los errores de validacion de PocketBase en frases legibles.
+ *
+ * Legibles tambien quiere decir en espanol: lo que sale de aqui acaba en el
+ * aviso que lee quien construye, no en un registro. Ver `shared/pbErrors.ts`.
+ */
 function flatten(node: unknown, path = ""): string[] {
   if (!node || typeof node !== "object") return [];
   const entry = node as Record<string, unknown>;
-  if (typeof entry.message === "string") return [`[${path}] ${entry.message}`];
+  if (typeof entry.message === "string") {
+    const code = typeof entry.code === "string" ? entry.code : undefined;
+    return [`[${path}] ${enEspanol(entry.message, code)}`];
+  }
   return Object.entries(entry).flatMap(([key, value]) =>
     flatten(value, path ? `${path}.${key}` : key),
   );
@@ -117,8 +126,8 @@ export async function pb<T = unknown>(
     } catch {
       data = text;
     }
-    const base =
-      (data as { message?: string })?.message ?? `PocketBase respondio ${res.status} en ${path}`;
+    const said = (data as { message?: string })?.message;
+    const base = said ? enEspanol(said) : `PocketBase respondio ${res.status} en ${path}`;
     const detail = flatten((data as { data?: unknown })?.data)
       .slice(0, 5)
       .join("; ");
