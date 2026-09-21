@@ -378,6 +378,95 @@
 }
 
 /* ==========================================================
+   Hero: la banda de portada, pintada con el color de la marca
+
+   Es la unica pieza del catalogo que se pinta con el relleno
+   pleno, asi que es tambien la unica donde lo de alrededor deja
+   de valer: encima de la marca, la letra del papel no se lee y
+   el boton principal --que es de la marca-- desaparece.
+
+   Por eso la banda trae resuelto lo que lleva dentro. La tinta
+   es `--accent-text`, que es la que la casa calcula para leerse
+   sobre el acento --blanca sobre una marca oscura, negra sobre
+   una clara-- y se voltea sola el dia que la empresa cambia de
+   color. Y los botones se visten aqui:
+
+     .btn          se vacia: el cerco y la letra, en esa tinta
+     .btn-primary  se levanta: blanco, con la marca oscurecida
+
+   El principal es blanco en los dos modos, y no el papel de la
+   casa: la banda se pinta con el color de la empresa tambien en
+   oscuro, asi que lo que se levanta encima se levanta igual. Su
+   letra no puede ser `--accent-text` --sobre una marca clara esa
+   tinta es negra, pero sobre una clara la banda tambien lo pide
+   distinto-- ni la marca a secas: es `--color-accent-800`, la
+   marca llevada a una claridad oscura, que se lee sobre blanco
+   venga la paleta que venga.
+   ========================================================== */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  padding: var(--sp-28) var(--sp-24);
+  border-radius: var(--radius-lg);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+/*
+ * El subtitulo no baja a un gris: sobre un relleno, un gris es
+ * el mismo color con menos contraste. Se rebaja la misma tinta,
+ * que sigue siendo la que se lee.
+ */
+.hero-sub {
+  margin: 0;
+  max-width: 48ch;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: oklch(from var(--accent-text) l c h / 82%);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: var(--sp-8);
+}
+
+.hero .btn {
+  background: transparent;
+  border-color: oklch(from var(--accent-text) l c h / 45%);
+  color: var(--accent-text);
+  box-shadow: none;
+
+  &:hover {
+    border-color: var(--accent-text);
+    background: oklch(from var(--accent-text) l c h / 12%);
+  }
+}
+
+.hero .btn-primary {
+  background: oklch(1 0 0);
+  border-color: transparent;
+  color: var(--color-accent-800);
+  box-shadow: var(--shadow-sm);
+
+  &:hover {
+    background: oklch(0.955 0 0);
+    border-color: transparent;
+  }
+}
+
+/* ==========================================================
    Chips / Tabs / Segmentos: un mismo mecanismo, dos nombres
    La pastilla activa es un ::before que se desplaza; al pasar el
    cursor viaja hasta la opcion apuntada y vuelve al soltarla.

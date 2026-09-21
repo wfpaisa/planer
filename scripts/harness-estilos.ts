@@ -145,6 +145,14 @@ const BUENA = `<!doctype html>
 </head><body>
   <div class="pantalla-pedidos">
     <header class="cabecera-pedidos"><h1>Pedidos</h1><p>Lo que hay abierto hoy.</p></header>
+    <section class="hero">
+      <h1 class="hero-title">Pedidos del mes</h1>
+      <p class="hero-sub">Lo abierto, lo entregado y lo que ya pasó de fecha.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary"><i class="hgi-stroke hgi-add-01"></i>Nuevo pedido</button>
+        <button class="btn">Ver atrasados</button>
+      </div>
+    </section>
     <div class="table-card card"><div class="table-wrap">
       <table class="table"><thead><tr><th>Cliente</th><th class="num">Total</th></tr></thead>
       <tbody><tr><td>Lucía Marín</td><td class="num">184,20 €</td></tr></tbody>
@@ -206,6 +214,21 @@ const MALAS: { nombre: string; regla: string; html: string }[] = [
     html: `<style>.banda { background: var(--color-secondary); padding: 1rem; }</style>`,
   },
   {
+    nombre: "la tinta del papel dentro de la banda de portada",
+    regla: "ink-on-the-brand-band",
+    html: `<style>.hero .dato { color: var(--ink-soft); }</style>`,
+  },
+  {
+    nombre: "una parte de la banda con la tinta del papel",
+    regla: "ink-on-the-brand-band",
+    html: `<style>.hero-sub { color: var(--text-secondary); }</style>`,
+  },
+  {
+    nombre: "la banda repintada con una superficie",
+    regla: "hero-repainted",
+    html: `<style>.hero { background: var(--surface-card); padding: 2rem; }</style>`,
+  },
+  {
     nombre: "un boton sin clase",
     regla: "catalogue-piece-unused",
     html: `<button>Guardar</button>`,
@@ -251,6 +274,14 @@ const CALLA: { nombre: string; html: string }[] = [
     html: `<style>.caja { background: transparent; border-color: currentColor; }</style>`,
   },
   { nombre: "un canvas de grafica", html: `<canvas id="ventas"></canvas>` },
+  {
+    nombre: "una clase de la pagina que empieza como la banda",
+    html: `<style>.hero-banner { color: var(--ink); background: var(--surface-card); }</style>`,
+  },
+  {
+    nombre: "la banda repintada, pero con su tinta",
+    html: `<style>.hero { background: var(--surface-card); color: var(--ink); }</style>`,
+  },
   {
     nombre: "una casilla dentro de su choice",
     html: `<label class="choice"><input type="checkbox"><i class="choice-box"></i></label>`,

@@ -85,15 +85,11 @@ const REFS = {
   },
   iconos: {
     /*
-     * La fuente de iconos. Se trae del CDN y no de aqui a proposito: es casi
-     * un megabyte que el navegador ya tiene guardado de cualquier otra pagina
-     * que la use, y asi no viaja por nuestro servidor.
-     *
-     * Basta con reconocer el dominio: la hoja ha cambiado de sitio una vez
-     * (`cdn.` -> `use.`) y un documento guardado con la direccion vieja no
-     * tiene que terminar con las dos.
+     * La fuente de iconos, que ahora sirve Planer. Las paginas guardadas de
+     * cuando se pedia al CDN llevan esa direccion dentro; `stripCdnIcons` se
+     * la quita, y asi aqui se ve que falta y entra la de casa.
      */
-    find: /hugeicons\.com/i,
+    find: /\/iconos\/iconos\.css/i,
     line:
       `<!-- Iconos de Planer: escribe <i class="hgi-stroke hgi-nombre"></i> -->\n` +
       `<link rel="stylesheet" href="${ICON_FONT_URL}">`,
@@ -140,6 +136,20 @@ function stripInline(content: string): string {
     .replace(/<script\s[^>]*data-plane="puente"[^>]*>[\s\S]*?<\/script>/gi, "");
 }
 
+/**
+ * Quita la linea que pedia la fuente de iconos al CDN, con su comentario.
+ *
+ * Es lo que llevan dentro las paginas guardadas antes de que Planer sirviera
+ * la fuente. Quitada, `injectPageRefs` ve que falta, pone la de casa y lo
+ * cuenta como repuesto en vez de cambiarlo a escondidas.
+ */
+function stripCdnIcons(content: string): string {
+  return content.replace(
+    /(?:<!-- Iconos de Planer:[\s\S]*?-->\s*)?<link\b[^>]*hugeicons\.com[^>]*>\s*/gi,
+    "",
+  );
+}
+
 /** Mete un trozo justo despues de la apertura de `<head>`, o se lo inventa. */
 function intoHead(content: string, block: string): string {
   const headOpen = /<head[^>]*>/i.exec(content);
@@ -178,7 +188,7 @@ function afterBridge(content: string, block: string): string {
  * escondidas.
  */
 export function injectPageRefs(content: string): { content: string; restored: PageRef[] } {
-  let next = stripInline(content);
+  let next = stripCdnIcons(stripInline(content));
 
   const missing = (Object.keys(REFS) as PageRef[]).filter((name) => {
     const ref = REFS[name];

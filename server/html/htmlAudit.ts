@@ -268,6 +268,81 @@ function checkFillWithoutInk(css: string[], out: StyleFinding[]): void {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* La banda de portada                                                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Un selector que apunta a la banda: `.hero` y sus tres partes, nada mas.
+ * `.hero-banner`, que seria una clase de la pagina, no cuenta.
+ */
+const HERO_SEL = /\.hero(?:-title|-sub|-actions)?(?![\w-])/i;
+
+/** Las tintas del papel: se leen sobre una superficie, no sobre un relleno. */
+const SURFACE_INK =
+  /var\(\s*--(ink|ink-soft|ink-faint|text-primary|text-secondary|text-muted|text-subtle)\s*\)/i;
+
+/** Las superficies: papel, lienzo, lo que se levanta del fondo. */
+const SURFACE_FILL = /var\(\s*--(surface-[a-z]+|bg-level\d)\s*\)/i;
+
+/**
+ * La banda de portada repintada por la pagina.
+ *
+ * Es la unica pieza del catalogo que se pinta con el relleno pleno de la
+ * marca, y por eso la unica donde las tintas de alrededor dejan de valer: la
+ * letra del papel sobre el color de la empresa no se lee. La banda ya trae
+ * resuelto lo que lleva dentro --la tinta, el boton vacio, el principal
+ * levantado--, asi que escribirle un color encima solo puede empeorarlo.
+ *
+ * Las dos cosas que se miran son ciertas o no lo son: o el selector apunta a
+ * la banda y pone una tinta de papel, o no.
+ */
+function checkHero(css: string[], out: StyleFinding[]): void {
+  for (const sheet of css) {
+    for (const block of blocksOf(sheet)) {
+      if (!HERO_SEL.test(block.selector)) continue;
+      const decls = declsOf(block.body);
+
+      /*
+       * Una regla que cambia el relleno Y la tinta a la vez ya no esta usando
+       * la banda: la ha convertido en una superficie cualquiera, y lo que
+       * queda se lee. Raro, pero no roto, y aqui no se avisa de lo que se lee.
+       */
+      const rebased =
+        decls.some(
+          (d) =>
+            (d.prop === "background" || d.prop === "background-color") &&
+            SURFACE_FILL.test(d.value),
+        ) && decls.some((d) => d.prop === "color" && SURFACE_INK.test(d.value));
+      if (rebased) continue;
+
+      for (const { prop, value } of decls) {
+        if (prop === "color" && SURFACE_INK.test(value)) {
+          out.push({
+            regla: "ink-on-the-brand-band",
+            mensaje:
+              "That is the ink of a surface, and the hero is a solid brand fill: over it, it is the page's own grey on a colour, and with another palette or in dark mode it stops being readable altogether. The band already carries the ink that reads over it --remove the colour and let it through; for a quieter line use .hero-sub, which is that same ink dimmed.",
+            donde: snip(`${block.selector} { color: ${value} }`),
+          });
+        }
+
+        if (
+          (prop === "background" || prop === "background-color") &&
+          SURFACE_FILL.test(value) &&
+          !decls.some((d) => d.prop === "color")
+        ) {
+          out.push({
+            regla: "hero-repainted",
+            mensaje:
+              "Painting the hero with a surface leaves its text in the ink meant for the brand fill --white letters on white paper. If the band should not be filled with the brand colour, do not use .hero: a plain <header> with an <h1> is the quiet opening.",
+            donde: snip(`${block.selector} { ${prop}: ${value} }`),
+          });
+        }
+      }
+    }
+  }
+}
+
 /**
  * Piezas del catalogo escritas a pelo.
  *
@@ -394,6 +469,7 @@ export function auditPageHtml(html: string): StyleFinding[] {
   checkVars(html, css, found);
   checkFillAsInk(css, found);
   checkFillWithoutInk(css, found);
+  checkHero(css, found);
   checkBareElements(html, found);
   checkTableFoot(html, found);
   checkIcons(html, found);

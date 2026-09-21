@@ -324,6 +324,25 @@ Three rules for using it:
 
 The foot anchors itself to the bottom, so two cards side by side line their feet up on their own without matching heights by hand. Actions go in the foot; the head carries the title and, in \`card-head-actions\`, only what accompanies --a filter, a menu.
 
+### Hero
+
+The opening band of a screen: the app's brand colour filled solid, with the title, one line of explanation and the actions that start the task.
+
+\`\`\`html
+<section class="hero">
+  <h1 class="hero-title">Chequeo preoperacional</h1>
+  <p class="hero-sub">Revisa el vehículo antes de salir. Queda a tu nombre.</p>
+  <div class="hero-actions">
+    <button class="btn btn-primary"><i class="hgi-stroke hgi-add-01"></i>Registrar chequeo</button>
+    <button class="btn">Ver los de hoy</button>
+  </div>
+</section>
+\`\`\`
+
+**Write no colour of your own inside it.** It is the one piece painted with the full brand fill, and it dresses what it carries: the text already comes in the ink that reads over that colour, \`.btn\` empties out to a bordered one in that same ink, and \`.btn-primary\` lifts off the band in the house's paper. Putting \`color\` on anything inside --a surface ink like \`--ink\` or \`--ink-soft\`, or the fill itself-- is what breaks it: those are the inks of the page, not of the band, and the band's colour changes with the palette and with the mode while they do not.
+
+One hero per screen, at the top. For a section heading inside the page use a plain \`<h2>\`.
+
 ### Table
 
 \`\`\`html

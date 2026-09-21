@@ -21,13 +21,18 @@ import { ICON_NAME_SET } from "./iconNames.ts";
 /**
  * La hoja de estilo que trae la fuente.
  *
- * Es la de `use.hugeicons.com`, no la de `cdn.`: son la misma fuente, pero la
- * de `cdn.` se quedo en cuatro mil nombres y esta trae los seis mil del
+ * Los dos archivos --la hoja y el woff2-- viven en `web/public/iconos/` y los
+ * sirve Planer, no un CDN: una pagina publicada no puede depender de que
+ * responda el servidor de otro, ni de que le cambien la fuente debajo, y hay
+ * servidores sin salida a internet.
+ *
+ * La copia es la de `use.hugeicons.com`, no la de `cdn.`: son la misma fuente,
+ * pero la de `cdn.` se quedo en cuatro mil nombres y esta trae los seis mil del
  * catalogo. En el camino Hugeicons deletreo los digitos que abrian un tramo
  * del nombre (`sorting-1-9` es ahora `sorting-one-9`), y por eso hay dos
  * nombres cambiados en `PAGE_ICONS`.
  */
-export const ICON_FONT_URL = "https://use.hugeicons.com/font/icons.css";
+export const ICON_FONT_URL = "/iconos/iconos.css";
 
 /** Lo que se dibuja cuando el nombre guardado no esta en la fuente. */
 export const DEFAULT_ICON = "sidebar-left";

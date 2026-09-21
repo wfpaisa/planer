@@ -150,6 +150,35 @@
         </div>
       </div>
     </article>
+    <!-- Hero -->
+    <article class="card gallery-item wide col-span-2">
+      {@render head("Hero", "La banda de portada, con el color de la marca. En páginas generadas")}
+      <div class="card-body">
+        <div class="gallery-demo">
+          <!-- prettier-ignore -->
+          <p class="demo-note">
+              La única pieza que se pinta con el relleno pleno de la marca, y por eso la única que
+              viste lo que lleva dentro: la letra va en la tinta que se lee sobre ese color, el
+              <code>btn</code> se vacía y el <code>btn-primary</code> se levanta en papel. No hay
+              que escribir ningún color encima —hacerlo es lo que rompe la banda al cambiar de
+              paleta o de modo.
+            </p>
+          <div class="hero">
+            <h1 class="hero-title">Chequeo preoperacional</h1>
+            <p class="hero-sub">
+              Revisa el vehículo antes de salir. Queda a tu nombre y se suma al resumen del turno.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary">
+                <i class="hgi-stroke hgi-add-01"></i>
+                Registrar chequeo
+              </button>
+              <button class="btn">Ver los de hoy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
     <!-- Inset -->
     <article class="card gallery-item wide">
       {@render head("Inner box", "Agrupa dentro de otra caja. Ej.: dentro de un modal")}

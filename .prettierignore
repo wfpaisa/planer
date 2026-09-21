@@ -5,3 +5,4 @@ bun.lock
 openspec
 web/index.html
 **/*.md
+web/public/iconos/iconos.css
