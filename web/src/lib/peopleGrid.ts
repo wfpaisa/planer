@@ -76,19 +76,6 @@ function split(fields: FieldDef[], values: Record<string, unknown>) {
   return { system, own };
 }
 
-/** Una fila de personas ya guardada. */
-export interface SavedPerson {
-  row: Row;
-  /**
-   * La clave con la que entra, solo cuando la cuenta acaba de nacer.
-   *
-   * Viene tanto si se escribio a mano como si la invento el servidor, y en los
-   * dos casos es la unica vez que se puede leer: no se guarda en ningun sitio
-   * del que volver a sacarla. Ver `PasswordForm.svelte`.
-   */
-  password?: string;
-}
-
 /**
  * Guarda una fila de personas, cada dato por su camino.
  *
@@ -112,7 +99,7 @@ export async function savePersonRow(opts: {
    * para dar de alta a nadie.
    */
   password?: string;
-}): Promise<SavedPerson> {
+}): Promise<Row> {
   const { appId, table, overlay, row, values, password } = opts;
   const { system, own } = split(table.fields, values);
 
@@ -134,7 +121,7 @@ export async function savePersonRow(opts: {
       if (value !== undefined && value !== null && value !== "") campos[key] = value;
     }
 
-    const alta = await post<{ password?: string }>(`/api/apps/${appId}/members`, {
+    await post(`/api/apps/${appId}/members`, {
       email: String(system.cuenta ?? "").trim(),
       roles: Array.isArray(system.roles) ? system.roles : [],
       password: password || undefined,
@@ -157,10 +144,7 @@ export async function savePersonRow(opts: {
     const saved = Object.keys(own).length
       ? await pb.collection(table.dataCollection).update<Row>(created.id, own)
       : created;
-    return {
-      row: { ...saved, cuenta: person.cuenta, roles: person.roles },
-      password: alta.password,
-    };
+    return { ...saved, cuenta: person.cuenta, roles: person.roles };
   }
 
   const person = overlay.get(String(row[MEMBER_FIELD] ?? ""));
@@ -176,11 +160,9 @@ export async function savePersonRow(opts: {
     : row;
 
   return {
-    row: {
-      ...saved,
-      cuenta: "cuenta" in system ? String(system.cuenta ?? "") : (person?.cuenta ?? ""),
-      roles: "roles" in system ? (system.roles ?? []) : (person?.roles ?? []),
-    },
+    ...saved,
+    cuenta: "cuenta" in system ? String(system.cuenta ?? "") : (person?.cuenta ?? ""),
+    roles: "roles" in system ? (system.roles ?? []) : (person?.roles ?? []),
   };
 }
 

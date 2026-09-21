@@ -129,7 +129,6 @@
   import ImportModal from "./ImportModal.svelte";
   import PasswordBlock from "./PasswordBlock.svelte";
   import PasswordField from "./PasswordField.svelte";
-  import PasswordNote from "./PasswordNote.svelte";
   import PersonColumnOffer from "./PersonColumnOffer.svelte";
   import RolesModal from "./RolesModal.svelte";
   import RowDrawer from "./RowDrawer.svelte";
@@ -225,14 +224,6 @@
    * al servidor es el guardado de personas de aqui abajo.
    */
   let newKey = $state("");
-  /**
-   * La clave de una persona recien creada, para ensenarla una vez.
-   *
-   * Al guardar, el cajon se cierra. La inventada por el servidor no esta en
-   * ningun otro sitio --no se guarda en ninguna parte de la que volver a
-   * sacarla-- asi que cerrar encima de ella seria perderla.
-   */
-  let madeKey = $state<{ email: string; password: string } | null>(null);
 
   // Lo escrito no sobrevive al cajon: era de la persona que se estaba creando.
   $effect(() => {
@@ -2376,7 +2367,7 @@
           if (clave && clave.length < MIN_PASSWORD) {
             throw new Error(`La clave necesita ${MIN_PASSWORD} caracteres o más.`);
           }
-          const { row: saved, password } = await savePersonRow({
+          return await savePersonRow({
             appId: table.app,
             table,
             overlay,
@@ -2384,16 +2375,6 @@
             values: opts.values,
             password: clave || undefined,
           });
-          /*
-           * Se ensena solo la que invento el servidor, que es la misma regla
-           * que al importar (`peopleImport.ts`): la escrita a mano ya se sabe,
-           * y devolverla seria un dialogo de mas en el camino. Esta, en cambio,
-           * no esta en ningun otro sitio y el cajon se acaba de cerrar encima.
-           */
-          if (password && !clave) {
-            madeKey = { email: String(opts.values[emailColumn] ?? "").trim(), password };
-          }
-          return saved;
         }
       : undefined}
   >
@@ -2421,30 +2402,6 @@
       {/if}
     {/snippet}
   </RowDrawer>
-
-  <!--
-    La clave de quien acaba de entrar. En su propio dialogo y no en un aviso de
-    los que se van solos: es lo unico del producto que no se puede volver a
-    leer, asi que se cierra cuando se dice y no cuando pase el tiempo.
-  -->
-  <Modal
-    class="modal-new-password"
-    open={!!madeKey}
-    onClose={() => (madeKey = null)}
-    title="Persona creada"
-    icon="key-round"
-  >
-    {#if madeKey}
-      <PasswordNote
-        title={`Clave de ${madeKey.email}`}
-        password={madeKey.password}
-        onDone={() => (madeKey = null)}
-      />
-    {/if}
-    {#snippet footer()}
-      <Button onclick={() => (madeKey = null)}>Ya la copié</Button>
-    {/snippet}
-  </Modal>
 </div>
 
 <style>

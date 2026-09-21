@@ -6,9 +6,11 @@
   la fila, porque es el unico momento en que se puede elegir sin tener que
   volver despues a cambiarsela.
 
-  Vacio vale y es lo normal: el servidor inventa una y se ensena al terminar.
-  Generarla aqui es lo mismo, un paso antes: la misma funcion que usa el
-  servidor, pero delante, para poder leerla y copiarla antes de crear a nadie.
+  Vacio vale: el servidor inventa una, pero esa no la ve nadie --se crea dentro
+  y no se devuelve a la pantalla-- asi que esa persona entra cuando alguien le
+  ponga una desde "Cambiar la clave", en su fila. Generarla aqui es lo mismo un
+  paso antes, con la misma funcion que usa el servidor, pero delante: se lee y
+  se copia antes de crear a nadie, y entonces la persona ya puede entrar.
 
   Se ve mientras se escribe, sin puntos: no es la clave de quien esta delante
   --es la de otra persona, y hay que poder copiarla y dictarla-- asi que
@@ -78,10 +80,17 @@
     {/if}
   </div>
 
+  <!--
+    Vacia tiene consecuencia y se dice aqui: la que inventa el servidor no
+    vuelve a la pantalla, asi que esa persona no entra hasta que alguien le
+    ponga una. Es el unico sitio donde se puede avisar a tiempo.
+  -->
   <p class="hint-password-field" class:hint-password-field-short={short}>
     {short
       ? `La clave necesita ${MIN_PASSWORD} caracteres o más.`
-      : "Cópiala antes de guardar: después no se vuelve a poder leer."}
+      : value.trim()
+        ? "Cópiala antes de guardar: después no se vuelve a poder leer."
+        : "Si la dejas vacía, no podrá entrar hasta que le des una desde su fila."}
   </p>
 </div>
 

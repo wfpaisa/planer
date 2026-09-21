@@ -140,7 +140,7 @@ export async function writeCell(opts: {
       row,
       values: { [field.name]: value },
     });
-    return { row: saved.row, undo: null };
+    return { row: saved, undo: null };
   }
 
   const resolved = await resolveRowValues({
