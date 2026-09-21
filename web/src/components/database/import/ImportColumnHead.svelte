@@ -64,6 +64,14 @@
 
   const target = $derived(plan.target);
   const ignored = $derived(target.kind === "skip");
+  /**
+   * Si esta columna nace del archivo.
+   *
+   * Cambia lo que se dice de lo exigido: sobre una columna que ya existe solo
+   * rige esta importacion, y sobre una que nace, la columna se queda con ello
+   * puesto. Ver `createColumns` en `lib/importSave.ts`.
+   */
+  const creating = $derived(target.kind === "create");
 
   /** Como se llama en la tabla lo que trae esta columna del archivo. */
   const destino = $derived.by(() => {
@@ -182,7 +190,9 @@
       -->
         {#if !ignored}
           <MenuSeparator />
-          <MenuLabel>Al importar, esta columna</MenuLabel>
+          <MenuLabel>
+            {creating ? "La columna nueva nace así" : "Al importar, esta columna"}
+          </MenuLabel>
           <MenuItem
             class="menu-item-rule-unique"
             onclick={() => onRule(plan.column, { ...rule, unique: !rule.unique })}
@@ -228,7 +238,9 @@
           tone={broken.unique ? "tag-error" : "tint-2"}
           tip={broken.unique
             ? "Hay filas que repiten este valor"
-            : "Dos filas con el mismo valor no entran"}
+            : creating
+              ? "Dos filas con el mismo valor no entran, y la columna nace sin repetidos"
+              : "Dos filas con el mismo valor no entran"}
           class="badge-rule-unique import-col-rule"
           removeLabel={`Dejar que ${plan.column} se repita`}
           onRemove={() => onRule(plan.column, { ...rule, unique: false })}
@@ -241,7 +253,9 @@
           tone={broken.required ? "tag-error" : "tint-3"}
           tip={broken.required
             ? "Hay filas que no traen este dato"
-            : "Una fila sin este dato no entra"}
+            : creating
+              ? "Una fila sin este dato no entra, y la columna nace obligatoria"
+              : "Una fila sin este dato no entra"}
           class="badge-rule-required import-col-rule"
           removeLabel={`Dejar ${plan.column} en blanco`}
           onRemove={() => onRule(plan.column, { ...rule, required: false })}

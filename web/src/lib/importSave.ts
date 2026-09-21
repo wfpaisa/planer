@@ -15,7 +15,14 @@ import { type Match, relationCellValues } from "@shared/relations";
 import { type FieldType, isRelationField, type TableRecord } from "@shared/types";
 
 import type { Row } from "./cellValues";
-import type { ColumnPlan, ColumnTarget, ConvertedRow, RowStatus, SaveMode } from "./importPlan";
+import type {
+  ColumnPlan,
+  ColumnRule,
+  ColumnTarget,
+  ConvertedRow,
+  RowStatus,
+  SaveMode,
+} from "./importPlan";
 import { errorMessage, isRateLimited, patch, pb } from "./pb";
 import type { PeopleImportReport } from "./peopleGrid";
 
@@ -118,10 +125,22 @@ export function buildBody(
  * Crea en la tabla las columnas nuevas que trae el archivo y devuelve las
  * columnas ya reales. Va antes de guardar las filas: sin ellas, sus valores no
  * tendrian donde caer.
+ *
+ * Una columna que nace aqui nace con lo que se le exigio en la
+ * previsualizacion: si se pidio que no se repitiera o que no pudiera estar
+ * vacia, asi queda en la tabla. Es lo mismo que ya pasaba con su tipo --el
+ * borrador lo trae puesto-- y lo que se espera de marcarlo mientras se crea la
+ * columna: antes se exigia solo durante la importacion y la columna nacia sin
+ * ninguna de las dos marcas, asi que la cedula que se acababa de declarar
+ * unica y obligatoria entraba como una columna de texto cualquiera.
+ *
+ * A una columna que YA existe no se le toca nada: ahi lo marcado sigue siendo
+ * condicion de esta importacion y no un cambio de la tabla. Ver `ColumnRule`.
  */
 export async function createColumns(
   table: TableRecord,
   toCreate: ColumnPlan[],
+  rules: Record<string, ColumnRule>,
 ): Promise<TableRecord["fields"]> {
   const updated = await patch<TableRecord>(`/api/tables/${table.id}`, {
     fields: [
@@ -135,10 +154,15 @@ export async function createColumns(
        */
       ...toCreate.map((p) => {
         const draft = p.target.kind === "create" ? p.target.draft : null;
+        const rule = rules[p.column] ?? {};
         return {
           name: "",
           label: draft?.label || p.column,
           type: draft?.type ?? ("text" as FieldType),
+          // Solo lo pedido: una columna que nace sin marcas no las lleva
+          // apagadas dentro, como cualquier otra creada desde el panel.
+          ...(rule.required === true ? { required: true } : {}),
+          ...(rule.unique === true ? { unique: true } : {}),
         };
       }),
     ],

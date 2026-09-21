@@ -479,7 +479,7 @@
       let fields = table.fields;
       const toCreate = wizard.visiblePlans.filter((p) => p.target.kind === "create");
       if (toCreate.length > 0) {
-        fields = await createColumns(table, toCreate);
+        fields = await createColumns(table, toCreate, wizard.rules);
         /*
          * Las columnas ya existen: se olvida el "crear" que se habia elegido a
          * mano para que no se vuelvan a crear.

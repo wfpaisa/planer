@@ -1057,9 +1057,17 @@
   /**
    * Lo que se hace despues de importar personas.
    *
-   * Tres cosas, en este orden: releer la lista de invitados, enlazar las filas
-   * de otras tablas que llevaban esperando su valor, y mirar si alguna columna
-   * de texto resulta estar nombrando personas.
+   * Cuatro cosas, en este orden: releer la aplicacion, releer la lista de
+   * invitados, enlazar las filas de otras tablas que llevaban esperando su
+   * valor, y mirar si alguna columna de texto resulta estar nombrando personas.
+   *
+   * La aplicacion se relee porque importar personas puede cambiarla: los roles
+   * que nombra el archivo y la aplicacion no tenia nacen al importar (ver
+   * `server/peopleImport.ts`), y viven en la aplicacion y no en la tabla. Sin
+   * releerla, `reloadTables` traia las filas con sus roles puestos mientras la
+   * columna seguia sin una sola opcion y la tarjeta de roles seguia vacia: los
+   * roles parecian asignados pero no creados, y solo recargando la pagina
+   * aparecian.
    *
    * El enlazado va aqui y no dentro de la importacion, y de una sola pasada:
    * un archivo de doscientas personas haria doscientos barridos sobre las
@@ -1068,6 +1076,7 @@
    * dialogos. Ver `design.md` D8.
    */
   async function afterPeopleImport(note: ImportNote | undefined) {
+    await builder.reloadApp();
     await builder.reloadPeople();
     const invited = people.list;
     const otras = tables.filter((t) => t.id !== table.id);

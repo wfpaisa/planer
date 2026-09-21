@@ -26,6 +26,8 @@
     - Redimensionar el ancho arrastrando el borde del título (o con las flechas
       del teclado); doble clic lo devuelve al ancho automático
     - Renombrar sin perder datos
+    - El título dice con un icono lo que la columna exige: obligatoria junto al
+      nombre, "no se repite" al otro extremo
     - Columna persona como dueño de fila ("ver solo lo mío")
   - Filas
 
@@ -51,6 +53,9 @@
     - Al pegar de más: crear las filas que faltan o quedarse con las que caben
     - Vaciar el rango con Supr
   - Importar / exportar CSV y JSON, con resumen previo y reemplazo total
+
+    - Exigirle a una columna del archivo que no se repita o que no venga vacía;
+      la columna que nace del archivo se queda con esas marcas
   - Panel de valores huérfanos (relaciones rotas)
 - **Páginas** (constructor visual)
 

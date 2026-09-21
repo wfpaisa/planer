@@ -72,9 +72,14 @@ export interface ImportError {
 /**
  * Lo que se le pide a una columna aparte de a donde va.
  *
- * No son columnas de la tabla --la tabla no cambia por esto-- sino condiciones
- * de ESTA importacion: el archivo de nomina trae la cedula repetida en dos
- * filas y eso hay que verlo antes de escribirlo, no despues.
+ * Sobre una columna que ya existe son condiciones de ESTA importacion y no un
+ * cambio de la tabla: el archivo de nomina trae la cedula repetida en dos filas
+ * y eso hay que verlo antes de escribirlo, no despues.
+ *
+ * Sobre una columna que nace del archivo son las dos cosas: se exigen al
+ * importar y ademas la columna nace con ellas, igual que nace con el tipo que
+ * se le eligio. Marcarlas mientras se declara la columna y encontrarla despues
+ * sin ninguna era el camino raro. Ver `createColumns` en `importSave.ts`.
  */
 export interface ColumnRule {
   /** No se repite: dos filas con el mismo valor no entran. */

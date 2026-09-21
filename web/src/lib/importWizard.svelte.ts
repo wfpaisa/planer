@@ -84,8 +84,9 @@ export class ImportWizard {
   /**
    * Lo que se le exige a cada columna, por nombre de columna.
    *
-   * Es de esta importacion y no de la tabla: nada de esto se guarda al terminar.
-   * Se pone desde el encabezado de la columna, como su destino.
+   * Se pone desde el encabezado de la columna, como su destino. Sobre una
+   * columna que ya existe es de esta importacion y no se guarda; sobre una que
+   * nace del archivo, la columna nace con ello puesto. Ver `ColumnRule`.
    */
   rules = $state<Record<string, ColumnRule>>({});
   mode = $state<SaveMode>("add");

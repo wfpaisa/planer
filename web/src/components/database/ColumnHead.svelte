@@ -134,11 +134,43 @@
           )}
         />
         <span class="column-head-label">{field.label}</span>
-        {#if field.required}<span class="column-head-required">*</span>{/if}
+        <!--
+          Que la columna no pueda estar vacia se dice pegado al titulo, que es
+          donde iba el asterisco que este icono sustituye: se lee con el nombre
+          de la columna, como una parte suya.
+        -->
+        {#if field.required === true}
+          <span
+            class="column-head-mark column-head-mark-required"
+            data-tip="Obligatoria: una fila sin este dato no entra"
+          >
+            <Icon name="square-asterisk" size={13} />
+            <span class="sr-only">Obligatoria</span>
+          </span>
+        {/if}
         {#if sorted === "asc"}
           <Icon name="arrow-up-az" class="column-head-sort-asc" size={42} />
         {:else if sorted === "desc"}
           <Icon name="arrow-down-az" class="column-head-sort-desc" size={16} />
+        {/if}
+
+        <!--
+          Que no se repita se dice al otro lado, junto al menu: no es una
+          propiedad del nombre sino de la tabla entera --es lo que hace que la
+          columna sirva de llave-- y ahi se repasa de un vistazo por toda la
+          cabecera, en la misma vertical fila tras fila de titulos de distinto
+          largo. El icono es el mismo que el del encabezado de la
+          previsualizacion al importar, para que sean la misma cosa en los dos
+          sitios.
+        -->
+        {#if field.unique === true}
+          <span
+            class="column-head-mark column-head-mark-unique"
+            data-tip="No se repite: dos filas no pueden tener el mismo valor"
+          >
+            <Icon name="fingerprint-pattern" size={13} />
+            <span class="sr-only">No se repite</span>
+          </span>
         {/if}
 
         <Icon name="ellipsis-vertical" class={cx("column-menu")} size={16} />
@@ -294,9 +326,26 @@
         color: var(--text-muted);
       }
 
-      & .column-head-required {
-        color: var(--danger);
-        font-size: 1rem;
+      & .column-head-mark {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        color: var(--text-muted);
+
+        /* El mismo rojo con el que se pintaba el asterisco al que sustituye. */
+        &.column-head-mark-required {
+          color: var(--danger);
+        }
+
+        /*
+          La de unica toma el hueco que sobra y el menu se le pega detras: asi
+          se queda en el borde derecho de toda la cabecera en vez de bailar
+          detras de titulos de distinto largo.
+        */
+        &.column-head-mark-unique {
+          margin-left: auto;
+          color: var(--warning);
+        }
       }
 
       & .column-head-label {
@@ -318,6 +367,13 @@
         flex-shrink: 0;
         color: var(--text-muted);
         transition: opacity 150ms;
+      }
+
+      /* Con la marca de unica el hueco ya lo tomo ella: dos margenes
+         automaticos se repartirian lo que sobra y la dejarian a media
+         cabecera. */
+      &:has(.column-head-mark-unique) :global(.column-menu) {
+        margin-left: 0;
       }
     }
   }
