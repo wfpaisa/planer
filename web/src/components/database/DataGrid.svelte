@@ -442,6 +442,10 @@
     void page;
     void pageSize;
     void onlyOrphans;
+    // Y lo que cambio las filas por fuera de aqui: restablecer la tabla de
+    // personas se lleva a todo el mundo, y sin esto la grilla seguia
+    // ensenandolos hasta recargar el sitio. Ver `dataTouched`.
+    void builder.dataTouched;
     /*
      * El cursor se suelta aqui y no dentro de `load`: el rango se elige por
      * sitio, asi que sobrevive a una relectura de la misma pagina --la de
@@ -581,8 +585,16 @@
    * celda: sin ella, la primera letra de lo que se escribe se perderia.
    */
   let editing = $state<{ row: number; col: number; seed?: string } | null>(null);
-  /** Mientras una celda o un bloque de ellas se estan guardando. */
-  let writing = $state(false);
+  /**
+   * Lo que se esta guardando ahora mismo, si algo.
+   *
+   * No es un si o un no porque las dos cosas se dicen en sitios distintos: una
+   * celda gira en su propio sitio, que es donde esta pasando, y un bloque no
+   * tiene sitio --puede ser la tabla entera-- asi que lo dice la grilla
+   * atenuandose. Con un solo booleano, escribir una celda atenuaba tambien la
+   * grilla: un parpadeo por cada dato que se escribe.
+   */
+  let writing = $state<"cell" | "bulk" | null>(null);
   /** Como le fue a la ultima escritura en bloque. */
   let editNote = $state<ImportNote | null>(null);
   /** Lo pegado que no cabe, esperando a que se diga que hacer con ello. */
@@ -751,7 +763,7 @@
 
   /** Guarda una celda y deja la fila en la grilla como quedo. */
   async function saveCell(row: Row, field: FieldDef, value: unknown) {
-    writing = true;
+    writing = "cell";
     error = "";
     try {
       const { row: saved, undo } = await writeCell({
@@ -787,7 +799,7 @@
       );
       error = clash || errorMessage(err);
     } finally {
-      writing = false;
+      writing = null;
     }
   }
 
@@ -821,27 +833,30 @@
   async function clearCells() {
     const range = selection.range;
     if (!range) return;
-    writing = true;
+    writing = "bulk";
     error = "";
     editNote = null;
     try {
-      const report = await clearRange({ table, rows, fields: visible, range });
+      const report = await clearRange({ table, rows, fields: visible, range, overlay });
       editNote = rangeSummary(report, "vaciaron");
       await load();
+      // Lo que salio por la cuenta se lee fuera de esta tabla: una columna de
+      // persona de cualquier otra ensena ese correo.
+      if (report.people) await builder.reloadPeople();
       // Despues de recargar y no antes: la recarga no toca lo recordado, pero
       // el efecto que la dispara si, y el orden deja claro cual manda.
       undoable = report.undo ?? null;
     } catch (err) {
       error = errorMessage(err);
     } finally {
-      writing = false;
+      writing = null;
     }
   }
 
   /** Escribe lo pegado y vuelve a leer: lo guardado no es lo que se pego. */
   async function runPaste(start: CellRef, matrix: string[][], createMissing: boolean) {
     pasteAsk = null;
-    writing = true;
+    writing = "bulk";
     error = "";
     editNote = null;
     try {
@@ -854,6 +869,7 @@
         start,
         matrix,
         createMissing,
+        overlay,
       });
       editNote = rangeSummary(report, "pegaron");
       const undo = report.undo ?? null;
@@ -863,11 +879,12 @@
        * normalizo la base, asi que lo que hay que ensenar no es lo que se pego.
        */
       await load();
+      if (report.people) await builder.reloadPeople();
       undoable = undo;
     } catch (err) {
       error = errorMessage(err);
     } finally {
-      writing = false;
+      writing = null;
     }
   }
 
@@ -882,7 +899,7 @@
   async function undoLast() {
     const undo = undoable;
     if (!undoFits(table, undo)) return;
-    writing = true;
+    writing = "bulk";
     error = "";
     editNote = null;
     try {
@@ -893,7 +910,7 @@
       error = errorMessage(err);
     } finally {
       undoable = null;
-      writing = false;
+      writing = null;
     }
   }
 
@@ -1640,7 +1657,7 @@
         size="sm"
         variant="ghost"
         buttonClass="btn-undo-write"
-        disabled={writing}
+        disabled={!!writing}
         onclick={() => void undoLast()}
         tip="Deshacer lo último que se escribió"
         aria-label="Deshacer lo último que se escribió"
@@ -1899,7 +1916,7 @@
   <!-- Grilla -->
   <div
     id="database-grid-table-wrap"
-    aria-busy={loading}
+    aria-busy={loading || !!writing}
     class={cx(
       "table-grid-db flex-1",
       /*
@@ -1909,7 +1926,14 @@
        * solo peldano. Ver la escala en `styles/global.css`.
        */
       "isolate",
-      loading && rows.length > 0 && "grid-db-grid-loading",
+      /*
+       * Atenuada mientras trabaja, y escribir un bloque cuenta igual que leer:
+       * pegar el correo o los roles de doscientas personas son doscientas
+       * peticiones --cada una es una cuenta aparte-- y sin esto la grilla se
+       * queda quieta unos segundos, ensenando todavia lo de antes, como si el
+       * pegado no hubiera pasado.
+       */
+      (loading || writing === "bulk") && rows.length > 0 && "grid-db-grid-loading",
     )}
   >
     {#if loading && rows.length === 0}
@@ -2029,7 +2053,7 @@
                   width={widthOf(field.name)}
                   editable={inlineEditable(table, field)}
                   reason={notEditableReason(table, field)}
-                  saving={writing &&
+                  saving={writing === "cell" &&
                     selection.active?.row === rowIndex &&
                     selection.active?.col === col}
                   onDown={(e) => cellDown(rowIndex, col, e)}

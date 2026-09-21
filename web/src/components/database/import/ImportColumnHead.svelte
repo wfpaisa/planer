@@ -229,38 +229,45 @@
     <div class="import-col-actions">
       <!--
         Lo exigido, dicho en el propio encabezado: si la columna no cuenta que
-        no se repite, las filas en rojo de abajo no se explican. En rojo cuando
-        se esta incumpliendo --la pastilla senala la columna que hay que
-        mirar-- y la cruz la quita, que es donde se busca para deshacerlo.
+        no se repite, las filas en rojo de abajo no se explican. La cruz lo
+        quita, que es donde se busca para deshacerlo.
+
+        El color es el que cada exigencia lleva en el titulo de una columna de
+        la tabla --obligatoria en rojo, sin repetidos en ambar; ver
+        `ColumnHead.svelte`-- para que sea la misma marca antes y despues de
+        importar, y no una que hay que volver a aprender. Lo que se esta
+        incumpliendo se senala con el triangulo y el borde entero y no con otro
+        tinte: en su color ya estaba, y pintar las dos del mismo rojo al fallar
+        borraba justo la diferencia entre una y otra.
       -->
       {#if !ignored && rule.unique}
         <Tag
-          tone={broken.unique ? "tag-error" : "tint-2"}
+          tone="tag-warning"
           tip={broken.unique
             ? "Hay filas que repiten este valor"
             : creating
               ? "Dos filas con el mismo valor no entran, y la columna nace sin repetidos"
               : "Dos filas con el mismo valor no entran"}
-          class="badge-rule-unique import-col-rule"
+          class={cx("badge-rule-unique", "import-col-rule", broken.unique && "is-broken")}
           removeLabel={`Dejar que ${plan.column} se repita`}
           onRemove={() => onRule(plan.column, { ...rule, unique: false })}
         >
-          <Icon name="fingerprint-pattern" /> No se repite
+          <Icon name={broken.unique ? "triangle-alert" : "fingerprint-pattern"} /> No se repite
         </Tag>
       {/if}
       {#if !ignored && rule.required}
         <Tag
-          tone={broken.required ? "tag-error" : "tint-3"}
+          tone="tag-error"
           tip={broken.required
             ? "Hay filas que no traen este dato"
             : creating
               ? "Una fila sin este dato no entra, y la columna nace obligatoria"
               : "Una fila sin este dato no entra"}
-          class="badge-rule-required import-col-rule"
+          class={cx("badge-rule-required", "import-col-rule", broken.required && "is-broken")}
           removeLabel={`Dejar ${plan.column} en blanco`}
           onRemove={() => onRule(plan.column, { ...rule, required: false })}
         >
-          <Icon name="square-asterisk" /> Obligatoria
+          <Icon name={broken.required ? "triangle-alert" : "square-asterisk"} /> Obligatoria
         </Tag>
       {/if}
 
@@ -388,6 +395,16 @@
       padding: 0 var(--sp-6);
       font-size: var(--text-xs);
       line-height: var(--text-xs--line-height);
+    }
+
+    /* La exigencia que no se esta cumpliendo: su mismo color, pero con el
+       borde entero en vez del tercio que el catalogo le pone en reposo. El
+       color ya dice cual de las dos es, asi que lo que falla no puede decirse
+       tambien con color; se dice con el borde y con el triangulo del icono.
+       Va en su propia regla y no anidada como un estado porque la pastilla la
+       dibuja `Tag`: desde aqui solo se alcanza con `:global`. */
+    & :global(.import-col-rule.is-broken) {
+      box-shadow: inset 0 0 0 var(--border-width) currentColor;
     }
 
     /* La pastilla la dibuja `Tag`: su clase sale del ambito de aqui. */

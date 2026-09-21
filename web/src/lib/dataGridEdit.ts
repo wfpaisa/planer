@@ -14,6 +14,12 @@
  * vista, sin enlace, que tambien es un estado valido--. Sin eso, pegar una
  * columna desde Excel llenaria la tabla de texto en columnas que no lo son.
  *
+ * Dos columnas de la tabla de personas no viajan en el lote: el correo y los
+ * roles no estan en la coleccion --viven en la cuenta y en el enlace con la
+ * aplicacion-- y salen por la API de miembros, una peticion por persona. La
+ * frontera de que se escribe es una sola (`inlineEditable`); lo que cambia es
+ * por donde sale, y eso lo resuelve `savePeopleColumns` en `peopleGrid.ts`.
+ *
  * Cada escritura devuelve ademas su inverso: los mismos campos que mando, con
  * el valor que la fila tenia antes. Se arma aqui y no en la cuadricula porque
  * solo aqui se sabe que campos viajan --una relacion son dos-- y se tiene la
@@ -27,10 +33,16 @@ import type { Row } from "./cellValues";
 import { isSystem } from "./dataGridColumns";
 import { columnSignature, type GridUndo, type UndoRow } from "./dataGridUndo";
 import type { CellRange, CellRef } from "./gridSelection.svelte";
-import { convertValue, matchRelationColumns } from "./importParse";
+import { type ConvertResult, convertValue, matchRelationColumns } from "./importParse";
 import { type ImportRequest, writeBatches } from "./importSave";
 import { pb } from "./pb";
-import { type PersonOverlay, savePersonRow } from "./peopleGrid";
+import {
+  type PeopleBulkReport,
+  type PersonOverlay,
+  type PersonPatch,
+  savePeopleColumns,
+  savePersonRow,
+} from "./peopleGrid";
 import { panelLookup, resolveRowValues } from "./relations";
 
 /**
@@ -47,19 +59,6 @@ export function inlineEditable(table: TableRecord, field: FieldDef): boolean {
   if (isPeopleTable(table) && field.name === MEMBER_FIELD) return false;
   if (isRelationField(field) && field.multiple === true) return false;
   return true;
-}
-
-/**
- * Si esta columna entra en una escritura en bloque --pegar, vaciar--.
- *
- * El correo y los roles de la tabla de personas se escriben desde su celda,
- * pero de una en una: no estan en la coleccion, sino en la cuenta y en el
- * enlace con la aplicacion, y eso se cambia por la API de miembros, que no
- * tiene lote. Pegar una columna de roles sobre doscientas personas serian
- * doscientas peticiones encadenadas, asi que aqui se dice que no y se explica.
- */
-export function bulkEditable(table: TableRecord, field: FieldDef): boolean {
-  return inlineEditable(table, field) && !isOverlayField(table, field.name);
 }
 
 /** Las columnas de un rango, ya emparejadas con su sitio. */
@@ -83,6 +82,18 @@ function previousValues(row: Row, body: Record<string, unknown>): Record<string,
   const before: Record<string, unknown> = {};
   for (const key of Object.keys(body)) before[key] = row[key] ?? null;
   return before;
+}
+
+/**
+ * Lo pegado en una celda de roles, como lista.
+ *
+ * `convertValue` ya parte por comas lo de una columna de varias opciones; aqui
+ * solo se le da forma de lista siempre, que es lo que el enlace guarda. Una
+ * celda vacia es una lista vacia, o sea quitarle los roles a esa persona.
+ */
+function rolesOf(converted: ConvertResult): string[] {
+  if (!converted.ok || converted.value === null || converted.value === undefined) return [];
+  return Array.isArray(converted.value) ? converted.value.map(String) : [String(converted.value)];
 }
 
 /* ------------------------------------------------------------------ */
@@ -188,9 +199,50 @@ export interface RangeReport {
    * se escribio nada. Ver `dataGridUndo.ts`.
    */
   undo?: GridUndo;
+  /**
+   * Celdas que salieron por la cuenta y no por la coleccion: el correo y los
+   * roles de la tabla de personas. Van contadas tambien en `cells`, y aparte
+   * porque lo que cambian se lee fuera de esta tabla --una columna de persona
+   * de cualquier otra ensena ese correo-- y hay que volver a pedirlo.
+   */
+  people?: number;
 }
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/**
+ * Lo que hay que decir cuando una escritura salio por las dos puertas.
+ *
+ * Deshacer manda el inverso a la coleccion, y el correo y los roles no estan
+ * ahi: repondria la mitad de lo que se acaba de escribir sin avisar. Solo se
+ * dice cuando hay de verdad algo que deshacer; con un pegado de solo esas dos
+ * columnas no se ofrece deshacer nada.
+ */
+const UNDO_PARTIAL =
+  "Deshacer repone solo las columnas de la tabla; el correo y los roles pasan por la cuenta y se quedan como quedaron.";
+
+/**
+ * Manda por la API de miembros lo que no cabe en el lote, si hay algo.
+ *
+ * Se encarga `savePeopleColumns`, que es donde estan las comprobaciones de esas
+ * dos columnas --un correo que ya es de otra persona, un rol que no existe-- y
+ * el reparto en tandas.
+ */
+async function sendByAccount(
+  table: TableRecord,
+  overlay: Map<string, PersonOverlay> | undefined,
+  rows: Row[],
+  patches: PersonPatch[],
+): Promise<PeopleBulkReport | null> {
+  if (patches.length === 0) return null;
+  return await savePeopleColumns({
+    appId: table.app,
+    table,
+    overlay: overlay ?? new Map(),
+    rows,
+    patches,
+  });
+}
 
 /**
  * Manda los pedidos ya armados y cuenta como fue.
@@ -226,12 +278,14 @@ export async function clearRange(opts: {
   rows: Row[];
   fields: FieldDef[];
   range: CellRange;
+  /** Lo que se sabe de cada persona fuera de su coleccion. Solo en personas. */
+  overlay?: Map<string, PersonOverlay>;
 }): Promise<RangeReport> {
   const { table, rows, fields, range } = opts;
   const notes: string[] = [];
 
   const columns = columnsOf(fields, range).filter(({ field }) => {
-    if (!bulkEditable(table, field)) return false;
+    if (!inlineEditable(table, field)) return false;
     if (field.required) {
       notes.push(`"${field.label}" es obligatoria y se dejó como estaba.`);
       return false;
@@ -245,20 +299,34 @@ export async function clearRange(opts: {
 
   const requests: ImportRequest[] = [];
   const undoRows: UndoRow[] = [];
+  const patches: PersonPatch[] = [];
   let cells = 0;
   for (let r = range.top; r <= range.bottom; r++) {
     const row = rows[r];
     if (!row) continue;
     const body: Record<string, unknown> = {};
+    let stored = 0;
+    const patch: PersonPatch = { row };
     for (const { field } of columns) {
+      /*
+       * Los roles se vacian por la cuenta. El correo no llega aqui: es
+       * obligatorio, y el filtro de arriba ya lo dejo fuera con su aviso.
+       */
+      if (isOverlayField(table, field.name)) {
+        if (field.system === "roles") patch.roles = [];
+        continue;
+      }
       // Una relacion se vacia por partida doble: el enlace y el valor que
       // quedo a la vista cuando no encontro dueno.
       if (isRelationField(field))
         Object.assign(body, relationCellValues(field, { id: "", value: "" }));
       else body[field.name] = field.type === "select" && field.multiple ? [] : null;
       cells++;
+      stored++;
     }
-    undoRows.push({ id: row.id, body: previousValues(row, body), cells: columns.length });
+    if (patch.roles !== undefined) patches.push(patch);
+    if (stored === 0) continue;
+    undoRows.push({ id: row.id, body: previousValues(row, body), cells: stored });
     requests.push({
       method: "PATCH",
       url: `/api/collections/${table.dataCollection}/records/${row.id}`,
@@ -268,8 +336,15 @@ export async function clearRange(opts: {
   }
 
   const report = await send(requests, cells, notes);
+  const account = await sendByAccount(table, opts.overlay, rows, patches);
+  if (account) notes.push(...account.notes);
+  if (account?.cells && undoRows.length) notes.push(UNDO_PARTIAL);
+
   return {
     ...report,
+    cells: report.cells + (account?.cells ?? 0),
+    failed: report.failed + (account?.failed ?? 0),
+    people: account?.cells ?? 0,
     undo: {
       tableId: table.id,
       collection: table.dataCollection,
@@ -340,6 +415,8 @@ export async function pasteRange(opts: {
   matrix: string[][];
   /** Las filas que sobran nacen en vez de quedarse fuera. */
   createMissing: boolean;
+  /** Lo que se sabe de cada persona fuera de su coleccion. Solo en personas. */
+  overlay?: Map<string, PersonOverlay>;
 }): Promise<RangeReport> {
   const { table, tables, people, rows, fields, start, matrix, createMissing } = opts;
   const notes: string[] = [];
@@ -354,6 +431,13 @@ export async function pasteRange(opts: {
     notes.push(
       `${plural(fit.extra - create, "fila no cabía", "filas no cabían")} y quedaron fuera.`,
     );
+    // Aqui no es que sobren filas: es que una fila de personas no se crea
+    // pegandola. Se dice por donde si, que es la pregunta que viene detras.
+    if (!fit.canCreate) {
+      notes.push(
+        'Una fila de personas es una cuenta invitada: se dan de alta con "Nueva fila", o de golpe importando.',
+      );
+    }
   }
   if (fit.extraColumns > 0) {
     notes.push(
@@ -375,8 +459,12 @@ export async function pasteRange(opts: {
       targets.push(null);
       continue;
     }
-    if (!bulkEditable(table, field)) {
-      notes.push(`"${field.label}" no se escribe en bloque; hay que hacerlo celda a celda.`);
+    if (!inlineEditable(table, field)) {
+      const dicho = notEditableReason(table, field);
+      // El motivo es el mismo que dice el globo de la celda, con la primera
+      // letra en minuscula: aqui va detras de dos puntos y no abre la frase.
+      const porque = dicho ? `: ${dicho[0].toLowerCase()}${dicho.slice(1)}` : "";
+      notes.push(`"${field.label}" no se escribe desde la celda${porque}.`);
       targets.push(null);
       continue;
     }
@@ -409,6 +497,7 @@ export async function pasteRange(opts: {
 
   const requests: ImportRequest[] = [];
   const undoRows: UndoRow[] = [];
+  const patches: PersonPatch[] = [];
   let cells = 0;
   for (let r = 0; r < height; r++) {
     const row = rows[start.row + r];
@@ -417,6 +506,7 @@ export async function pasteRange(opts: {
     // --una columna que no se escribe o un valor que no era de su tipo se
     // saltan-- y es lo que hay que contar al reponerla.
     let rowCells = 0;
+    const patch: PersonPatch | null = row ? { row } : null;
     for (let c = 0; c < width; c++) {
       const field = targets[c];
       if (!field) continue;
@@ -434,6 +524,18 @@ export async function pasteRange(opts: {
       // Sobre una fila que ya existe, una celda vacia no vacia una columna
       // obligatoria: se deja como estaba y el resto de lo pegado entra igual.
       if (row && field.required && raw.trim() === "") continue;
+
+      /*
+       * El correo y los roles no van en el cuerpo del pedido: no son columnas
+       * de la coleccion. Se apartan para su propia puerta --una peticion por
+       * persona-- y quien los comprueba es `savePeopleColumns`.
+       */
+      if (isOverlayField(table, field.name)) {
+        if (!patch) continue;
+        if (field.system === "roles") patch.roles = rolesOf(convertValue(field, raw));
+        else patch.cuenta = raw.trim();
+        continue;
+      }
 
       const converted = convertValue(field, raw);
       if (!converted.ok) {
@@ -457,6 +559,7 @@ export async function pasteRange(opts: {
       cells++;
       rowCells++;
     }
+    if (patch && (patch.cuenta !== undefined || patch.roles !== undefined)) patches.push(patch);
     if (Object.keys(body).length === 0) continue;
     // Una fila que todavia no existe no tiene nada que reponer: deshacerla es
     // borrarla, y su id solo se sabe cuando la base se lo pone.
@@ -476,6 +579,10 @@ export async function pasteRange(opts: {
 
   const bornIds = new Map<number, string>();
   const report = await send(requests, cells, notes, create, bornIds);
+  // Y despues lo que sale por la cuenta, que es lo que no cabia en el lote.
+  const account = await sendByAccount(table, opts.overlay, rows, patches);
+  if (account) notes.push(...account.notes);
+  if (account?.cells && undoRows.length) notes.push(UNDO_PARTIAL);
   /*
    * Una fila nueva a la que le falta una columna obligatoria la rechaza la
    * base, y eso ya viene contado en las fallidas: lo que se dice es cuantas
@@ -483,6 +590,9 @@ export async function pasteRange(opts: {
    */
   return {
     ...report,
+    cells: report.cells + (account?.cells ?? 0),
+    failed: report.failed + (account?.failed ?? 0),
+    people: account?.cells ?? 0,
     created: Math.max(0, create - report.failed),
     undo: {
       tableId: table.id,

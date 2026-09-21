@@ -16,6 +16,7 @@
   import { isPeopleTable, peopleInitialFields } from "@shared/people";
   import type { TableRecord } from "@shared/types";
 
+  import { useBuilder } from "../../lib/builderContext";
   import { cx } from "../../lib/cx";
   import { DEFAULT_TABLE_ICON } from "../../lib/icons";
   import { del, errorMessage, patch, post } from "../../lib/pb";
@@ -47,6 +48,8 @@
     appId: string;
     onChanged: () => Promise<void>;
   } = $props();
+
+  const builder = useBuilder();
 
   /**
    * El dialogo del nombre. Con `table` a nulo es una tabla que todavia no
@@ -167,6 +170,16 @@
         meta: { columnOrder: fields.map((f) => f.name), hidden: [], widths: {} },
       });
       await onChanged();
+      /*
+       * Y se dice que la gente se fue. Nadie mas se entera solo: la lista de
+       * invitados la tiene el constructor --de ahi salen las celdas de persona
+       * de todas las tablas y la cuenta del aviso al quitar un rol-- y las
+       * filas las tiene la cuadricula, que solo se relee cuando cambia algo
+       * suyo. Sin esto las dos seguian ensenando a los que acaban de irse, y la
+       * unica salida era recargar el sitio.
+       */
+      await builder.reloadPeople();
+      builder.touchData();
       resetting = null;
     } catch (err) {
       error = errorMessage(err);

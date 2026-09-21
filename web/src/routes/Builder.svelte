@@ -114,6 +114,13 @@
   let pages = $state<PageRecord[]>([]);
   let touched = $state(0);
   /**
+   * Cuantas veces algo de fuera cambio las filas de una tabla.
+   *
+   * Va aparte de `touched` a proposito: ver `dataTouched` en
+   * `lib/builderContext.ts`.
+   */
+  let dataTouched = $state(0);
+  /**
    * El aviso del constructor. Es uno solo para todo lo que pasa aqui --soltar
    * un archivo, crear una tabla, escribir una pagina-- y por eso lleva su tono
    * al lado del texto: antes todo iba por la via del error y lo que salia bien
@@ -175,6 +182,10 @@
     touched += 1;
   };
 
+  const touchData = () => {
+    dataTouched += 1;
+  };
+
   const setApp = (next: AppRecord) => {
     app = next;
     bump();
@@ -219,6 +230,10 @@
     reloadPeople: people.reload,
     reloadApp,
     setApp,
+    get dataTouched() {
+      return dataTouched;
+    },
+    touchData,
     get touched() {
       return touched;
     },

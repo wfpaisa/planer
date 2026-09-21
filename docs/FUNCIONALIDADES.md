@@ -48,8 +48,11 @@
       lista en las opciones, buscador de llave en las relaciones
     - Las columnas que no se escriben desde la celda lo dicen al pasar por
       encima (las del sistema, los archivos, las relaciones múltiples)
-    - En personas, correo y roles se escriben en su celda una a una (pasan por
-      la cuenta, no por la tabla)
+    - En personas, correo y roles se escriben, se pegan y se vacían como
+      cualquier columna; por dentro van de a una, porque pasan por la cuenta
+    - Al pegar correos se avisa antes de escribir: el que ya es de otra persona
+      de la aplicación, el que viene repetido en lo pegado y el rol que no
+      existe dejan su celda como estaba
     - Copiar el rango al portapapeles y pegarlo en Excel o en otra tabla
     - Pegar un rango convirtiendo cada celda al tipo de su columna y enlazando
       las relaciones por su llave

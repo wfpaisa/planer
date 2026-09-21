@@ -33,6 +33,25 @@
   /** El rol que se esta quitando, mientras se pregunta si de verdad. */
   let removing = $state<string | null>(null);
 
+  /**
+   * La lista de invitados, pedida otra vez al abrir.
+   *
+   * De lo que diga el aviso depende algo que no tiene vuelta atras, asi que se
+   * cuenta sobre la lista de ahora y no sobre la que el panel trajera de antes.
+   * Se quedaba vieja de verdad: "Restablecer columnas" se lleva a todas las
+   * personas de la aplicacion, y hasta recargar el sitio esta tarjeta seguia
+   * contando a las que ya no estaban --y al reves, quien acababa de ser
+   * invitado no contaba y el rol se iba sin preguntar nada--.
+   *
+   * Se guarda la promesa, no un booleano: quitar un rol la espera antes de
+   * decidir, que es lo que cierra el hueco entre abrir la tarjeta y pulsar la
+   * cruz.
+   */
+  let asking = $state<Promise<void> | null>(null);
+  $effect(() => {
+    if (open) asking = builder.reloadPeople();
+  });
+
   const roles = $derived(builder.app.roles ?? []);
   /*
    * El nombre tal como va a quedar. El campo se normaliza en cada pulsacion
@@ -93,7 +112,10 @@
    * pregunta por cada equivocacion al escribir seria un estorbo. El que si se
    * usa pasa por la advertencia, que es donde se ve cuanto se lleva por delante.
    */
-  function remove(role: string) {
+  async function remove(role: string) {
+    // Con la lista de invitados ya al dia: sin esto, pulsar la cruz nada mas
+    // abrir la tarjeta decidia con la de antes.
+    await asking;
     if (scope(role).total === 0) {
       void save(roles.filter((r) => r !== role));
       return;
@@ -208,7 +230,7 @@
           <Tag
             class="tag-roles"
             removeLabel={role === ADMIN_ROLE ? undefined : `Quitar ${role}`}
-            onRemove={role === ADMIN_ROLE ? undefined : () => remove(role)}
+            onRemove={role === ADMIN_ROLE ? undefined : () => void remove(role)}
           >
             {role}
           </Tag>

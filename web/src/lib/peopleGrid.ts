@@ -7,11 +7,11 @@
  * que la cuadricula, el panel lateral y el exportar sigan siendo los de
  * cualquier tabla. Ver `shared/people.ts` para el porque del reparto.
  */
-import { MEMBER_FIELD } from "@shared/people";
-import type { FieldDef, TableRecord } from "@shared/types";
+import { MEMBER_FIELD, normalizeRoles, PEOPLE_NAME_FIELD } from "@shared/people";
+import type { FieldDef, SystemFieldKind, TableRecord } from "@shared/types";
 
 import type { Row } from "./cellValues";
-import { api, del, patch, pb, post } from "./pb";
+import { api, del, errorMessage, patch, pb, post } from "./pb";
 
 /** Lo que se sabe de una persona fuera de la coleccion de la aplicacion. */
 export interface PersonOverlay {
@@ -182,6 +182,224 @@ export async function savePersonRow(opts: {
       roles: "roles" in system ? (system.roles ?? []) : (person?.roles ?? []),
     },
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* Escribir por la cuenta en bloque                                     */
+/* ------------------------------------------------------------------ */
+
+/** Lo que una escritura en bloque le cambia a una persona. */
+export interface PersonPatch {
+  /** La fila de la grilla: por ella se llega a su cuenta y a su enlace. */
+  row: Row;
+  /** El correo nuevo, tal como venia en la celda. */
+  cuenta?: string;
+  /** Los roles nuevos, tal como venian en la celda. */
+  roles?: string[];
+}
+
+/** Como le fue a lo que se escribio por la cuenta. */
+export interface PeopleBulkReport {
+  /** Celdas que llegaron a la cuenta o al enlace. */
+  cells: number;
+  /** Personas cuyo cambio no entro. */
+  failed: number;
+  /** Lo que quedo fuera, y por que. */
+  notes: string[];
+}
+
+/**
+ * Cuantas personas se mandan a la vez.
+ *
+ * Cada una es una peticion aparte --su correo esta en la cuenta y sus roles en
+ * el enlace con la aplicacion, y esa puerta no tiene lote-- asi que pegar una
+ * columna sobre doscientas personas son doscientas peticiones. De a una serian
+ * doscientas esperas seguidas; todas de golpe ahogarian al servidor. De cuatro
+ * en cuatro va rapido y no se le va de las manos.
+ */
+const AT_ONCE = 4;
+
+const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`;
+
+/** "a", "b" y "c". */
+const lista = (items: string[]): string =>
+  items.length < 2 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} y ${items.at(-1)}`;
+
+/**
+ * Escribe el correo y los roles de varias personas a la vez.
+ *
+ * Es lo que hace que pegar y vaciar alcancen a esas dos columnas. Lo que no
+ * cabe en un lote se resuelve aqui: una peticion por persona, en tandas, y un
+ * parte de lo que no entro.
+ *
+ * Lo que se puede saber sin preguntar se comprueba antes de escribir nada, que
+ * es lo que separa un pegado de doscientas respuestas de error: un correo que
+ * ya es de otra persona de esta aplicacion, el mismo correo dos veces en lo
+ * pegado, un rol que la aplicacion no tiene. Lo que solo sabe la base --una
+ * forma de correo que no acepta-- lo dice ella, y se cuenta como fila que no
+ * entro.
+ */
+export async function savePeopleColumns(opts: {
+  appId: string;
+  table: TableRecord;
+  overlay: Map<string, PersonOverlay>;
+  /** Las filas que se estan viendo. Solo para nombrar a quien ya tiene un correo. */
+  rows: Row[];
+  patches: PersonPatch[];
+}): Promise<PeopleBulkReport> {
+  const { appId, table, overlay, rows, patches } = opts;
+  const notes: string[] = [];
+  const account = table.fields.find((f) => f.system === "cuenta");
+  const rolesField = table.fields.find((f) => f.system === "roles");
+  // Las opciones de la columna de roles son los roles de la aplicacion: los
+  // pone `withRoleOptions` al leer las tablas.
+  const known = rolesField?.options ?? [];
+
+  /** Quien tiene ya cada correo en esta aplicacion. */
+  const holder = new Map<string, PersonOverlay>();
+  for (const person of overlay.values()) {
+    if (person.cuenta) holder.set(person.cuenta, person);
+  }
+
+  /** Como nombrar a alguien en un aviso: lo que dice su fila, o su correo. */
+  const nameOf = (person: PersonOverlay): string => {
+    const row = rows.find((r) => String(r[MEMBER_FIELD] ?? "") === person.member);
+    return String(row?.[PEOPLE_NAME_FIELD] ?? "").trim() || person.cuenta;
+  };
+
+  const jobs: { row: Row; values: Record<string, unknown>; kinds: SystemFieldKind[] }[] = [];
+  /** Los correos que esta misma escritura reparte: el mismo no se da dos veces. */
+  const taken = new Set<string>();
+  const clashes: string[] = [];
+  const twice = new Set<string>();
+  const unknown = new Set<string>();
+  let badMail = 0;
+  let badRoles = 0;
+  let stray = 0;
+
+  for (const patch of patches) {
+    const person = overlay.get(String(patch.row[MEMBER_FIELD] ?? ""));
+    if (!person) {
+      stray++;
+      continue;
+    }
+    const values: Record<string, unknown> = {};
+    const kinds: SystemFieldKind[] = [];
+
+    if (account && patch.cuenta !== undefined) {
+      const mail = patch.cuenta.trim().toLowerCase();
+      const other = holder.get(mail);
+      if (mail === person.cuenta) {
+        // El que ya tenia: no hay nada que escribir, y no es un choque consigo
+        // misma. Copiar la columna y pegarla encima no cambia nada.
+      } else if (!mail.includes("@")) {
+        // La misma exigencia que pone el servidor al recibirlo. Lo que pase de
+        // aqui y la base no acepte lo dice ella, y se cuenta como no entro.
+        badMail++;
+      } else if (other) {
+        clashes.push(`"${mail}" ya es el correo de ${nameOf(other)}`);
+      } else if (taken.has(mail)) {
+        twice.add(mail);
+      } else {
+        taken.add(mail);
+        values[account.name] = mail;
+        kinds.push("cuenta");
+      }
+    }
+
+    if (rolesField && patch.roles !== undefined) {
+      const wanted = normalizeRoles(patch.roles);
+      const fuera = wanted.filter((role) => !known.includes(role));
+      if (fuera.length) {
+        /*
+         * Un rol que la aplicacion no tiene deja la celda como estaba, entera.
+         * El servidor descarta en silencio lo que no esta declarado, asi que
+         * escribir solo el resto guardaria media celda sin decirlo. Crearlo
+         * tampoco: los roles se nombran a mano --o importando la nomina, que
+         * pregunta antes-- y un nombre de mas en una hoja de calculo no es
+         * forma de decidir quien entra a que pantalla.
+         */
+        for (const role of fuera) unknown.add(role);
+        badRoles++;
+      } else if (wanted.join(" ") !== person.roles.join(" ")) {
+        values[rolesField.name] = wanted;
+        kinds.push("roles");
+      }
+    }
+
+    if (kinds.length === 0) continue;
+    jobs.push({ row: patch.row, values, kinds });
+  }
+
+  /** Lo que dijo el servidor, agrupado: cuarenta filas con el mismo motivo son un aviso. */
+  const failures = new Map<string, number>();
+  let cells = 0;
+  let failed = 0;
+
+  for (let i = 0; i < jobs.length; i += AT_ONCE) {
+    const tanda = jobs.slice(i, i + AT_ONCE);
+    const done = await Promise.allSettled(
+      tanda.map((job) =>
+        savePersonRow({ appId, table, overlay, row: job.row, values: job.values }),
+      ),
+    );
+    done.forEach((result, n) => {
+      const job = tanda[n];
+      if (result.status === "fulfilled") {
+        cells += job.kinds.length;
+        return;
+      }
+      failed++;
+      const said = errorMessage(result.reason);
+      failures.set(said, (failures.get(said) ?? 0) + 1);
+    });
+  }
+
+  const label = (kind: SystemFieldKind) =>
+    table.fields.find((f) => f.system === kind)?.label ?? kind;
+
+  if (clashes.length) {
+    // Unos cuantos con nombre y el resto contados: el aviso tiene que caber en
+    // la pantalla, y con tres ya se ve de que va.
+    const shown = clashes.slice(0, 3).join("; ");
+    const rest =
+      clashes.length > 3 ? `, y ${plural(clashes.length - 3, "correo más", "correos más")}` : "";
+    const una = clashes.length === 1;
+    notes.push(
+      `${shown}${rest}. ${una ? "Esa fila se dejó" : "Esas filas se dejaron"} como ${una ? "estaba" : "estaban"}: dos personas de una aplicación no comparten correo.`,
+    );
+  }
+  if (twice.size) {
+    const una = twice.size === 1;
+    notes.push(
+      `${lista([...twice].slice(0, 3).map((mail) => `"${mail}"`))} ${una ? "viene" : "vienen"} más de una vez en lo pegado: se escribió en la primera fila y en las demás se dejó el correo como estaba.`,
+    );
+  }
+  if (badMail) {
+    const una = badMail === 1;
+    notes.push(
+      `${plural(badMail, "celda", "celdas")} de ${label("cuenta")} no ${una ? "traía un correo y se dejó" : "traían un correo y se dejaron"} como ${una ? "estaba" : "estaban"}.`,
+    );
+  }
+  if (badRoles) {
+    const names = lista([...unknown].slice(0, 4).map((role) => `"${role}"`));
+    const uno = unknown.size === 1;
+    const una = badRoles === 1;
+    notes.push(
+      `${uno ? `El rol ${names} no existe` : `Los roles ${names} no existen`} en esta aplicación: ${plural(badRoles, "celda", "celdas")} de ${label("roles")} se ${una ? "dejó" : "dejaron"} como ${una ? "estaba" : "estaban"}. Los roles se crean desde su propia columna, en "Gestionar roles".`,
+    );
+  }
+  if (stray) {
+    notes.push(
+      `${plural(stray, "fila no tiene", "filas no tienen")} cuenta invitada, así que su ${label("cuenta")} y sus ${label("roles")} se quedaron como estaban.`,
+    );
+  }
+  for (const [said, n] of failures) {
+    const dicho = said.endsWith(".") ? said : `${said}.`;
+    notes.push(n === 1 ? dicho : `${dicho} (${plural(n, "fila", "filas")})`);
+  }
+
+  return { cells, failed, notes };
 }
 
 /* ------------------------------------------------------------------ */

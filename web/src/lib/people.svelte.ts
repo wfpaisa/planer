@@ -47,10 +47,26 @@ export function appPeople(appId: () => string | undefined): PeopleSource & {
 } {
   let list = $state<AppPerson[]>([]);
 
-  async function load() {
+  /**
+   * Trae la lista. `keep` dice que hacer si la peticion falla.
+   *
+   * Refrescando se queda la que ya estaba: de esta lista sale el aviso de a
+   * cuantas personas afecta quitar un rol, y el rol que no usa nadie se quita
+   * sin preguntar (ver `RolesModal`), asi que una lista vaciada por un corte de
+   * red diria que no lo usa nadie y se lo llevaria en silencio. Vieja avisa de
+   * mas, que es el lado bueno por el que equivocarse.
+   *
+   * Al cambiar de aplicacion no: los invitados de la de antes no son los de
+   * esta, y ensenarlos seria peor que no ensenar a nadie.
+   */
+  async function load(keep = false) {
     const id = appId();
     if (!id) return;
-    list = await api<AppPerson[]>(`/api/apps/${id}/personas`).catch(() => [] as AppPerson[]);
+    try {
+      list = await api<AppPerson[]>(`/api/apps/${id}/personas`);
+    } catch {
+      if (!keep) list = [];
+    }
   }
 
   $effect(() => {
@@ -62,7 +78,7 @@ export function appPeople(appId: () => string | undefined): PeopleSource & {
     get list() {
       return list;
     },
-    reload: load,
+    reload: () => load(true),
   };
 }
 

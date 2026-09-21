@@ -29,6 +29,23 @@ export interface BuilderValue {
   reloadApp: () => Promise<void>;
   setApp: (app: AppRecord) => void;
   /**
+   * Sube cada vez que alguien cambia las filas de una tabla sin pasar por la
+   * cuadricula.
+   *
+   * La cuadricula lee sus filas por su cuenta --y solo cuando cambia algo suyo:
+   * la busqueda, el orden, la pagina-- asi que no se entera de lo que pasa por
+   * fuera y se queda ensenando filas que ya no existen. Esta es la senal de
+   * que hay que volver a leer, y la levanta quien hizo el cambio.
+   *
+   * Es distinta de `touched`, que cuenta cambios del diseno para el boton de
+   * publicar: eso sube tambien al tocar una pagina o el tema, y releer todas
+   * las filas por un cambio de color soltaria de paso la seleccion y lo que se
+   * podia deshacer.
+   */
+  readonly dataTouched: number;
+  /** Decir que las filas de una tabla cambiaron desde fuera de la cuadricula. */
+  touchData: () => void;
+  /**
    * Sube uno cada vez que algo del diseno se guarda. Sirve para que el boton de
    * publicar se entere de que hay cambios sin tener que preguntar cada rato.
    */
