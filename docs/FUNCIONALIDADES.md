@@ -13,6 +13,7 @@
   - Paleta de colores (46 + personalizada), modo claro/oscuro
   - Tamaño de fuente por aplicación
   - Roles libres por aplicación (nombres que decide el negocio)
+  - Al quitar un rol en uso, aviso con a cuántas personas y pantallas afecta
 - **Base de datos** (editor tipo hoja de cálculo)
 
   - Tablas
