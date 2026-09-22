@@ -452,6 +452,21 @@
     void load();
   });
 
+  /*
+   * Enlazado lo ultimo que faltaba, el filtro se suelta solo.
+   *
+   * Quien lo apaga es el boton del aviso, y el aviso se va con el ultimo valor
+   * suelto: dejarlo puesto ensenaba una tabla vacia sin ninguna salida a la
+   * vista. Pasa al crear el registro que faltaba --las filas que lo esperaban
+   * se enlazan de una vez-- que es justo cuando se esta mirando esta lista.
+   */
+  $effect(() => {
+    if (onlyOrphans && orphans.every((o) => o.accepted)) {
+      onlyOrphans = false;
+      page = 1;
+    }
+  });
+
   /**
    * Vuelve a pedir todo lo que esta pantalla ensena de la tabla.
    *
@@ -1342,7 +1357,6 @@
   const perPage = $derived(pageSize === "all" ? total : pageSize);
   const pageCount = $derived(perPage > 0 ? Math.ceil(total / perPage) : 1);
   const paged = $derived(pageSize !== "all" && total > pageSize);
-  const pending = $derived(pendingRows(orphans));
 
   /**
    * Lo que hay que decir de las filas cuyo valor no encontro registro.
@@ -1870,30 +1884,6 @@
       </Button>
     {/if}
 
-    <!--
-      El recuento de lo que falta por enlazar. Se ensena solo cuando hay algo que
-      resolver, y en neutro: no es una averia.
-    -->
-    {#if pending > 0}
-      <Button
-        size="sm"
-        buttonClass="btn-orphans-toolbar"
-        variant={onlyOrphans ? "secondary" : undefined}
-        onclick={() => {
-          onlyOrphans = !onlyOrphans;
-          page = 1;
-        }}
-        tip={onlyOrphans
-          ? "Volver a ver todas las filas"
-          : "Ver solo las filas cuyo valor no encontro registro"}
-        class="grid-db-tool-action"
-      >
-        <Icon name="unlink-01" size={16} />
-        <span class="grid-db-orphans-long">Sin enlace ({pending})</span>
-        <span class="grid-db-orphans-short">{pending}</span>
-      </Button>
-    {/if}
-
     <Button
       size="sm"
       variant="secondary"
@@ -1946,11 +1936,30 @@
     una columna que apunta a personas no ofrecia nada que hacer --no se invita a
     nadie desde ahi-- asi que lo que se leia al abrirlo era una lista de valores
     y ninguna salida. Lo que hace falta saber es que tabla no tiene el valor.
+
+    Se queda a la vista mientras haya algo que enlazar, no solo con el filtro
+    puesto: antes habia que pulsar un boton de la barra para enterarse de lo que
+    pasaba, y lo que pasa no se pide, se dice. El boton se vino aqui dentro,
+    que es donde se lee el motivo para pulsarlo.
   -->
-  {#if onlyOrphans && orphanWarning}
+  {#if orphanWarning}
     <div class="alert warn grid-db-orphans-banner" role="status">
-      <Icon name="unlink-01" size={16} />
-      <span>{orphanWarning}</span>
+      <span class="grid-db-orphans-text">
+        <Icon name="unlink-01" size={16} />
+        <span>{orphanWarning}</span>
+      </span>
+      <Button
+        size="sm"
+        variant="warning"
+        buttonClass="btn-orphans-banner"
+        onclick={() => {
+          onlyOrphans = !onlyOrphans;
+          page = 1;
+        }}
+        class="grid-db-orphans-action"
+      >
+        {onlyOrphans ? "Ver todas las filas" : "Ver registros sin enlace"}
+      </Button>
     </div>
   {/if}
 
@@ -2567,26 +2576,11 @@
     & :global(.grid-db-export-label),
     & :global(.grid-db-import-label),
     & :global(.grid-db-delete-label),
-    & :global(.grid-db-orphans-long),
     & :global(.grid-db-new-row-label) {
       display: none;
 
       @container (min-width: 64rem) {
         display: inline;
-      }
-    }
-
-    & :global(.grid-db-orphans-long) {
-      @container (min-width: 32rem) {
-        display: inline;
-      }
-    }
-
-    & :global(.grid-db-orphans-short) {
-      display: inline;
-
-      @container (min-width: 32rem) {
-        display: none;
       }
     }
 
@@ -2629,9 +2623,49 @@
     ahi-- y lo de aqui es solo donde se pone: entre la barra y la cuadricula,
     con el mismo margen lateral que el resto del contenido y sin pegarse a
     ninguna de las dos.
+
+    Dentro, el texto se queda con todo el ancho que sobre y el boton se va al
+    final. Los dos van a la misma altura, que es lo unico que el `.alert` no
+    hace por su cuenta: alinea a sus hijos arriba --pensado para un icono
+    suelto al lado de un parrafo-- y ahi la frase se quedaba pegada al techo
+    mientras el boton, mas alto, se centraba solo.
   */
   .grid-db-orphans-banner {
     margin: 0 var(--sp-12) var(--sp-8);
+    align-items: center;
+    flex-wrap: wrap;
+
+    /*
+      El icono va dentro del texto y no suelto en la cinta: son una sola cosa
+      --el aviso-- y sueltos se separaban, el icono en un renglon y la frase en
+      el siguiente. Aqui dentro si manda arriba: con la frase en dos renglones
+      el icono acompana al primero, no al hueco entre los dos. La frase pide
+      doce eme de ancho antes de ceder; cuando ya no caben con el boton al
+      lado, el que se va abajo es el boton.
+    */
+    & .grid-db-orphans-text {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--sp-10);
+      flex: 1 1 12rem;
+    }
+
+    /*
+      Sin fondo: la cinta ya es una superficie, y un boton con la suya encima
+      se levanta del aviso en vez de pertenecerle. Se queda con su contorno
+      ambar, que es lo que lo senala. Al pasar por encima se tina --el lavado
+      del catalogo es `--warning-bg`, que es el fondo mismo de la cinta y ahi
+      no se nota.
+    */
+    & :global(.grid-db-orphans-action) {
+      flex: none;
+      margin-left: auto;
+      background: transparent;
+
+      &:hover {
+        background: color-mix(in oklab, var(--warning) 14%, transparent);
+      }
+    }
   }
 
   /* -------------------------------------------------- */
@@ -2874,10 +2908,5 @@
 
   .confirm-waiting-ask {
     margin-top: var(--sp-8);
-  }
-
-  :global(.btn-orphans-toolbar) {
-    color: var(--warning);
-    background: var(--warning-bg);
   }
 </style>
