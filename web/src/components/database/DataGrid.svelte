@@ -2522,18 +2522,24 @@
         color: var(--text-muted);
       }
 
+      /*
+        El ancho crece con la barra. Las medidas de antes --seis, ocho y once
+        eme-- dejaban ver media palabra: entre la lupa y la cruz se van casi
+        tres eme y medio de acolchado, asi que lo que quedaba para escribir era
+        la mitad de la caja. Se cuenta ese descuento al elegirlas.
+      */
       & .grid-db-search-input {
         height: 1.75rem;
-        width: 6rem;
+        width: 8rem;
         padding: var(--sp-4) var(--sp-24) var(--sp-4) var(--sp-28);
         font-size: var(--text-xs);
         line-height: var(--text-xs--line-height);
 
         @container (min-width: 50rem) {
-          width: 8rem;
+          width: 13rem;
         }
         @container (min-width: 144rem) {
-          width: 11rem;
+          width: 18rem;
         }
       }
 
