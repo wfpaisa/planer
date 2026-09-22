@@ -40,10 +40,6 @@
   <div class="login-card-wrap w-full">
     <div class="login-head flex flex-col items-center gap-3">
       <Logo id="login-brand-logo" class="login-brand-logo" height="2.25rem" />
-      <div class="login-title-block text-center">
-        <h1 class="login-title">Entrar a Planer</h1>
-        <p class="login-subtitle">Crea aplicaciones, bases de datos, personas y roles.</p>
-      </div>
     </div>
 
     <form id="login-form" onsubmit={submit} class="form-login card card-solid">

@@ -1317,7 +1317,7 @@
                 {/if}
 
                 <div class="header-ai-response flex items-center">
-                  <Icon name="wand-sparkles" size={18} />
+                  <Icon name="ai-magic" size={18} />
                   <CopyLine text={entry.text} />
                 </div>
 
