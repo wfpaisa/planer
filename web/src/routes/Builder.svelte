@@ -9,7 +9,8 @@
   Tambien es el que recoge los archivos que se sueltan. Eso vive aqui y no en
   cada pantalla por una razon: soltar vale en cualquier parte del editor, y los
   oyentes tienen que estar en la ventana entera para que el navegador no se
-  quede el archivo y lo abra por su cuenta.
+  quede el archivo y lo abra por su cuenta. Los que se eligen a mano en una
+  pantalla entran por el mismo sitio, con `openFile` del contexto.
 
   Ajustes y vista previa se abren como capas encima de lo que ya estaba: el
   contenido de fondo se dibuja contra la ubicacion guardada en el historial
@@ -57,6 +58,21 @@
   };
 
   const MODE_KEYS = Object.keys(IMPORT_MODES) as ImportMode[];
+
+  /**
+   * Como llego el archivo, que es lo unico que cambia entre los dos caminos:
+   * se solto encima del editor, o se eligio con el boton de importar.
+   *
+   * No cambia nada de lo que pasa con el; cambia con que palabras se le cuenta.
+   * Decirle "soltaste" a quien acaba de elegirlo en el buscador del sistema
+   * suena a que la aplicacion no se entero de lo que hizo.
+   */
+  type FileFrom = "drop" | "pick";
+
+  const CAME: Record<FileFrom, { verb: string; many: string }> = {
+    drop: { verb: "Soltaste", many: "Se soltó" },
+    pick: { verb: "Elegiste", many: "Se eligió" },
+  };
 </script>
 
 <script lang="ts">
@@ -137,10 +153,14 @@
   let dropping = $state(false);
   let busyDrop = $state("");
   /**
-   * El archivo que se acaba de soltar, esperando a que se diga que hacer con
+   * El archivo que se acaba de traer, esperando a que se diga que hacer con
    * el. Hasta que no se responda no se toca nada.
+   *
+   * `from` es solo para hablarle a quien lo trajo con sus palabras: se soltó
+   * encima del editor, o se eligió desde un dialogo. Lo que se puede hacer con
+   * el archivo es lo mismo por los dos caminos.
    */
-  let drop = $state<{ file: File; kind: "html" | "data" } | null>(null);
+  let drop = $state<{ file: File; kind: "html" | "data"; from: FileFrom } | null>(null);
   /** Lo elegido en esa pregunta, a la espera de que se confirme. */
   let mode = $state<ImportMode | null>(null);
   /** Un HTML que va a pisar lo que la pagina abierta ya tiene escrito. */
@@ -229,6 +249,7 @@
     reloadPages,
     reloadPeople: people.reload,
     reloadApp,
+    openFile: (files) => handleFiles(files, "pick"),
     setApp,
     get dataTouched() {
       return dataTouched;
@@ -642,7 +663,9 @@
 
   /*
    * Soltar un archivo vale en cualquier parte del constructor, y soltarlo no
-   * decide nada: se pregunta que hacer con el.
+   * decide nada: se pregunta que hacer con el. Por aqui entra tambien el que
+   * se elige a mano --`openFile` del contexto-- porque la pregunta y lo que se
+   * puede responder son las mismas por los dos caminos.
    *
    * Un HTML puede ser una pagina nueva, el contenido de la que esta abierta, o
    * material para pedirle algo a la IA. Un archivo de datos puede ser una tabla
@@ -650,7 +673,7 @@
    * leer --una hoja de estilos, un script, una imagen-- no crea nada en la
    * aplicacion, asi que va derecho a la conversacion sin preguntar.
    */
-  function handleFiles(files: FileList | File[] | null) {
+  function handleFiles(files: FileList | File[] | null, from: FileFrom = "drop") {
     const list = Array.from(files ?? []);
     const file = list[0];
     if (!file) return;
@@ -670,10 +693,10 @@
       if (list.length > 1) {
         say(
           "warning",
-          `Se soltó más de un archivo; se usa "${file.name}" y los demás se quedan fuera.`,
+          `${CAME[from].many} más de un archivo; se usa "${file.name}" y los demás se quedan fuera.`,
         );
       }
-      drop = { file, kind };
+      drop = { file, kind, from };
       return;
     }
     if (kind === "ia") {
@@ -814,7 +837,7 @@
         drop = null;
       }}
       title="¿Qué deseas hacer?"
-      description={`Soltaste "${file.name}".`}
+      description={`${CAME[drop.from].verb} "${file.name}".`}
     >
       <div class="drop-modal-list flex flex-col gap-2">
         {#if canUseAi}
@@ -876,10 +899,10 @@
       }}
       title="¿Qué deseas hacer?"
       description={matching
-        ? `Soltaste "${file.name}". Comprobando si es de una tabla que ya existe...`
+        ? `${CAME[drop.from].verb} "${file.name}". Comprobando si es de una tabla que ya existe...`
         : existing
           ? `"${file.name}" es el archivo de "${existing.label}".`
-          : `Soltaste "${file.name}".`}
+          : `${CAME[drop.from].verb} "${file.name}".`}
     >
       <div class="drop-modal-list flex flex-col gap-2">
         {#if canUseAi}

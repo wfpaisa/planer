@@ -27,6 +27,17 @@ export interface BuilderValue {
   reloadPeople: () => Promise<void>;
   /** Vuelve a leer la aplicacion: nombre, icono, tema y colocacion del sidebar. */
   reloadApp: () => Promise<void>;
+  /**
+   * Entregarle un archivo al constructor, igual que si se hubiera soltado
+   * encima.
+   *
+   * Soltar vale en cualquier parte del editor, pero no todo el mundo arrastra:
+   * el boton de importar de la lista de tablas lo elige del disco. El camino es
+   * el mismo --se mira que es, se pregunta que hacer con el y se crea-- y por
+   * eso se presta en vez de repetirse: lo que vive alli son los oyentes de la
+   * ventana y las preguntas, no una pantalla.
+   */
+  openFile: (files: FileList | File[] | null) => void;
   setApp: (app: AppRecord) => void;
   /**
    * Sube cada vez que alguien cambia las filas de una tabla sin pasar por la

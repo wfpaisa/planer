@@ -5,11 +5,21 @@
   aplicacion se listan igual, asi que se leen igual.
 -->
 <script lang="ts" module>
+  import { SHEET_ACCEPT } from "../../lib/sheet";
+
   /**
    * A partir de cuantas tablas la lista deja de leerse de un vistazo y aparece
    * el campo para filtrarla. Por debajo de esto, buscar cuesta mas que mirar.
    */
   const FILTER_FROM = 8;
+
+  /**
+   * Lo que el selector del sistema ofrece al buscar el archivo de una tabla.
+   *
+   * Son las mismas extensiones que sabe leer `dropFiles`: si aqui se ofreciera
+   * alguna de mas, se podria elegir un archivo que despues no se entiende.
+   */
+  const DATA_ACCEPT = `.csv,.tsv,.json,text/csv,application/json,${SHEET_ACCEPT}`;
 </script>
 
 <script lang="ts">
@@ -84,6 +94,30 @@
     name = "";
     error = "";
     naming = { table: null };
+  }
+
+  /**
+   * El selector del sistema, escondido. Lo abre el boton de importar: un
+   * `<input type="file">` a la vista no se puede vestir como los demas
+   * elementos de la lista, y el boton si.
+   */
+  let filePicker = $state<HTMLInputElement | null>(null);
+
+  /**
+   * El archivo elegido se lo lleva el constructor.
+   *
+   * Aqui no se lee ni se crea nada: es el que ya recoge los que se sueltan, y
+   * el que sabe preguntar que hacer con el --una tabla nueva, o filas de una
+   * que ya existe si resulta que el archivo es suyo--. Elegirlo y arrastrarlo
+   * acaban en el mismo sitio a proposito: es la misma decision, tomada con el
+   * raton de dos maneras.
+   */
+  function takeFile(files: FileList | File[] | null) {
+    if (!files?.length) return;
+    builder.openFile(files);
+    // El selector se vacia: sin esto, volver a elegir el mismo archivo no
+    // avisa --para el navegador no cambio nada-- y el boton parece roto.
+    if (filePicker) filePicker.value = "";
   }
 
   function openRename(table: TableRecord) {
@@ -381,6 +415,10 @@
     <!--
       Crear una tabla es el siguiente elemento de la lista, no un boton aparte:
       se pide donde terminan las que ya hay.
+
+      Importar va justo detras porque es la otra forma de que nazca una, con los
+      datos ya escritos. Soltar el archivo encima del editor siempre valio; esto
+      es lo mismo para quien no arrastra, y acaba en la misma pregunta.
     -->
     {#if !filter}
       <li>
@@ -388,6 +426,23 @@
           <Icon name="add-square" size={18} class="icon-new-table-link" />
           <span>Nueva tabla</span>
         </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          onclick={() => filePicker?.click()}
+          class="btn-import-file-link btn btn-ghost"
+        >
+          <Icon name="upload-01" size={18} class="icon-import-file-link" />
+          <span>Importar archivo</span>
+        </button>
+        <input
+          bind:this={filePicker}
+          type="file"
+          accept={DATA_ACCEPT}
+          class="input-import-file-link"
+          onchange={(e) => takeFile(e.currentTarget.files)}
+        />
       </li>
     {/if}
   </ul>
@@ -610,9 +665,16 @@
         color: var(--text-muted);
       }
 
-      & .btn-new-table-link {
+      & .btn-new-table-link,
+      & .btn-import-file-link {
         width: 100%;
         color: var(--text-muted);
+      }
+
+      /* El selector del sistema no se ve ni se tabula: lo abre el boton de al
+         lado, que es quien lleva el nombre y el vestido. */
+      & .input-import-file-link {
+        display: none;
       }
     }
 
