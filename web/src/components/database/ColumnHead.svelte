@@ -288,6 +288,16 @@
       }
     }
 
+    /*
+      En la ultima columna se mete para adentro: la tabla termina justo en el
+      borde del marco y esos tres pixeles de sobra le sacaban una barra de
+      desplazamiento horizontal que no hacia falta. Ahi no hay borde vecino que
+      estorbe, asi que no pierde nada.
+    */
+    &:last-child .handle-column-resize {
+      right: 0;
+    }
+
     & .column-head-btn {
       display: flex;
       height: 2.25rem;

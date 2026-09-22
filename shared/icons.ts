@@ -1,7 +1,7 @@
 /**
  * Los iconos de la plataforma.
  *
- * Son una **fuente tipografica**, no trazados. La hoja del CDN declara una
+ * Son una **fuente tipografica**, no trazados. La hoja declara una
  * regla por icono (`.hgi-stroke.hgi-<nombre>::before { content: "..." }`), asi
  * que dibujar uno es escribir su nombre en una clase: ni paquete, ni arbol de
  * SVG en el bundle, ni logica que elegir. El panel la carga en su `index.html`
@@ -81,19 +81,29 @@ export const iconClass = (name: string) => `hgi-stroke hgi-${name}`;
  * La fuente trae seis mil nombres y no caben en el contexto de cada
  * peticion: serian mas palabras que todo el resto de las instrucciones
  * juntas, y el modelo elegiria peor, no mejor. Esta es la seleccion --unos
- * doscientos cuarenta-- de lo que de verdad aparece en una aplicacion de
- * empresa: personas, datos, documentos, dinero, tiempo, avisos y poco mas.
+ * trescientos-- de lo que de verdad aparece en una aplicacion de empresa:
+ * personas, datos, documentos, dinero, tiempo, avisos y poco mas.
  *
  * Van agrupados a proposito, y el contrato los entrega con esos mismos
- * titulos --en ingles, como todo lo que lee el modelo--: al modelo le sirve mas saber que hay una familia de "dinero" que
- * leer doscientos nombres seguidos.
+ * titulos --en ingles, como todo lo que lee el modelo--: al modelo le sirve
+ * mas saber que hay una familia de "dinero" que leer trescientos nombres
+ * seguidos.
+ *
+ * Un nombre esta aqui cuando **dibuja algo que los demas no dibujan**. Los
+ * nombres llanos que la fuente tambien trae --`check` junto a `tick-01`,
+ * `trash` junto a `delete-02`-- se quedan fuera a proposito: darle dos
+ * nombres para el mismo dibujo solo consigue que una pantalla salga con uno
+ * en un boton y con el otro en el de al lado. Existen igual, y el marco sabe
+ * dibujarlos: estan en `COMMON_ICONS`.
  *
  * No es un limite, es un vademecum: una pagina puede usar cualquiera de los
  * seis mil nombres de la fuente, y el buscador de iconos del panel los
  * ofrece todos (`ICON_NAMES` en `shared/iconNames.ts`). Lo que la lista
  * resuelve es otra cosa: el modelo no puede comprobar si un nombre existe, y
  * uno inventado no da error --deja un hueco en blanco--, asi que se le dan
- * doscientos y pico sobre los que no tiene que adivinar.
+ * trescientos sobre los que no tiene que adivinar.
+ *
+ * `bun run harness` comprueba que todos existan y que ninguno este dos veces.
  */
 export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] = [
   {
@@ -148,13 +158,23 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
       "grid-view",
       "list-view",
       "layout-01",
-      "sidebar-left",
       "toggle-on",
       "toggle-off",
       "drag-drop",
       "move",
       "repeat",
       "loading-03",
+      "chevron-up",
+      "chevron-down",
+      "chevron-left",
+      "chevron-right",
+      "expand",
+      "collapse",
+      "zoom-in",
+      "zoom-out",
+      "undo",
+      "redo",
+      "archive",
     ],
   },
   {
@@ -183,6 +203,10 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
       "calculator",
       "abacus",
       "layers-01",
+      "divide",
+      "equal",
+      "greater-than",
+      "less-than",
     ],
   },
   {
@@ -224,6 +248,13 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
       "paragraph",
       "attachment-01",
       "inbox",
+      "text",
+      "bold",
+      "italic",
+      "underline",
+      "align-left",
+      "align-right",
+      "quote",
     ],
   },
   {
@@ -309,6 +340,14 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
       "idea-01",
       "target-01",
       "zap",
+      "circle",
+      "square",
+      "triangle",
+      "trophy",
+      "thumbs-up",
+      "thumbs-down",
+      "fire",
+      "droplet",
     ],
   },
   {
@@ -355,6 +394,9 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
       "label",
       "store-01",
       "shop-sign",
+      "euro",
+      "gift",
+      "bank",
     ],
   },
   {
@@ -418,6 +460,122 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
       "medicine-01",
       "stethoscope",
       "thermometer",
+      "pause",
+      "stop",
+      "volume",
+      "music",
+      "keyboard",
+      "terminal",
+      "server",
+      "cpu",
+      "palette",
+      "brush",
+      "battery",
+      "power",
     ],
   },
 ] as const;
+
+/**
+ * Los nombres llanos, que la fuente tambien trae.
+ *
+ * `check`, `trash`, `plus`, `x`: los nombres cortos al estilo de Lucide que
+ * Hugeicons declara como suyos, ademas de los numerados (`tick-01`,
+ * `delete-02`, `add-01`). No se le ofrecen al modelo --tenerlos en
+ * `PAGE_ICONS` seria darle dos nombres para el mismo dibujo, y una pantalla
+ * saldria con `tick-01` en un boton y `check` en el de al lado-- pero si
+ * tienen que **existir en el subconjunto**: una pagina escrita a mano, o por
+ * un modelo de antes de que la lista se curara, puede nombrarlos, y en el
+ * marco quedaria el hueco en blanco.
+ *
+ * Es el unico sitio donde esta escrita esa diferencia: lo que se le sugiere
+ * al modelo es `PAGE_ICONS`; lo que el marco sabe dibujar es la union de las
+ * dos listas (`SUBSET_ICONS`).
+ */
+export const COMMON_ICONS: readonly string[] = [
+  "anchor",
+  "at",
+  "bell",
+  "bluetooth",
+  "bolt",
+  "box",
+  "building",
+  "cancel-square",
+  "chat",
+  "check",
+  "cloud-server",
+  "copy",
+  "cross",
+  "crown",
+  "dot",
+  "eye",
+  "eye-off",
+  "flower",
+  "frown",
+  "globe",
+  "grid",
+  "hammer",
+  "hash",
+  "heart",
+  "info",
+  "layers",
+  "link",
+  "list",
+  "magnet",
+  "map",
+  "menu",
+  "minimize",
+  "minus",
+  "moon",
+  "more",
+  "pencil",
+  "phone",
+  "pi",
+  "plus",
+  "plus-sign",
+  "rain",
+  "reply",
+  "rocket",
+  "ruler",
+  "save",
+  "scissors",
+  "send",
+  "sigma",
+  "smile",
+  "table",
+  "trash",
+  "truck",
+  "users",
+  "x",
+];
+
+/**
+ * Los iconos que lleva dentro el subconjunto de la fuente.
+ *
+ * Es lo que `scripts/iconos-subconjunto.ts` recorta del woff2 completo y lo
+ * que el marco de una pagina sabe dibujar (ver `SUBSET_FONT_URL`). La union
+ * de las dos listas: lo que se le sugiere al modelo y los nombres llanos que
+ * puede traer una pagina ya escrita.
+ */
+export const SUBSET_ICONS: readonly string[] = [
+  ...new Set([...PAGE_ICONS.flatMap((g) => g.names), ...COMMON_ICONS]),
+];
+
+/**
+ * La hoja del subconjunto: las mismas reglas, con la fuente pegada dentro.
+ *
+ * El marco de una pagina es un `srcdoc` sin `allow-same-origin`, y desde un
+ * origen opaco el navegador no alcanza el servidor: la hoja de `/iconos/`
+ * ni se llega a pedir y la pagina sale con los iconos en blanco. Antes no se
+ * notaba porque la hoja era la del CDN --una direccion publica con CORS, que
+ * si pasa--; al traerla a casa dejo de pasar.
+ *
+ * Asi que al marco la fuente le entra pegada, igual que los estilos y el
+ * puente (ver `web/src/lib/planeAssets.ts`). Pegar las seis mil serian 1,2 MB
+ * de texto en cada `srcdoc`; recortada a los nombres de `SUBSET_ICONS` son
+ * unas setenta veces menos. Fuera del marco --una pagina abierta en su
+ * direccion-- sigue valiendo la hoja completa de `ICON_FONT_URL`.
+ *
+ * Se regenera con `bun run iconos:subconjunto`.
+ */
+export const SUBSET_FONT_URL = "/iconos/comunes.css";

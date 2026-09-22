@@ -3,20 +3,26 @@
  *
  * La lista de nombres vive escrita en el repositorio para que el buscador de
  * iconos funcione sin red (ver la cabecera de `shared/iconNames.ts`). Cuando
- * Hugeicons publique una version nueva de la fuente, este guion la vuelve a
- * leer y reescribe el archivo.
+ * se reemplace `web/public/iconos/` por una version nueva de la fuente, este
+ * guion la vuelve a leer y reescribe el archivo.
  *
  *   bun run scripts/icon-names.ts
+ *
+ * Se lee el archivo del repositorio y no una direccion: la fuente ya no viene
+ * de un CDN, y `/iconos/iconos.css` es una ruta del servidor, no algo que un
+ * guion suelto pueda pedir.
  */
-import { ICON_FONT_URL } from "../shared/icons.ts";
+/** La hoja, tal como esta en el repositorio. `ICON_FONT_URL` es su direccion
+    al servirla, que no se puede abrir desde aqui. */
+const HOJA = "web/public/iconos/iconos.css";
 
-const res = await fetch(ICON_FONT_URL);
-if (!res.ok) {
-  console.error(`No se pudo leer ${ICON_FONT_URL}: ${res.status}`);
+const hoja = Bun.file(HOJA);
+if (!(await hoja.exists())) {
+  console.error(`No se encontro ${HOJA}.`);
   process.exit(1);
 }
 
-const css = await res.text();
+const css = await hoja.text();
 /* La hoja de `use.` escribe `::before` y la de `cdn.` escribia `:before`:
    las dos formas valen, asi que el patron acepta las dos. */
 const names = [...css.matchAll(/\.hgi-stroke\.hgi-([a-z0-9-]+)::?before/g)].map((m) => m[1]);
@@ -30,11 +36,12 @@ if (unique.length < 1000) {
 const file = `/**
  * Los nombres de la fuente de iconos, tal como los declara su hoja de estilo.
  *
- * Se saca de ${ICON_FONT_URL}, que trae
- * una regla por icono (\`.hgi-stroke.hgi-<nombre>::before\`). Esta aqui escrito y
- * no leido del CDN a proposito: el buscador de iconos y la comprobacion de un
- * nombre guardado tienen que funcionar sin red y sin esperar. Son unos 100 KB
- * de texto, la sesentava parte de lo que pesaba traerse los trazados.
+ * Se saca de \`${HOJA}\`, que trae una regla por icono
+ * (\`.hgi-stroke.hgi-<nombre>::before\`). Esta aqui escrito y no leido de la
+ * hoja a proposito: el buscador de iconos y la comprobacion de un nombre
+ * guardado corren en el navegador y tienen que responder sin esperar a
+ * novecientos kilobytes de fuente. Son unos 100 KB de texto, la sesentava
+ * parte de lo que pesaba traerse los trazados.
  *
  * Para regenerarlo: \`bun run scripts/icon-names.ts\`.
  */

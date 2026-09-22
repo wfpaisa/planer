@@ -26,6 +26,8 @@
 import { auditPageHtml, KNOWN_CLASSES, KNOWN_VARS } from "../server/html/htmlAudit.ts";
 import { PAGE_STYLES } from "../server/page/pageStyles.ts";
 import { buildHtmlDocs, SPACE_VARS, TEXT_VARS, THEME_VARS } from "../shared/htmlContract.ts";
+import { ICON_NAME_SET } from "../shared/iconNames.ts";
+import { PAGE_ICONS, SUBSET_ICONS } from "../shared/icons.ts";
 
 let failed = 0;
 
@@ -296,6 +298,44 @@ for (const caso of CALLA) {
     found.map((f) => `${f.regla}: ${f.donde}`).join("\n        "),
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* 4. Los iconos, ¿estan donde se dibujan?                              */
+/* ------------------------------------------------------------------ */
+
+/*
+ * La cuarta pareja que se separa sin avisar. Un icono que el modelo nombra y
+ * la fuente no tiene sale como un hueco en blanco: ni error, ni aviso, ni
+ * nada que mirar. Y son dos saltos --la lista contra la fuente, y la lista
+ * contra el subconjunto que va dentro del marco-- porque anadir un nombre a
+ * `PAGE_ICONS` y no volver a recortar la fuente deja la pagina bien en su
+ * direccion y en blanco en la vista previa, que es el peor sitio para
+ * enterarse.
+ */
+console.log("\nLos iconos");
+
+const sugeridos = PAGE_ICONS.flatMap((g) => g.names);
+const inventados = sugeridos.filter((n) => !ICON_NAME_SET.has(n));
+check(
+  "cada icono sugerido al modelo existe en la fuente",
+  inventados.length === 0,
+  inventados.join(", "),
+);
+
+const repetidos = sugeridos.filter((n, i) => sugeridos.indexOf(n) !== i);
+check("y ninguno esta dos veces", repetidos.length === 0, repetidos.join(", "));
+
+const comunes = await Bun.file("web/public/iconos/comunes.css").text();
+const recortados = new Set([...comunes.matchAll(/\.hgi-([a-z0-9-]+)::before/g)].map((m) => m[1]));
+const sinRecortar = SUBSET_ICONS.filter((n) => !recortados.has(n));
+check(
+  "y el subconjunto del marco los lleva todos",
+  sinRecortar.length === 0,
+  sinRecortar.length
+    ? `faltan ${sinRecortar.length}: vuelve a correr \`bun run iconos:subconjunto\``
+    : "",
+);
+check("el subconjunto lleva la fuente pegada dentro", comunes.includes("data:font/woff2;base64,"));
 
 console.log(failed ? `\n${failed} comprobacion(es) fallando\n` : "\nTodo en su sitio\n");
 process.exit(failed ? 1 : 0);

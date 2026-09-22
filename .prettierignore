@@ -6,3 +6,4 @@ openspec
 web/index.html
 **/*.md
 web/public/iconos/iconos.css
+web/public/iconos/comunes.css

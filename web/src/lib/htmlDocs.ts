@@ -41,11 +41,22 @@ function fetchDoc(url: string, token?: string, key = url, dentro = false): Promi
   return pending;
 }
 
-/** Para el editor y la vista previa: con la sesion del constructor. */
+/**
+ * Un bloque suelto por su huella, con la sesion del constructor: lo que monta
+ * la sonda de la IA. Va al marco, asi que tambien lleva los archivos dentro
+ * --el bloque que sirve el servidor trae el puente pegado, pero los estilos y
+ * la fuente de iconos los trae como referencia, y esas no las alcanza un
+ * origen opaco--.
+ */
 export const appDocLoader =
   (appId: string): DocLoader =>
   (hash) =>
-    fetchDoc(`/api/apps/${appId}/html/${hash}`, pb.authStore.token);
+    fetchDoc(
+      `/api/apps/${appId}/html/${hash}`,
+      pb.authStore.token,
+      `bloque:${appId}:${hash}`,
+      true,
+    );
 
 /*
  * El HTML de una pagina se pide por la pagina, no por su huella: lo que se

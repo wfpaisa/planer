@@ -302,7 +302,7 @@ const servidaPagina = await fetch(`${BASE}/api/apps/${app.id}/paginas/${paginaDo
 const textoPagina = await servidaPagina.text();
 check("la pagina se sirve con la hoja de estilos", textoPagina.includes("/plane/estilos.css"));
 check("y con el guion del puente", textoPagina.includes("/plane/puente.js"));
-check("y con la fuente de iconos", textoPagina.includes("/plane/iconos.css"));
+check("y con la fuente de iconos", textoPagina.includes("/iconos/iconos.css"));
 check("cada referencia lleva su comentario", textoPagina.includes("<!-- Puente de Planer:"));
 check("y no lleva el puente pegado dentro", !textoPagina.includes("function enMemoria"));
 

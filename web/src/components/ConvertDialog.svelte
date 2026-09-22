@@ -33,6 +33,7 @@
   import { paletteAttrs } from "../lib/appTheme";
   import { cx } from "../lib/cx";
   import { errorMessage, post, put } from "../lib/pb";
+  import { inlinePlaneAssets } from "../lib/planeAssets";
   import { theme } from "../lib/theme.svelte";
   import CodeEditor from "./CodeEditor.svelte";
   import HtmlFrame from "./HtmlFrame.svelte";
@@ -94,7 +95,8 @@
   const key = $derived(`propuesta-${result?.html.length ?? 0}`);
   const loadDoc = $derived.by(() => {
     const html = result?.vista ?? "";
-    return async () => html;
+    // Con los archivos dentro: el marco no tiene origen con el que pedirlos.
+    return async () => inlinePlaneAssets(html);
   });
 
   async function replace() {

@@ -15,6 +15,7 @@
     "server": "bun --watch server/index.ts",
     "demo": "bun run scripts/demo.ts",
     "docs": "bun run scripts/docs.ts",
+    "iconos:subconjunto": "bun run scripts/iconos-subconjunto.ts",
     "harness": "bun run scripts/harness-estilos.ts",
     "tablas:huerfanas": "bun run scripts/tablas-huerfanas.ts",
     "smoke": "bun run scripts/smoke.ts",
