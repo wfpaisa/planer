@@ -31,11 +31,11 @@
       {copied ? "Copiada" : "Copiar"}
     </Button>
   </div>
-  <p class="hint-password-notice">No se vuelve a mostrar: compartesela por un canal seguro.</p>
+  <p class="hint-password-notice">No volverá a mostrarse. Compártela por un canal seguro.</p>
 </div>
 
 <style>
-  /* La caja es `.alert.info` del catalogo --el mismo azul y el mismo borde
+  /* La caja es `.alert.info` del catálogo --el mismo azul y el mismo borde
      que el resto de avisos--; aqui solo el apilado, porque este lleva tres
      renglones en vez de un icono y un texto. */
   .notice-password {

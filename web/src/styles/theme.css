@@ -1,7 +1,7 @@
 /* ==========================================================
    THEME — tokens del sistema de diseño
    ----------------------------------------------------------
-   Hoja independiente del proyecto: aqui solo viven las
+   Hoja independiente del proyecto: aquí solo viven las
    variables (color, espacio, radios, tipografia, sombra) y el
    reset minimo que las pone a trabajar. Copiar este archivo a
    otro proyecto basta para llevarse el aspecto entero.
@@ -12,7 +12,7 @@
    archivo.
 
    Ajustes de este repo respecto de la hoja de origen:
-   - Los tokens claros van tambien en [data-theme="light"]: aqui
+   - Los tokens claros van también en [data-theme="light"]: aquí
      el data-theme se pone en contenedores internos (la vista
      previa de una app dentro del panel) y un contenedor claro
      dentro de un <html> oscuro tiene que poder volver a claro.
@@ -34,21 +34,21 @@
      tres bloques de tema, por lo mismo que --bg-hover.
    - La escala --text-* conserva los valores que tenia el panel
      (los de Tailwind): lg/xl/2xl/3xl son un escalon menos que en
-     la hoja de origen, porque el contrato del HTML de las paginas
+     la hoja de origen, porque el contrato del HTML de las páginas
      (shared/htmlContract.ts) los documenta con estos valores.
    ========================================================== */
 
 :root {
-  /* La rama que elige light-dark() en css/palettes.css sale de aqui
+  /* La rama que elige light-dark() en css/palettes.css sale de aquí
      (y de color-scheme: dark en el tema oscuro), no de un selector:
      por eso la derivacion de las paletas se escribe una sola vez.
      De paso pinta de claro los controles nativos. */
   color-scheme: light;
 
   /* ---- Superficies: tres planos, de atras hacia delante ----
-     --bg-level1     el lienzo de la pagina, lo que se ve entre tarjetas
+     --bg-level1     el lienzo de la página, lo que se ve entre tarjetas
      --bg-level2    todo lo que se levanta del lienzo: card, modal, menu,
-                  boton normal, popover
+                  botón normal, popover
      --bg-field  hundido DENTRO de una superficie: input, cabecera de
                   tabla, pista de un control
      --bg-hover   la fila o la celda bajo el cursor: un punto por
@@ -58,7 +58,7 @@
                   hay debajo: el menu y la lista de un select. Anadido
                   de este repo: en oscuro --bg-level2 es el mismo gris
                   de la tarjeta sobre la que se abre el menu y el
-                  popover se confundia con el fondo; aqui sube un punto
+                  popover se confundia con el fondo; aquí sube un punto
                   para que se lea como una capa aparte. En claro es el
                   mismo blanco de siempre. */
   --bg-level1: oklch(1 0 0);
@@ -83,7 +83,7 @@
   --text-muted: oklch(0.633 0 0);
   --text-subtle: oklch(0.72 0 0);
 
-  /* ---- Lineas ----
+  /* ---- Líneas ----
      --border         separaciones y contornos en reposo
      --border-strong  contorno destacado: hover, controles, puntos
      --border-float   el contorno de lo que se abre encima (menu,
@@ -96,7 +96,7 @@
   --border-float: oklch(0.855 0 0);
 
   /* ---- Acento: la accion principal y lo que esta activo ----
-     --accent           relleno del boton primario, foco, seleccion
+     --accent           relleno del botón primario, foco, seleccion
      --accent-hover     el mismo, con el cursor encima
      --accent-soft      fondo tenue de acento (item activo del menu)
      --accent-soft-text       texto sobre --accent-soft
@@ -120,7 +120,7 @@
   --warning-bg: oklch(0.95 0.035 80);
 
   /* ---- Serie de datos: cuatro colores para distinguir, no para
-          decorar (graficas, barras, leyendas). El 1 es el principal. ---- */
+          decorar (gráficas, barras, leyendas). El 1 es el principal. ---- */
   --chart-1: oklch(60% 0.3 256);
   --chart-2: oklch(0.6 0.04 269);
   --chart-3: oklch(0.38 0.03 269);
@@ -133,9 +133,9 @@
      verde, que es justo lo que se quiere de un color que solo sirve
      para distinguir una categoria de otra.
 
-     Aqui esta el color crudo y nada mas: el fondo y la tinta de la
+     Aquí esta el color crudo y nada mas: el fondo y la tinta de la
      pastilla los mezcla `.tint-1`..`.tint-10` (components.css), y se
-     mezclan ALLI y no aqui en un token a proposito. La tinta lleva un
+     mezclan ALLI y no aquí en un token a propósito. La tinta lleva un
      28% de --text-primary, y una variable con var() dentro se resuelve
      DONDE SE DECLARA: calculada en :root se quedaria con el gris del
      documento de fuera, y una vista previa clara dentro del panel
@@ -158,17 +158,17 @@
   --tinte-9: oklch(65.985% 0.11189 194.821); /* turquesa */
   --tinte-10: oklch(45.388% 0.0445 246.544); /* pizarra */
 
-  /* Rejilla de fondo de las graficas y halo del elemento enfocado */
+  /* Rejilla de fondo de las gráficas y halo del elemento enfocado */
   --chart-grid: oklch(0.943 0 0);
   --focus-ring: oklch(0.47 0.244 264.7 / 0.2);
 
   /* ---- Sombra: cuanto se separa del plano de atras ----
-     sm  apenas despega (boton, chip)
+     sm  apenas despega (botón, chip)
      md  descansa sobre el lienzo (card)
      lg  flota por encima de todo (modal, drawer, toast)
      xl  se abre sobre el contenido y lo tapa (menu, lista de un
          select). Anadido de este repo: con la sombra lg el menu
-         casi no se despegaba de la tarjeta de debajo, asi que
+         casi no se despegaba de la tarjeta de debajo, así que
          lleva dos capas --una corta de contacto y una larga de
          caida-- y mas tinta que el resto de la escala. */
   --shadow-sm: 0 2px 4px oklch(0 0 0 / 0.05);
@@ -206,7 +206,7 @@
   --border-width: 1px;
 
   /* El cuadro de un color suelto: la misma medida en todas partes
-     --el que ensena el color puesto y el que se pulsa para elegirlo--. */
+     --el que enseña el color puesto y el que se pulsa para elegirlo--. */
   --swatch-size: 1.75rem;
 
   --radius-scale: 1;
@@ -215,8 +215,8 @@
   --radius-lg: calc(var(--radius-scale) * 1rem);
   --radius-xl: calc(var(--radius-scale) * 1.25rem);
 
-  /* ---- Tipografia: tres tamanos, en linea con los tres niveles de
-          texto (titulo de card, texto corriente, apoyo) ---- */
+  /* ---- Tipografia: tres tamanos, en línea con los tres niveles de
+          texto (título de card, texto corriente, apoyo) ---- */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -231,11 +231,11 @@
   --font-mono: "Reddit Mono", monospace;
 
   /*
-   * Cuanto crece la letra de una aplicacion sobre la del panel. Aqui vale
+   * Cuanto crece la letra de una aplicación sobre la del panel. Aquí vale
    * uno --el panel no escala-- y lo pisa `lib/appTheme.ts` en el contenedor
-   * de la aplicacion cuando quien la construye eligio otro tamano. Se
+   * de la aplicación cuando quien la construye eligio otro tamaño. Se
    * declara aunque casi nadie lo lea: quien necesita resolver "un rem de la
-   * aplicacion" (el marco de una pagina, ver `HtmlFrame`) no puede depender
+   * aplicación" (el marco de una página, ver `HtmlFrame`) no puede depender
    * de que el atributo inline exista.
    */
   --font-scale: 1;
@@ -247,7 +247,7 @@
 /* ==========================================================
    Tema claro explicito
    Lo mismo que :root, para el contenedor que lleva el tema de
-   una aplicacion dentro de un panel oscuro (y al reves): sin
+   una aplicación dentro de un panel oscuro (y al reves): sin
    este bloque, [data-theme="dark"] de un ancestro ganaria por
    cascada y el contenedor claro se quedaria oscuro.
    ========================================================== */
@@ -353,9 +353,9 @@
 /* ==========================================================
    Base
    ----------------------------------------------------------
-   El reset es mas largo que el de la hoja de origen a proposito.
-   Alli todo lo que se dibuja lleva una clase del catalogo, asi que
-   basta con el box-sizing; aqui hay 119 componentes escritos contra
+   El reset es mas largo que el de la hoja de origen a propósito.
+   Alli todo lo que se dibuja lleva una clase del catálogo, así que
+   basta con el box-sizing; aquí hay 119 componentes escritos contra
    la capa base de la utilidad de antes, que ponia a cero el margen,
    el relleno y el borde de TODO. Sin esto reaparecen los valores de
    origen del navegador: los titulos y los parrafos se separan solos,
@@ -380,9 +380,9 @@
 /* ---- Documento ---- */
 
 /*
- * La raiz no declara tamano: manda el del navegador, salvo cuando el tamano
+ * La raíz no declara tamaño: manda el del navegador, salvo cuando el tamaño
  * de letra del panel (`lib/fontSize.svelte.ts`) escribe un porcentaje inline
- * en el `html`. Toda la hoja esta en rem, asi que mover la raiz reescala el
+ * en el `html`. Toda la hoja esta en rem, así que mover la raíz reescala el
  * panel entero: el texto crece y las cajas que lo rodean crecen con el.
  */
 
@@ -398,7 +398,7 @@ body {
 
 /* ---- Tipografia ---- */
 
-/* Los titulos toman su tamano de quien los dibuja, no de la etiqueta. */
+/* Los titulos toman su tamaño de quien los dibuja, no de la etiqueta. */
 h1,
 h2,
 h3,
@@ -567,7 +567,7 @@ a {
   letter-spacing: -0.01em;
 }
 
-/* Iconos de la fuente Hugeicons: un tamano de partida comun */
+/* Iconos de la fuente Hugeicons: un tamaño de partida comun */
 i[class*="hgi-"] {
   font-size: var(--text-base);
   line-height: 1;

@@ -2,7 +2,7 @@
   La cara de Planer.
 
   Son los tres gestos que dibujo Inkscape (`assets/planer-icon/*.svg`) traidos
-  aqui como trazados en linea, y por eso: un `<img>` no puede cambiar de color
+  aqui como trazados en línea, y por eso: un `<img>` no puede cambiar de color
   ni saber que paleta lleva puesta la pantalla. Al vivir en el marcado, la cara
   toma `currentColor` --el acento del tema, salvo que se le pida otro-- y
   cambia sola cuando cambia la paleta.
@@ -11,11 +11,11 @@
   `ok` guina uno solo.
 
   Todo se mide contra `size`, que es el ancho de la cara en px: el elemento de
-  fuera lleva ese numero como `font-size` y lo de dentro --alto, globo, icono--
+  fuera lleva ese número como `font-size` y lo de dentro --alto, globo, icono--
   va en `em`, de modo que una sola cifra escala la pieza entera.
 
   Con `icon` --un nombre de la fuente de iconos-- sale un globo por encima de
-  la esquina superior derecha, al estilo del dialogo de un personaje:
+  la esquina superior derecha, al estilo del diálogo de un personaje:
   `bubble-chat` mientras habla, `bubble-chat-question` cuando pregunta. Va
   desnudo --sin pastilla detras-- y de la misma tinta que la cara, y se queda
   fuera de ella: el hueco se lo hace el relleno de arriba del elemento, para
@@ -135,7 +135,7 @@
   }
 
   /* El icono viene de `Icon`, que no lleva la clase de ambito de este archivo:
-     `:global` es la unica forma de alcanzarlo. La medida va en `em` del
+     `:global` es la única forma de alcanzarlo. La medida va en `em` del
      elemento de fuera, asi que escala con `size` como todo lo demas, y el
      color lo hereda --es la misma tinta de la cara. */
   .planer-cue :global(i) {

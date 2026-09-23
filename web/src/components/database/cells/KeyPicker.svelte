@@ -1,10 +1,10 @@
 <!--
-  El campo con el que se rellena una celda de relacion.
+  El campo con el que se rellena una celda de relación.
 
-  Se escribe la llave --una cedula, un correo-- y nunca el id: el id es
+  Se escribe la llave --una cédula, un correo-- y nunca el id: el id es
   derivado. La lista de al lado es una comodidad para no tener que recordar el
-  valor exacto, pero un valor que no esta en la lista tambien vale: se guarda
-  como valor sin dueno, que es un estado valido.
+  valor exacto, pero un valor que no esta en la lista también vale: se guarda
+  como valor sin dueno, que es un estado válido.
 
   Lo que sale de aqui es siempre el texto de la llave. Quien guarda la fila lo
   resuelve contra la tabla destino y decide si se llena el id o el corralito.
@@ -50,7 +50,7 @@
 
   /*
    * Lo que se ve en el campo: lo que le llega, y si no le llega nada, lo que la
-   * celda ensena. Al editar una celda suelta en la grilla no hay valor previo
+   * celda enseña. Al editar una celda suelta en la grilla no hay valor previo
    * que pasar, y ahi es la fila la que lo dice.
    */
   const text = $derived(
@@ -65,7 +65,7 @@
    * La lista se ofrece sin repetidos. Un mismo texto dos veces no da a elegir
    * nada --escribir "43928693" es lo mismo se pulse el de arriba o el de
    * abajo-- y la llave repetida no la resuelve este campo: lo que hay que
-   * arreglar son dos personas con la misma cedula, y eso se arregla en su
+   * arreglar son dos personas con la misma cédula, y eso se arregla en su
    * tabla.
    */
   const unique = (values: string[]) => [...new Set(values.filter(Boolean))];
@@ -74,7 +74,7 @@
     const table = target;
     const column = key;
     if (!table || !column) return;
-    // El correo y los roles no estan en la coleccion de la tabla de personas:
+    // El correo y los roles no estan en la colección de la tabla de personas:
     // quien los tiene es la lista de invitados. Ver `isOverlayField`.
     if (isOverlayField(table, column)) {
       options = unique(people.list.map((p) => personKeyValue(p, column)));
@@ -127,7 +127,7 @@
     color: var(--text-muted);
   }
 
-  /* El tamano del campo de llave llega al campo de `InputPicker`. */
+  /* El tamaño del campo de llave llega al campo de `InputPicker`. */
   :global(.key-picker-input) {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);

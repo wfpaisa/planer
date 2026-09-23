@@ -1,13 +1,13 @@
 <!--
   El punto de publicar. Se pinta distinto segun en cual de los tres estados este
-  la aplicacion, para no tener que abrir nada para enterarse:
+  la aplicación, para no tener que abrir nada para enterarse:
 
-  - **Sin publicar**: el boton llama, porque falta el paso que la saca afuera.
+  - **Sin publicar**: el botón llama, porque falta el paso que la saca afuera.
   - **Con cambios**: se pone ambar y le late un punto en la esquina. Es un
-    aviso, no un error: hay algo hecho que todavia no ve nadie.
+    aviso, no un error: hay algo hecho que todavía no ve nadie.
   - **Al dia**: se apaga y deja un punto verde. Ya no hay nada que hacer.
 
-  El punto es la unica parte que se anima, y solo en el estado que lo pide.
+  El punto es la única parte que se anima, y solo en el estado que lo pide.
 -->
 <script lang="ts">
   import type { VersionsView } from "@shared/types";
@@ -22,8 +22,8 @@
 
   const builder = useBuilder();
 
-  // `touched` se lee a proposito: cada vez que algo del diseno se guarda, esta
-  // peticion se vuelve a hacer y el aviso se pone al dia.
+  // `touched` se lee a propósito: cada vez que algo del diseño se guarda, esta
+  // petición se vuelve a hacer y el aviso se pone al dia.
   const state = useAsync(() => {
     void builder.touched;
     return api<VersionsView>(`/api/apps/${builder.app.id}/versiones`);
@@ -62,7 +62,7 @@
 
 <style>
   /*
-   * La etiqueta del boton: solo para lectores de pantalla en pantallas
+   * La etiqueta del botón: solo para lectores de pantalla en pantallas
    * pequenas, visible desde `sm`. El icono ya dice lo que es.
    */
   .publish-button-label {

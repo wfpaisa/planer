@@ -2,14 +2,14 @@
   Un icono por nombre.
 
   Los iconos son una fuente tipografica (ver `shared/icons.ts`): un icono es un
-  `<i>` con dos clases y el tamano de letra que se le pida. Al ser letra toma
+  `<i>` con dos clases y el tamaño de letra que se le pida. Al ser letra toma
   `currentColor` solo, hereda el color de quien lo rodea y escala con el resto
   del texto sin que nadie lo calcule.
 
-  `size` es opcional a proposito: **sin `size` el icono mide lo que el texto que
+  `size` es opcional a propósito: **sin `size` el icono mide lo que el texto que
   lo acompana** (`font-size: 1em`), que es lo que se quiere siempre que el icono
   vaya al lado de una etiqueta. Solo se le pone medida cuando tiene que salirse
-  de esa linea --un icono deliberadamente mas grande que su texto, o uno que va
+  de esa línea --un icono deliberadamente mas grande que su texto, o uno que va
   solo y no tiene texto del que copiarse.
 
   Lo que no exista en la fuente cae al icono por defecto --un nombre raro nunca
@@ -44,8 +44,8 @@
 <style>
   /* Al ser letra hereda `currentColor` y escala con el texto que la rodea: sin
      `size`, `1em` la deja exactamente de la medida de ese texto. Le gana al
-     tamano de partida de `theme.css` (`i[class*="hgi-"]`) a proposito; los
-     pocos sitios del catalogo que agrandan el icono con dos clases --`.btn.sm i`,
+     tamaño de partida de `theme.css` (`i[class*="hgi-"]`) a propósito; los
+     pocos sitios del catálogo que agrandan el icono con dos clases --`.btn.sm i`,
      `.btn-icon.sm i`-- siguen mandando, y son botones sin texto. */
   .icon-glyph {
     line-height: 1;

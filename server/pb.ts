@@ -64,7 +64,7 @@ async function tokenStillValid(): Promise<boolean> {
 /**
  * Aplana los errores de validacion de PocketBase en frases legibles.
  *
- * Legibles tambien quiere decir en espanol: lo que sale de aqui acaba en el
+ * Legibles también quiere decir en espanol: lo que sale de aquí acaba en el
  * aviso que lee quien construye, no en un registro. Ver `shared/pbErrors.ts`.
  */
 function flatten(node: unknown, path = ""): string[] {
@@ -99,8 +99,8 @@ export async function pb<T = unknown>(
   const headers = new Headers(rest.headers);
   // Si quien llama trae su propio token (por ejemplo, para validarlo), se respeta.
   if (!headers.has("authorization")) headers.set("authorization", await adminToken());
-  // Un formulario pone su propio tipo, con la frontera dentro: escribirlo aqui
-  // dejaria el cuerpo ilegible para PocketBase. Todo lo demas es JSON.
+  // Un formulario pone su propio tipo, con la frontera dentro: escribirlo aquí
+  // dejaria el cuerpo ilegible para PocketBase. Todo lo demás es JSON.
   const form = rest.body instanceof FormData;
   if (rest.body && !form && !headers.has("content-type")) {
     headers.set("content-type", "application/json");
@@ -109,7 +109,7 @@ export async function pb<T = unknown>(
   const res = await fetch(url, { ...rest, headers });
 
   // Cuando el token de administrador deja de valer, PocketBase no siempre
-  // responde 401: a veces trata la peticion como anonima y la rechazan las
+  // responde 401: a veces trata la petición como anonima y la rechazan las
   // reglas de acceso (400 o 403). Por eso comprobamos el token y reintentamos.
   const usedOurToken = !new Headers(rest.headers).has("authorization");
   if (retry && usedOurToken && [400, 401, 403].includes(res.status)) {
@@ -231,10 +231,10 @@ export async function firstRecord<T = Record<string, unknown>>(
 /**
  * La ruta de un registro, con las dos piezas codificadas.
  *
- * El id se codifica igual que la coleccion, y por la misma razon: llega de
- * fuera --el que manda una pagina al guardar una fila-- y sin codificar, un
- * `../` suyo sube un tramo de la ruta. La direccion se normaliza antes de
- * salir, asi que la peticion terminaria en otro punto de la API, con el token
+ * El id se codifica igual que la colección, y por la misma razon: llega de
+ * fuera --el que manda una página al guardar una fila-- y sin codificar, un
+ * `../` suyo sube un tramo de la ruta. La dirección se normaliza antes de
+ * salir, así que la petición terminaria en otro punto de la API, con el token
  * de administrador puesto.
  */
 const recordPath = (collection: string, id: string) =>
@@ -266,7 +266,7 @@ export function deleteRecord(collection: string, id: string): Promise<void> {
 }
 
 /**
- * Crea un registro mandando un formulario, que es la unica forma de escribir un
+ * Crea un registro mandando un formulario, que es la única forma de escribir un
  * campo de archivo: un campo de archivo no cabe en JSON.
  */
 export function createRecordForm<T = Record<string, unknown>>(
@@ -284,9 +284,9 @@ export function createRecordForm<T = Record<string, unknown>>(
 /* ------------------------------------------------------------------ */
 
 /*
- * Los archivos de un campo protegido no se sirven por su direccion a secas:
+ * Los archivos de un campo protegido no se sirven por su dirección a secas:
  * hay que pedir antes una llave de lectura. Dura poco --dos minutos de
- * fabrica-- asi que se guarda un rato y se pide otra cuando caduca, en vez de
+ * fabrica-- así que se guarda un rato y se pide otra cuando caduca, en vez de
  * una por cada lectura.
  */
 let fileKey = "";

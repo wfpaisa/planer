@@ -38,7 +38,7 @@ export function formatDate(value: unknown): string {
 /**
  * Convierte el valor guardado al que espera un `<input>`.
  *
- * Vive aqui y no dentro del control que lo usa porque tambien es lo que se
+ * Vive aquí y no dentro del control que lo usa porque también es lo que se
  * copia al portapapeles: una fecha en formato de lectura ("12 sept 2025") no se
  * vuelve a entender al pegarla, y la del `<input>` --ISO corta-- si.
  */
@@ -58,7 +58,7 @@ export function toInputValue(field: FieldDef, value: unknown): string {
  * Texto plano de una celda, para busquedas, exportaciones y el portapapeles.
  *
  * La lista de invitados es opcional porque no todo el que pregunta la tiene a
- * mano; sin ella una celda que apunta a una persona se lee vacia, que es lo
+ * mano; sin ella una celda que apunta a una persona se lee vacía, que es lo
  * mismo que le pasa a la celda dibujada.
  */
 export function cellText(field: FieldDef, row: Row, people: AppPerson[] = []): string {
@@ -72,9 +72,9 @@ export function cellText(field: FieldDef, row: Row, people: AppPerson[] = []): s
 }
 
 /**
- * En que estado esta una celda de relacion.
+ * En que estado esta una celda de relación.
  *
- * `orphan` no es una averia: el exceso de velocidad ocurrio aunque esa cedula
+ * `orphan` no es una averia: el exceso de velocidad ocurrio aunque esa cédula
  * no este en la lista. Se marca en neutro. `broken` si es un aviso: hay un id
  * guardado cuyo registro ya no existe o no esta al alcance.
  */
@@ -85,9 +85,9 @@ export interface RelationCell {
   /** Lo que se ve. Con enlace o sin el, siempre es la llave, nunca el id. */
   label: string;
   /**
-   * Lo que va entre parentesis detras de la llave. Vacio: no va nada.
+   * Lo que va entre parentesis detras de la llave. Vacío: no va nada.
    *
-   * La llave sola no siempre dice de quien se trata --una cedula no se
+   * La llave sola no siempre dice de quien se trata --una cédula no se
    * reconoce-- y cambiarla por el nombre esconderia justo el dato que se
    * escribe y se importa. Van los dos. Ver `detailFieldOf`.
    */
@@ -95,10 +95,10 @@ export interface RelationCell {
 }
 
 /**
- * Lo que ensena una celda de relacion.
+ * Lo que enseña una celda de relación.
  *
  * Ya no se adivina: se lee la columna que la propia definicion declara. Antes
- * se cogia la primera columna de texto del registro expandido, asi que anadir
+ * se cogia la primera columna de texto del registro expandido, así que anadir
  * una columna a la tabla destino cambiaba lo que veia todo el mundo.
  */
 export function relationCell(row: Row, field: FieldDef, people: AppPerson[] = []): RelationCell {
@@ -121,11 +121,11 @@ export function relationCell(row: Row, field: FieldDef, people: AppPerson[] = []
 
   /*
    * Una fila de la tabla de personas llega sin su correo ni sus roles: no estan
-   * en su coleccion, viven en la cuenta y en el enlace con la aplicacion. Quien
+   * en su colección, viven en la cuenta y en el enlace con la aplicación. Quien
    * los tiene es la lista de invitados, que llega por su propia ruta. Se
    * reconoce por el enlace con la cuenta, que solo esa tabla tiene.
    *
-   * Vale tambien sin registro expandido, que no significa que la celda este
+   * Vale también sin registro expandido, que no significa que la celda este
    * rota: la lista de invitados sola basta para decir de quien se trata.
    */
   const member = one && typeof one === "object" ? (one as Row)[MEMBER_FIELD] : undefined;
@@ -134,7 +134,7 @@ export function relationCell(row: Row, field: FieldDef, people: AppPerson[] = []
   );
   if (invited) {
     // Sin valor en la columna elegida queda el correo: la celda esta enlazada,
-    // y dejarla en blanco la haria pasar por vacia.
+    // y dejarla en blanco la haria pasar por vacía.
     const label = personKeyValue(invited, display) || invited.email || invited.name;
     const aside = detail ? personKeyValue(invited, detail) : "";
     return { state: "linked", label, detail: aside === label ? "" : aside };
@@ -142,7 +142,7 @@ export function relationCell(row: Row, field: FieldDef, people: AppPerson[] = []
 
   if (!one || typeof one !== "object") {
     // El registro no vino con la fila: se borro o quedo fuera del alcance. No
-    // se vacia la celda en silencio.
+    // se vacía la celda en silencio.
     return { state: "broken", label: "", detail: "" };
   }
 
@@ -154,8 +154,8 @@ export function relationCell(row: Row, field: FieldDef, people: AppPerson[] = []
   }
   const aside = raw;
 
-  // Respaldo de las columnas de antes de este cambio, que todavia no declaran
-  // que ensenan: lo mismo que se venia adivinando. La migracion lo retira.
+  // Respaldo de las columnas de antes de este cambio, que todavía no declaran
+  // que ensenan: lo mismo que se venia adivinando. La migración lo retira.
   const key = Object.keys(record).find(
     (k) => typeof record[k] === "string" && !["id", "collectionId", "collectionName"].includes(k),
   );

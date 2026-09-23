@@ -1,13 +1,13 @@
 <!--
-  Ver y editar a mano el codigo HTML de una pagina.
+  Ver y editar a mano el código HTML de una página.
 
   Lo que se edita es lo guardado, no lo servido: si se editara lo servido, lo
-  que Planer anade al dibujar entraria en el documento y se duplicaria en cada
+  que Planer añade al dibujar entraria en el documento y se duplicaria en cada
   vuelta. Al guardar, el servidor repone las dos referencias si faltan y lo
   dice; ese aviso se muestra aqui.
 -->
 <script lang="ts" module>
-  /** Con lo que nace una pagina que todavia no tiene nada escrito. */
+  /** Con lo que nace una página que todavía no tiene nada escrito. */
   const EMPTY_PAGE = `<!doctype html>
 <html lang="es">
 <head>
@@ -129,7 +129,7 @@
   .body-page-code {
     min-height: 0;
 
-    /* El marco es `.inset.plain` del catalogo --el cerco sin fondo, que lo
+    /* El marco es `.inset.plain` del catálogo --el cerco sin fondo, que lo
        pinta el editor de dentro--; aqui solo que crezca con el panel. */
     & .frame-page-code {
       min-height: 0;

@@ -1,9 +1,9 @@
 <!--
-  La oferta de convertir en relacion una columna de texto que nombra personas.
+  La oferta de convertir en relación una columna de texto que nombra personas.
 
-  Sale despues de importar personas, que es cuando lo que ya estaba guardado
+  Sale después de importar personas, que es cuando lo que ya estaba guardado
   empieza a coincidir: la tabla de chequeos llevaba meses con una columna de
-  cedulas escritas a mano, y la nomina que se acaba de importar les acaba de dar
+  cedulas escritas a mano, y la nómina que se acaba de importar les acaba de dar
   dueno.
 
   No convierte nada por su cuenta. Cambiar el tipo de una columna es cambiar la
@@ -34,7 +34,7 @@
   /** Que columna esta marcada, por tabla y columna. Todas lo estan de entrada. */
   const idOf = (c: PersonTextColumn) => `${c.table.id}:${c.field.name}`;
   let off = $state<Record<string, boolean>>({});
-  /** La llave elegida a mano; vacia quiere decir la que mas casa. */
+  /** La llave elegida a mano; vacía quiere decir la que mas casa. */
   let keys = $state<Record<string, string>>({});
 
   const keyOf = (c: PersonTextColumn) => keys[idOf(c)] || c.keys[0].key;
@@ -91,8 +91,8 @@
   </div>
 
   <p class="alert info note-person-columns">
-    Lo que no corresponda a nadie se guarda a la vista, sin enlace, y se puede resolver después
-    desde la tabla. La columna no cambia hasta que se acepte.
+    Los valores sin coincidencia se conservarán sin enlace. La columna no cambiará hasta que
+    aceptes.
   </p>
 
   {#snippet footer()}

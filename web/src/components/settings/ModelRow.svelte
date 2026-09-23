@@ -3,7 +3,7 @@
 
   Cerrado se lee de un vistazo: como se llama y de que es capaz. Abierto se
   corrige todo. Lo normal es no tener que abrirlo nunca --los servidores con
-  catalogo traen sus medidas hechas-- y por eso empieza cerrado.
+  catálogo traen sus medidas hechas-- y por eso empieza cerrado.
 -->
 <script lang="ts">
   import {
@@ -37,7 +37,7 @@
 
   // Un modelo recien escrito a mano se abre solo: sin nombre no hay nada que
   // leer, y lo que toca es escribirlo. Solo cuenta como estaba al llegar; lo
-  // que se escriba despues no lo tiene que volver a cerrar.
+  // que se escriba después no lo tiene que volver a cerrar.
   let open = $state(untrack(() => !model.id));
   let busy = $state(false);
   let error = $state("");
@@ -45,7 +45,7 @@
   const levels = $derived(aiThinkingLevels(model));
   const efforts = $derived([...new Set([...AI_THINKING_KNOWN, ...model.efforts])]);
 
-  /** Traer del catalogo lo que este modelo puede hacer. */
+  /** Traer del catálogo lo que este modelo puede hacer. */
   async function load(): Promise<void> {
     busy = true;
     error = "";
@@ -196,7 +196,7 @@
       </div>
 
       <!--
-        Que niveles ofrece. Los de un servidor con catalogo llegan solos y con
+        Que niveles ofrece. Los de un servidor con catálogo llegan solos y con
         su nombre --hay modelos con `max`, que no es ninguno de los de
         siempre--; a mano se marcan de entre los nombres conocidos. Ninguno
         marcado quiere decir los de siempre.
@@ -235,7 +235,7 @@
 </div>
 
 <style>
-  /* La caja es `.inset.plain` del catalogo --el cerco sin fondo, que ya lo
+  /* La caja es `.inset.plain` del catálogo --el cerco sin fondo, que ya lo
      pone la ficha del servidor que la contiene--; aqui solo lo de dentro. */
   .row-ai-model {
     padding: 0;

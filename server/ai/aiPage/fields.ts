@@ -16,7 +16,7 @@ import { identifier } from "../../schema.ts";
 /**
  * Los tipos de columna que la IA puede crear.
  *
- * `relation` esta aqui y no en el cambio de tipo: crear una columna que apunta
+ * `relation` esta aquí y no en el cambio de tipo: crear una columna que apunta
  * a otra tabla es cosa suya, convertir una que ya existe no. Ver `design.md`
  * D6 de `ia-crea-columnas-de-relacion`.
  */
@@ -36,8 +36,8 @@ export const FIELD_TYPES = [
 /**
  * Los tipos a los que la IA puede pedir que cambie una columna que ya existe.
  *
- * Convertir a relacion conserva los valores guardados, y eso lo resuelve el
- * camino del constructor. Aqui no aparece, y el ejecutor lo rechaza aparte:
+ * Convertir a relación conserva los valores guardados, y eso lo resuelve el
+ * camino del constructor. Aquí no aparece, y el ejecutor lo rechaza aparte:
  * el listado es una restriccion del modelo, no una comprobacion.
  */
 export const RETYPE_TYPES = FIELD_TYPES.filter((type) => type !== "relation");
@@ -47,15 +47,15 @@ export const RETYPE_TYPES = FIELD_TYPES.filter((type) => type !== "relation");
  *
  * Devuelve un texto cuando algo no cuadra, y ese texto es la respuesta que
  * recibe la IA: lo lee y corrige en la vuelta siguiente, dentro de la misma
- * peticion. Por eso dice el paso que falta y no solo que fallo.
+ * petición. Por eso dice el paso que falta y no solo que fallo.
  *
  * Un rechazo para la orden entera, no solo para la columna: crear la tabla sin
  * la columna que se rechazo deja una tabla equivocada y la IA sigue
  * construyendo la pantalla encima. Ver `design.md` D4.
  *
- * Necesita las tablas de la aplicacion porque la IA nombra el destino de una
- * relacion por su nombre tecnico --el mismo con el que nombra tablas en las
- * demas ordenes-- y lo que se guarda es su identificador.
+ * Necesita las tablas de la aplicación porque la IA nombra el destino de una
+ * relación por su nombre tecnico --el mismo con el que nombra tablas en las
+ * demás ordenes-- y lo que se guarda es su identificador.
  */
 export function normalizeFieldDefs(raw: unknown, tables: TableRecord[]): FieldDef[] | string {
   if (!Array.isArray(raw)) return [];
@@ -89,8 +89,8 @@ export function normalizeFieldDefs(raw: unknown, tables: TableRecord[]): FieldDe
       /*
        * Sin una columna que sirva de llave, la celda no tiene que ensenar ni
        * con que emparejar. Se pregunta por las que pueden serlo y no por la
-       * marca de unica: las de la tabla de personas llegan importando la
-       * nomina y nadie vuelve a marcarlas.
+       * marca de única: las de la tabla de personas llegan importando la
+       * nómina y nadie vuelve a marcarlas.
        */
       const keys = keyCandidates(target);
       if (keys.length === 0) {
@@ -126,9 +126,9 @@ export interface FillPlan {
  * Lee el emparejamiento que mando la IA y lo comprueba contra la tabla.
  *
  * Devuelve un texto cuando algo no cuadra, y ese texto es lo que la IA lee: lo
- * corrige en la vuelta siguiente, dentro de la misma peticion. Un rechazo para
+ * corrige en la vuelta siguiente, dentro de la misma petición. Un rechazo para
  * el emparejamiento entero, no columna a columna: llenar la tabla a medias deja
- * filas que hay que buscar despues.
+ * filas que hay que buscar después.
  */
 export function planFill(parsed: ParsedTable, table: TableRecord, raw: unknown): FillPlan | string {
   if (!Array.isArray(raw) || raw.length === 0) {

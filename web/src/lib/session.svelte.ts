@@ -11,7 +11,7 @@ export interface Builder {
 const current = () => (pb.authStore.record as unknown as Builder | null) ?? null;
 
 let me = $state<Builder | null>(current());
-/** Sin sesion guardada no hay nada que confirmar: se sabe desde el primer momento. */
+/** Sin sesión guardada no hay nada que confirmar: se sabe desde el primer momento. */
 let ready = $state(!pb.authStore.isValid);
 
 pb.authStore.onChange(() => {
@@ -19,7 +19,7 @@ pb.authStore.onChange(() => {
 });
 
 if (pb.authStore.isValid) {
-  // Confirmamos con el servidor que la sesion guardada sigue viva.
+  // Confirmamos con el servidor que la sesión guardada sigue viva.
   pb.collection("builders")
     .authRefresh()
     .catch(() => pb.authStore.clear())
@@ -33,7 +33,7 @@ export const session = {
   get me(): Builder | null {
     return me;
   },
-  /** Ya se sabe si hay sesion o no. Antes de esto no se puede echar a nadie. */
+  /** Ya se sabe si hay sesión o no. Antes de esto no se puede echar a nadie. */
   get ready(): boolean {
     return ready;
   },

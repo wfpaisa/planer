@@ -1,8 +1,8 @@
 /**
  * La caja de piezas del panel.
  *
- * En React todo esto era un solo archivo de 738 lineas; aqui cada pieza es su
- * propio `.svelte` y este indice es lo que las junta, para que quien las use
+ * En React todo esto era un solo archivo de 738 líneas; aquí cada pieza es su
+ * propio `.svelte` y este índice es lo que las junta, para que quien las use
  * siga escribiendo un solo import.
  */
 export { default as Button } from "./Button.svelte";

@@ -1,10 +1,10 @@
 /**
  * Convertir una celda de texto al valor que guarda su columna.
  *
- * Es el paso siguiente a leer el archivo (`importParse.ts`) y vive aqui por lo
+ * Es el paso siguiente a leer el archivo (`importParse.ts`) y vive aquí por lo
  * mismo: lo hacen los dos lados. El navegador convierte al importar a mano; el
  * servidor convierte al llenar una tabla desde un adjunto (`llenar_tabla`, en
- * `server/ai/aiPage/toolRuntime.ts`). Una sola lectura de lo que es una fecha, un numero o un
+ * `server/ai/aiPage/toolRuntime.ts`). Una sola lectura de lo que es una fecha, un número o un
  * "si" es lo que hace que las dos importaciones acepten los mismos archivos.
  */
 import type { FieldDef } from "./types.ts";
@@ -34,11 +34,11 @@ function normalizeDate(value: string): string | null {
  *
  * Cada sistema lo escribe a su manera --una exportacion trae "Activo", otra
  * "TRUE", otra "on"-- y todas significan lo mismo. La lista se lee normalizada
- * (sin tildes, sin mayusculas), asi que "Sí" y "si" son la misma palabra.
+ * (sin tildes, sin mayusculas), así que "Sí" y "si" son la misma palabra.
  *
- * Es tambien de donde `guessType` (en `web/src/lib/importPlan.ts`) saca si una
+ * Es también de donde `guessType` (en `web/src/lib/importPlan.ts`) saca si una
  * columna nueva nace como casilla: adivinar y convertir tienen que entender las
- * mismas palabras, o la columna nace de un tipo que despues rechaza sus propias
+ * mismas palabras, o la columna nace de un tipo que después rechaza sus propias
  * filas.
  */
 export const BOOL_TRUE = ["si", "s", "yes", "y", "1", "true", "verdadero", "activo", "on"];
@@ -57,9 +57,9 @@ export const boolWord = (value: string): string =>
  * archivo no se convierten (no se pueden subir archivos importando): quedan
  * vacias.
  *
- * Las de persona y relacion salen de aqui como el texto que traia el archivo:
+ * Las de persona y relación salen de aquí como el texto que traia el archivo:
  * emparejarlo con un registro hace falta consultar la tabla destino, y eso se
- * hace despues y de golpe para todo el archivo. Ver `matchRelationColumns`.
+ * hace después y de golpe para todo el archivo. Ver `matchRelationColumns`.
  */
 export function convertValue(field: FieldDef, raw: string): ConvertResult {
   const value = raw.trim();
@@ -95,7 +95,7 @@ export function convertValue(field: FieldDef, raw: string): ConvertResult {
     case "file":
       return { ok: true, value: null };
     case "relation":
-      // El texto de la llave, sin tocar. Se empareja despues.
+      // El texto de la llave, sin tocar. Se empareja después.
       return { ok: true, value };
     default:
       return { ok: true, value };

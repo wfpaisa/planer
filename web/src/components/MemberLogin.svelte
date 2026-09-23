@@ -1,8 +1,8 @@
 <!--
-  Entrar a una aplicacion privada.
+  Entrar a una aplicación privada.
 
   Lo que se compara no es el correo a secas: es el correo dentro de esta
-  aplicacion. La misma direccion puede tener cuenta en otra, con otra clave, y
+  aplicación. La misma dirección puede tener cuenta en otra, con otra clave, y
   esa no abre esta. Ver `loginFor` en `shared/people.ts`.
 -->
 <script lang="ts">
@@ -41,7 +41,7 @@
       <AppIcon app={bundle.app} size={38} class="login-member-appicon" />
       <div>
         <h1 class="login-member-title">{bundle.app.name}</h1>
-        <p class="login-member-hint">Identificate para continuar.</p>
+        <p class="login-member-hint">Identifícate para continuar.</p>
       </div>
     </div>
 
@@ -104,8 +104,8 @@
       }
     }
 
-    /* La caja es `.card` del catalogo; `card-solid` porque en oscuro la del
-       catalogo es translucida y esta se posa sola sobre el lienzo. Aqui solo
+    /* La caja es `.card` del catálogo; `card-solid` porque en oscuro la del
+       catálogo es translucida y esta se posa sola sobre el lienzo. Aqui solo
        el reparto de dentro: la card no trae acolchado propio, lo ponen su
        cabecera y su cuerpo, y este formulario no tiene ninguno de los dos. */
     & .login-member-form {

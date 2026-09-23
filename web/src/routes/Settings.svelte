@@ -38,8 +38,8 @@
       JSON.stringify(theme) !== JSON.stringify(appBrand(app.theme)),
   );
 
-  /* El enlace lo escribe el servidor a partir del nombre, y le anade un numero
-     si ya lo tiene otra aplicacion. Mientras el nombre no se guarda se ensena
+  /* El enlace lo escribe el servidor a partir del nombre, y le añade un número
+     si ya lo tiene otra aplicación. Mientras el nombre no se guarda se enseña
      el que va a salir; guardado, el que salio de verdad. */
   const link = $derived(name.trim() === app.name ? app.slug : slugify(name, "..."));
 
@@ -109,7 +109,7 @@
       <div class="settings-icon-name flex items-start gap-2">
         <IconPicker value={icon} onChange={(next) => (icon = next)} />
         <div class="settings-name-field flex-1">
-          <Field label="Nombre" hint="Se abrira en /p/{link}">
+          <Field label="Nombre" hint="Se abrirá en /p/{link}">
             <Input bind:value={name} />
           </Field>
         </div>
@@ -118,7 +118,7 @@
     {@render section(
       "app-settings-identity-section",
       "Identidad",
-      "El nombre con el que se publica; de el sale el enlace.",
+      "El nombre publicado también define el enlace.",
       "section-app-identity",
       identity,
     )}
@@ -187,11 +187,11 @@
     max-width: 48rem;
   }
 
-  /* La caja es `.card` del catalogo --`card-solid` porque en oscuro la
-     del catalogo es translucida y aqui va sobre el cuerpo de un modal--
-     con su cabecera, su titulo y su subtitulo. Aqui solo lo propio: la
-     separacion entre secciones y el titulo un escalon mas chico, que
-     dentro de un modal ya hay un titulo por encima. */
+  /* La caja es `.card` del catálogo --`card-solid` porque en oscuro la
+     del catálogo es translucida y aqui va sobre el cuerpo de un modal--
+     con su cabecera, su título y su subtitulo. Aqui solo lo propio: la
+     separacion entre secciones y el título un escalon mas chico, que
+     dentro de un modal ya hay un título por encima. */
   .settings-section {
     margin-top: var(--sp-16);
     box-shadow: var(--shadow-sm);

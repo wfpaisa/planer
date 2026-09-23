@@ -162,7 +162,7 @@ check(
 );
 
 // La base ya no le sirve datos a nadie que no sea el constructor, ni siquiera
-// en una app abierta: quien mira los pide por la pagina y el servidor decide.
+// en una app abierta: quien mira los pide por la página y el servidor decide.
 const anon = await fetch(`${BASE}/pb/api/collections/${table.dataCollection}/records`).then(
   (r) => r.json() as Promise<{ items?: unknown[] }>,
 );
@@ -193,7 +193,7 @@ check(
   primeras.versions.some((v) => v.live),
 );
 
-// Una pagina nueva sin publicar: el enlace publico no debe enterarse.
+// Una página nueva sin publicar: el enlace público no debe enterarse.
 const borrador = await call<{ id: string }>("/pb/api/collections/pages/records", {
   method: "POST",
   body: JSON.stringify({
@@ -215,7 +215,7 @@ await publish();
 check("al publicar si aparece", (await publicPages()).includes("sin-publicar"));
 check("y deja de haber cambios pendientes", !(await versionsOf()).hasChanges);
 
-// Volver atras: la pagina nueva se va del borrador, pero el enlace publico
+// Volver atras: la página nueva se va del borrador, pero el enlace público
 // sigue mostrando lo ultimo publicado hasta que se publique otra vez.
 const historial = await versionsOf();
 const anterior = historial.versions.find((v) => !v.live && v.kind === "publish");
@@ -258,7 +258,7 @@ await call(`/pb/api/collections/pages/records/${borrador.id}`, { method: "DELETE
 
 console.log("\n12. Una pagina es un documento HTML");
 
-/** El HTML de una pagina, tal como lo guardaria el editor de codigo. */
+/** El HTML de una página, tal como lo guardaria el editor de código. */
 const guardarHtml = (pageId: string, content: string, sources?: unknown) =>
   call<{ doc: string; sources: { tableId: string }[]; repuesto: string[]; aviso: string }>(
     `/api/apps/${app.id}/paginas/${pageId}/html`,
@@ -324,7 +324,7 @@ check("si se borra una referencia, vuelve a ponerse", sinReferencias.repuesto.in
 const paginaSinSesion = await fetch(`${BASE}/api/apps/${app.id}/paginas/${paginaDoc.id}/html`);
 check("sin sesion no se sirve la pagina", paginaSinSesion.status === 401);
 
-// Renombrar: la pagina declara la columna por su id, asi que no se entera.
+// Renombrar: la página declara la columna por su id, así que no se entera.
 const areaRenombrada = await call<{ fields: { id?: string; name: string; label: string }[] }>(
   `/api/tables/${table.id}`,
   {
@@ -350,7 +350,7 @@ check(
 );
 check("ni su documento", trasRenombrar.doc === sinReferencias.doc);
 
-// Borrar la columna: la pagina la sigue declarando, y el puente lo notara.
+// Borrar la columna: la página la sigue declarando, y el puente lo notara.
 await call(`/api/tables/${table.id}`, {
   method: "PATCH",
   body: JSON.stringify({ fields: areaRenombrada.fields.filter((f) => f.name !== "departamento") }),
@@ -393,7 +393,7 @@ const outside = await call<{ password?: string }>(`/api/apps/${other.id}/members
   body: JSON.stringify({ email: outsideEmail }),
 });
 
-// La cuenta es de una aplicacion, asi que lo que se identifica lleva delante
+// La cuenta es de una aplicación, así que lo que se identifica lleva delante
 // cual. Ver `loginFor` en `shared/people.ts`.
 const memberToken = async (appId: string, email: string, password?: string) => {
   const res = await fetch(`${BASE}/pb/api/collections/members/auth-with-password`, {
@@ -410,9 +410,9 @@ const outsideToken = await memberToken(other.id, outsideEmail, outside.password)
 check("la persona invitada puede identificarse", !!insideToken);
 
 /*
- * Los datos de una app se piden por su pagina, no a la base: el permiso lo
+ * Los datos de una app se piden por su página, no a la base: el permiso lo
  * aplica el servidor. La base quedo cerrada a todo el que no sea el
- * constructor, asi que preguntarle a ella directamente no devuelve nada.
+ * constructor, así que preguntarle a ella directamente no devuelve nada.
  */
 const paginaDatos = await call<{ id: string }>("/pb/api/collections/pages/records", {
   method: "POST",
@@ -440,7 +440,7 @@ await call(`/api/apps/${app.id}/paginas/${paginaDatos.id}/html`, {
   }),
 });
 
-/** Una orden de datos de una pagina, con la sesion de quien pregunta. */
+/** Una orden de datos de una página, con la sesión de quien pregunta. */
 const pedirDatos = async (
   pageId: string,
   fuente: string,
@@ -471,8 +471,8 @@ const pedirDatos = async (
 
 const readAs = (t?: string) => pedirDatos(paginaDatos.id, "equipo", t);
 
-// La aplicacion acaba de pasar a requerir iniciar sesion: esa frontera tapa a
-// todas sus paginas, incluida esta, que esta abierta a Todos.
+// La aplicación acaba de pasar a requerir iniciar sesión: esa frontera tapa a
+// todas sus páginas, incluida esta, que esta abierta a Todos.
 const anonRead = await readAs();
 check("sin cuenta no se ven los datos", anonRead.status === 401);
 
@@ -559,9 +559,9 @@ const bToken = await memberToken(app.id, conductorBEmail, conductorB.password);
 const jefeToken = await memberToken(app.id, jefeEmail, jefe.password);
 
 /*
- * Las filas ya no se reparten por quien pregunta: quien puede abrir la pagina
- * alcanza todas las de las tablas que esa pagina declara. Se comprueba por
- * donde se usa de verdad, la ruta de datos de una pagina.
+ * Las filas ya no se reparten por quien pregunta: quien puede abrir la página
+ * alcanza todas las de las tablas que esa página declara. Se comprueba por
+ * donde se usa de verdad, la ruta de datos de una página.
  */
 const declararExcesos = async () => {
   const vivas = await call<TableRecord>(`/pb/api/collections/tables/records/${excesos.id}`);
@@ -604,7 +604,7 @@ const verAnonimo = await verExcesos();
 check("sin cuenta no, porque la aplicacion exige entrar", verAnonimo.items.length === 0);
 
 /*
- * La otra frontera, la de escribir, solo se ve en una aplicacion publica: en
+ * La otra frontera, la de escribir, solo se ve en una aplicación publica: en
  * una que exige entrar, quien llega sin cuenta se queda antes, en la puerta. Se
  * abre un momento para probarla y se vuelve a cerrar.
  */
@@ -695,7 +695,7 @@ const darRoles = (accessId: string, roles: string[]) =>
 await darRoles(await accesoDe(conductorA.access.member), ["conductor"]);
 await darRoles(await accesoDe(jefe.access.member), ["conductor", "supervisor"]);
 
-/** Una pagina con su HTML dentro, limitada a los roles que se le pasen. */
+/** Una página con su HTML dentro, limitada a los roles que se le pasen. */
 const nuevaPagina = async (name: string, slug: string, roles: string[]) => {
   const creada = await call<{ id: string }>("/pb/api/collections/pages/records", {
     method: "POST",
@@ -726,14 +726,14 @@ const bundle = (t?: string) =>
     (r) => r.json() as Promise<{ pages: { id: string; slug: string }[] }>,
   );
 
-/** El HTML de una pagina publicada, con la sesion que se le pase. */
+/** El HTML de una página publicada, con la sesión que se le pase. */
 const paginaPublica = (pageId: string, t?: string) =>
   fetch(`${BASE}/api/public/${app.slug}/paginas/${pageId}/html`, {
     headers: t ? { authorization: t } : {},
   });
 
-// El enlace publico sirve lo publicado, asi que las paginas nuevas salen
-// despues de publicar.
+// El enlace público sirve lo publicado, así que las páginas nuevas salen
+// después de publicar.
 await publish();
 const comoConductor = await bundle(aToken);
 check(
@@ -815,7 +815,7 @@ function guardar(datos) { localStorage.setItem("inv", JSON.stringify(datos)); }
 </body></html>`;
 
 /*
- * Un HTML entra por la pagina que va a tenerlo --que es la unica puerta desde
+ * Un HTML entra por la página que va a tenerlo --que es la única puerta desde
  * que se retiro la varita-- y lo que devuelve es su huella. De ahi en adelante
  * el documento se pide por esa huella.
  */
@@ -843,12 +843,12 @@ const mismoDoc = await call<{ doc: string }>(
 check("el mismo contenido comparte huella", mismoDoc.doc === guardado.doc);
 
 /*
- * El HTML de una pagina tambien se pide por huella. Es lo que necesita la
- * vista previa de una version: la fotografia guarda la huella de entonces, y
- * pedir por la pagina traeria siempre el borrador.
+ * El HTML de una página también se pide por huella. Es lo que necesita la
+ * vista previa de una versión: la fotografia guarda la huella de entonces, y
+ * pedir por la página traeria siempre el borrador.
  */
-// Publicar primero: la version es la que sostiene el documento cuando la
-// pagina deja de nombrarlo.
+// Publicar primero: la versión es la que sostiene el documento cuando la
+// página deja de nombrarlo.
 await publish();
 await call(`/api/apps/${app.id}/paginas/${paginaFuente.id}/html`, {
   method: "PUT",
@@ -878,7 +878,7 @@ const huellaInventada = await fetch(
 );
 check("una huella que no existe no se sirve", huellaInventada.status === 404);
 
-// Se deja como estaba: lo que sigue cuenta con que la pagina nombra `guardado`.
+// Se deja como estaba: lo que sigue cuenta con que la página nombra `guardado`.
 await call(`/api/apps/${app.id}/paginas/${paginaFuente.id}/html`, {
   method: "PUT",
   body: JSON.stringify({ content: htmlFuente }),
@@ -896,7 +896,7 @@ const sinSesion = await fetch(`${BASE}/api/apps/${app.id}/html/${guardado.doc}`)
 check("sin sesion no se sirve el documento", sinSesion.status === 401);
 
 // La marca junta la huella del contenido y la del puente. Sin la segunda,
-// una correccion del puente no llegaria a ningun documento ya guardado.
+// una correccion del puente no llegaria a ningún documento ya guardado.
 const marca = servido2.headers.get("etag") ?? "";
 check("la marca incluye la huella del contenido", marca.includes(guardado.doc));
 check("y tambien la del puente", marca.replace(guardado.doc, "").length > 3);
@@ -911,9 +911,9 @@ const revalidado = await fetch(`${BASE}/api/apps/${app.id}/html/${guardado.doc}`
 check("si no cambio nada, no se vuelve a mandar el cuerpo", revalidado.status === 304);
 
 /*
- * Un archivo hecho para vivir suelto: comprueba su sesion y se va a su
+ * Un archivo hecho para vivir suelto: comprueba su sesión y se va a su
  * pantalla de acceso si no la encuentra. Dentro del marco el almacenamiento
- * arranca vacio, asi que se iria siempre.
+ * arranca vacío, así que se iria siempre.
  */
 const htmlConGuardia = `<!doctype html>
 <html><head></head><body>
@@ -927,8 +927,8 @@ if (!token) { location.href = RAIZ; }
 </body></html>`;
 
 /*
- * En otra pagina, no encima de la anterior: guardar sobre una pagina retira el
- * documento que dejaba de nombrar, y el de arriba todavia hace falta.
+ * En otra página, no encima de la anterior: guardar sobre una página retira el
+ * documento que dejaba de nombrar, y el de arriba todavía hace falta.
  */
 const paginaGuardia = await call<{ id: string }>("/pb/api/collections/pages/records", {
   method: "POST",
@@ -985,15 +985,15 @@ check(
   contratoVacio.text.includes("--surface-card"),
 );
 // El contrato va en ingles y la pantalla que sale de el, en espanol: si esa
-// regla se cae, las paginas empiezan a salir con los titulos en ingles.
+// regla se cae, las páginas empiezan a salir con los titulos en ingles.
 check(
   "y va en ingles pidiendo que lo escrito salga en espanol",
   contratoVacio.text.includes("Everything you produce is written in Spanish"),
 );
 
-// Las dos paginas de arriba ya cumplieron. Se borran --borrar una pagina no
+// Las dos páginas de arriba ya cumplieron. Se borran --borrar una página no
 // retira su documento-- para que lo que sigue mida lo que quiere medir: un
-// documento vive mientras alguien lo nombre, y a partir de aqui solo lo nombra
+// documento vive mientras alguien lo nombre, y a partir de aquí solo lo nombra
 // el tablero.
 for (const id of [paginaFuente.id, paginaGuardia.id]) {
   await call(`/pb/api/collections/pages/records/${id}`, { method: "DELETE" });
@@ -1008,8 +1008,8 @@ const paginaHtml = await call<{ id: string }>("/pb/api/collections/pages/records
     icon: "FileText",
     order: 9,
     isHome: false,
-    // La pagina guarda la huella, nunca el contenido: asi el historial no
-    // engorda y el paquete publico no arrastra el archivo entero.
+    // La página guarda la huella, nunca el contenido: así el historial no
+    // engorda y el paquete público no arrastra el archivo entero.
     doc: guardado.doc,
     sources: [
       {
@@ -1027,7 +1027,7 @@ const tablero = conTablero.pages.find((p) => p.slug === "tablero") as { doc?: st
 check("el paquete publico lleva la huella", tablero?.doc === guardado.doc);
 check("y no lleva el contenido", !JSON.stringify(conTablero).includes("<h1>Inventario</h1>"));
 
-// La app es privada a estas alturas: el HTML de la pagina sigue las mismas
+// La app es privada a estas alturas: el HTML de la página sigue las mismas
 // reglas que el paquete, ni mas abiertas ni mas cerradas.
 const tableroServido = await paginaPublica(paginaHtml.id, jefeToken);
 check("quien tiene acceso a la app recibe la pagina", tableroServido.status === 200);
@@ -1037,7 +1037,7 @@ check(
 );
 check("sin cuenta no se recibe la pagina", (await paginaPublica(paginaHtml.id)).status === 401);
 
-// Renombrar una columna: la pagina la declara por su id, asi que no se entera.
+// Renombrar una columna: la página la declara por su id, así que no se entera.
 const antesDeRenombrar = table.fields.find((f) => f.name === "nombre");
 await call(`/api/tables/${table.id}`, {
   method: "PATCH",
@@ -1057,7 +1057,7 @@ check(
   trasRenombrarHtml.sources?.[0].fields.nombre === antesDeRenombrar?.id,
 );
 
-// Lo que una pagina puede pedir se decide antes de tocar la base. Se prueba
+// Lo que una página puede pedir se decide antes de tocar la base. Se prueba
 // la misma pieza que usa el puente, no una copia.
 const tablaViva = await call<TableRecord>(`/pb/api/collections/tables/records/${table.id}`);
 const fuentes = [
@@ -1098,7 +1098,7 @@ check(
 );
 
 // Una tabla que declara una columna de persona no reparte nada: quien puede
-// abrir la pagina alcanza todas sus filas, y salen con el nombre que la pagina
+// abrir la página alcanza todas sus filas, y salen con el nombre que la página
 // declaro para cada columna.
 const partes = await call<{
   id: string;
@@ -1158,7 +1158,7 @@ await call(`/pb/api/collections/pages/records/${paginaHtml.id}`, {
 });
 await publish();
 
-// Mientras una version vieja lo nombre, el documento se conserva.
+// Mientras una versión vieja lo nombre, el documento se conserva.
 const conVersionesViejas = await fetch(`${BASE}/api/apps/${app.id}/html/${guardado.doc}`, {
   headers: { authorization: token },
 });
@@ -1180,12 +1180,12 @@ console.log("\n18b. Borrar una pagina se lleva sus conversaciones y su constanci
 
 /*
  * La limpieza no la hace ninguna ruta: la hacen las relaciones en cascada de
- * `ai_chats.page` y `ai_debug.page`. Por eso se borra la pagina por donde la
+ * `ai_chats.page` y `ai_debug.page`. Por eso se borra la página por donde la
  * borra el panel --directo contra la base-- y se mira si lo suyo se fue con
  * ella.
  *
- * Hace falta una peticion de verdad para que haya algo que borrar, asi que sin
- * servidor de IA conectado no hay nada que comprobar aqui.
+ * Hace falta una petición de verdad para que haya algo que borrar, así que sin
+ * servidor de IA conectado no hay nada que comprobar aquí.
  */
 if (!aiConfig.enabled) {
   console.log("  --   sin servidor de IA conectado: no hay conversaciones que crear");
@@ -1202,7 +1202,7 @@ if (!aiConfig.enabled) {
     }),
   });
 
-  // Se consume el hilo de avisos hasta el final: la conversacion se guarda al
+  // Se consume el hilo de avisos hasta el final: la conversación se guarda al
   // cerrar el turno, no al empezarlo.
   const hilo = await fetch(`${BASE}/api/apps/${app.id}/paginas/${efimera.id}/ia`, {
     method: "POST",

@@ -1,8 +1,8 @@
 /**
- * Documentos HTML de las paginas.
+ * Documentos HTML de las páginas.
  *
- * El contenido no vive dentro de la pagina: se guarda aqui una sola vez,
- * identificado por la huella de su texto. La pagina y cada fotografia del
+ * El contenido no vive dentro de la página: se guarda aquí una sola vez,
+ * identificado por la huella de su texto. La página y cada fotografia del
  * historial guardan esa huella, nunca el contenido.
  *
  * Como la huella depende solo del texto, dos documentos iguales comparten el
@@ -40,8 +40,8 @@ const tooBig = (bytes: number) =>
   );
 
 /**
- * Guarda un documento --el de una pagina o el de un bloque-- y devuelve su
- * huella. Si ese contenido ya estaba guardado para esta aplicacion, no lo
+ * Guarda un documento --el de una página o el de un bloque-- y devuelve su
+ * huella. Si ese contenido ya estaba guardado para esta aplicación, no lo
  * repite. Por encima del tope no se guarda nada.
  */
 export async function saveDoc(
@@ -84,11 +84,11 @@ export async function requireDoc(appId: string, hash: string): Promise<string> {
 /* ------------------------------------------------------------------ */
 
 /**
- * Las huellas que nombra una lista de paginas.
+ * Las huellas que nombra una lista de páginas.
  *
- * Tambien las de los bloques de HTML de las paginas de antes: esas paginas ya
+ * También las de los bloques de HTML de las páginas de antes: esas páginas ya
  * no se dibujan, pero su documento tiene que seguir ahi para poder
- * convertirlas y para que una version antigua se pueda mirar.
+ * convertirlas y para que una versión antigua se pueda mirar.
  */
 function hashesInPages(pages: { doc?: unknown; blocks?: unknown }[]): string[] {
   const out: string[] = [];
@@ -103,9 +103,9 @@ function hashesInPages(pages: { doc?: unknown; blocks?: unknown }[]): string[] {
 /**
  * Borra los documentos que ya no nombra nadie.
  *
- * Un documento se conserva mientras lo nombre el borrador o cualquier version
- * que siga en el historial. Se llama justo despues de recortar versiones, que
- * es el unico momento en que un documento puede quedarse sin duenos.
+ * Un documento se conserva mientras lo nombre el borrador o cualquier versión
+ * que siga en el historial. Se llama justo después de recortar versiones, que
+ * es el único momento en que un documento puede quedarse sin duenos.
  */
 export async function pruneDocs(appId: string, draftPages: PageRecord[]): Promise<number> {
   const alive = new Set(hashesInPages(draftPages));

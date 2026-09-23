@@ -1,8 +1,8 @@
 <!--
-  Una celda de relacion, en cualquiera de sus cuatro estados.
+  Una celda de relación, en cualquiera de sus cuatro estados.
 
   Con enlace y sin enlace se distinguen de un vistazo, por color y por icono.
-  Es lo unico que se mira al repasar una columna de cedulas recien importada, y
+  Es lo único que se mira al repasar una columna de cedulas recien importada, y
   tenerlo que averiguar valor a valor era el trabajo que sobraba.
 
   El tercer caso va en ambar y aparte: ahi no falta el enlace, hay uno guardado
@@ -47,9 +47,9 @@
   </span>
 {:else}
   <!--
-    El valor que se escribio, no el nombre de quien resulto ser: la cedula es lo
+    El valor que se escribio, no el nombre de quien resulto ser: la cédula es lo
     que trae el archivo y lo que se vuelve a escribir, y cambiarla por el nombre
-    escondia el unico dato con el que se puede corregir la celda. Quien es va
+    escondia el único dato con el que se puede corregir la celda. Quien es va
     detras, entre parentesis. Ver `detailFieldOf` en `shared/types.ts`.
 
     Una sola pintura para todo lo enlazado: a donde apunte la columna dejo de

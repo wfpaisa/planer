@@ -250,7 +250,7 @@
     gap: var(--sp-11);
     padding: 0.125rem 0.375rem;
 
-    /* El logotipo se lee solo, asi que no lleva nada al lado: donde habia
+    /* El logotipo se lee solo, asi que no lleva nada al lado: donde había
        pastilla mas nombre y bajada, va el dibujo y ya. Se mide por alto, y el
        `margin-right: auto` es quien empuja los botones al otro extremo --antes
        lo hacia el `flex: 1` del texto--. */
@@ -281,7 +281,7 @@
     padding: 0 var(--sp-4);
   }
 
-  /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+  /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
   .nav-label {
     padding: var(--sp-14) var(--sp-10) var(--sp-6);
   }
@@ -367,7 +367,7 @@
     padding-top: 0.8125rem;
     border-top: var(--border-width) solid var(--border);
 
-    /* El nombre y la cuenta son `.identity` del catalogo, y cerrar sesion es
+    /* El nombre y la cuenta son `.identity` del catálogo, y cerrar sesión es
        `.btn-icon.sm` con `.btn-danger-quiet` --avisa en rojo solo cuando el
        cursor ya esta encima--: aqui no queda nada propio que decir. */
   }

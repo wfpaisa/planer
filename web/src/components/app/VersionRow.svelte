@@ -1,12 +1,12 @@
 <!--
-  Una version en la lista de cambios.
+  Una versión en la lista de cambios.
 
   Dos senales que no compiten: el filo verde dice cual es la publicada --una
   propiedad de la fila, siempre ahi-- y el fondo con la pastilla dicen cual se
   esta mirando, que va y viene. Una fila puede ser las dos cosas.
 -->
 <script lang="ts" module>
-  /** Cuando se guardo, en corto: nadie necesita el ano de una version de ayer. */
+  /** Cuando se guardo, en corto: nadie necesita el ano de una versión de ayer. */
   const when = (value: string) =>
     new Date(value).toLocaleString("es", {
       day: "numeric",
@@ -79,7 +79,7 @@
 
     {#if watching}<WatchingBadge />{/if}
 
-    <!-- Guarda paginas de bloques: se puede mirar, no volver a ella. -->
+    <!-- Guarda páginas de bloques: se puede mirar, no volver a ella. -->
     {#if version.legacy}
       <Tag tone="tint-3" class="legacy-version-badge shrink-0">Solo lectura</Tag>
     {/if}
@@ -96,7 +96,7 @@
     <button
       type="button"
       onclick={onPreview}
-      data-tip={watching ? "Ya la estas mirando" : "Previsualizar"}
+      data-tip={watching ? "Ya estás viendo esta versión" : "Previsualizar"}
       aria-label="Previsualizar"
       aria-pressed={watching}
       class={cx(
@@ -108,7 +108,7 @@
     </button>
     <!--
       Apagado con `aria-disabled` y no con `disabled`: el globo explica por que
-      no se puede, y un boton deshabilitado de verdad no recibe al raton ni al
+      no se puede, y un botón deshabilitado de verdad no recibe al ratón ni al
       teclado, asi que la explicacion no llegaria nunca.
     -->
     <button
@@ -151,7 +151,7 @@
     {version.kind === "publish" ? "Publicada" : "Guardada"} el {when(version.created)} por
     {version.authorName}
     {#if confirming && !version.live}
-      <span class="confirm-version">Toca otra vez para borrarla.</span>
+      <span class="confirm-version">Pulsa de nuevo para borrarla.</span>
     {/if}
   </p>
 </div>
@@ -162,7 +162,7 @@
     border-left-width: 2px;
 
     /* Solo el filo izquierdo: `border-success` a secas tenia el color de la
-       linea que separa las filas. */
+       línea que separa las filas. */
     & .head-version {
       display: flex;
       align-items: center;

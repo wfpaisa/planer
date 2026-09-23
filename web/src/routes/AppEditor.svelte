@@ -1,7 +1,7 @@
 <!--
-  La seccion "Aplicacion" del constructor.
+  La sección "Aplicación" del constructor.
 
-  Ya no arma nada por su cuenta: elige que pagina esta abierta y deja que la
+  Ya no arma nada por su cuenta: elige que página esta abierta y deja que la
   escena la dibuje con su sidebar y su barra alrededor. Todo lo demas --crear,
   borrar, ajustar, pedirle algo a la IA-- vive en esa escena.
 -->
@@ -22,8 +22,8 @@
       builder.pages.find((p) => !p.separator),
   );
 
-  // La URL termina siempre nombrando la pagina abierta: se llego sin id, o con
-  // uno que ya no existe, y la direccion se corrige sin dejar rastro atras.
+  // La URL termina siempre nombrando la página abierta: se llego sin id, o con
+  // uno que ya no existe, y la dirección se corrige sin dejar rastro atras.
   $effect(() => {
     if (page && page.id !== pageId) {
       navigate(`/a/${builder.app.id}/app/${page.id}`, { replace: true });

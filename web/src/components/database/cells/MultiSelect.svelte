@@ -16,7 +16,7 @@
   {#each options as option (option)}
     {@const on = value.includes(option)}
     <!--
-      Cada opcion es una etiqueta del catalogo que se enciende, igual que los
+      Cada opción es una etiqueta del catálogo que se enciende, igual que los
       niveles de un modelo: marcada lleva su tinte, sin marcar se queda sin
       fondo para que solo se lean las puestas.
     -->
@@ -36,7 +36,7 @@
 </div>
 
 <style>
-  /* La caja es `.inset` del catalogo: dentro de una celda, las opciones van
+  /* La caja es `.inset` del catálogo: dentro de una celda, las opciones van
      en un solo contorno hundido, igual que en el selector de acceso. */
   .container-multiselect {
     gap: var(--sp-6);

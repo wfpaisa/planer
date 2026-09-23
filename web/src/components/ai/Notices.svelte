@@ -1,4 +1,4 @@
-<!-- Un solo boton: ya esta hecho, solo hay que enterarse. -->
+<!-- Un solo botón: ya esta hecho, solo hay que enterarse. -->
 <script lang="ts">
   let { notices }: { notices: string[] } = $props();
 
@@ -27,7 +27,7 @@
 {/if}
 
 <style>
-  /* La caja es `.alert.info` del catalogo --el mismo azul y el mismo borde
+  /* La caja es `.alert.info` del catálogo --el mismo azul y el mismo borde
      que el resto de avisos--; aqui solo el hueco que la separa del turno. */
   .notices-ai {
     margin-top: var(--sp-8);
@@ -39,7 +39,7 @@
     gap: 0.125rem;
   }
 
-  /* El boton hereda la tinta del aviso, que ya es la del acento. */
+  /* El botón hereda la tinta del aviso, que ya es la del acento. */
   .btn-dismiss-notices {
     margin-left: auto;
     color: inherit;

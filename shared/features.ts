@@ -1,15 +1,15 @@
 /**
  * Listado oficial de funcionalidades que aparecen en el README.
  *
- * Es la unica fuente de verdad: si se anade o se quita una funcionalidad
- * se refleja aca y se regenera la seccion del README con `bun run docs`.
+ * Es la única fuente de verdad: si se añade o se quita una funcionalidad
+ * se refleja aca y se regenera la sección del README con `bun run docs`.
  *
  * El orden de los grupos y de los puntos dentro de cada grupo es el orden
- * en que aparecen en el README. Mantenerlo asi ayuda a que diffs pequenos
+ * en que aparecen en el README. Mantenerlo así ayuda a que diffs pequenos
  * (anadir una funcionalidad) produzcan diffs pequenos en el archivo.
  */
 export interface FeatureGroup {
-  /** Titulo del grupo. Aparece como una subseccion dentro de "Funcionalidades". */
+  /** Título del grupo. Aparece como una subseccion dentro de "Funcionalidades". */
   titulo: string;
   /** Frase breve que explica para que sirve este grupo en lenguaje de a pie. */
   resumen: string;
@@ -91,7 +91,7 @@ export const FEATURES: FeatureGroup[] = [
 ];
 
 /**
- * Devuelve el markdown de la seccion "Funcionalidades" del README.
+ * Devuelve el markdown de la sección "Funcionalidades" del README.
  * Lo escribe `scripts/docs.ts` entre las marcas `<!-- generado:features -->`
  * y `<!-- fin:features -->`.
  */

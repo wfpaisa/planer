@@ -1,7 +1,7 @@
 <!--
-  Los cambios guardados del diseno de una aplicacion.
+  Los cambios guardados del diseño de una aplicación.
 
-  Publicar deja una version aqui; desde esta lista se puede mirar como quedaba,
+  Publicar deja una versión aqui; desde esta lista se puede mirar como quedaba,
   volver a ella o limpiarla.
 -->
 <script lang="ts">
@@ -25,7 +25,7 @@
   let error = $state("");
   let busy = $state("");
   let done = $state("");
-  /** Lo que hay que leer antes de volver a una version, si hay algo. */
+  /** Lo que hay que leer antes de volver a una versión, si hay algo. */
   let warning = $state<{ version: AppVersionSummary; text: string } | null>(null);
 
   /*
@@ -44,7 +44,7 @@
    * Y esta tarjeta se aparta mientras dure: se dibuja delante de la capa, asi
    * que quedarse tapaba justo lo que se acaba de pedir ver. No se cierra --la
    * lista sigue cargada-- y vuelve desde la cinta de la vista previa, que es lo
-   * que deja ir mirando una version detras de otra.
+   * que deja ir mirando una versión detras de otra.
    */
   function openPreview(source: string) {
     setPanelAside(true);
@@ -73,7 +73,7 @@
     });
 
   /**
-   * Volver a una version puede encontrarse con una estructura de tablas que ya
+   * Volver a una versión puede encontrarse con una estructura de tablas que ya
    * no es la de entonces. Restaurar no devuelve columnas, asi que el servidor
    * avisa antes y no hace nada hasta que se confirma.
    */
@@ -115,7 +115,7 @@
     });
 
   const versions = $derived(view.data?.versions ?? []);
-  /** La que ve la gente ahora mismo. Sin ella, esta app no se publico nunca. */
+  /** La que ve la gente ahora mismo. Sin ella, esta app no se publicó nunca. */
   const live = $derived(versions.find((v) => v.live));
   const hasChanges = $derived(view.data?.hasChanges);
 </script>
@@ -165,7 +165,7 @@
 
     <div class="history-versions inset plain">
       {#if !view.loading && versions.length === 0}
-        <p class="history-empty">Todavia no publicaste ninguna vez.</p>
+        <p class="history-empty">No hay publicaciones.</p>
       {/if}
       {#each versions as version (version.id)}
         <VersionRow
@@ -231,12 +231,12 @@
     }
 
     /* La caja es `.inset.plain` --el cerco sin fondo, que ya lo ponen las
-       filas de dentro--; aqui solo la linea que separa una version de la
+       filas de dentro--; aqui solo la línea que separa una versión de la
        siguiente. */
     & .history-versions {
       padding: 0;
 
-      /* Una fila y la siguiente se separan por una linea tenue del divide-y. */
+      /* Una fila y la siguiente se separan por una línea tenue del divide-y. */
       & :global(.row-version + .row-version) {
         border-top: var(--border-width) solid var(--border);
       }

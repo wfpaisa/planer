@@ -1,15 +1,15 @@
 /**
- * Historial del diseno de una aplicacion.
+ * Historial del diseño de una aplicación.
  *
- * Una version es una fotografia completa de la presentacion: colores,
- * paginas con su HTML y sus tablas declaradas, roles y como se ven las
+ * Una versión es una fotografia completa de la presentacion: colores,
+ * páginas con su HTML y sus tablas declaradas, roles y como se ven las
  * tablas. Nunca guarda columnas, tipos ni filas: la estructura real vive en
- * la base y se resuelve al servir. Asi restaurar una version no puede perder
+ * la base y se resuelve al servir. Así restaurar una versión no puede perder
  * datos.
  *
- * El HTML tampoco se copia: la version nombra el documento por la huella de
+ * El HTML tampoco se copia: la versión nombra el documento por la huella de
  * su contenido, la misma que guarda el borrador. Treinta versiones sin tocar
- * una pagina comparten un solo documento guardado.
+ * una página comparten un solo documento guardado.
  */
 import type {
   AppRecord,
@@ -26,7 +26,7 @@ import { INTERNAL } from "./config.ts";
 import { quote } from "./filter.ts";
 import { createRecord, deleteRecord, listRecords, updateRecord } from "./pb.ts";
 
-/** Cuantas versiones se conservan por aplicacion sin fijar. */
+/** Cuantas versiones se conservan por aplicación sin fijar. */
 const MAX_VERSIONS = 30;
 
 /* ------------------------------------------------------------------ */
@@ -52,11 +52,11 @@ export function buildSnapshot(
       isHome: page.isHome,
       separator: page.separator ?? false,
       // La huella, no el contenido: el documento se guarda una sola vez y
-      // sobrevive mientras alguna version o el borrador lo nombren.
+      // sobrevive mientras alguna versión o el borrador lo nombren.
       doc: page.doc ?? "",
       sources: Array.isArray(page.sources) ? page.sources : [],
-      // Quien abre la pagina viaja con la version: lo que se sirve al publico
-      // es lo que se publico, no lo que se esta editando.
+      // Quien abre la página viaja con la versión: lo que se sirve al público
+      // es lo que se publicó, no lo que se está editando.
       roles: Array.isArray(page.roles) ? page.roles : [],
     })),
     tables: tables.map((table): SnapshotTable => ({
@@ -64,11 +64,11 @@ export function buildSnapshot(
       label: table.label,
       order: table.order,
       meta: table.meta ?? {},
-      // Por id, no por nombre: asi una columna renombrada conserva su
+      // Por id, no por nombre: así una columna renombrada conserva su
       // etiqueta al restaurar.
       //
-      // Una columna de relacion tiene un solo id --el de la relacion-- y su
-      // valor sin dueno no aparece aqui. Es lo correcto: una fotografia
+      // Una columna de relación tiene un solo id --el de la relación-- y su
+      // valor sin dueno no aparece aquí. Es lo correcto: una fotografia
       // guarda presentacion, no estructura, y restaurar nunca toca columnas.
       // La pareja se repone entera porque nunca se deshizo.
       fieldLabels: Object.fromEntries(
@@ -99,21 +99,21 @@ export function hashSnapshot(snapshot: DesignSnapshot): string {
 /* ------------------------------------------------------------------ */
 
 /**
- * Una version guarda paginas de bloques si nacio antes de que una pagina
+ * Una versión guarda páginas de bloques si nacio antes de que una página
  * fuera un documento HTML. Se puede mirar, pero no restaurar: el borrador ya
- * no sabe dibujar eso, y volcarlo dejaria paginas en blanco.
+ * no sabe dibujar eso, y volcarlo dejaria páginas en blanco.
  *
- * Una version antigua cuyas paginas estaban todas vacias no se distingue de
- * una nueva, y tampoco hace falta: restaurarla no trae ningun bloque.
+ * Una versión antigua cuyas páginas estaban todas vacias no se distingue de
+ * una nueva, y tampoco hace falta: restaurarla no trae ningún bloque.
  */
 export function isLegacySnapshot(snapshot: DesignSnapshot): boolean {
   return (snapshot.pages ?? []).some((page) => (page.blocks?.length ?? 0) > 0);
 }
 
 /**
- * Lo que la version espera y ya no existe: tablas y columnas que su HTML
- * declara y que se borraron despues. Restaurar no las devuelve --una version
- * nunca crea ni revive columnas-- asi que hay que avisar antes, no despues.
+ * Lo que la versión espera y ya no existe: tablas y columnas que su HTML
+ * declara y que se borraron después. Restaurar no las devuelve --una versión
+ * nunca crea ni revive columnas-- así que hay que avisar antes, no después.
  */
 export function structureDrift(snapshot: DesignSnapshot, liveTables: TableRecord[]): string[] {
   const byId = new Map(liveTables.map((t) => [t.id, t]));
@@ -137,13 +137,13 @@ export function structureDrift(snapshot: DesignSnapshot, liveTables: TableRecord
 }
 
 /* ------------------------------------------------------------------ */
-/* Servir una version                                                   */
+/* Servir una versión                                                   */
 /* ------------------------------------------------------------------ */
 
 /**
  * Combina la fotografia con las tablas que existen ahora mismo.
- * Las tablas nacidas despues de la version entran tal cual: no estaban en esta
- * version, pero incluirlas es mas barato que arriesgarse a que una pagina no
+ * Las tablas nacidas después de la versión entran tal cual: no estaban en esta
+ * versión, pero incluirlas es mas barato que arriesgarse a que una página no
  * encuentre la suya.
  */
 export function designFromSnapshot(
@@ -202,7 +202,7 @@ export async function getVersion(appId: string, versionId: string): Promise<AppV
 }
 
 /**
- * Guarda una version nueva. Si el contenido es identico al de la ultima
+ * Guarda una versión nueva. Si el contenido es identico al de la ultima
  * publicacion en vivo, devuelve esa misma en vez de repetirla.
  */
 export async function saveVersion(opts: {
@@ -212,7 +212,7 @@ export async function saveVersion(opts: {
   kind: VersionKind;
   label?: string;
   authorId: string;
-  /** Version en vivo, para no repetirla al publicar sin cambios. */
+  /** Versión en vivo, para no repetirla al publicar sin cambios. */
   liveHash?: string;
 }): Promise<{ version: AppVersion; created: boolean }> {
   const snapshot = buildSnapshot(opts.app, opts.pages, opts.tables);
@@ -256,7 +256,7 @@ export async function pruneVersions(appId: string, keepId: string) {
 /**
  * Copia una fotografia al borrador.
  *
- * Reproduce las paginas tal cual estaban: las que faltan se vuelven a crear
+ * Reproduce las páginas tal cual estaban: las que faltan se vuelven a crear
  * con su mismo id, y las que sobran se borran. De las tablas solo se toca la
  * presentacion; ni las columnas ni los datos se rozan.
  */
@@ -276,9 +276,9 @@ export async function restoreSnapshot(
   const byId = new Map(livePages.map((p) => [p.id, p]));
 
   for (const page of snapshot.pages) {
-    // `blocks` no se toca: es de las paginas de antes y solo se lee, para
-    // poder convertirlas. Escribirlo aqui se llevaria por delante lo unico
-    // que permite recuperar una pagina que nunca se convirtio.
+    // `blocks` no se toca: es de las páginas de antes y solo se lee, para
+    // poder convertirlas. Escribirlo aquí se llevaria por delante lo único
+    // que permite recuperar una página que nunca se convirtio.
     const payload = {
       app: app.id,
       name: page.name,
@@ -295,7 +295,7 @@ export async function restoreSnapshot(
       await updateRecord(INTERNAL.pages, page.id, payload);
       byId.delete(page.id);
     } else {
-      // El id de PocketBase se puede reusar al crear, asi que una pagina
+      // El id de PocketBase se puede reusar al crear, así que una página
       // borrada vuelve con el mismo id y los enlaces siguen valiendo.
       await createRecord(INTERNAL.pages, { id: page.id, ...payload });
     }

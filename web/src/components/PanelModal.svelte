@@ -1,14 +1,14 @@
 <!--
   La tarjeta de un panel, centrada encima de todo.
 
-  Publicar, compartir, los ajustes de la aplicacion y los de cada pagina se
+  Publicar, compartir, los ajustes de la aplicación y los de cada página se
   piden desde el encabezado y desde el sidebar, no desde una barra. Pero su
   aspecto es el mismo de siempre: la misma tarjeta, centrada y con el documento
   oscurecido atras.
 
   Se cierra con la equis del panel, con la tecla de escape o con un clic en el
   fondo. El alto que se pide es un tope: nunca pasa de lo que cabe en la
-  ventana. Dentro se dibuja un `OmniPanel`: titulo, cuerpo y pie.
+  ventana. Dentro se dibuja un `OmniPanel`: título, cuerpo y pie.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -30,7 +30,7 @@
     onClose: () => void;
     width?: string;
     height?: string;
-    /** En vez de un tamano propio, ocupa toda la ventana con un margen de 1rem. */
+    /** En vez de un tamaño propio, ocupa toda la ventana con un margen de 1rem. */
     fullscreen?: boolean;
     /**
      * Apartada: sigue montada --con lo que tenga cargado y donde estuviera--

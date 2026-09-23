@@ -1,5 +1,5 @@
 <!--
-  El boton de la casa.
+  El botón de la casa.
 
   Por dentro es el del sistema (`components.css`), y el color es de la casa,
   no de cada pantalla:
@@ -15,8 +15,8 @@
   El resto son estados, no jerarquia, y los tres vienen del sistema
   (`components.css`): `ghost` (sin fondo ni borde), `danger` (borra, expulsa o
   no se puede deshacer) y `warning` (algo esta a medias, y eso no es un error).
-  `loading` es el de carga del sistema: bloquea el boton, lo marca con
-  `aria-busy` y pone el icono que gira en lugar del que traiga el boton.
+  `loading` es el de carga del sistema: bloquea el botón, lo marca con
+  `aria-busy` y pone el icono que gira en lugar del que traiga el botón.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -40,7 +40,7 @@
     // Sin uso hoy; si alguien lo pide, que salga neutro y no disfrazado de
     // acento ni de peligro.
     success: "",
-    // El lavado tenue de antes: aqui lo cubre el boton normal.
+    // El lavado tenue de antes: aqui lo cubre el botón normal.
     soft: "",
   };
 
@@ -67,12 +67,12 @@
     class?: string;
     variant?: Variant;
     size?: Size;
-    /** El globo de ayuda. Lo dibuja `TooltipLayer`, no el boton. */
+    /** El globo de ayuda. Lo dibuja `TooltipLayer`, no el botón. */
     tip?: string;
-    /** De que lado del boton sale el globo. Por defecto, arriba. */
+    /** De que lado del botón sale el globo. Por defecto, arriba. */
     tipSide?: "top" | "bottom" | "left" | "right";
     loading?: boolean;
-    /** Clase semantica que identifica al boton en la UI. Va al inicio de class. */
+    /** Clase semantica que identifica al botón en la UI. Va al inicio de class. */
     buttonClass?: string;
     children?: Snippet;
   } = $props();

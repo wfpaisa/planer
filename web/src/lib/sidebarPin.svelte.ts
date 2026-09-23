@@ -1,10 +1,10 @@
 /**
- * Si el sidebar de una aplicacion se queda fijado o flotando.
+ * Si el sidebar de una aplicación se queda fijado o flotando.
  *
- * Es una preferencia de quien mira, no del que hizo la aplicacion, y se
- * recuerda por aplicacion: cada una tiene su forma de trabajarse. Vive aparte
- * del componente porque lo deciden sus dos padres --la escena de la pagina y la
- * aplicacion publicada-- y el sidebar solo recibe el resultado.
+ * Es una preferencia de quien mira, no del que hizo la aplicación, y se
+ * recuerda por aplicación: cada una tiene su forma de trabajarse. Vive aparte
+ * del componente porque lo deciden sus dos padres --la escena de la página y la
+ * aplicación publicada-- y el sidebar solo recibe el resultado.
  */
 
 const pinKey = (appId: string) => `plane_sidebar_pin_${appId}`;
@@ -15,13 +15,13 @@ export interface SidebarPin {
 }
 
 /**
- * Empieza fijado salvo que se haya soltado a proposito: al abrir, la lista de
- * paginas se ve, y quien quiera el documento entero la suelta.
+ * Empieza fijado salvo que se haya soltado a propósito: al abrir, la lista de
+ * páginas se ve, y quien quiera el documento entero la suelta.
  */
 export function sidebarPin(appId: () => string): SidebarPin {
   let pinned = $state(remembered(appId()));
 
-  // Cambiar de aplicacion trae la preferencia de la nueva, no la de la vieja.
+  // Cambiar de aplicación trae la preferencia de la nueva, no la de la vieja.
   let last = appId();
   $effect(() => {
     const id = appId();

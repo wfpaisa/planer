@@ -1,7 +1,7 @@
 <!--
   Importar datos a la tabla abierta.
 
-  Primero se pega o se arrastra un archivo CSV, Excel o JSON; despues, en una
+  Primero se pega o se arrastra un archivo CSV, Excel o JSON; después, en una
   previsualizacion a pantalla completa, se emparejan las columnas, se ven los
   errores y se elige como guardar. Un archivo que se lee bien pasa solo a la
   previsualizacion: la primera pantalla se queda unicamente para lo que hay que
@@ -68,18 +68,18 @@
     onDone,
   }: {
     table: TableRecord;
-    /** Todas las tablas de la aplicacion: hacen falta para emparejar relaciones. */
+    /** Todas las tablas de la aplicación: hacen falta para emparejar relaciones. */
     tables: TableRecord[];
     /**
      * Un archivo que llega ya soltado, cuando la importacion no empieza aqui.
      *
      * Es el caso de un archivo de personas soltado en el constructor: alli no
-     * se puede importar --crear las cuentas es cosa de este dialogo-- asi que
+     * se puede importar --crear las cuentas es cosa de este diálogo-- asi que
      * el archivo viaja y esto se abre con el ya leido, en la previsualizacion.
      */
     initialFile?: File | null;
     onClose: () => void;
-    /** Recarga la tabla. El resumen llega cuando el dialogo se va a cerrar. */
+    /** Recarga la tabla. El resumen llega cuando el diálogo se va a cerrar. */
     onDone: (note?: ImportNote) => Promise<void> | void;
   } = $props();
 
@@ -97,13 +97,13 @@
   let busy = $state(false);
 
   /**
-   * Por que llave se empareja cada columna de relacion en esta importacion.
+   * Por que llave se empareja cada columna de relación en esta importacion.
    *
    * Es del archivo, no de la columna: el de transito trae cedulas y el de
-   * nomina, correos. Cambiarla aqui no toca lo que ensena la grilla.
+   * nómina, correos. Cambiarla aqui no toca lo que enseña la grilla.
    */
   let keys = $state<Record<string, string>>({});
-  /** Como le fue a cada columna de relacion, para contarlo antes de guardar. */
+  /** Como le fue a cada columna de relación, para contarlo antes de guardar. */
   let reports = $state<ColumnMatchReport[]>([]);
   let matches = $state<Map<string, Map<string, Match>>>(new Map());
   let matching = $state(false);
@@ -113,7 +113,7 @@
   /**
    * La tabla de personas se importa por su propia ruta.
    *
-   * Una fila suya no se puede crear escribiendo en la coleccion: necesita una
+   * Una fila suya no se puede crear escribiendo en la colección: necesita una
    * cuenta detras, que el navegador no puede consultar. Ver
    * `server/peopleImport.ts`.
    */
@@ -124,10 +124,10 @@
    * Se llama por lo que hace --es lo que el servidor entiende-- pero en el pie
    * se lee al reves: la casilla es "Solo modificar", y marcarla es apagar esto.
    * Lo que se lee es lo que va a pasar --"Modificar y crear" sin marcar, "Solo
-   * modificar" marcada-- en vez del nombre de una opcion que hay que traducir.
+   * modificar" marcada-- en vez del nombre de una opción que hay que traducir.
    *
    * Empieza marcada: importar gente a la tabla de personas es, casi siempre,
-   * darle acceso a quien todavia no lo tiene, y con la casilla apagada la
+   * darle acceso a quien todavía no lo tiene, y con la casilla apagada la
    * importacion se quedaba en nada sin que nadie entendiera por que. Lo que va
    * a pasar --cuantas cuentas se crean y con que correos-- se cuenta encima de
    * la tabla antes de guardar, y la casilla esta ahi mismo para apagarla.
@@ -140,11 +140,11 @@
   /**
    * El parte de una importacion que ya escribio.
    *
-   * Con esto puesto el dialogo deja de ser un formulario: no hay nada mas que
+   * Con esto puesto el diálogo deja de ser un formulario: no hay nada mas que
    * elegir --lo que entro, entro-- asi que se apagan los mandos, el pie se
    * queda solo con Cerrar y la tabla pasa a ensenar unicamente las filas que se
-   * quedaron fuera, que son las que todavia hay que hacer algo con ellas. Si no
-   * se quedo ninguna, la tabla queda vacia.
+   * quedaron fuera, que son las que todavía hay que hacer algo con ellas. Si no
+   * se quedo ninguna, la tabla queda vacía.
    */
   let result = $state<{ ok: boolean; text: string; leftover: number[] } | null>(null);
 
@@ -186,7 +186,7 @@
    *
    * No es un error de conversion --el dato se entiende perfectamente-- sino una
    * condicion que puso quien importa, asi que va por su lado: se pinta en rojo
-   * en la grilla y detiene el boton hasta que se corrija el archivo o se quite
+   * en la grilla y detiene el botón hasta que se corrija el archivo o se quite
    * la regla. La casilla de seguir con las demas filas no lo salta: seguir seria
    * escribir justo lo que se pidio no escribir.
    */
@@ -202,7 +202,7 @@
    * el lote entero. Se mira aqui para decirlo antes de escribir nada.
    *
    * La tabla de personas se queda fuera: sus filas no se escriben en la
-   * coleccion sino por su propia ruta, que decide aparte que hacer con cada una.
+   * colección sino por su propia ruta, que decide aparte que hacer con cada una.
    */
   const requiredGaps = $derived(
     wizard.parsedTable && !isPeople
@@ -223,7 +223,7 @@
   const requiredMissing = $derived(createsRows ? requiredGaps.unmapped : []);
   /** Celdas vacias en una columna que la tabla exige. Detienen el guardado. */
   const requiredBlank = $derived(requiredGaps.blank);
-  /** Si la tabla exige algo que no esta: el boton se queda apagado. */
+  /** Si la tabla exige algo que no esta: el botón se queda apagado. */
   const requiredUnmet = $derived(requiredMissing.length > 0 || requiredBlank.length > 0);
   /** Cuantas filas y en que columnas, para contarlo en el aviso sin repetir. */
   const requiredBlankRows = $derived(new Set(requiredBlank.map((i) => i.row)));
@@ -288,7 +288,7 @@
    * Cuantas cuentas se van a crear, dicho antes de guardar nada.
    *
    * Se pregunta al servidor porque solo el ve la lista de cuentas de esta
-   * aplicacion. Con `soloContar` no escribe nada.
+   * aplicación. Con `soloContar` no escribe nada.
    */
   $effect(() => {
     const rows = peopleRows;
@@ -310,7 +310,7 @@
     };
   });
 
-  /** Las columnas del archivo que van a parar a una relacion, con su destino. */
+  /** Las columnas del archivo que van a parar a una relación, con su destino. */
   const relationPlans = $derived(
     wizard.visiblePlans.filter(
       (p) =>
@@ -325,7 +325,7 @@
    *
    * Se hace antes de guardar nada para poder decir cuantos valores encontraron
    * registro y cuantos no: quien importa tiene derecho a saberlo antes, no a
-   * descubrirlo despues en la grilla.
+   * descubrirlo después en la grilla.
    */
   $effect(() => {
     const source = wizard.parsedTable;
@@ -418,12 +418,12 @@
    * Los correos del archivo que ya tienen cuenta aqui.
    *
    * Los dice el servidor, en el mismo recuento que se lee encima de la tabla:
-   * es el unico que ve las cuentas de esta aplicacion. Mirarlo contra la lista
+   * es el único que ve las cuentas de esta aplicación. Mirarlo contra la lista
    * de invitados que el panel tiene cargada era barato, pero podia no ser la
    * misma --llega recortada, y se queda vieja en cuanto alguien entra o sale--
    * y entonces el color de las filas contaba una historia y el recuento de
    * encima, otra. Mientras el recuento no llega no hay ninguna tenida, que es
-   * lo correcto: todavia no se sabe.
+   * lo correcto: todavía no se sabe.
    */
   const knownEmails = $derived(
     new Set(
@@ -466,7 +466,7 @@
   /**
    * Importar: la cadena de pasos que escribe lo que se vio en la
    * previsualizacion. Cada paso vive en `lib/importSave.ts`; aqui esta el orden
-   * y lo que el dialogo ensena entre uno y otro.
+   * y lo que el diálogo enseña entre uno y otro.
    */
   async function save() {
     busy = true;
@@ -481,10 +481,10 @@
       if (toCreate.length > 0) {
         fields = await createColumns(table, toCreate, wizard.rules);
         /*
-         * Las columnas ya existen: se olvida el "crear" que se habia elegido a
+         * Las columnas ya existen: se olvida el "crear" que se había elegido a
          * mano para que no se vuelvan a crear.
          *
-         * Guardar no siempre cierra el dialogo --una importacion de personas
+         * Guardar no siempre cierra el diálogo --una importacion de personas
          * con filas fuera se queda abierta para decir cuales-- y volver a darle
          * repetia la creacion. De ahi salen las columnas con `_2` y `_3` en el
          * nombre. Sin la eleccion a mano encima, la sugerencia ya empareja con
@@ -501,7 +501,7 @@
 
       /*
        * Lo que se va a guardar, cada fila con el sitio que ocupa en el archivo.
-       * El sitio hace falta despues: es lo que permite decir cuales no entraron
+       * El sitio hace falta después: es lo que permite decir cuales no entraron
        * y volver a sacarlas del archivo tal como venian.
        */
       const validPairs = resolved.converted
@@ -528,12 +528,12 @@
          * Se reparte otra vez aqui, y no se manda lo que se conto antes.
          *
          * `peopleRows` sale de la conversion de la previsualizacion, donde una
-         * columna que todavia no existe es un borrador sin nombre: sus valores
-         * se amontonaban bajo la clave vacia y `buildPeopleRows` los buscaba en
+         * columna que todavía no existe es un borrador sin nombre: sus valores
+         * se amontonaban bajo la clave vacía y `buildPeopleRows` los buscaba en
          * unas columnas que aun no estaban. La gente entraba con su correo y su
          * nivel, y las columnas recien creadas se quedaban vacias.
          *
-         * `valid` y `fields` son de despues de crearlas, asi que aqui cada
+         * `valid` y `fields` son de después de crearlas, asi que aqui cada
          * valor ya sabe en que columna va.
          */
         const rows = buildPeopleRows(
@@ -550,15 +550,15 @@
         const todoEntro = report.fuera === 0 && report.sinCorreo === 0;
 
         /*
-         * Terminar de importar cierra el dialogo. La excepcion son las claves
-         * recien creadas: se ven una vez y no se vuelven a sacar de ningun
+         * Terminar de importar cierra el diálogo. La excepcion son las claves
+         * recien creadas: se ven una vez y no se vuelven a sacar de ningún
          * sitio, asi que cerrar encima de ellas seria perderlas. Ahi se queda
          * abierto hasta que quien importa las descargue o las copie.
          */
         /*
-         * Terminar de importar ya no cierra el dialogo: lo convierte en el
+         * Terminar de importar ya no cierra el diálogo: lo convierte en el
          * parte. El aviso de fuera se manda igual --lo cuenta quien abrio el
-         * dialogo, y sobrevive a cerrarlo-- pero lo que hay que mirar, que son
+         * diálogo, y sobrevive a cerrarlo-- pero lo que hay que mirar, que son
          * las filas que no entraron, se queda aqui.
          */
         result = { ok: todoEntro && leftover.length === 0, text: resumen, leftover };
@@ -608,10 +608,10 @@
   const total = $derived(wizard.conversion.converted.length);
   const statuses = $derived(wizard.conversion.converted.map(statusOf));
   /**
-   * Si la grilla ensena que le pasa a cada fila.
+   * Si la grilla enseña que le pasa a cada fila.
    *
    * Solo cuando alguna puede pisar una que ya existe --sobrescribiendo--, que
-   * es lo unico que no se deshace solo borrando lo importado: en "Añadir" todas
+   * es lo único que no se deshace solo borrando lo importado: en "Añadir" todas
    * son nuevas y la columna diria lo mismo veinte veces.
    */
   const showStatus = $derived(wizard.mode === "overwrite");
@@ -622,10 +622,10 @@
     !wizard.plans.some((p) => p.target.kind === "field" || p.target.kind === "create"),
   );
   /**
-   * Que filas del archivo ensena la tabla, por su sitio en el.
+   * Que filas del archivo enseña la tabla, por su sitio en el.
    *
    * Antes de guardar, todas --salvo que no haya ni una columna encendida, que
-   * entonces no hay nada que ensenar--. Despues, solo las que no entraron: lo
+   * entonces no hay nada que ensenar--. Después, solo las que no entraron: lo
    * que ya esta en la tabla se mira en la tabla.
    *
    * La excepcion es la tabla de personas con "Solo modificar" marcado:
@@ -643,7 +643,7 @@
     return hidesMissing ? all.filter((i) => statuses[i] === "update") : all;
   });
   /**
-   * Cuantas filas se van a guardar, que es lo que la tabla ensena.
+   * Cuantas filas se van a guardar, que es lo que la tabla enseña.
    *
    * No es `total`: con las filas sin cuenta escondidas, decir "5 filas para
    * guardar" encima de una tabla con dos era contarlas mal.
@@ -656,7 +656,7 @@
    *
    * En la tabla de usuarios es la condicion para que la importacion haga algo:
    * sin correo no hay a quien reconocer ni a quien crear, y las filas se
-   * cuentan todas como "sin un correo utilizable". Se dice aqui y no despues de
+   * cuentan todas como "sin un correo utilizable". Se dice aqui y no después de
    * guardar.
    */
   const hasAccount = $derived(
@@ -670,7 +670,7 @@
 {:else if !wizard.parsedTable}
   <!--
     Cambiar el separador vuelve a leer el archivo, y podria dejarlo ilegible.
-    Antes que hacer desaparecer el dialogo con el emparejamiento dentro, se dice
+    Antes que hacer desaparecer el diálogo con el emparejamiento dentro, se dice
     que paso y se vuelve al texto, que es donde se arregla.
   -->
   <Modal
@@ -734,8 +734,7 @@
           <i class="hgi-stroke hgi-view-off-slash" aria-hidden="true"></i>
           <span>
             <strong>Ninguna columna se va a importar</strong>
-            Están todas apagadas, así que no hay nada que guardar. Enciende con el ojo las que quieras
-            traer, o pulsa "Restaurar sugerencias".
+            No hay columnas seleccionadas. Activa las que quieras importar o restaura las sugerencias.
           </span>
         </div>
       {:else if !hasAccount}
@@ -793,7 +792,7 @@
       <!--
         Lo que incumple lo exigido a alguna columna. Va aparte de la cadena de
         arriba y no como un caso mas: puede pasar a la vez que cualquiera de
-        ellas, y es lo unico que deja el boton apagado sin que haya un solo
+        ellas, y es lo único que deja el botón apagado sin que haya un solo
         error de conversion a la vista.
       -->
       {#if !result && ruleIssues.length > 0}
@@ -935,7 +934,7 @@
                 <!--
                   Lo que va a pasar, en numeros y sin rodeos: cuantas filas
                   nacen y cuantas se actualizan. Antes empezaba por "0 personas
-                  del archivo ya tienen cuenta en esta aplicacion", que es la
+                  del archivo ya tienen cuenta en esta aplicación", que es la
                   mitad de una frase y ni siquiera la mitad que importa.
 
                   Cada cosa es su propia frase y trae su punto DENTRO del texto:
@@ -973,8 +972,8 @@
                     : "filas no traen un correo utilizable."}
                 {/if}
                 <!--
-                  Los roles del archivo que la aplicacion no tiene se crean al
-                  importar: se dice antes, porque quedan en la aplicacion aunque
+                  Los roles del archivo que la aplicación no tiene se crean al
+                  importar: se dice antes, porque quedan en la aplicación aunque
                   luego se borre la fila que los trajo.
                 -->
                 {#if peopleReport.rolesNuevos.length > 0}
@@ -1043,8 +1042,7 @@
             </p>
             {#if !continueOnError}
               <p class="import-errors-hint">
-                El botón Importar queda deshabilitado hasta corregir los errores o marcar, en el
-                pie, la casilla de seguir con las demás filas.
+                Corrige los errores o activa la opción para importar las demás filas.
               </p>
             {/if}
             <button
@@ -1115,14 +1113,14 @@
         <!--
           Las tres casillas viven en el pie y no encima de la tabla: no son del
           archivo ni de sus columnas --eso se decide en la grilla-- sino de como
-          se escribe, que es lo que hace el boton que tienen al lado.
+          se escribe, que es lo que hace el botón que tienen al lado.
         -->
         <div class="import-footer-checks">
           <!--
             La casilla de personas se marca para NO crear, y por eso lo que se
             lee cambia con ella: la etiqueta dice lo que la importacion va a
             hacer --"Solo modificar" marcada, "Modificar y crear" sin marcar--
-            y no el nombre de una opcion que hay que traducir a lo que pasa.
+            y no el nombre de una opción que hay que traducir a lo que pasa.
           -->
           {#if isPeople}
             <label class="import-checkbox choice">
@@ -1260,7 +1258,7 @@
   /* -------------------------------------------------- */
 
   .import-preview-body {
-    /* Crece con el modal: la tabla se queda con todo el alto que sobre despues
+    /* Crece con el modal: la tabla se queda con todo el alto que sobre después
        de los avisos y la barra de opciones, y se desplaza por dentro. */
     min-height: 0;
     flex: 1 1 auto;
@@ -1274,7 +1272,7 @@
     }
 
     /* ---- la barra de opciones, encima de la tabla ----
-       La caja es `.inset` del catalogo: se hunde dentro del modal en vez de
+       La caja es `.inset` del catálogo: se hunde dentro del modal en vez de
        levantarse sobre el. Aqui solo el reparto de sus grupos. */
     & .bar-import-options {
       display: flex;
@@ -1328,7 +1326,7 @@
     }
 
     /* ---- lo que se cuenta de la tabla de personas ----
-       Es un `.alert.info` del catalogo y nada mas: el fondo y el borde los
+       Es un `.alert.info` del catálogo y nada mas: el fondo y el borde los
        ponia otra vez esta hoja, con el gris de una card, y el aviso se
        quedaba sin su tono. */
     & .block-people-import {
@@ -1342,14 +1340,14 @@
     }
 
     /* Los numeros del recuento: resaltados, pero en su renglon. El `strong` de
-       `.alert` es el titulo del aviso y se dibuja en bloque. */
+       `.alert` es el título del aviso y se dibuja en bloque. */
     & .import-people-strong {
       font-weight: 700;
       color: var(--text-primary);
     }
 
     /* El nombre de la columna que falta, dentro del aviso: lo mismo, y por lo
-       mismo --el `strong` de `.alert` es el titulo y se dibuja en bloque--. */
+       mismo --el `strong` de `.alert` es el título y se dibuja en bloque--. */
     & .import-required-strong {
       font-weight: 700;
       color: var(--text-primary);
@@ -1459,7 +1457,7 @@
         padding: var(--sp-10) var(--sp-12);
       }
 
-      /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+      /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
       & .import-errors-list-title {
         margin-bottom: var(--sp-6);
       }

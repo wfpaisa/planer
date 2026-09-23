@@ -1,14 +1,14 @@
 /**
- * Recorta la fuente de iconos a los nombres que dibuja una pagina.
+ * Recorta la fuente de iconos a los nombres que dibuja una página.
  *
  *   bun run iconos:subconjunto
  *
  * Escribe un solo archivo, `web/public/iconos/comunes.css`: las reglas de
  * `SUBSET_ICONS` y, pegada dentro como `data:`, la fuente recortada a esos
  * mismos glifos. Un archivo y no dos porque quien lo usa no puede pedir el
- * segundo: el marco de una pagina es un `srcdoc` sin origen, y desde ahi no
+ * segundo: el marco de una página es un `srcdoc` sin origen, y desde ahi no
  * se alcanza el servidor (ver `SUBSET_FONT_URL` en `shared/icons.ts`). El
- * panel lo trae una vez por sesion y lo mete en cada marco.
+ * panel lo trae una vez por sesión y lo mete en cada marco.
  *
  * Hace falta `fonttools` y las herramientas de `woff2`, que no son del
  * proyecto: por eso esto se corre a mano --cuando cambie la lista o la
@@ -52,9 +52,9 @@ await needs("woff2_decompress");
 await needs("woff2_compress");
 
 /*
- * El codigo de cada icono sale de la hoja completa, que es donde esta escrito
+ * El código de cada icono sale de la hoja completa, que es donde esta escrito
  * (`.hgi-nombre::before { content: "\ea01" }`). No hay otra lista: inventarse
- * una aqui seria una segunda copia que se separaria de la fuente.
+ * una aquí seria una segunda copia que se separaria de la fuente.
  */
 const css = await Bun.file(HOJA).text();
 const punto = new Map<string, string>();
@@ -93,9 +93,9 @@ try {
 
   /*
    * `.hgi-stroke` se repite tal cual de la hoja completa: es la clase que
-   * pone la familia, y una pagina la lleva escrita en cada icono. El
-   * `font-family` tiene el mismo nombre a proposito --si la hoja completa
-   * tambien esta puesta, las dos declaran la misma familia y la que gane
+   * pone la familia, y una página la lleva escrita en cada icono. El
+   * `font-family` tiene el mismo nombre a propósito --si la hoja completa
+   * también esta puesta, las dos declaran la misma familia y la que gane
    * dibuja lo mismo--.
    */
   const reglas = nombres.map((n) => `.hgi-${n}::before{content:"\\${punto.get(n)}"}`).join("\n");
@@ -109,7 +109,7 @@ try {
  * es \`SUBSET_ICONS\` en \`shared/icons.ts\`.
  *
  * La fuente va pegada como \`data:\` porque quien usa esta hoja no puede
- * pedir un segundo archivo: el marco de una pagina es un \`srcdoc\` sin
+ * pedir un segundo archivo: el marco de una página es un \`srcdoc\` sin
  * origen propio. Ver \`SUBSET_FONT_URL\`.
  */
 @font-face {

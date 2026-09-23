@@ -1,6 +1,6 @@
 /**
  * El esquema de las herramientas que se le ofrecen a la IA para escribir una
- * pagina: que ordenes existen, que reciben, y cuales se le quitan en modo
+ * página: que ordenes existen, que reciben, y cuales se le quitan en modo
  * Plan.
  */
 import type { ToolDef } from "../ai.ts";
@@ -383,7 +383,7 @@ const TOOLS: ToolDef[] = [
 ];
 
 /**
- * Las herramientas que escriben la pagina o las tablas. En modo Plan no se le
+ * Las herramientas que escriben la página o las tablas. En modo Plan no se le
  * ofrecen al modelo: es lo que de verdad le impide construir, no una
  * instruccion que pueda ignorar (D3 de `ia-modo-plan`).
  */

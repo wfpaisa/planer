@@ -1,13 +1,13 @@
 <!--
   El color a mano de una paleta personalizada.
 
-  Vive aparte de `PalettePicker` porque al crear una aplicacion no hace falta
-  el catalogo entero: se elige un color y afinar la paleta viene despues en
+  Vive aparte de `PalettePicker` porque al crear una aplicación no hace falta
+  el catálogo entero: se elige un color y afinar la paleta viene después en
   los ajustes.
 
   El color se pinta como se elige: `palettes.css` deriva de el el acento y la
   serie de datos, midiendo la tinta de encima para que contraste (igual que
-  hace con las 46 del catalogo). Por eso el hexadecimal se admite entero, sin
+  hace con las 46 del catálogo). Por eso el hexadecimal se admite entero, sin
   regatear. Los tintes de las etiquetas no salen de aqui: son fijos.
 -->
 <script lang="ts">
@@ -34,9 +34,9 @@
    * momento, y a la vez nada reescribe lo que alguien tiene a medias.
    *
    * Es la parte delicada. Sincronizar el campo con el valor en un efecto parecia
-   * lo mismo y no lo era: al teclear "#e2e72d", en "#e2e" ya hay un color valido
+   * lo mismo y no lo era: al teclear "#e2e72d", en "#e2e" ya hay un color válido
    * --el atajo de tres digitos-- y el campo saltaba solo a "#EE22EE" con el
-   * resto todavia sin escribir.
+   * resto todavía sin escribir.
    */
   let draft = $state<string | null>(null);
   const shown = $derived(draft ?? value);
@@ -63,7 +63,7 @@
 <Field {label} {hint}>
   <div class="row-palette-custom flex flex-wrap items-center">
     <!--
-      El selector nativo es lo unico que sabe abrir la rueda de color del
+      El selector nativo es lo único que sabe abrir la rueda de color del
       sistema, de donde sale el hexadecimal de una marca.
     -->
     <label class="input-palette-hex" data-tip="Escribir el color exacto">

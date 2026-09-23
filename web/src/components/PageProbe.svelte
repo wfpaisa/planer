@@ -1,14 +1,14 @@
 <!--
   La prueba de dibujado que pide la IA.
 
-  El servidor no tiene navegador. Cuando la IA quiere saber si la pagina que
+  El servidor no tiene navegador. Cuando la IA quiere saber si la página que
   acaba de escribir se dibuja sin errores, manda la huella del documento y esto
   lo monta en un marco escondido, deja que corra un momento, recoge lo que la
   consola solto y lo devuelve.
 
   El marco es el mismo de siempre, con su puente y sus colores: lo que se ve
-  aqui es lo que veria quien abriera la pagina. Con una diferencia a proposito
-  --el ensayo-- para que una pagina que guarda algo al cargarse no deje ese
+  aqui es lo que veria quien abriera la página. Con una diferencia a propósito
+  --el ensayo-- para que una página que guarda algo al cargarse no deje ese
   rastro solo por haberla probado.
 
   Escondido, no ausente: un marco con `display:none` no dibuja, no mide y no
@@ -17,7 +17,7 @@
 -->
 <script lang="ts" module>
   /**
-   * Lo que se deja correr al documento despues de que el puente diga que esta.
+   * Lo que se deja correr al documento después de que el puente diga que esta.
    *
    * Lo que se rompe al dibujar salta casi siempre en el mismo instante, pero lo
    * que espera datos tarda lo que tarde la primera consulta. Dos segundos
@@ -56,7 +56,7 @@
     request: ProbeRequest | null;
     appId: string;
     pageId: string;
-    /** Las fuentes que declara la pagina, para que las lecturas funcionen. */
+    /** Las fuentes que declara la página, para que las lecturas funcionen. */
     sources?: HtmlSource[];
     client: PocketBase;
     loadDoc: DocLoader;
@@ -65,7 +65,7 @@
 
   let issues: PageIssue[] = [];
   let warnings: string[] = [];
-  /** Ya se contesto esta prueba: lo que llegue despues se ignora. */
+  /** Ya se contesto esta prueba: lo que llegue después se ignora. */
   let sent = "";
   /** Se retira el marco en cuanto se contesta, para no dejarlo corriendo. */
   let mounted = $state(false);

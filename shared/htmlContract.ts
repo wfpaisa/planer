@@ -2,8 +2,8 @@
  * El texto que describe como se escribe el HTML de una pantalla de Planer.
  *
  * Una sola fuente con dos salidas: `buildHtmlContract`, el contexto que
- * recibe la inteligencia artificial en cada peticion, y `buildHtmlDocs`, la
- * seccion del README que lee el constructor. Si se escribiera dos veces,
+ * recibe la inteligencia artificial en cada petición, y `buildHtmlDocs`, la
+ * sección del README que lee el constructor. Si se escribiera dos veces,
  * tarde o temprano una de las dos se quedaria vieja.
  *
  * Va en ingles porque es una instruccion para el modelo, como todo lo que se
@@ -43,9 +43,9 @@ const TYPE_NAMES: Record<FieldDef["type"], string> = {
 };
 
 /**
- * De donde cuelgan los tres archivos que Planer pone en cada pagina.
+ * De donde cuelgan los tres archivos que Planer pone en cada página.
  *
- * Viven aqui, y no en `server/page/pageAssets.ts`, porque los nombran tres sitios
+ * Viven aquí, y no en `server/page/pageAssets.ts`, porque los nombran tres sitios
  * que no pueden quedarse distintos: el texto que lee la IA, quien los sirve, y
  * el panel, que los incrusta en el documento antes de meterlo en el marco (ver
  * `web/src/lib/planeAssets.ts`).
@@ -57,10 +57,10 @@ export const CHARTS_PATH = "/plane/graficas.js";
 /**
  * Los doce colores vivos, en el orden en que se reparten.
  *
- * Aqui solo estan los nombres: el color de cada uno --y la tinta que se lee
+ * Aquí solo estan los nombres: el color de cada uno --y la tinta que se lee
  * encima-- vive en `web/src/styles/global.css`, que es donde el panel lo
  * calcula y desde donde viaja al documento. Esta lista nombra las variables
- * que se mandan y escribe la linea que la IA lee, para que no puedan quedarse
+ * que se mandan y escribe la línea que la IA lee, para que no puedan quedarse
  * distintas.
  */
 export const VIVID_NAMES = [
@@ -173,7 +173,7 @@ const MEASURE_USES: Record<string, string> = {
 /**
  * En que idioma se escribe cada cosa.
  *
- * Las instrucciones van en ingles y la aplicacion es en espanol, asi que hay
+ * Las instrucciones van en ingles y la aplicación es en espanol, así que hay
  * que decir donde esta la frontera. Sin esto sale una pantalla con los
  * titulos en ingles, que es exactamente lo que nadie pidio.
  */
@@ -265,10 +265,10 @@ If a piece of data carries a real-world colour of its own --a team's colour, the
 }
 
 /**
- * El catalogo de componentes.
+ * El catálogo de componentes.
  *
- * Es la seccion que mas cambia el resultado. Antes de existir, cada pagina se
- * escribia su propio boton, su propia tarjeta y su propia tabla desde cero: la
+ * Es la sección que mas cambia el resultado. Antes de existir, cada página se
+ * escribia su propio botón, su propia tarjeta y su propia tabla desde cero: la
  * pantalla salia razonable y no se parecia del todo a ninguna otra, porque
  * nadie escribe dos veces el mismo `border-radius`. Ahora la pieza ya esta
  * hecha --es la MISMA hoja que viste el panel, servida en `/plane/estilos.css`,
@@ -564,9 +564,9 @@ Write them like this: \`padding: var(--space-4); font-size: var(--type-sm);\`
 /**
  * Como se ve una pantalla bien hecha.
  *
- * Sin esto sale siempre la misma pagina: todo encerrado en tarjetas iguales,
- * el mismo peso para todo, emojis de icono y ningun sitio donde descansar la
- * vista. Las reglas van en negativo a proposito --lo que no hay que hacer--
+ * Sin esto sale siempre la misma página: todo encerrado en tarjetas iguales,
+ * el mismo peso para todo, emojis de icono y ningún sitio donde descansar la
+ * vista. Las reglas van en negativo a propósito --lo que no hay que hacer--
  * porque lo que afea una pantalla son costumbres, no falta de ideas.
  */
 function craftSection(): string {
@@ -658,12 +658,12 @@ Decorative gradients. Coloured shadows. Thick borders. Emojis. More than two typ
 }
 
 /**
- * Las graficas.
+ * Las gráficas.
  *
  * Sin esto salen dos cosas, las dos malas: una tabla de numeros donde hacia
  * falta un dibujo, o un lienzo pintado a mano con colores inventados que no
  * cambian con el tema. La libreria y el aspecto de la casa ya estan resueltos
- * en `plane.grafica`; lo que hace falta contar es cuando se usa una grafica,
+ * en `plane.grafica`; lo que hace falta contar es cuando se usa una gráfica,
  * cuando no, y que no hay que decidir de nuevo.
  */
 function chartSection(): string {
@@ -802,12 +802,12 @@ window.addEventListener("plane:listo", async function () {
 });
 \`\`\``;
 
-/** Quien esta mirando, que roles tiene y quien puede abrir la pagina. */
+/** Quien esta mirando, que roles tiene y quien puede abrir la página. */
 function viewerSection(opts: {
   pageRoles?: string[];
   appRoles?: string[];
   people?: AppPerson[];
-  /** Las tablas de la aplicacion, para nombrar las columnas propias de las personas. */
+  /** Las tablas de la aplicación, para nombrar las columnas propias de las personas. */
   tables?: TableRecord[];
 }): string {
   const parts = [
@@ -816,10 +816,10 @@ function viewerSection(opts: {
   ];
 
   /*
-   * Y las columnas que esta aplicacion le haya puesto a su tabla de personas.
+   * Y las columnas que esta aplicación le haya puesto a su tabla de personas.
    * Se nombran una a una porque son con lo que se filtra "lo mio", y un filtro
    * es para una columna que existe: una lista fija haria escribir
-   * `plane.usuario.documento` en una aplicacion que la llamo `cedula`.
+   * `plane.usuario.documento` en una aplicación que la llamo `cedula`.
    *
    * La del nombre no se repite: ya esta arriba, y es de donde sale `nombre`.
    * Ver `viewer` en `web/src/components/HtmlFrame.svelte`.
@@ -914,7 +914,7 @@ Do not use \`fetch\` against the database either, nor any data library of your o
  *
  * Solo se cuenta donde hay herramientas para editar un trozo. Quien recibe
  * este texto para escribir un documento entero --la varita, el arreglo de una
- * pagina rota-- no gana nada sabiendolo.
+ * página rota-- no gana nada sabiendolo.
  */
 function blocksSection(): string {
   return `## Block names
@@ -1002,8 +1002,8 @@ This page does not use any table yet. Do not call \`plane.listar\` or the other 
           f.type === "select" && f.options?.length ? ` — options: ${f.options.join(", ")}` : "";
         const required = f.required ? " (required)" : "";
 
-        // Una relacion necesita decir a que apunta y que ensena: sin eso, quien
-        // escribe la pagina no sabe que hay en esa celda ni como agrupar por ella.
+        // Una relación necesita decir a que apunta y que enseña: sin eso, quien
+        // escribe la página no sabe que hay en esa celda ni como agrupar por ella.
         if (isRelationField(f) && f.multiple !== true) {
           hasRelations = true;
           const target = `the table "${
@@ -1029,8 +1029,8 @@ This page does not use any table yet. Do not call \`plane.listar\` or the other 
 /**
  * Para que sirven los roles de quien mira, y para que no.
  *
- * Va en las dos salidas: la IA lo necesita para no escribir una pagina que cree
- * estar protegiendo algo, y quien construye, para saber que esconder un boton
+ * Va en las dos salidas: la IA lo necesita para no escribir una página que cree
+ * estar protegiendo algo, y quien construye, para saber que esconder un botón
  * no esconde los datos.
  */
 function rolesSection(): string {
@@ -1072,9 +1072,9 @@ A page opened without a session has no \`plane.usuario\`, so there is no "mine" 
 /**
  * Que guardar exige cuenta iniciada, y que el aviso lo pone la plataforma.
  *
- * Va aparte de los roles a proposito: es la unica frontera que el servidor si
+ * Va aparte de los roles a propósito: es la única frontera que el servidor si
  * aplica sobre los datos, y confundirla con los roles es lo que hace que una
- * pagina escriba su propio "inicia sesion" donde no hace falta.
+ * página escriba su propio "inicia sesión" donde no hace falta.
  */
 function savingSection(): string {
   return `## Saving requires an account
@@ -1091,8 +1091,8 @@ When you build a page that saves data and can be opened without an account, **sa
 /**
  * Como se usa una columna que apunta a otra tabla.
  *
- * Va aparte y solo cuando hace falta: si la aplicacion no tiene ninguna, no hay
- * por que gastarle atencion a quien escribe la pagina.
+ * Va aparte y solo cuando hace falta: si la aplicación no tiene ninguna, no hay
+ * por que gastarle atencion a quien escribe la página.
  */
 function relationsSection(): string {
   return `### Columns pointing at another table
@@ -1125,16 +1125,16 @@ When **creating or updating** a row you write the value, never the id: \`plane.c
 
 /**
  * El contexto que recibe la inteligencia artificial, armado en el momento con
- * el estado actual de la aplicacion. `request` es lo que el constructor quiere
+ * el estado actual de la aplicación. `request` es lo que el constructor quiere
  * pedir, si ya lo escribio.
  */
 export function buildHtmlContract(opts: {
   appName?: string;
   tables: TableRecord[];
   request?: string;
-  /** Roles que tiene marcados la pagina que se esta escribiendo. Vacio: `Todos`. */
+  /** Roles que tiene marcados la página que se esta escribiendo. Vacío: `Todos`. */
   pageRoles?: string[];
-  /** Todos los roles que define la aplicacion. */
+  /** Todos los roles que define la aplicación. */
   appRoles?: string[];
   /**
    * Las personas invitadas, con sus roles. Sin ellas la IA no puede nombrar a
@@ -1143,8 +1143,8 @@ export function buildHtmlContract(opts: {
   people?: AppPerson[];
   /**
    * Quien lee esto puede editar un trozo del documento en vez de rehacerlo
-   * entero. Solo lo puede la IA de una pagina: la varita y el arreglo de una
-   * pagina rota devuelven siempre un documento completo.
+   * entero. Solo lo puede la IA de una página: la varita y el arreglo de una
+   * página rota devuelven siempre un documento completo.
    */
   blocks?: boolean;
   /**
@@ -1197,9 +1197,9 @@ The HTML is drawn in isolation from the panel. It has no access to the session, 
 const demote = (text: string) => text.replace(/^(#{1,5}) /gm, "#$1 ");
 
 /**
- * La misma explicacion, en forma de seccion de documentacion para el
- * constructor. Sin las tablas de una aplicacion concreta: aqui se cuenta como
- * se conecta una pagina con la base de datos, no que hay dentro de una.
+ * La misma explicacion, en forma de sección de documentacion para el
+ * constructor. Sin las tablas de una aplicación concreta: aquí se cuenta como
+ * se conecta una página con la base de datos, no que hay dentro de una.
  *
  * `scripts/docs.ts` la escribe en el README.
  */

@@ -1,22 +1,22 @@
 /**
- * Las seis ordenes de datos de una pagina publicada, resueltas en el servidor.
+ * Las seis ordenes de datos de una página publicada, resueltas en el servidor.
  *
- * El navegador no habla con la base: pasa por aqui. Lo que este archivo decide
- * es quien pregunta --desde su sesion, nunca desde la peticion-- y si puede
- * abrir la pagina desde la que pregunta.
+ * El navegador no habla con la base: pasa por aquí. Lo que este archivo decide
+ * es quien pregunta --desde su sesión, nunca desde la petición-- y si puede
+ * abrir la página desde la que pregunta.
  *
- * Ya no reparte filas. Quien puede abrir una pagina alcanza todas las filas de
- * las tablas que esa pagina declara, y el total que acompana a una lista las
- * cuenta todas. Lo que se le muestra de ellas lo decide el HTML de la pagina.
+ * Ya no reparte filas. Quien puede abrir una página alcanza todas las filas de
+ * las tablas que esa página declara, y el total que acompana a una lista las
+ * cuenta todas. Lo que se le muestra de ellas lo decide el HTML de la página.
  *
  * Lo que si esta acotado es cuantas filas viajan de una vez: `listar` tiene
  * techo (`MAX_LIST_ROWS`), lo dice en su respuesta, y para contar sin traerse nada
- * esta `contar`. Sin esa pareja, una pagina que contaba lo que recibio contaba
- * el techo en vez de la tabla, y el numero corto parecia el bueno.
+ * esta `contar`. Sin esa pareja, una página que contaba lo que recibio contaba
+ * el techo en vez de la tabla, y el número corto parecia el bueno.
  *
- * El orden de las comprobaciones no es casual. Primero la aplicacion --si exige
- * cuenta, sin ella no hay nada mas que hablar--, luego la pagina, luego la
- * sesion al escribir, y por ultimo la fuente declarada: el documento solo pide
+ * El orden de las comprobaciones no es casual. Primero la aplicación --si exige
+ * cuenta, sin ella no hay nada mas que hablar--, luego la página, luego la
+ * sesión al escribir, y por ultimo la fuente declarada: el documento solo pide
  * lo que su manifiesto nombra.
  */
 import {
@@ -66,9 +66,9 @@ function isOp(value: unknown): value is AccessOp {
 function lookupOf(appId: string, tables: TableRecord[]): Lookup {
   return {
     find: async (collection, filter) => {
-      // Una coleccion que no es de esta aplicacion no se consulta: el que
+      // Una colección que no es de esta aplicación no se consulta: el que
       // empareja llega desde el documento y solo nombra lo que su manifiesto
-      // resolvio, pero comprobarlo aqui deja escrito el limite.
+      // resolvio, pero comprobarlo aquí deja escrito el limite.
       if (!tables.some((t) => t.dataCollection === collection)) return [];
       const res = await listRecords<Record<string, unknown>>(collection, {
         filter,
@@ -82,10 +82,10 @@ function lookupOf(appId: string, tables: TableRecord[]): Lookup {
 }
 
 /**
- * Las columnas de relacion de unos valores que llegan del documento, ya
+ * Las columnas de relación de unos valores que llegan del documento, ya
  * resueltas: el id de quien encontro dueno y el corralito de quien no.
  *
- * El documento escribe la llave --una cedula, un correo-- y nunca el id.
+ * El documento escribe la llave --una cédula, un correo-- y nunca el id.
  */
 async function resolveRelations(
   resolved: Resolved,
@@ -129,9 +129,9 @@ async function readRow(
 /**
  * El error de guardar sin cuenta iniciada.
  *
- * Lleva codigo propio para que el puente lo distinga del resto y ponga el aviso
- * de iniciar sesion sin que el HTML de la pagina participe. Sigue siendo un
- * error que la pagina puede capturar si quiere hacer algo mejor. Ver
+ * Lleva código propio para que el puente lo distinga del resto y ponga el aviso
+ * de iniciar sesión sin que el HTML de la página participe. Sigue siendo un
+ * error que la página puede capturar si quiere hacer algo mejor. Ver
  * `design.md` D4.
  */
 function needsSession(): HttpError {
@@ -139,10 +139,10 @@ function needsSession(): HttpError {
 }
 
 /**
- * Resuelve una orden de datos de una pagina.
+ * Resuelve una orden de datos de una página.
  *
  * `appId` y `pageId` vienen de la ruta; el rol de la vista previa, la persona y
- * las marcas de mirar sin rol y sin sesion, del cuerpo.
+ * las marcas de mirar sin rol y sin sesión, del cuerpo.
  */
 export async function runPageData(req: Request, appId: string, pageId: string): Promise<Response> {
   const app = await firstRecord<AppRecord>(INTERNAL.apps, `id = "${quote(appId)}"`);
@@ -168,16 +168,16 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
 
   let viewer = await resolveViewer(req, app);
   // Se guarda antes de mirar como otro: componer a quien mira deja de ser el
-  // dueno a proposito, y el borrador que se esta probando sigue siendo suyo.
+  // dueno a propósito, y el borrador que se esta probando sigue siendo suyo.
   const isBuilder = viewer.isOwner;
 
   viewer = await previewViewer(viewer, app, input);
 
   /*
-   * En una aplicacion que requiere iniciar sesion hay que estar invitado, no
-   * solo tener sesion. La sesion de un invitado vale para todas las
+   * En una aplicación que requiere iniciar sesión hay que estar invitado, no
+   * solo tener sesión. La sesión de un invitado vale para todas las
    * aplicaciones donde le invitaron, y sin esta comprobacion la de cualquiera
-   * abriria los datos de todas las demas.
+   * abriria los datos de todas las demás.
    */
   if (app.visibility === "private") {
     if (!viewer.signedIn) throw new HttpError(401, "Entra para ver esta página");
@@ -188,13 +188,13 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
   }
 
   // Guardar exige una cuenta iniciada, sea cual sea el nivel de acceso de la
-  // pagina. Leer no la exige: una pagina abierta a `Todos` entrega sus datos a
+  // página. Leer no la exige: una página abierta a `Todos` entrega sus datos a
   // quien llegue sin cuenta.
   //
-  // Y la cuenta tiene que ser de esta aplicacion. Una cuenta es de una sola
-  // (ver `resolveViewer`), asi que sin esto la sesion de cualquier invitado de
-  // cualquier otra aplicacion de la instalacion escribiria en las tablas de
-  // toda aplicacion abierta. Quien entra por la puerta de esta la tiene: para
+  // Y la cuenta tiene que ser de esta aplicación. Una cuenta es de una sola
+  // (ver `resolveViewer`), así que sin esto la sesión de cualquier invitado de
+  // cualquier otra aplicación de la instalacion escribiria en las tablas de
+  // toda aplicación abierta. Quien entra por la puerta de esta la tiene: para
   // el no cambia nada.
   if (WRITE_OPS.includes(input.op)) {
     if (!viewer.signedIn) throw needsSession();
@@ -204,11 +204,11 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
   const tables = await appTables(app.id);
 
   /*
-   * El manifiesto contra el que se comprueba la fuente es el de la pagina
-   * guardada. La unica excepcion es el dueno de la aplicacion probando un
-   * documento que todavia no ha guardado: ahi el manifiesto de verdad es el que
-   * trae delante, y aceptarselo no le da nada que guardar la pagina no le diera
-   * un segundo despues. A cualquier otro se le ignora lo que mande.
+   * El manifiesto contra el que se comprueba la fuente es el de la página
+   * guardada. La única excepcion es el dueno de la aplicación probando un
+   * documento que todavía no ha guardado: ahi el manifiesto de verdad es el que
+   * trae delante, y aceptarselo no le da nada que guardar la página no le diera
+   * un segundo después. A cualquier otro se le ignora lo que mande.
    */
   const draft =
     isBuilder && Array.isArray(input.fuentes) ? (input.fuentes as PageRecord["sources"]) : null;
@@ -216,7 +216,7 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
 
   const expand = expandOf(resolved);
   const collection = resolved.table.dataCollection;
-  // Una relacion a la tabla de personas trae la fila por el expand, pero no el
+  // Una relación a la tabla de personas trae la fila por el expand, pero no el
   // correo ni los roles: esos estan en la lista de invitados y se superponen.
   // Ver `relationCell` en `shared/htmlSources.ts`.
   const people = [...resolved.relations.values()].some((rel) => isPeopleTable(rel.target))
@@ -241,12 +241,12 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
         pagina: res.page,
         paginas: res.totalPages,
         /*
-         * Cuantas filas se sirvieron de verdad por pagina.
+         * Cuantas filas se sirvieron de verdad por página.
          *
          * Va en la respuesta porque el techo se aplicaba en silencio: quien
-         * pedia 500 recibia 200 y nada le decia que le habian recortado, asi
-         * que contar lo recibido daba un numero corto que parecia el bueno.
-         * Con esto, una pagina puede ver que pidio mas de lo que cabe.
+         * pedia 500 recibia 200 y nada le decia que le habian recortado, así
+         * que contar lo recibido daba un número corto que parecia el bueno.
+         * Con esto, una página puede ver que pidio mas de lo que cabe.
          */
         limite,
         recortado: limite < (Number(opts.limite) || 0),
@@ -256,16 +256,16 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
     /*
      * Cuantas filas cumplen algo, sin traerse ninguna.
      *
-     * Es la unica forma honesta de contar: `listar` tiene techo, y contar lo
+     * Es la única forma honesta de contar: `listar` tiene techo, y contar lo
      * que `listar` devuelve cuenta el techo, no la tabla. Acepta el mismo
-     * filtro y la misma busqueda para que la cifra sea de lo mismo que la
+     * filtro y la misma búsqueda para que la cifra sea de lo mismo que la
      * lista de al lado.
      */
     case "contar": {
       const opts = (args[1] ?? {}) as Record<string, unknown>;
       const res = await listRecords<Record<string, unknown>>(collection, {
         filter: buildFilter(resolved, opts),
-        // Ni una fila: lo unico que se quiere es el recuento que trae la
+        // Ni una fila: lo único que se quiere es el recuento que trae la
         // respuesta, y las filas costarian el viaje entero para tirarlas.
         perPage: 1,
         fields: "id",
@@ -328,15 +328,15 @@ export async function runPageData(req: Request, appId: string, pageId: string): 
 }
 
 /**
- * Quien mira, cuando el dueno de la aplicacion esta probando la pagina como
+ * Quien mira, cuando el dueno de la aplicación esta probando la página como
  * otro.
  *
- * Las cuatro cosas --rol, persona y las marcas de mirar sin rol y sin sesion--
+ * Las cuatro cosas --rol, persona y las marcas de mirar sin rol y sin sesión--
  * solo se le atienden a el, y ninguna amplia lo que ya alcanza. A cualquier
  * otro se le ignora lo que mande. Ver `design.md` D5.
  *
- * `sinRol` hace falta aparte: mirar sin ningun rol y sin persona no manda nada
- * mas, y sin la marca esta peticion se leeria como la de quien no esta
+ * `sinRol` hace falta aparte: mirar sin ningún rol y sin persona no manda nada
+ * mas, y sin la marca esta petición se leeria como la de quien no esta
  * mirando como otro --y contestaria con lo que alcanza el dueno, que es todo--.
  */
 async function previewViewer(
@@ -355,7 +355,7 @@ async function previewViewer(
     throw new HttpError(400, `El rol "${rol}" no existe en esta aplicación`);
   }
 
-  // Mirar sin sesion es mirar como nadie: la persona y el rol no pintan nada
+  // Mirar sin sesión es mirar como nadie: la persona y el rol no pintan nada
   // ahi, porque quien llega sin cuenta no tiene ni una ni el otro.
   if (sinSesion) return asViewer({ sinSesion: true });
 
@@ -363,13 +363,13 @@ async function previewViewer(
   if (persona && !person) {
     throw new HttpError(404, "Esa persona no está invitada a esta aplicación");
   }
-  // Mirar sin rol es mirar con sesion y sin ninguno: si ademas se eligio
+  // Mirar sin rol es mirar con sesión y sin ninguno: si ademas se eligio
   // persona, los roles que valen son los suyos de verdad --que es lo que hace
-  // `asViewer`--, y sin persona no queda ningun rol que dar.
+  // `asViewer`--, y sin persona no queda ningún rol que dar.
   return asViewer({ role: sinRol ? "" : rol, person });
 }
 
-/** Las tablas de una aplicacion, tal como las ve el servidor. */
+/** Las tablas de una aplicación, tal como las ve el servidor. */
 async function appTables(appId: string): Promise<TableRecord[]> {
   const res = await listRecords<TableRecord>(INTERNAL.tables, {
     filter: `app = "${quote(appId)}"`,

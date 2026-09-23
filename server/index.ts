@@ -31,14 +31,14 @@ const DIST = join(ROOT, "web", "dist");
 /** Aborta con un mensaje claro en vez de dejar dos servidores peleando. */
 function alreadyRunning(what: string, port: number): never {
   console.error(`\n  Ya hay algo escuchando en el puerto ${port} (${what}).`);
-  console.error("  Seguramente Planer ya esta encendido en otra terminal.");
+  console.error("  Es posible que Planer ya esté abierto en otra terminal.");
   console.error("  Cierra esa instancia, o cambia los puertos en el archivo .env\n");
   process.exit(1);
 }
 
 /**
  * Al recargar en desarrollo el puerto tarda un instante en liberarse,
- * asi que insistimos un poco antes de dar por ocupado.
+ * así que insistimos un poco antes de dar por ocupado.
  */
 async function portTaken(port: number, waitMs = 3000): Promise<boolean> {
   const deadline = Date.now() + waitMs;
@@ -85,7 +85,7 @@ async function startPocketBase() {
 
   // Sin --automigrate: bootstrap.ts ya es la fuente de verdad del esquema
   // interno (idempotente, en el orden correcto). Dejar que PocketBase anote
-  // cada coleccion como una migracion aparte solo acumula archivos que, al
+  // cada colección como una migración aparte solo acumula archivos que, al
   // compartir el mismo segundo de creacion, se reproducen en orden alfabetico
   // y no en el orden real -> el siguiente arranque en limpio se rompe solo.
   const child = Bun.spawn(
@@ -110,7 +110,7 @@ async function startPocketBase() {
     if (await pocketBaseAnswers()) return child;
     await Bun.sleep(100);
   }
-  throw new Error("PocketBase no arranco a tiempo");
+  throw new Error("PocketBase no arrancó a tiempo");
 }
 
 /* ------------------------------------------------------------------ */
@@ -139,9 +139,9 @@ function publicPbPath(path: string): boolean {
  * Reenvia a PocketBase. La ruta llega ya sin el prefijo por el que entro.
  *
  * `clientIp` es de quien llamo. Va delante porque el tope de intentos de
- * PocketBase reparte por direccion, y todo le llega desde este mismo proceso:
+ * PocketBase reparte por dirección, y todo le llega desde este mismo proceso:
  * sin decirselo, el tope seria uno solo para toda la instalacion y los
- * intentos fallidos de cualquiera cerrarian la puerta a los demas.
+ * intentos fallidos de cualquiera cerrarian la puerta a los demás.
  */
 async function proxyToPocketBase(req: Request, path: string, clientIp: string): Promise<Response> {
   const url = new URL(req.url);
@@ -153,10 +153,10 @@ async function proxyToPocketBase(req: Request, path: string, clientIp: string): 
 
   if (config.trustedProxy) {
     // Delante hay un proxy inverso: la cabecera que llega es suya y dice de
-    // quien es la peticion. Solo se rellena si no vino ninguna.
+    // quien es la petición. Solo se rellena si no vino ninguna.
     if (!headers.has("x-forwarded-for") && clientIp) headers.set("x-forwarded-for", clientIp);
   } else {
-    // Sin proxy delante la cabecera la escribe quien llama, asi que no dice
+    // Sin proxy delante la cabecera la escribe quien llama, así que no dice
     // nada: dejarla pasar le daria cupo nuevo en cada intento.
     headers.delete("x-forwarded-for");
     if (clientIp) headers.set("x-forwarded-for", clientIp);
@@ -177,11 +177,11 @@ async function proxyToPocketBase(req: Request, path: string, clientIp: string): 
 }
 
 /* ------------------------------------------------------------------ */
-/* Los dos archivos que lleva cada pagina                               */
+/* Los dos archivos que lleva cada página                               */
 /* ------------------------------------------------------------------ */
 
 /**
- * Las rutas no llevan huella, para que una mejora llegue a todas las paginas
+ * Las rutas no llevan huella, para que una mejora llegue a todas las páginas
  * ya escritas. Lo que cambia es la marca: el navegador pregunta si hay algo
  * nuevo y casi siempre se le responde que no, sin volver a mandar el archivo.
  */
@@ -233,7 +233,7 @@ async function proxyToVite(req: Request, url: URL): Promise<Response> {
     return new Response(
       `<!doctype html><meta charset="utf-8"><body style="font:15px system-ui;padding:2rem;line-height:1.6">
        <h1>Falta el panel</h1>
-       <p>El servidor de desarrollo de Vite no esta encendido.</p>
+       <p>El servidor de desarrollo de Vite no está activo.</p>
        <p>Arranca todo junto con <code>bun run dev</code>, o compila el panel con
        <code>bun run build</code> y usa <code>bun run start</code>.</p>
        </body>`,
@@ -262,7 +262,7 @@ async function serveStatic(req: Request): Promise<Response> {
 
   const html = indexHtml();
   if (!(await html.exists())) {
-    return new Response("El panel no esta compilado. Ejecuta: bun run build", { status: 500 });
+    return new Response("El panel no está compilado. Ejecuta: bun run build", { status: 500 });
   }
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
 }
@@ -275,7 +275,7 @@ type Handler = (req: Request, ...params: string[]) => Promise<Response>;
 
 const ROUTES: [RegExp, string, Handler][] = [
   [/^\/api\/apps$/, "POST", api.createApp],
-  // Antes que `/api/apps/:id`: "limpiar" no es el id de ninguna aplicacion.
+  // Antes que `/api/apps/:id`: "limpiar" no es el id de ninguna aplicación.
   [/^\/api\/apps\/limpiar$/, "POST", api.wipeApps],
   [/^\/api\/apps\/([^/]+)$/, "PATCH", api.updateApp],
   [/^\/api\/apps\/([^/]+)$/, "DELETE", api.deleteApp],
@@ -323,18 +323,18 @@ const ROUTES: [RegExp, string, Handler][] = [
   [/^\/api\/apps\/([^/]+)\/vista\/([^/]+)$/, "GET", api.previewBundle],
   [/^\/api\/apps\/([^/]+)\/html\/([^/]+)$/, "GET", api.getHtmlDoc],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html\/crudo$/, "GET", api.getRawPageHtml],
-  // Por huella: la vista previa de una version pide el HTML de entonces, no el
-  // que la pagina tiene ahora.
+  // Por huella: la vista previa de una versión pide el HTML de entonces, no el
+  // que la página tiene ahora.
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html\/([0-9a-f]{64})$/, "GET", api.getPageHtmlAt],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html$/, "GET", api.getPageHtml],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/html$/, "PUT", api.savePageHtml],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/convertir$/, "POST", api.convertPage],
-  // Las reglas funcionales de la pagina: solo las ve y las escribe quien la
-  // construye, y nunca salen a la aplicacion publicada.
+  // Las reglas funcionales de la página: solo las ve y las escribe quien la
+  // construye, y nunca salen a la aplicación publicada.
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/memoria$/, "GET", api.getPageMemory],
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/memoria$/, "PUT", api.savePageMemory],
-  // Las seis ordenes de datos de una pagina. El navegador ya no habla con la
-  // base: el permiso se aplica aqui, antes de entregar nada.
+  // Las seis ordenes de datos de una página. El navegador ya no habla con la
+  // base: el permiso se aplica aquí, antes de entregar nada.
   [/^\/api\/apps\/([^/]+)\/paginas\/([^/]+)\/datos$/, "POST", api.pageData],
   [/^\/api\/apps\/([^/]+)\/html\/contrato$/, "POST", api.htmlContract],
   [/^\/api\/public\/([^/]+)$/, "GET", api.publicBundle],
@@ -369,13 +369,13 @@ await bootstrap();
 /**
  * Importar datos en bloque usa la API de lote de PocketBase, que viene
  * apagada en instalaciones nuevas. La activamos en cada arranque: es
- * idempotente (si ya esta, no toca nada) y solo escribe la seccion de lote,
- * sin pisar el resto de la configuracion.
+ * idempotente (si ya esta, no toca nada) y solo escribe la sección de lote,
+ * sin pisar el resto de la configuración.
  */
 async function enableBatchApi() {
   const settings = await pb<{ batch?: { enabled?: boolean } }>("/api/settings");
   if (settings.batch?.enabled === true) {
-    console.log("  La API de lote ya esta activa.");
+    console.log("  La API de lote ya está activa.");
     return;
   }
   await pb("/api/settings", {
@@ -390,23 +390,23 @@ await enableBatchApi();
 /**
  * Un tope de intentos en la puerta de entrada.
  *
- * PocketBase trae sus reglas de serie pero viene apagado, asi que hasta aqui
+ * PocketBase trae sus reglas de serie pero viene apagado, así que hasta aquí
  * una clave de seis caracteres --el minimo de una persona invitada-- se podia
  * probar entera.
  *
  * El tope se pone por la ruta exacta en la que se prueba una clave, y con el
  * se quita `*:auth`, la regla que PocketBase trae puesta. Se quita por dos
  * razones, y las dos hacen falta: esa etiqueta gana a la ruta exacta --con
- * ella puesta el tope que manda es el suyo, comprobado-- y alcanza tambien a
- * `auth-refresh`, que el navegador pregunta en cada carga, asi que estrecharla
- * echaria a quien ya entro. Sin ella, refrescar la sesion queda bajo la regla
- * general de `/api/`. Una coleccion de cuentas nueva no queda cubierta sola:
- * hay que anadirle su ruta aqui.
+ * ella puesta el tope que manda es el suyo, comprobado-- y alcanza también a
+ * `auth-refresh`, que el navegador pregunta en cada carga, así que estrecharla
+ * echaria a quien ya entro. Sin ella, refrescar la sesión queda bajo la regla
+ * general de `/api/`. Una colección de cuentas nueva no queda cubierta sola:
+ * hay que anadirle su ruta aquí.
  *
  * Las llamadas de este mismo proceso no hay que dejarlas fuera a mano:
  * PocketBase no le aplica el tope a un superusuario, y con esa cuenta habla
- * el servidor. Asi una importacion en bloque no se estrella contra el tope,
- * y una direccion excluida --que con `TRUSTED_PROXY` puesto podria llegar
+ * el servidor. Así una importacion en bloque no se estrella contra el tope,
+ * y una dirección excluida --que con `TRUSTED_PROXY` puesto podria llegar
  * desde fuera-- no hace falta en ninguna parte.
  */
 async function enableRateLimits() {
@@ -426,7 +426,7 @@ async function enableRateLimits() {
   const missing = mine.filter((rule) => !rules.some((r) => r.label === rule.label));
   const same = current.enabled === true && rules.length === before.length && !missing.length;
   if (same) {
-    console.log("  El tope de intentos ya esta puesto.");
+    console.log("  El límite de intentos ya está configurado.");
     return;
   }
 
@@ -434,7 +434,7 @@ async function enableRateLimits() {
     method: "PATCH",
     body: JSON.stringify({
       rateLimits: { ...current, enabled: true, rules: [...rules, ...missing] },
-      // Sin esto PocketBase se queda con la direccion de quien le habla, que
+      // Sin esto PocketBase se queda con la dirección de quien le habla, que
       // siempre es este proceso. Ver `proxyToPocketBase`.
       trustedProxy: { headers: ["X-Forwarded-For"], useLeftmostIP: true },
     }),
@@ -452,7 +452,7 @@ Bun.serve({
     const clientIp = server.requestIP(req)?.address ?? "";
 
     // La puerta privada: PocketBase entero, consola incluida. El prefijo solo
-    // esta en el entorno del servidor, asi que sin el no se llega desde fuera.
+    // esta en el entorno del servidor, así que sin el no se llega desde fuera.
     if (config.adminPath && url.pathname.startsWith(`/${config.adminPath}/`)) {
       return proxyToPocketBase(req, url.pathname.slice(config.adminPath.length + 1), clientIp);
     }

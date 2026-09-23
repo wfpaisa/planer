@@ -7,20 +7,20 @@
  * nacieron. Deshacer es escribir eso; no hay transaccion que revertir.
  *
  * Se guardan los campos crudos y no el texto de la celda porque la celda no es
- * lo guardado: una fecha se ve en espanol y se guarda en ISO, y una relacion se
+ * lo guardado: una fecha se ve en espanol y se guarda en ISO, y una relación se
  * ve como su llave pero ocupa dos campos --el enlace y el valor que queda a la
  * vista cuando no encontro dueno--. Cuales son esos dos solo lo sabe el cuerpo
  * del pedido, y por eso el inverso se arma alli, en `dataGridEdit.ts`, y no
- * aqui.
+ * aquí.
  *
  * Cada fila va por su id y nunca por su sitio en la pantalla. Es lo contrario
- * de la seleccion, que es posicional a proposito (ver `gridSelection.svelte.ts`):
+ * de la seleccion, que es posicional a propósito (ver `gridSelection.svelte.ts`):
  * una vuelta atras posicional escribiria sobre otras filas en cuanto se ordena
  * o se filtra. Ademas de eso, ordenar o filtrar tira lo recordado; el id es la
- * segunda barrera, no la unica.
+ * segunda barrera, no la única.
  *
- * Solo un nivel: lo recordado se reemplaza con cada escritura y se tira despues
- * de usarlo. Una pila de varios pasos cabe aqui sin tocar nada mas.
+ * Solo un nivel: lo recordado se reemplaza con cada escritura y se tira después
+ * de usarlo. Una pila de varios pasos cabe aquí sin tocar nada mas.
  */
 import type { TableRecord } from "@shared/types";
 
@@ -33,7 +33,7 @@ export interface UndoRow {
   id: string;
   /** Los mismos campos que mando el PATCH, con el valor anterior. */
   body: Record<string, unknown>;
-  /** Cuantas celdas cubren esos campos. Una relacion son dos campos y una celda. */
+  /** Cuantas celdas cubren esos campos. Una relación son dos campos y una celda. */
   cells: number;
 }
 
@@ -41,7 +41,7 @@ export interface UndoRow {
 export interface GridUndo {
   /** La tabla donde se escribio. */
   tableId: string;
-  /** La coleccion de datos de esa tabla, para armar los pedidos. */
+  /** La colección de datos de esa tabla, para armar los pedidos. */
   collection: string;
   /** Las columnas que tenia la tabla al escribir. Si cambian, no se repone. */
   columns: string;
@@ -69,7 +69,7 @@ export function columnSignature(table: TableRecord): string {
   return table.fields.map((f) => `${f.name}:${f.type}`).join("|");
 }
 
-/** Si lo recordado todavia se puede escribir sobre la tabla que se esta viendo. */
+/** Si lo recordado todavía se puede escribir sobre la tabla que se esta viendo. */
 export function undoFits(table: TableRecord, undo: GridUndo | null): undo is GridUndo {
   if (!undo) return false;
   if (undo.tableId !== table.id) return false;
@@ -85,9 +85,9 @@ export function hasUndo(undo: GridUndo): boolean {
 /**
  * Escribe el inverso.
  *
- * Las filas que nacieron se borran por el servidor y no por la coleccion: es
+ * Las filas que nacieron se borran por el servidor y no por la colección: es
  * donde vive la conducta declarada por cada columna al borrar una fila, la
- * misma que aplica el boton Borrar. Un DELETE directo se la saltaria.
+ * misma que aplica el botón Borrar. Un DELETE directo se la saltaria.
  */
 export async function revertGrid(undo: GridUndo): Promise<UndoReport> {
   const notes: string[] = [];
@@ -127,7 +127,7 @@ export async function revertGrid(undo: GridUndo): Promise<UndoReport> {
 }
 
 /**
- * Lo que se dice despues de deshacer.
+ * Lo que se dice después de deshacer.
  *
  * Se cuenta en celdas repuestas y filas borradas, que es lo que se acaba de
  * hacer; lo que no entro va detras con su motivo, igual que en el parte de

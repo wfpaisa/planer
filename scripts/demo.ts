@@ -1,5 +1,5 @@
 /**
- * Crea una aplicacion de ejemplo para ver la plataforma funcionando.
+ * Crea una aplicación de ejemplo para ver la plataforma funcionando.
  * Uso:  bun run scripts/demo.ts
  */
 const BASE = process.env.BASE ?? "http://localhost:3000";
@@ -151,7 +151,7 @@ const fuente = {
   ),
 };
 
-/** Una pagina es un documento HTML; Planer le inyecta los estilos y el puente. */
+/** Una página es un documento HTML; Planer le inyecta los estilos y el puente. */
 const documento = (titulo: string, cuerpo: string, guion: string) => `<!doctype html>
 <html lang="es">
 <head>
@@ -179,7 +179,7 @@ const documento = (titulo: string, cuerpo: string, guion: string) => `<!doctype 
 </html>
 `;
 
-/** Guarda el HTML de una pagina con las tablas que puede pedir. */
+/** Guarda el HTML de una página con las tablas que puede pedir. */
 const escribir = (pageId: string, html: string) =>
   call(`/api/apps/${app.id}/paginas/${pageId}/html`, {
     method: "PUT",

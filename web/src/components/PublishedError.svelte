@@ -1,4 +1,4 @@
-<!-- No se pudo abrir la aplicacion: por que, y que se puede hacer. -->
+<!-- No se pudo abrir la aplicación: por que, y que se puede hacer. -->
 <script lang="ts">
   import Icon from "./Icon.svelte";
   import { Button, EmptyState } from "./ui";
@@ -26,14 +26,14 @@
         ? "El enlace puede estar mal escrito o la aplicación ya no está disponible."
         : noAccess
           ? "Tu cuenta no tiene permiso para verla. Pide acceso a quien la creó."
-          : "Ocurrió un problema al abrirla. Vuelve a intentarlo en unos momentos.",
+          : "No se pudo abrir. Recarga la página para intentarlo de nuevo.",
   );
 </script>
 
 <div class="error-published flex items-center justify-center">
   <!--
-    Es el estado vacio del kit (`ui/EmptyState`): el mismo icono en su caja, el
-    mismo titulo y la misma explicacion que cuando una lista no tiene nada. No
+    Es el estado vacío del kit (`ui/EmptyState`): el mismo icono en su caja, el
+    mismo título y la misma explicacion que cuando una lista no tiene nada. No
     hace falta otra tarjeta: lo que cambia es el texto, no la pieza.
   -->
   <EmptyState id="published-error" {title} {description}>
@@ -59,7 +59,7 @@
     padding: var(--sp-40) var(--sp-16);
   }
 
-  /* Las dos salidas van en la misma linea; el estado vacio las apila. */
+  /* Las dos salidas van en la misma línea; el estado vacío las apila. */
   .actions-error-published {
     display: flex;
     align-items: center;

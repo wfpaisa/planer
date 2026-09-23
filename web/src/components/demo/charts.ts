@@ -138,7 +138,7 @@ export function destroyDemoCharts() {
   charts = [];
 }
 
-/* Mini-linea sin ejes ni tooltip: la sparkline suelta y la de cada KPI
+/* Mini-línea sin ejes ni tooltip: la sparkline suelta y la de cada KPI
    comparten exactamente esta misma figura. */
 function buildSparkline(el: HTMLCanvasElement, data: readonly number[], color: string): Chart {
   return new Chart<"line">(el, {

@@ -1,9 +1,9 @@
 <!--
-  La guardia de sesion.
+  La guardia de sesión.
 
-  Lo importante es el orden: mientras no se sabe si hay sesion no se echa a
-  nadie. Con una sesion guardada hay que preguntarle al servidor si sigue viva,
-  y hasta que conteste solo se ensena que se esta cargando; redirigir antes
+  Lo importante es el orden: mientras no se sabe si hay sesión no se echa a
+  nadie. Con una sesión guardada hay que preguntarle al servidor si sigue viva,
+  y hasta que conteste solo se enseña que se esta cargando; redirigir antes
   mandaria a la pantalla de entrar a quien ya estaba dentro.
 -->
 <script lang="ts">

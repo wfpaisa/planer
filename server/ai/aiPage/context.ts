@@ -1,6 +1,6 @@
 /**
- * El contexto que se le arma a la IA en cada peticion: que tablas declara la
- * pagina, que le senalaron con el cursor, que archivos tiene delante --y el
+ * El contexto que se le arma a la IA en cada petición: que tablas declara la
+ * página, que le senalaron con el cursor, que archivos tiene delante --y el
  * tipo `ToolContext` que las ordenes leen y mutan mientras se ejecutan.
  */
 import type {
@@ -19,7 +19,7 @@ import type {
 } from "../../../shared/types.ts";
 import type { AiFileSample } from "../aiFiles.ts";
 
-/** El manifiesto de las tablas que la IA declaro para la pagina. */
+/** El manifiesto de las tablas que la IA declaro para la página. */
 export function sourcesFor(names: unknown, tables: TableRecord[]): HtmlSource[] {
   const wanted = Array.isArray(names) ? names.map(String) : [];
   const out: HtmlSource[] = [];
@@ -33,7 +33,7 @@ export function sourcesFor(names: unknown, tables: TableRecord[]): HtmlSource[] 
 
     // El HTML nombra las columnas como se las conto el contexto --por su
     // nombre tecnico-- y el manifiesto las traduce a su id interno, que es lo
-    // unico que sobrevive a un cambio de nombre.
+    // único que sobrevive a un cambio de nombre.
     const fields: Record<string, string> = {};
     for (const field of table.fields ?? []) {
       if (field.id) fields[field.name] = field.id;
@@ -46,9 +46,9 @@ export function sourcesFor(names: unknown, tables: TableRecord[]): HtmlSource[] 
 /**
  * Lo que quien construye senalo con el cursor antes de pedir esto.
  *
- * Va en el contexto y no en la peticion porque es estado de la pagina, no
+ * Va en el contexto y no en la petición porque es estado de la página, no
  * texto de nadie. Cada uno llega con su referencia --el nombre si ya lo tiene,
- * el sitio si todavia no-- para que la IA pueda editarlo sin buscarlo.
+ * el sitio si todavía no-- para que la IA pueda editarlo sin buscarlo.
  */
 export function pickedSection(picked: PickedBlock[]): string {
   const blocks = picked.map((pick, i) => {
@@ -76,20 +76,20 @@ Each edit targets one block. If what is asked touches several, do them one at a 
 }
 
 /**
- * Un adjunto de la conversacion, ya nombrado y con lo que se le ensena de el.
+ * Un adjunto de la conversación, ya nombrado y con lo que se le enseña de el.
  *
  * `label` es con lo que la IA lo nombra en una orden: el nombre del archivo,
- * desempatado cuando la conversacion trae dos que se llaman igual. La huella es
+ * desempatado cuando la conversación trae dos que se llaman igual. La huella es
  * cosa del almacen y el modelo no la ve nunca.
  */
 export interface ShownFile {
   file: AiChatFile & { label: string };
   sample: AiFileSample;
-  /** Se adjunto en un turno anterior, no en esta peticion. */
+  /** Se adjunto en un turno anterior, no en esta petición. */
   earlier: boolean;
 }
 
-/** El tamano de un archivo, dicho en la unidad que se lee de un vistazo. */
+/** El tamaño de un archivo, dicho en la unidad que se lee de un vistazo. */
 export function weigh(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
@@ -97,20 +97,20 @@ export function weigh(bytes: number): string {
 }
 
 /**
- * Los archivos adjuntados a esta conversacion.
+ * Los archivos adjuntados a esta conversación.
  *
  * Van en el contexto, como lo senalado: son material que hay que tener delante,
- * no la peticion. Quien escribe dice que hacer con ellos --"toma como
- * referencia este HTML", "crea una tabla con estas columnas"-- y aqui solo se
+ * no la petición. Quien escribe dice que hacer con ellos --"toma como
+ * referencia este HTML", "crea una tabla con estas columnas"-- y aquí solo se
  * ponen a la vista con su nombre, para que se les pueda nombrar.
  *
- * Lo que viaja es una muestra, no el archivo: de una hoja de calculo o un CSV,
+ * Lo que viaja es una muestra, no el archivo: de una hoja de cálculo o un CSV,
  * sus columnas y unas pocas filas; de un JSON que es una lista, sus claves y
  * sus primeros elementos; de un texto o un HTML, el archivo entero mientras
  * quepa. El archivo guardado esta entero, y "leer_archivo" lo abre por tramos.
  *
- * Entran tambien los de turnos anteriores: un adjunto sigue estando mientras la
- * conversacion siga abierta, asi que preguntar por el dos turnos despues no
+ * Entran también los de turnos anteriores: un adjunto sigue estando mientras la
+ * conversación siga abierta, así que preguntar por el dos turnos después no
  * obliga a adjuntarlo otra vez.
  */
 export function filesSection(shown: ShownFile[]): string {
@@ -164,33 +164,33 @@ export interface ToolContext {
   tables: TableRecord[];
   pages: PageRecord[];
   /**
-   * Los adjuntos que esta conversacion tiene delante, ya nombrados: los de esta
-   * peticion y los de los turnos anteriores. Es la lista contra la que se
+   * Los adjuntos que esta conversación tiene delante, ya nombrados: los de esta
+   * petición y los de los turnos anteriores. Es la lista contra la que se
    * resuelve el nombre que la IA escribe en "leer_archivo" y "llenar_tabla", y
-   * lo que hace que un archivo de otra conversacion no se alcance desde aqui.
+   * lo que hace que un archivo de otra conversación no se alcance desde aquí.
    */
   files: ShownFile[];
   steps: AiStep[];
   /** Avisos cortos de lo que se aplico solo. */
   notices: string[];
-  /** Cambios con riesgo, esperando el dialogo de impacto. */
+  /** Cambios con riesgo, esperando el diálogo de impacto. */
   pending: StructureChange[];
-  /** Las personas invitadas, como estaban al empezar la peticion. */
+  /** Las personas invitadas, como estaban al empezar la petición. */
   people: AppPerson[];
   /**
-   * Accesos que la IA quiere dar y todavia no ha dado.
+   * Accesos que la IA quiere dar y todavía no ha dado.
    *
    * Van aparte de `ctx.pending` y no dentro: un permiso no tiene tabla, y las
-   * cuatro salidas del dialogo de impacto no significan nada para el. Cada uno
+   * cuatro salidas del diálogo de impacto no significan nada para el. Cada uno
    * se confirma por su cuenta, leyendo su consecuencia.
    */
   grants: AccessChange[];
   changed: boolean;
-  /** Deja el punto al que volver, una sola vez por peticion. */
+  /** Deja el punto al que volver, una sola vez por petición. */
   step: () => Promise<void>;
   /**
    * Manda el HTML de ahora a dibujarse y espera lo que suelte la consola.
-   * `null` cuando no habia nadie mirando y no se pudo probar.
+   * `null` cuando no había nadie mirando y no se pudo probar.
    */
   probe: (html: string) => Promise<PageProbeReport | null>;
   /** Revisiones gastadas. Hay tope: corregir a ciegas no converge. */
@@ -225,9 +225,9 @@ export const findTable = (ctx: ToolContext, name: unknown): TableRecord | undefi
 };
 
 /**
- * El manifiesto despues de una edicion parcial.
+ * El manifiesto después de una edicion parcial.
  *
- * Un trozo nuevo puede pedir datos que la pagina todavia no declaraba, y una
+ * Un trozo nuevo puede pedir datos que la página todavía no declaraba, y una
  * fuente sin declarar se rechaza al pedirla. Las que ya estaban no se quitan:
  * el resto del documento --que no se ha tocado-- las sigue usando.
  */
@@ -241,7 +241,7 @@ export function withSources(ctx: ToolContext, names: unknown): HtmlSource[] {
 
 /**
  * Lo que se le contesta cuando nombra un archivo que no es de esta
- * conversacion. Se dice y se falla, con los que si tiene delante: nombrar mal
+ * conversación. Se dice y se falla, con los que si tiene delante: nombrar mal
  * se corrige en la vuelta siguiente, inventar el contenido no.
  */
 export function missingFile(ctx: ToolContext, wanted: string, tool: string): string {
@@ -252,14 +252,14 @@ export function missingFile(ctx: ToolContext, wanted: string, tool: string): str
     : `Error: nothing is attached to this conversation, so there is no file to read. Ask them to attach it.`;
 }
 
-/** Como se llama la pantalla segun lo escrito: su encabezado, o su titulo. */
+/** Como se llama la pantalla segun lo escrito: su encabezado, o su título. */
 export function titleFromHtml(html: string): string {
   const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html);
   const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html);
   return unescapeHtml((h1?.[1] ?? title?.[1] ?? "").replace(/<[^>]+>/g, " "));
 }
 
-/** Lo justo para leer un encabezado: lo demas no cabe en un nombre de pagina. */
+/** Lo justo para leer un encabezado: lo demás no cabe en un nombre de página. */
 function unescapeHtml(text: string): string {
   const named: Record<string, string> = {
     amp: "&",
@@ -272,8 +272,8 @@ function unescapeHtml(text: string): string {
   return text.replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, (whole, code: string) => {
     if (!code.startsWith("#")) return named[code.toLowerCase()] ?? whole;
     const point = Number(code[1]?.toLowerCase() === "x" ? `0x${code.slice(2)}` : code.slice(1));
-    // Un numero que no es un caracter se queda escrito como vino: en un nombre
-    // de pagina molesta menos verlo que reventar por el.
+    // Un número que no es un caracter se queda escrito como vino: en un nombre
+    // de página molesta menos verlo que reventar por el.
     return Number.isInteger(point) && point > 0 && point <= 0x10ffff
       ? String.fromCodePoint(point)
       : whole;

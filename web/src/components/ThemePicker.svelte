@@ -2,9 +2,9 @@
   Claro u oscuro para el panel, y nada mas.
 
   Antes esto era una lista de treinta y cinco temas de daisyUI. La eleccion de
-  color ya no vive aqui --es de cada aplicacion, en sus ajustes-- asi que lo
-  unico que queda por elegir en el panel es sobre que papel se trabaja. El
-  boton es el mismo de todas partes (`ui/ModeToggle.svelte`); lo que pone aqui
+  color ya no vive aqui --es de cada aplicación, en sus ajustes-- asi que lo
+  único que queda por elegir en el panel es sobre que papel se trabaja. El
+  botón es el mismo de todas partes (`ui/ModeToggle.svelte`); lo que pone aqui
   es a quien se le cuenta: al tema del panel, guardado en este navegador.
 -->
 <script lang="ts">

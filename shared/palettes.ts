@@ -1,10 +1,10 @@
 /**
- * El catalogo de paletas.
+ * El catálogo de paletas.
  *
  * Son las 46 de `web/src/styles/palettes.css`, en el mismo orden y con los
- * mismos ids: quien elige una aqui, alla encuentra sus cuatro colores. Va en
- * `shared/` porque el servidor tambien lo consulta, para validar lo que le
- * llega en el tema de una aplicacion (`sanitizeTheme` en `server/routes.ts`).
+ * mismos ids: quien elige una aquí, alla encuentra sus cuatro colores. Va en
+ * `shared/` porque el servidor también lo consulta, para validar lo que le
+ * llega en el tema de una aplicación (`sanitizeTheme` en `server/routes.ts`).
  *
  * Los grupos son tres y su orden es el del selector:
  */
@@ -81,7 +81,7 @@ export const CUSTOM_PALETTE = "custom";
 
 const IDS = new Set(PALETTES.map((p) => p.id));
 
-/** Si es un id del catalogo (el `custom` no cuenta: va aparte). */
+/** Si es un id del catálogo (el `custom` no cuenta: va aparte). */
 export function isPaletteId(id: unknown): id is string {
   return typeof id === "string" && IDS.has(id);
 }

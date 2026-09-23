@@ -1,8 +1,8 @@
 <!--
-  Una pagina dibujada por su HTML.
+  Una página dibujada por su HTML.
 
   Ocupa todo el espacio que le dan y vive dentro del marco aislado. Lo que
-  rodea a la pagina --el sidebar y la barra-- se dibuja fuera, para que el
+  rodea a la página --el sidebar y la barra-- se dibuja fuera, para que el
   peor HTML posible solo se rompa a si mismo.
 -->
 <script lang="ts">
@@ -30,26 +30,26 @@
     onPickerOff,
   }: {
     page: PageRecord;
-    /** Aplicacion a la que pertenece: la pagina pide sus datos al servidor por ella. */
+    /** Aplicación a la que pertenece: la página pide sus datos al servidor por ella. */
     appId: string;
     client: PocketBase;
-    /** De donde sale el HTML de esta pagina. Cambia segun quien mire. */
+    /** De donde sale el HTML de esta página. Cambia segun quien mire. */
     loadDoc: DocLoader;
-    /** Roles de quien esta mirando, para que la pagina sepa a quien tiene delante. */
+    /** Roles de quien esta mirando, para que la página sepa a quien tiene delante. */
     roles?: string[];
-    /** Ver la pagina como la veria este rol. Solo para el dueno de la aplicacion. */
+    /** Ver la página como la veria este rol. Solo para el dueno de la aplicación. */
     previewRole?: string;
     /**
      * Y como la veria esta persona concreta, de entre las que tienen ese rol.
-     * Entera, no solo su identificador: el documento tambien la necesita para
+     * Entera, no solo su identificador: el documento también la necesita para
      * saber a quien tiene delante. Ver `HtmlFrame`.
      */
     previewPerson?: AppPerson | null;
     /** O como la veria alguien que llega sin cuenta. */
     previewAnon?: boolean;
-    /** O como la veria alguien que entro y no tiene ningun rol de la aplicacion. */
+    /** O como la veria alguien que entro y no tiene ningún rol de la aplicación. */
     previewNoRole?: boolean;
-    /** Cambia con la paleta de la aplicacion, para repintar la pagina. */
+    /** Cambia con la paleta de la aplicación, para repintar la página. */
     themeKey?: string;
     /** Contar lo que el documento hace mal. Solo para quien construye. */
     showIssues?: boolean;
@@ -62,7 +62,7 @@
   } = $props();
 
   let savesToBrowser = $state(false);
-  /** Vacio: la pagina nunca intento salir. `stuck`: se quedo quieta. */
+  /** Vacío: la página nunca intento salir. `stuck`: se quedo quieta. */
   let leaves = $state<"" | "tried" | "stuck">("");
 </script>
 
@@ -91,8 +91,8 @@
 
   {#if showIssues && savesToBrowser}
     <WarnNote>
-      Esta pagina guarda datos en el navegador, y aqui dentro ese almacenamiento es de mentira: se
-      pierde al salir. Guarda lo que tenga que durar en una tabla.
+      Esta página guarda datos temporales en el navegador. Se perderán al salir; usa una tabla para
+      conservarlos.
     </WarnNote>
   {/if}
   {#if showIssues && leaves}

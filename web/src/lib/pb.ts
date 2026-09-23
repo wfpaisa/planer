@@ -1,10 +1,10 @@
 import { enEspanol } from "@shared/pbErrors";
 import PocketBase, { LocalAuthStore } from "pocketbase";
 
-/** Sesion del panel (quien construye). */
+/** Sesión del panel (quien construye). */
 export const pb = new PocketBase("/pb", new LocalAuthStore("plane_builder"));
 
-/** Sesion de las apps publicadas (quien las usa). */
+/** Sesión de las apps publicadas (quien las usa). */
 export const pbApp = new PocketBase("/pb", new LocalAuthStore("plane_member"));
 
 pb.autoCancellation(false);
@@ -16,9 +16,9 @@ export class ApiError extends Error {}
  * El cuerpo de una respuesta, cuando de verdad viene en JSON.
  *
  * No siempre viene: un proxy que se cae, el servidor de desarrollo apagado o
- * una pagina de error del navegador llegan en HTML, y ahi `JSON.parse` lanzaba
+ * una página de error del navegador llegan en HTML, y ahi `JSON.parse` lanzaba
  * un `SyntaxError: Unexpected token '<'` que subia tal cual hasta la pantalla.
- * Lo que se le ensena a quien construye tiene que ser una frase suya, asi que
+ * Lo que se le enseña a quien construye tiene que ser una frase suya, así que
  * lo que no se entiende cuenta como que no vino nada.
  */
 export function jsonBody(text: string): { error?: string; codigo?: string } | null {
@@ -34,12 +34,12 @@ export function jsonBody(text: string): { error?: string; codigo?: string } | nu
 export const httpError = (res: Response, data: { error?: string } | null): ApiError =>
   new ApiError(data?.error ?? `El servidor respondio ${res.status}`);
 
-/** Llama a la API propia de la plataforma con la sesion del panel. */
+/** Llama a la API propia de la plataforma con la sesión del panel. */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (pb.authStore.token) headers.set("authorization", pb.authStore.token);
-  // Un formulario pone su propio tipo, con la frontera dentro: escribirlo aqui
-  // dejaria el cuerpo ilegible. Todo lo demas es JSON.
+  // Un formulario pone su propio tipo, con la frontera dentro: escribirlo aquí
+  // dejaria el cuerpo ilegible. Todo lo demás es JSON.
   if (init.body && !(init.body instanceof FormData)) {
     headers.set("content-type", "application/json");
   }
@@ -64,7 +64,7 @@ export const put = <T>(path: string, body: unknown) =>
 export const del = <T>(path: string) => api<T>(path, { method: "DELETE" });
 
 /**
- * Una peticion que llega por partes, a medida que el servidor la produce.
+ * Una petición que llega por partes, a medida que el servidor la produce.
  *
  * Se usa donde esperar al final seria esperar a ciegas. Cada parte se entrega
  * en cuanto llega; el resultado de verdad viaja dentro de una de ellas, y de
@@ -91,7 +91,7 @@ export async function stream<T>(
     if (done) break;
     buffer += value;
 
-    // Cada parte termina en linea en blanco. Lo que queda sin cerrar espera al
+    // Cada parte termina en línea en blanco. Lo que queda sin cerrar espera al
     // siguiente trozo: partirlo a medias daria un JSON roto.
     let cut = buffer.indexOf("\n\n");
     while (cut !== -1) {
@@ -111,7 +111,7 @@ export async function stream<T>(
 
 /** Lo que una respuesta fallida dice que paso, recogido tal como viene. */
 interface ApiFault {
-  /** Las columnas rechazadas: la unica parte que se lee sin saber de la base. */
+  /** Las columnas rechazadas: la única parte que se lee sin saber de la base. */
   fields: { field: string; message: string; code?: string }[];
   /** El mensaje de cada nivel, de fuera adentro y sin repetirse. */
   trail: string[];
@@ -126,7 +126,7 @@ interface ApiFault {
  * que no nombra ni la columna ni el motivo, y lo que de verdad paso vive en
  * `requests.N.response`. De ahi la recursion. Se guardan los tres niveles
  * --columnas, mensajes y estado-- porque un fallo que nadie previo no tiene por
- * que caber en el primero, y lo que no se recoge aqui no se puede ensenar.
+ * que caber en el primero, y lo que no se recoge aquí no se puede ensenar.
  */
 function readFault(response: unknown, fault: ApiFault, depth = 0): void {
   if (!response || typeof response !== "object" || depth > 4) return;
@@ -177,13 +177,13 @@ const clamp = (text: string) =>
  * Mensaje legible para cualquier error que llegue del servidor.
  *
  * Dos renglones: arriba lo que hay que arreglar --la columna y lo que se le
- * objeta-- y debajo lo que dijo la API para llegar hasta ahi, con su codigo y
+ * objeta-- y debajo lo que dijo la API para llegar hasta ahi, con su código y
  * su estado. El de abajo esta por los fallos que nadie previo: sin el, una
- * respuesta con una forma que este codigo no reconoce se resumia en "Algo salio
+ * respuesta con una forma que este código no reconoce se resumia en "Algo salio
  * mal" y quien construye se quedaba sin nada que mirar ni que copiar --y el
- * aviso se selecciona con el raton justamente para copiarlo--.
+ * aviso se selecciona con el ratón justamente para copiarlo--.
  *
- * Un error de la API propia de la plataforma no pasa por aqui: ya llega escrito
+ * Un error de la API propia de la plataforma no pasa por aquí: ya llega escrito
  * en una frase suya (ver `httpError`).
  */
 export function errorMessage(err: unknown): string {
@@ -195,7 +195,7 @@ export function errorMessage(err: unknown): string {
   readFault(e.response, fault);
 
   /*
-   * La base contesta en ingles y aqui ya se dice en espanol: "cedula: Value
+   * La base contesta en ingles y aquí ya se dice en espanol: "cédula: Value
    * must be unique." con un "Batch transaction failed." debajo era lo ultimo
    * del panel que quedaba sin traducir, y justo en el momento en que hay que
    * entenderlo. Lo que no este traducido pasa tal cual; ver `shared/pbErrors`.
@@ -217,9 +217,9 @@ export function errorMessage(err: unknown): string {
   if (codes.length) parts.push(codes.join(", "));
   /*
    * De la respuesta no salio nada legible --ni columnas ni un mensaje suyo--,
-   * asi que se ensena su cuerpo tal cual. Es feo a proposito, es JSON, y es lo
-   * unico que sirve cuando la forma no es ninguna de las previstas: sin esto el
-   * aviso se quedaba en "Algo salio mal" y no habia nada que mirar ni copiar.
+   * así que se enseña su cuerpo tal cual. Es feo a propósito, es JSON, y es lo
+   * único que sirve cuando la forma no es ninguna de las previstas: sin esto el
+   * aviso se quedaba en "Algo salio mal" y no había nada que mirar ni copiar.
    */
   if (!trail.length && !fields.length && e.response) {
     try {
@@ -232,7 +232,7 @@ export function errorMessage(err: unknown): string {
   /*
    * El estado acompana a un fallo, no es un fallo por si solo: se pone cuando
    * ya hay algo mas que contar. Un "Failed to authenticate." --que es lo que ve
-   * quien se equivoca de clave al entrar en una aplicacion publicada-- no tiene
+   * quien se equivoca de clave al entrar en una aplicación publicada-- no tiene
    * por que llevar un HTTP 400 detras.
    */
   if (fault.status && parts.length) parts.push(`HTTP ${fault.status}`);
@@ -241,10 +241,10 @@ export function errorMessage(err: unknown): string {
 }
 
 /**
- * Si el fallo fue por pedir demasiado rapido, mire donde mire.
+ * Si el fallo fue por pedir demasiado rápido, mire donde mire.
  *
  * Un lote lo dice por dentro: el pedido que se paso del limite trae su `429` y
- * el lote entero responde `400`, asi que el estado de fuera no sirve para
+ * el lote entero responde `400`, así que el estado de fuera no sirve para
  * reconocerlo. Se busca en todos los niveles, que es lo que permite volver a
  * intentar el tramo en vez de tumbar la importacion. Ver
  * `shared/importBatch.ts`.
@@ -265,7 +265,7 @@ export function fileUrl(
   if (!filename) return "";
   const collection = record.collectionId ?? record.collectionName ?? "";
   // Codificado: un nombre de archivo con un `#` o un `?` dentro partiria la
-  // direccion y el navegador pediria otra cosa.
+  // dirección y el navegador pediria otra cosa.
   const base = `/pb/api/files/${encodeURIComponent(collection)}/${encodeURIComponent(
     record.id,
   )}/${encodeURIComponent(filename)}`;

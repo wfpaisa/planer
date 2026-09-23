@@ -1,14 +1,14 @@
 <!--
-  El dialogo de impacto.
+  El diálogo de impacto.
 
   Se abre cuando la IA necesita un cambio que puede romper algo: borrar una
   columna o una tabla, o cambiar el tipo de una columna. Dice siempre lo mismo
-  --que cambio, para que se pide, que paginas usan lo que se va a tocar y que
-  salidas hay-- y se abre al instante: los nombres de las paginas salen del
+  --que cambio, para que se pide, que páginas usan lo que se va a tocar y que
+  salidas hay-- y se abre al instante: los nombres de las páginas salen del
   manifiesto, y el detalle de para que las usa cada una se consulta solo si se
   pide.
 
-  Es tambien el unico sitio donde se autoriza que la IA toque una pagina que
+  Es también el único sitio donde se autoriza que la IA toque una página que
   no es la abierta.
 -->
 <script lang="ts">
@@ -36,7 +36,7 @@
   let error = $state("");
 
   const many = $derived(impact.changes.length > 1);
-  /** Lo que se va a tocar, para preguntarle a la IA para que lo usa cada pagina. */
+  /** Lo que se va a tocar, para preguntarle a la IA para que lo usa cada página. */
   const what = $derived(
     impact.changes.map((c) => c.fieldLabel ?? c.field ?? c.tableLabel).join(", "),
   );
@@ -66,7 +66,7 @@
 <OmniPanel
   {onClose}
   title={many ? "Estos cambios pueden romper algo" : "Este cambio puede romper algo"}
-  description="Decide una vez y se hace todo junto."
+  description="Revisa el impacto antes de aplicar los cambios."
 >
   <div class="impact-body flex flex-col gap-4">
     <ErrorNote message={error} />
@@ -91,7 +91,7 @@
     <section>
       {@render label("Quién lo usa")}
       {#if impact.pages.length === 0}
-        <p class="impact-no-pages">Ninguna página declara lo que se va a cambiar.</p>
+        <p class="impact-no-pages">El cambio no afecta a ninguna página.</p>
       {:else}
         <div class="impact-pages inset plain">
           {#each impact.pages as page (page.id)}
@@ -126,7 +126,7 @@
 </OmniPanel>
 
 <style>
-  /* El rotulo de cada tramo es `.eyebrow` del catalogo; aqui solo su hueco. */
+  /* El rotulo de cada tramo es `.eyebrow` del catálogo; aqui solo su hueco. */
   .impact-label {
     margin-bottom: var(--sp-6);
   }
@@ -167,7 +167,7 @@
     }
 
     /* La caja es `.inset.plain` --el cerco sin fondo, que lo ponen las filas
-       de dentro--; aqui solo la linea que separa una pagina de la siguiente. */
+       de dentro--; aqui solo la línea que separa una página de la siguiente. */
     & .impact-pages {
       padding: 0;
 
@@ -176,7 +176,7 @@
       }
     }
 
-    /* Cada salida es `.opt` del catalogo, con su par `.opt-label` /
+    /* Cada salida es `.opt` del catálogo, con su par `.opt-label` /
        `.opt-hint`: aqui solo el reparto de la lista. */
     & .impact-options {
       display: flex;

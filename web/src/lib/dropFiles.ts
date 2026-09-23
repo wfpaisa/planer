@@ -1,12 +1,12 @@
 /**
- * Lo que pasa cuando se suelta un archivo encima de una pagina.
+ * Lo que pasa cuando se suelta un archivo encima de una página.
  *
  * No hay zona a la que apuntar: vale cualquier parte de la pantalla. Por la
- * pinta del archivo se sabe que se le puede hacer --un HTML es una pagina, un
+ * pinta del archivo se sabe que se le puede hacer --un HTML es una página, un
  * archivo de datos es una tabla-- y quien construye elige cual de esas cosas
- * quiere, incluida la de no hacer ninguna y darselo a la IA como material.
+ * quiere, incluida la de no hacer ninguna y dárselo a la IA como material.
  *
- * Aqui vive lo que hay que saber hacer con el archivo. Quien pregunta es el
+ * Aquí vive lo que hay que saber hacer con el archivo. Quien pregunta es el
  * constructor; esto solo lee, crea e importa.
  */
 import { IMPORT_BATCH_CHUNK } from "@shared/importBatch";
@@ -38,16 +38,16 @@ import { type FileShape, fileTitle, guessTable, type IdsExist, sameName } from "
 /**
  * Que es lo que se solto.
  *
- * `html` y `data` son los que la aplicacion sabe volver algo suyo --una pagina,
- * una tabla--. `ia` es todo lo demas que se puede leer: una hoja de estilos, un
+ * `html` y `data` son los que la aplicación sabe volver algo suyo --una página,
+ * una tabla--. `ia` es todo lo demás que se puede leer: una hoja de estilos, un
  * script, una imagen. Con eso no se crea nada, se le da a la IA como material.
  */
 export type DropKind = "html" | "data" | "ia" | "unknown";
 
-/** Los archivos de datos que se saben leer, hoja de calculo incluida. */
+/** Los archivos de datos que se saben leer, hoja de cálculo incluida. */
 const DATA_EXTENSIONS = [".csv", ".tsv", ".json", ".xlsx", ".xlsm"];
 
-/** Si el archivo trae filas y columnas, sea CSV, JSON u hoja de calculo. */
+/** Si el archivo trae filas y columnas, sea CSV, JSON u hoja de cálculo. */
 const isDataFile = (file: File) =>
   DATA_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext));
 
@@ -73,7 +73,7 @@ const baseName = (file: File) => file.name.replace(/\.[^.]+$/, "").trim() || "Si
 /**
  * Como se llamaria la tabla de este archivo: su nombre, ya sin la cola.
  *
- * Pasa por la misma regla que las columnas: lo que salio de aqui se llama
+ * Pasa por la misma regla que las columnas: lo que salio de aquí se llama
  * `chequeo-preoperacional.csv` --por la etiqueta de la tabla-- y volver a
  * soltarlo tiene que crear "Chequeo preoperacional", no el nombre tecnico.
  */
@@ -84,11 +84,11 @@ export function dataFileName(file: File): string {
 /**
  * La tabla que ya guarda lo que trae este archivo, si es que hay alguna.
  *
- * Las tres capas viven en `tableGuess.ts`; aqui se les da lo que necesitan: el
+ * Las tres capas viven en `tableGuess.ts`; aquí se les da lo que necesitan: el
  * archivo leido y una forma de preguntarle a la base por unos identificadores.
  *
  * Las dos primeras capas miran dentro del archivo. Si no se deja leer --formato
- * roto, hoja vacia-- queda la del nombre, que no lo necesita: un archivo
+ * roto, hoja vacía-- queda la del nombre, que no lo necesita: un archivo
  * ilegible sigue diciendo de que tabla salio.
  */
 export async function matchingTable(
@@ -126,13 +126,13 @@ export type ImportMode = "update" | "add" | "replace";
  * El orden de las filas cuando lo que importa es cual es la primera.
  *
  * Exportar e importar tienen que contar igual: si al salir la fila 1 es la
- * mas antigua, al volver a entrar tambien. Por eso el orden se pide a mano en
+ * mas antigua, al volver a entrar también. Por eso el orden se pide a mano en
  * los dos sitios en vez de dejarlo al gusto de la base. La id desempata a las
  * que nacieron en el mismo lote y comparten el instante.
  */
 export const ROW_ORDER = "created,id";
 
-/** Crea una pagina con el HTML del archivo y devuelve la pagina creada. */
+/** Crea una página con el HTML del archivo y devuelve la página creada. */
 export async function pageFromHtmlFile(
   appId: string,
   file: File,
@@ -156,7 +156,7 @@ export async function pageFromHtmlFile(
   return { ...page, doc: saved.doc };
 }
 
-/** Escribe el HTML del archivo encima de una pagina que ya existe. */
+/** Escribe el HTML del archivo encima de una página que ya existe. */
 export async function htmlIntoPage(
   appId: string,
   pageId: string,
@@ -170,9 +170,9 @@ export async function htmlIntoPage(
 /**
  * Lee el archivo y devuelve sus columnas y sus filas, ya recortadas al tope.
  *
- * Una hoja de calculo se convierte antes a CSV: lo que sigue --adivinar el
+ * Una hoja de cálculo se convierte antes a CSV: lo que sigue --adivinar el
  * separador, emparejar columnas, convertir celdas-- es el mismo camino que el
- * de un `.csv`, y asi hay uno solo que mantener.
+ * de un `.csv`, y así hay uno solo que mantener.
  */
 async function readDataFile(file: File): Promise<{ columns: string[]; rows: string[][] }> {
   let text: string;
@@ -229,12 +229,12 @@ export async function planDataFile(file: File): Promise<DataFilePlan> {
  * Crea la tabla con las columnas del archivo y guarda sus filas.
  *
  * Todo entra como texto salvo lo que se deja convertir: adivinar tipos con
- * datos de verdad delante sale mas caro que dejar cambiarlos despues.
+ * datos de verdad delante sale mas caro que dejar cambiarlos después.
  *
  * La excepcion es la columna que se acepto relacionar con los usuarios, que
  * nace ya de tipo persona. Emparejando al entrar, la fila queda enlazada de una
  * vez y al corralito solo van los que de verdad no son de nadie. Convertirla
- * despues tambien sirve --al guardar el cambio se emparejan los valores que
+ * después también sirve --al guardar el cambio se emparejan los valores que
  * quedaron esperando, ver `linkParkedValues`-- pero hacerlo al entrar ahorra el
  * paso entero.
  */
@@ -243,11 +243,11 @@ export async function tableFromPlan(
   plan: DataFilePlan,
   /** La columna que nombra usuarios, si se acepto relacionarla. */
   link: PersonLink | null,
-  /** Las tablas de la aplicacion y sus invitados: hacen falta para emparejar. */
+  /** Las tablas de la aplicación y sus invitados: hacen falta para emparejar. */
   context: { tables: TableRecord[]; people: AppPerson[] },
 ): Promise<{ table: TableRecord; rows: number; linked: number }> {
-  // La columna que nombra usuarios nace como una relacion a la tabla de
-  // personas, que es la unica forma de apuntar a alguien.
+  // La columna que nombra usuarios nace como una relación a la tabla de
+  // personas, que es la única forma de apuntar a alguien.
   const people = peopleTableOf(context.tables);
   const fields: FieldDef[] = plan.kept.map(({ column }) =>
     link && column === link.column && people
@@ -295,7 +295,7 @@ export async function tableFromPlan(
    * Escribirlas una a una era un viaje al servidor por fila: un archivo de
    * cuatrocientas tardaba lo que tardan cuatrocientas peticiones en fila india,
    * con el cartel de "Creando la tabla..." puesto todo el rato, mientras el
-   * mismo archivo por el dialogo de importar entraba de golpe. Es el mismo
+   * mismo archivo por el diálogo de importar entraba de golpe. Es el mismo
    * camino que usa `importIntoTable`.
    */
   const url = `/api/collections/${table.dataCollection}/records`;
@@ -307,7 +307,7 @@ export async function tableFromPlan(
       const raw = (row[plan.kept[i].index] ?? "").trim();
       if (!raw) return;
 
-      // Una relacion ocupa dos columnas reales y se decide por el emparejado,
+      // Una relación ocupa dos columnas reales y se decide por el emparejado,
       // no por el texto: el id si lo encontro, el corralito si no.
       if (isRelationField(field) && field.multiple !== true) {
         const match = matches.get(field.name)?.get(raw) ?? { id: "", value: raw };
@@ -336,10 +336,10 @@ interface BatchRequest {
 /**
  * Manda las escrituras por lotes y cuenta las que la base rechazo.
  *
- * Una fila mala no para a las demas, que es lo que promete esto desde el
+ * Una fila mala no para a las demás, que es lo que promete esto desde el
  * principio; lo que hacia falta para cumplirlo es que el tramo rechazado se
  * repita escritura a escritura. El lote es una transaccion: si una sola cae,
- * PocketBase no escribe ninguna de las doscientas, asi que sin repetirlas una a
+ * PocketBase no escribe ninguna de las doscientas, así que sin repetirlas una a
  * una la fila mala se llevaba por delante a sus vecinas. Lo normal --que no
  * falle nada-- sigue costando un pedido por tramo.
  */
@@ -351,7 +351,7 @@ async function runBatch(requests: BatchRequest[]): Promise<number> {
   return failures;
 }
 
-/** Manda un tramo de golpe, con el header de la sesion del panel. */
+/** Manda un tramo de golpe, con el header de la sesión del panel. */
 const postChunk = (chunk: BatchRequest[]) =>
   fetch("/pb/api/batch", {
     method: "POST",
@@ -362,7 +362,7 @@ const postChunk = (chunk: BatchRequest[]) =>
 /**
  * Un tramo: de golpe si se puede, y una a una si la base rechazo alguna.
  *
- * Ir demasiado rapido no es una fila mala --no hay nada que aislar-- asi que
+ * Ir demasiado rápido no es una fila mala --no hay nada que aislar-- así que
  * eso se arregla esperando y repitiendo el tramo entero, que no escribio nada.
  * Ver `shared/importBatch.ts`.
  */
@@ -406,13 +406,13 @@ async function sendChunk(chunk: BatchRequest[]): Promise<number> {
  *
  * Las filas se emparejan por su sitio, no por su contenido: la primera del
  * archivo es la primera de la tabla. Es lo que espera quien exporta, cambia
- * cuatro celdas en una hoja de calculo y vuelve a soltar el mismo archivo.
+ * cuatro celdas en una hoja de cálculo y vuelve a soltar el mismo archivo.
  */
 export async function importIntoTable(
   table: TableRecord,
   file: File,
   mode: ImportMode,
-  /** Las tablas de la aplicacion y sus invitados: hacen falta para emparejar. */
+  /** Las tablas de la aplicación y sus invitados: hacen falta para emparejar. */
   context?: { tables: TableRecord[]; people: AppPerson[] },
 ): Promise<{ table: TableRecord; rows: number; failed: number }> {
   const { columns, rows } = await readDataFile(file);
@@ -446,7 +446,7 @@ export async function importIntoTable(
    * 3. Que filas hay ahora, y en que orden.
    *
    * Por antiguedad, que es el mismo orden con el que salen al exportar (ver
-   * `ROW_ORDER`): asi la fila 1 de aqui es la fila 1 del archivo que salio de
+   * `ROW_ORDER`): así la fila 1 de aquí es la fila 1 del archivo que salio de
    * esta misma tabla, y un archivo retocado vuelve a su sitio exacto. La id
    * desempata a las que nacieron en el mismo lote y comparten instante.
    */
@@ -458,10 +458,10 @@ export async function importIntoTable(
           .getFullList<{ id: string }>({ fields: "id", sort: ROW_ORDER });
 
   /*
-   * 3b. Las columnas de relacion, emparejadas por su llave.
+   * 3b. Las columnas de relación, emparejadas por su llave.
    *
-   * Igual que al importar desde el dialogo: lo que trae el archivo es una
-   * cedula o un correo, y aqui se convierte en el enlace al registro. Lo que no
+   * Igual que al importar desde el diálogo: lo que trae el archivo es una
+   * cédula o un correo, y aquí se convierte en el enlace al registro. Lo que no
    * encuentra dueno se guarda con su valor a la vista, sin frenar la fila.
    */
   const matches = context
@@ -488,7 +488,7 @@ export async function importIntoTable(
   rows.forEach((row, index) => {
     /*
      * Actualizar cambia la fila entera, no solo lo que el archivo rellena:
-     * una celda que el archivo trae vacia deja vacia la de la tabla. Si no,
+     * una celda que el archivo trae vacía deja vacía la de la tabla. Si no,
      * "la fila 1 pasa a ser la del archivo" seria mentira a medias.
      */
     const posicion = mode === "update" ? existentes[index] : undefined;
@@ -499,7 +499,7 @@ export async function importIntoTable(
       // por su sitio, no hay nada que buscar con ella.
       if (!field || field === "id") return;
 
-      // Una relacion ocupa dos columnas reales y se decide por el emparejado,
+      // Una relación ocupa dos columnas reales y se decide por el emparejado,
       // no por el texto: el id si lo encontro, el corralito si no.
       if (isRelationField(field) && field.multiple !== true) {
         if (!raw) {

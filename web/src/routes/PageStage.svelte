@@ -1,30 +1,30 @@
 <!--
-  Una pagina de la aplicacion, vista por quien la construye.
+  Una página de la aplicación, vista por quien la construye.
 
   Debajo del encabezado, la escena reparte lo que queda entre tres columnas: a
   la izquierda el dock de la IA --cuando esta traido--, luego el sidebar para
-  ir de una pagina a otra --a su lado o encima, si flota-- y por ultimo el
+  ir de una página a otra --a su lado o encima, si flota-- y por ultimo el
   documento, en su marco aislado. Nada de eso vive dentro del documento, asi
-  que ningun HTML puede romperlo y ningun chrome puede recortarlo.
+  que ningún HTML puede romperlo y ningún chrome puede recortarlo.
 
-  La barra de direccion encabeza las dos ultimas columnas --sidebar y
+  La barra de dirección encabeza las dos ultimas columnas --sidebar y
   documento-- en vez de cruzar la ventana entera: cuenta el enlace de la
-  pagina, que es justo lo que hay debajo, y el dock conserva su columna de
+  página, que es justo lo que hay debajo, y el dock conserva su columna de
   arriba abajo.
 
   El dock ocupa su columna en vez de dibujarse encima: mientras se habla con la
   IA, lo construido se sigue viendo entero.
 
-  Debajo de la barra de direccion --y solo cuando se mira con ojos que no son
+  Debajo de la barra de dirección --y solo cuando se mira con ojos que no son
   los de quien construye-- cruza la barra de la vista previa. Cruza entera, el
-  sidebar incluido, porque mirar con otro rol no cambia solo lo que la pagina
-  ensena: cambia tambien que paginas hay, y el sidebar se queda con las que ese
-  rol abre. Con quien mirar se elige arriba, en la barra de direccion; aqui
+  sidebar incluido, porque mirar con otro rol no cambia solo lo que la página
+  enseña: cambia también que páginas hay, y el sidebar se queda con las que ese
+  rol abre. Con quien mirar se elige arriba, en la barra de dirección; aqui
   solo queda con que persona concreta, y salir.
 
   Y cada cual con su paleta: el chrome se pinta con el tema del panel, igual
   que el resto del administrador; la zona del documento lleva el tema de la
-  aplicacion, que es el que el marco lee de su contenedor y le pasa al HTML.
+  aplicación, que es el que el marco lee de su contenedor y le pasa al HTML.
 -->
 <script lang="ts">
   import { canOpenPage, DEFAULT_PAGE_ICON, defaultPageName } from "@shared/pages";
@@ -55,7 +55,7 @@
   import { theme } from "../lib/theme.svelte";
 
   /**
-   * El valor con el que el selector dice "sin sesion".
+   * El valor con el que el selector dice "sin sesión".
    *
    * No es un rol y no puede chocar con uno: los nombres de rol se normalizan a
    * minusculas, letras, numeros y guiones. Ver `normalizeRole`.
@@ -66,9 +66,9 @@
    * El valor con el que el selector dice "sin rol".
    *
    * Tampoco es un rol, y por lo mismo no puede chocar con uno. No es lo mismo
-   * que `ANON`: aqui hay sesion --alguien entro-- y no tiene ningun rol de la
-   * aplicacion, que es lo que le pasa a quien acaba de ser invitado y todavia
-   * no le nombraron ninguno. Es la unica salida que ensena las pantallas
+   * que `ANON`: aqui hay sesión --alguien entro-- y no tiene ningún rol de la
+   * aplicación, que es lo que le pasa a quien acaba de ser invitado y todavía
+   * no le nombraron ninguno. Es la única salida que enseña las pantallas
    * abiertas a `Todos` tal como las ve un invitado cualquiera.
    */
   const NO_ROLE = "__sin_rol__";
@@ -78,34 +78,34 @@
   const builder = useBuilder();
   const app = $derived(builder.app);
 
-  /* Que pagina se esta ajustando y por donde se entro: los del HTML se piden
-     desde la barra de direccion y abren la tarjeta derecho en su panel. */
+  /* Que página se esta ajustando y por donde se entro: los del HTML se piden
+     desde la barra de dirección y abren la tarjeta derecho en su panel. */
   let settingsFor = $state<PageRecord | null>(null);
   let settingsPanel = $state<Panel>("page");
   let converting = $state(false);
   /*
-   * Con quien se esta mirando la pagina.
+   * Con quien se esta mirando la página.
    *
-   * `ANON` no es un rol: es mirar como quien llega sin cuenta, que es lo unico
-   * que ensena de verdad la pantalla de entrar de una aplicacion que la exige.
-   * `NO_ROLE` tampoco: es mirar con sesion y sin ningun rol, que es como entra
+   * `ANON` no es un rol: es mirar como quien llega sin cuenta, que es lo único
+   * que enseña de verdad la pantalla de entrar de una aplicación que la exige.
+   * `NO_ROLE` tampoco: es mirar con sesión y sin ningún rol, que es como entra
    * quien acaba de ser invitado. Por eso viajan en el mismo selector y no en
    * interruptores aparte: son salidas de la misma pregunta, y varios controles
-   * dejarian estados imposibles --un rol y sin sesion a la vez--.
+   * dejarian estados imposibles --un rol y sin sesión a la vez--.
    *
-   * Arranca en `admin`, que es el rol de quien construye. No hay opcion de
-   * mirar con los ojos propios: mirar la propia pagina siendo el dueno no
-   * ensena lo que ve nadie mas.
+   * Arranca en `admin`, que es el rol de quien construye. No hay opción de
+   * mirar con los ojos propios: mirar la propia página siendo el dueno no
+   * enseña lo que ve nadie mas.
    *
    * Lo elegido --el rol y la persona-- se recuerda en el navegador por
-   * aplicacion: probar una pantalla con otros ojos es mirarla, tocar el HTML y
+   * aplicación: probar una pantalla con otros ojos es mirarla, tocar el HTML y
    * recargar, y empezar de cero en cada refresco obligaba a rehacerlo. Lo
    * recordado puede haber dejado de existir, y eso se depura mas abajo.
    */
   const preview = previewAs(() => builder.app.id);
   /**
-   * El aviso de la pagina, con su tono. Por aqui pasa tanto lo que se rompio
-   * como lo que se acaba de hacer --convertir la pagina, resolver un impacto--
+   * El aviso de la página, con su tono. Por aqui pasa tanto lo que se rompio
+   * como lo que se acaba de hacer --convertir la página, resolver un impacto--
    * y contar en rojo algo que salio bien hacia dudar de que hubiera salido.
    */
   let notice = $state<{ kind: ToastKind; text: string } | null>(null);
@@ -116,12 +116,12 @@
   const pin = sidebarPin(() => builder.app.id);
 
   /*
-   * Que paginas de la aplicacion tienen a la IA trabajando.
+   * Que páginas de la aplicación tienen a la IA trabajando.
    *
-   * Se pregunta una sola vez por aplicacion, al entrar: a partir de ahi lo
-   * mantiene al dia el hilo de avisos de cada peticion, que cuenta el cambio en
-   * el momento exacto en que pasa. La pagina abierta se salta porque de esa se
-   * encarga el panel, que ademas la ensena avanzando.
+   * Se pregunta una sola vez por aplicación, al entrar: a partir de ahi lo
+   * mantiene al dia el hilo de avisos de cada petición, que cuenta el cambio en
+   * el momento exacto en que pasa. La página abierta se salta porque de esa se
+   * encarga el panel, que ademas la enseña avanzando.
    *
    * La comparacion con la anterior no sobra: `app` se vuelve a leer entero
    * cada vez que la IA da un paso --el lienzo se refresca-- y sin esto cada
@@ -133,8 +133,8 @@
     const id = app.id;
     if (id === seeded) return;
     seeded = id;
-    // La pagina abierta se lee sin depender de ella: cambiar de pagina no es
-    // volver a entrar en la aplicacion.
+    // La página abierta se lee sin depender de ella: cambiar de página no es
+    // volver a entrar en la aplicación.
     void seedAiActivity(
       id,
       untrack(() => page.id),
@@ -148,38 +148,38 @@
 
   const loadDoc = $derived(appPageLoader(app.id, page.id));
   const empty = $derived(!page.doc);
-  /** Una pagina de las de antes: guarda bloques y todavia no tiene HTML. */
+  /** Una página de las de antes: guarda bloques y todavía no tiene HTML. */
   const blocks = $derived(empty ? legacyBlockCount(page) : 0);
   /*
-   * Un rol que la aplicacion ya no define se suelta aqui. Si no, cada orden de
+   * Un rol que la aplicación ya no define se suelta aqui. Si no, cada orden de
    * datos fallaria con un error sobre un rol que el constructor no recuerda
    * haber elegido, y la pantalla se veria rota sin decir por que.
    */
   const previewAnon = $derived(preview.role === ANON);
-  /** Mirando con sesion y sin ningun rol de la aplicacion. */
+  /** Mirando con sesión y sin ningún rol de la aplicación. */
   const previewNoRole = $derived(preview.role === NO_ROLE);
   /**
    * Los roles con los que se puede mirar, `admin` delante.
    *
    * El servidor ya lo guarda asi --ver `withAdminRole` en `server/routes.ts`--
    * pero el orden se repone aqui igualmente: es el primero de la lista que se
-   * ofrece y el sitio al que se vuelve al cerrar la barra, y una aplicacion
+   * ofrece y el sitio al que se vuelve al cerrar la barra, y una aplicación
    * vieja que no lo nombrara dejaria el desplegable sin salida.
    */
   const previewRoles = $derived([ADMIN_ROLE, ...(app.roles ?? []).filter((r) => r !== ADMIN_ROLE)]);
   const previewRole = $derived(previewRoles.includes(preview.role) ? preview.role : "");
 
   /**
-   * Lo que ofrece el desplegable de la barra de direccion, en dos grupos.
+   * Lo que ofrece el desplegable de la barra de dirección, en dos grupos.
    *
    * Arriba las tres salidas que no dependen de como se llame nada en esta
-   * aplicacion: quien construye, quien llega sin haber entrado y quien entro
-   * pero todavia no es nada. Son las que se piden a cada rato --se mira la
-   * pagina, se comprueba que un desconocido no la ve, se vuelve-- y las tres
-   * estan siempre, tenga la aplicacion los roles que tenga.
+   * aplicación: quien construye, quien llega sin haber entrado y quien entro
+   * pero todavía no es nada. Son las que se piden a cada rato --se mira la
+   * página, se comprueba que un desconocido no la ve, se vuelve-- y las tres
+   * estan siempre, tenga la aplicación los roles que tenga.
    *
    * Debajo de la raya, los roles propios. Son los que cambian de una
-   * aplicacion a otra, y los que pueden ser muchos.
+   * aplicación a otra, y los que pueden ser muchos.
    *
    * Las dos primeras van rotuladas desde aqui porque no salen de ninguna
    * lista: no son un rol y no tienen nombre que ensenar.
@@ -190,7 +190,7 @@
     { value: ANON, label: "Sin un inicio de sesión" },
     { value: NO_ROLE, label: "Sin un rol" },
     // La raya la pide el primero de los roles propios, no la lista: asi una
-    // aplicacion que no tenga ninguno no acaba el menu en una linea suelta.
+    // aplicación que no tenga ninguno no acaba el menu en una línea suelta.
     ...otherRoles.map((role, i) => ({ value: role, label: role, linea: i === 0 })),
   ]);
 
@@ -198,7 +198,7 @@
    * Si se esta mirando con ojos ajenos.
    *
    * Mirar como `admin` es mirar como quien construye, que es lo normal: por eso
-   * no enciende la barra. Cualquier otra salida --otro rol, o sin sesion-- si,
+   * no enciende la barra. Cualquier otra salida --otro rol, o sin sesión-- si,
    * porque entonces lo que se ve no es lo que se tiene.
    */
   const previewing = $derived(preview.role !== ADMIN_ROLE);
@@ -207,8 +207,8 @@
    * Las personas con las que se puede mirar.
    *
    * Con un rol elegido, las que lo tienen. Sin rol, las que no tienen ninguno
-   * --las invitadas a las que todavia no les nombraron uno--, que son
-   * exactamente las que ven la aplicacion asi. Sin sesion no hay ninguna que
+   * --las invitadas a las que todavía no les nombraron uno--, que son
+   * exactamente las que ven la aplicación asi. Sin sesión no hay ninguna que
    * ofrecer: quien llega sin cuenta no es nadie.
    */
   const people = getPeople();
@@ -223,7 +223,7 @@
   /*
    * Lo recordado que ya no existe se suelta al llegar.
    *
-   * Un rol se puede quitar de la aplicacion --y se puede quitar mientras se
+   * Un rol se puede quitar de la aplicación --y se puede quitar mientras se
    * esta mirando con el--: sin esto, la barra se quedaria encendida diciendo
    * que se mira con un rol que no se llama de ninguna manera. Se vuelve a los
    * ojos de quien construye, que es de donde se salio.
@@ -235,10 +235,10 @@
 
   /*
    * Y la persona que ya no esta en la lista del rol elegido: se fue de la
-   * aplicacion, o le quitaron ese rol.
+   * aplicación, o le quitaron ese rol.
    *
    * Se espera a que el padron llegue --se pide al servidor, y hasta entonces
-   * esta vacio-- porque si no, la persona recordada se soltaria siempre en el
+   * esta vacío-- porque si no, la persona recordada se soltaria siempre en el
    * primer dibujado, antes de que hubiera lista donde buscarla.
    */
   $effect(() => {
@@ -254,15 +254,15 @@
    *
    * Viaja la persona entera y no su identificador: al servidor le basta el id,
    * pero el documento necesita ademas su nombre, su correo, sus roles y sus
-   * columnas propias --su cedula, su cargo-- para que `plane.usuario` sea ella
+   * columnas propias --su cédula, su cargo-- para que `plane.usuario` sea ella
    * entera. Con dos datos --el id por un lado y la ficha por otro-- cabria que
    * discreparan.
    */
   const previewPerson = $derived(candidates.find((p) => p.id === preview.person) ?? null);
 
   /**
-   * Quien esta mirando, en lo que le hace falta saber a una pagina para decidir
-   * si se abre. `null` es sin sesion, que es lo que ve quien llega sin cuenta.
+   * Quien esta mirando, en lo que le hace falta saber a una página para decidir
+   * si se abre. `null` es sin sesión, que es lo que ve quien llega sin cuenta.
    */
   const previewViewer = $derived(
     previewAnon
@@ -273,13 +273,13 @@
   );
 
   /**
-   * Las paginas que el sidebar ensena mientras se mira con ojos ajenos.
+   * Las páginas que el sidebar enseña mientras se mira con ojos ajenos.
    *
-   * Esconder --y no apagar-- lo que ese rol no abre es lo unico que ensena la
-   * navegacion que va a ver de verdad: en la aplicacion publicada la lista
-   * llega ya filtrada por el servidor, asi que una pagina apagada seria una
-   * linea que alli no existe. Con `admin` no se filtra nada: quien construye
-   * tiene que poder llegar a todas sus paginas.
+   * Esconder --y no apagar-- lo que ese rol no abre es lo único que enseña la
+   * navegacion que va a ver de verdad: en la aplicación publicada la lista
+   * llega ya filtrada por el servidor, asi que una página apagada seria una
+   * línea que alli no existe. Con `admin` no se filtra nada: quien construye
+   * tiene que poder llegar a todas sus páginas.
    */
   const visiblePages = $derived(
     previewing ? builder.pages.filter((p) => canOpenPage(p, previewViewer)) : builder.pages,
@@ -289,10 +289,10 @@
    * Como se nombra a una persona en este selector: por su correo entero.
    *
    * No por su nombre. El nombre de una persona invitada es el que traiga su
-   * cuenta --en muchas aplicaciones, la cedula, o un apodo que no es el de su
+   * cuenta --en muchas aplicaciones, la cédula, o un apodo que no es el de su
    * correo--, y dos personas distintas pueden leerse igual. El correo es lo
-   * unico que no se repite, y es tambien lo que la pagina compara cuando
-   * ensena "lo mio", asi que es lo que hay que poder reconocer aqui. Sin
+   * único que no se repite, y es también lo que la página compara cuando
+   * enseña "lo mio", asi que es lo que hay que poder reconocer aqui. Sin
    * cortar: medio correo no distingue a nadie.
    */
   const personLabel = (person: AppPerson) => person.email || person.name || "esa persona";
@@ -304,14 +304,14 @@
     await builder.reloadApp();
   }
 
-  /** Despues de la IA hay que releerlo todo: pudo tocar tablas y pagina. */
+  /** Después de la IA hay que releerlo todo: pudo tocar tablas y página. */
   async function reloadAll() {
     await Promise.all([builder.reloadPages(), builder.reloadTables()]);
     await builder.reloadApp();
   }
 
   /**
-   * El orden nuevo despues de arrastrar una pagina en el sidebar.
+   * El orden nuevo después de arrastrar una página en el sidebar.
    *
    * Solo se guardan las que cambiaron de sitio: mover la ultima arriba no tiene
    * por que escribir toda la lista. La lista se relee al terminar, que es lo
@@ -353,7 +353,7 @@
     }
   }
 
-  /** Un texto que agrupa a las paginas de alrededor. No se abre, asi que no navega. */
+  /** Un texto que agrupa a las páginas de alrededor. No se abre, asi que no navega. */
   async function createSeparator() {
     hush();
     try {
@@ -388,8 +388,8 @@
     El sidebar flotante se dibuja encima del documento, no del dock: por eso los
     dos comparten este envoltorio y el dock se queda fuera.
 
-    La barra de direccion encabeza este envoltorio, no la ventana: cuenta el
-    enlace de la pagina, asi que se queda encima de lo que se esta viendo
+    La barra de dirección encabeza este envoltorio, no la ventana: cuenta el
+    enlace de la página, asi que se queda encima de lo que se esta viendo
     --sidebar y documento-- y deja al dock su columna entera.
   -->
   <div id="page-stage-body" class="body-stage-page flex flex-col flex-1">
@@ -408,14 +408,14 @@
     />
 
     <!--
-      Con quien se esta mirando la pagina. No simula nada: el servidor resuelve
+      Con quien se esta mirando la página. No simula nada: el servidor resuelve
       las ordenes de datos como si quien preguntara fuera ese rol, esa persona
       o nadie, porque una vista previa que demuestra que la pantalla se dibuja
       --y no que el permiso funciona-- es peor que no tenerla.
 
       Cruza la ventana entera, sidebar incluido, y no solo el documento: lo que
-      cambia al mirar con otros ojos no es solo lo que la pagina ensena, es
-      tambien que paginas hay. Una barra que tapara solo el documento diria que
+      cambia al mirar con otros ojos no es solo lo que la página enseña, es
+      también que páginas hay. Una barra que tapara solo el documento diria que
       la navegacion de al lado sigue siendo la propia.
 
       Con `admin` no se dibuja: mirar como quien construye es lo normal, y una
@@ -435,11 +435,11 @@
         </span>
 
         <!--
-          La persona es opcional y arranca vacia: sin ella se mira con ese rol
+          La persona es opcional y arranca vacía: sin ella se mira con ese rol
           y sin ser nadie en concreto, que es lo que basta para casi todo.
-          Elegirla es lo que deja probar una pantalla que ensena "lo mio".
+          Elegirla es lo que deja probar una pantalla que enseña "lo mio".
 
-          El rol ya no se elige aqui: se elige en la barra de direccion, que es
+          El rol ya no se elige aqui: se elige en la barra de dirección, que es
           desde donde se entra a mirar. Tenerlo en los dos sitios dejaba dos
           mandos para la misma pregunta.
         -->
@@ -497,7 +497,7 @@
 
       <main id="page-stage-main" class="main-stage-page flex-1 h-full">
         <!--
-          La zona del documento es lo unico que lleva el tema de la aplicacion.
+          La zona del documento es lo único que lleva el tema de la aplicación.
           El marco aislado lee de aqui los colores que le pasa al HTML; lo que
           queda fuera --dock, sidebar, avisos-- se ve con el tema del panel.
         -->
@@ -507,9 +507,9 @@
               {#if blocks > 0}
                 <div class="empty-doc-card flex flex-col items-center gap-3 text-center">
                   <p class="empty-doc-copy">
-                    Esta página se armó con {blocks}
-                    {blocks === 1 ? "bloque" : "bloques"}, y eso ya no se dibuja. La IA puede
-                    escribir el HTML que hace lo mismo, y lo revisas antes de reemplazarla.
+                    Esta página usa {blocks}
+                    {blocks === 1 ? "bloque antiguo" : "bloques antiguos"}. Conviértela a HTML para
+                    volver a mostrarla; podrás revisar el resultado antes de guardarlo.
                   </p>
                   <Button variant="secondary" size="sm" onclick={() => (converting = true)}>
                     <Icon name="magic-wand-01" size={13} /> Convertir a HTML
@@ -517,22 +517,13 @@
                 </div>
               {:else if builder.aiReady}
                 <!--
-                  El saludo de la pagina en blanco cuando la IA esta conectada.
-                  Vive dentro de la superficie del documento, asi que lo que se
-                  pinta con el acento lleva el de la paleta de la aplicacion, no
-                  el del panel.
-
-                  Antes aqui habia una linea que decia "esperando tu primera
-                  instruccion" y una copia que mandaba pulsar un boton llamado
-                  "Iniciar conversacion" que no existia en ninguna parte. Lo
-                  que hay que hacer es una sola cosa, asi que es un boton: abre
-                  la columna y deja el cursor puesto en el campo.
+                  Este estado usa la paleta de la aplicación. El botón abre el
+                  chat y enfoca el campo de entrada.
                 -->
                 <div class="empty-blank-hero flex flex-col items-center text-center">
-                  <p class="empty-blank-title">Aquí no hay nada todavía</p>
+                  <p class="empty-blank-title">Página en blanco</p>
                   <p class="empty-blank-desc">
-                    Cuenta qué quieres construir y Planer lo escribe. Una idea, un cambio, o suelta
-                    aquí tu archivo HTML para partir de él.
+                    Describe la página que necesitas o suelta un archivo HTML para usarlo como base.
                   </p>
                   {#if !builder.dock.tooNarrow}
                     <div class="empty-blank-go">
@@ -542,15 +533,14 @@
                         buttonClass="btn-start-ai-chat"
                         onclick={() => builder.dock.askFocus()}
                       >
-                        <Icon name="message-01" size={14} /> Empezar a pedir
+                        <Icon name="message-01" size={14} /> Abrir chat
                       </Button>
                     </div>
                   {/if}
                 </div>
               {:else}
                 <p class="empty-blank-copy text-center">
-                  Esta página está en blanco. Suelta aquí un archivo HTML, o activa la inteligencia
-                  artificial en los ajustes para pedirla.
+                  Suelta un archivo HTML o activa la inteligencia artificial en los ajustes.
                 </p>
               {/if}
             </div>
@@ -587,8 +577,8 @@
 
         <!--
           `Note` se pinta en la capa de avisos, no aqui: ni el hueco
-          posicionado ni el boton que lo envolvia llegaban a verse, y lo unico
-          que hacia el boton era cerrar el aviso al arrastrar sobre su texto en
+          posicionado ni el botón que lo envolvia llegaban a verse, y lo único
+          que hacia el botón era cerrar el aviso al arrastrar sobre su texto en
           vez de dejarlo seleccionar.
         -->
         <Note kind={notice?.kind ?? "error"} message={notice?.text ?? ""} />
@@ -638,7 +628,7 @@
     min-width: 0;
   }
 
-  /* La superficie del documento: lo unico que lleva el tema de la aplicacion. */
+  /* La superficie del documento: lo único que lleva el tema de la aplicación. */
   .doc-theme-surface {
     background: var(--bg-level1);
   }
@@ -648,7 +638,7 @@
   }
 
   /* La separacion va por `gap` y no por un margen entre hermanos: el segundo
-     hijo es un componente, y una regla de hermanos no alcanza su raiz. */
+     hijo es un componente, y una regla de hermanos no alcanza su raíz. */
   .empty-doc-card {
     max-width: 24rem;
   }
@@ -666,8 +656,8 @@
   }
 
   /*
-   * El saludo de la pagina en blanco con la IA conectada: un titulo, la copia
-   * y la salida. Es el mismo gesto de la portada de la conversacion --ver
+   * El saludo de la página en blanco con la IA conectada: un título, la copia
+   * y la salida. Es el mismo gesto de la portada de la conversación --ver
    * `.chat-hero` en AiPanel--, contado sobre el lienzo del documento.
    */
   .empty-blank-hero {
@@ -688,8 +678,8 @@
     color: var(--text-secondary);
   }
 
-  /* La salida, separada de la copia lo que se separaba la linea de espera:
-     es lo unico que hay que tocar en esta pantalla. */
+  /* La salida, separada de la copia lo que se separaba la línea de espera:
+     es lo único que hay que tocar en esta pantalla. */
   .empty-blank-go {
     margin-top: var(--sp-16);
   }
@@ -699,9 +689,9 @@
   }
 
   /*
-   * Un quinto mas grande que el resto del chrome: es lo unico de la pantalla
+   * Un quinto mas grande que el resto del chrome: es lo único de la pantalla
    * que avisa de que lo de abajo no es lo que se tiene, y con la medida de una
-   * fila cualquiera se leia como un adorno mas de la barra de direccion.
+   * fila cualquiera se leia como un adorno mas de la barra de dirección.
    */
   .bar-preview-role {
     padding: var(--sp-6) var(--sp-12);
@@ -727,7 +717,7 @@
 
   /*
    * Se ancha con lo que lleve dentro, en vez de una medida fija: un correo
-   * cortado a la mitad no dice con quien se esta mirando, que es lo unico que
+   * cortado a la mitad no dice con quien se esta mirando, que es lo único que
    * este selector tiene que contar. El tope es para que una cuenta larguisima
    * no se coma la barra entera.
    */
@@ -742,7 +732,7 @@
   }
 
   /* La cruz se pinta con la tinta del aviso, no con la del panel: va sobre el
-     amarillo, y el gris de un boton fantasma ahi no se lee. */
+     amarillo, y el gris de un botón fantasma ahi no se lee. */
   .bar-preview-role :global(.btn-stop-preview-role) {
     color: inherit;
   }

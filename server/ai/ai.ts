@@ -1,14 +1,14 @@
 /**
  * La conexion con los servidores de inteligencia artificial.
  *
- * Aqui vive lo que no depende de para que se use el modelo: la configuracion
+ * Aquí vive lo que no depende de para que se use el modelo: la configuración
  * guardada, los proveedores conectados y las dos formas de hablarles --una
- * pregunta suelta, o una conversacion con herramientas--. Que herramientas hay
- * y que hacen lo decide quien abre la conversacion; ver `aiPage/tools.ts`.
+ * pregunta suelta, o una conversación con herramientas--. Que herramientas hay
+ * y que hacen lo decide quien abre la conversación; ver `aiPage/tools.ts`.
  *
  * Se pueden conectar varios servidores a la vez y darle a cada uno sus modelos.
- * Cada peticion elige con cual se atiende y cuanto se le pide pensar; si no
- * elige, manda lo que dejo puesto quien administra. Las claves viven solo aqui,
+ * Cada petición elige con cual se atiende y cuanto se le pide pensar; si no
+ * elige, manda lo que dejo puesto quien administra. Las claves viven solo aquí,
  * en el servidor.
  */
 import Anthropic from "@anthropic-ai/sdk";
@@ -55,8 +55,8 @@ const FALLBACK_MODEL: AiModel = {
  * Cuantas ideas se le dejan a Claude en cada nivel, de menos a mas.
  *
  * Va por posicion y no por nombre porque los nombres los pone cada servidor:
- * lo unico comparable entre un `high` y un `max` es cual pide mas. Los
- * compatibles con ChatGPT no reciben un numero sino la palabra tal cual, asi
+ * lo único comparable entre un `high` y un `max` es cual pide mas. Los
+ * compatibles con ChatGPT no reciben un número sino la palabra tal cual, así
  * que esta tabla es solo de Claude.
  */
 const THINKING_BUDGET = [0, 1024, 2048, 8192, 16384, 24576, 32000];
@@ -68,17 +68,17 @@ const MIN_BUDGET = 1024;
  * El sitio que se le deja pensar a un modelo en una pregunta suelta.
  *
  * Es el mayor presupuesto de la escala: en un servidor que piensa por su
- * cuenta no somos nosotros quienes decidimos cuanto, asi que se deja el hueco
+ * cuenta no somos nosotros quienes decidimos cuanto, así que se deja el hueco
  * mas ancho que el panel contempla. Es un techo, no un gasto; lo que no se
  * piensa no se cobra.
  */
 const THINKING_ROOM = THINKING_BUDGET[THINKING_BUDGET.length - 1] ?? 32_000;
 
 /* ------------------------------------------------------------------ */
-/* Configuracion guardada                                              */
+/* Configuración guardada                                              */
 /* ------------------------------------------------------------------ */
 
-/** Un proveedor tal y como se guarda: con su clave, que no sale de aqui. */
+/** Un proveedor tal y como se guarda: con su clave, que no sale de aquí. */
 export interface StoredProvider extends AiProviderConfig {
   apiKey: string;
 }
@@ -87,7 +87,7 @@ export interface StoredConfig extends Omit<AiConfig, "providers"> {
   providers: StoredProvider[];
 }
 
-/** A lo que se cae si nunca se guardo nada, o si lo guardado no es un numero valido. */
+/** A lo que se cae si nunca se guardo nada, o si lo guardado no es un número válido. */
 const DEFAULT_RUN_TIMEOUT_MINUTES = 40;
 
 const EMPTY: StoredConfig = {
@@ -99,13 +99,13 @@ const EMPTY: StoredConfig = {
   runTimeoutMinutes: DEFAULT_RUN_TIMEOUT_MINUTES,
 };
 
-/** 0 y para arriba: 0 quita el tope, lo demas se redondea a minutos enteros. */
+/** 0 y para arriba: 0 quita el tope, lo demás se redondea a minutos enteros. */
 function readRunTimeoutMinutes(value: unknown): number {
   const n = Math.round(Number(value));
   return Number.isFinite(n) && n >= 0 ? n : DEFAULT_RUN_TIMEOUT_MINUTES;
 }
 
-/** La forma que tenia la configuracion cuando solo cabia un servidor. */
+/** La forma que tenia la configuración cuando solo cabia un servidor. */
 interface LegacyConfig {
   provider?: string;
   baseUrl?: string;
@@ -124,7 +124,7 @@ const speaksAnthropic = (provider: AiProvider) => provider === "anthropic";
 
 /**
  * Un nivel de pensamiento es cualquier palabra que un servidor use para
- * nombrarlo. Lo unico que se comprueba es que sea una palabra.
+ * nombrarlo. Lo único que se comprueba es que sea una palabra.
  */
 const isThinking = (value: unknown): value is AiThinking =>
   typeof value === "string" && /^[a-z0-9_-]{1,24}$/i.test(value);
@@ -179,7 +179,7 @@ function readProvider(raw: Partial<StoredProvider>): StoredProvider | null {
     provider: raw.provider,
     baseUrl: String(raw.baseUrl ?? "").trim(),
     models,
-    // Lo que no dice nada viene de una version que no tenia el interruptor:
+    // Lo que no dice nada viene de una versión que no tenia el interruptor:
     // apagarlo por su cuenta seria apagarle a alguien la IA al actualizar.
     enabled: raw.enabled !== false,
     apiKey: String(raw.apiKey ?? ""),
@@ -189,7 +189,7 @@ function readProvider(raw: Partial<StoredProvider>): StoredProvider | null {
 /**
  * El nombre del proveedor que sale de una instalacion de las de antes.
  *
- * Es fijo a proposito. La forma vieja no tiene nombres, asi que hay que
+ * Es fijo a propósito. La forma vieja no tiene nombres, así que hay que
  * ponerle uno al leerla; si fuera distinto en cada lectura, el primer guardado
  * no reconoceria al que ya estaba y le borraria la clave.
  */
@@ -198,7 +198,7 @@ const LEGACY_ID = "principal";
 /**
  * Lo guardado, en la forma de ahora.
  *
- * Una instalacion que venia de la version de un solo servidor se lee como un
+ * Una instalacion que venia de la versión de un solo servidor se lee como un
  * proveedor con un modelo: nadie tiene que volver a escribir su clave.
  */
 function readConfig(value: unknown): StoredConfig {
@@ -255,7 +255,7 @@ export async function loadAiConfig(): Promise<StoredConfig> {
 /**
  * Combina lo que llega del formulario con lo que ya estaba guardado.
  *
- * La regla de las claves es la de siempre: una clave vacia significa "deja la
+ * La regla de las claves es la de siempre: una clave vacía significa "deja la
  * que ya estaba", porque el panel nunca las recibe y no las puede devolver.
  */
 function mergeConfig(input: Partial<StoredConfig>, current: StoredConfig): StoredConfig {
@@ -268,7 +268,7 @@ function mergeConfig(input: Partial<StoredConfig>, current: StoredConfig): Store
   });
 
   for (const provider of next.providers) {
-    // Se guarda ya limpia: vacia sigue queriendo decir "la oficial", pero una
+    // Se guarda ya limpia: vacía sigue queriendo decir "la oficial", pero una
     // barra de mas no puede quedar escrita para que la quite cada lectura.
     provider.baseUrl = provider.baseUrl.replace(/\/$/, "");
     resolveBaseUrl(provider);
@@ -285,9 +285,9 @@ function mergeConfig(input: Partial<StoredConfig>, current: StoredConfig): Store
     };
   }
 
-  // El de la pasada de la memoria no se cae en ninguno: se borra. Vacio ya
+  // El de la pasada de la memoria no se cae en ninguno: se borra. Vacío ya
   // significa algo --el modelo del turno-- y es lo correcto cuando el que se
-  // habia senalado ya no existe.
+  // había senalado ya no existe.
   if (next.memoryChoice && !findModel(next, next.memoryChoice)) next.memoryChoice = null;
 
   return next;
@@ -297,9 +297,9 @@ function mergeConfig(input: Partial<StoredConfig>, current: StoredConfig): Store
  * Como se llama el tope de escritura en este servidor.
  *
  * ChatGPT dejo de aceptar `max_tokens` en sus modelos que razonan y pide
- * `max_completion_tokens`; los demas servidores compatibles --Ollama, LM
+ * `max_completion_tokens`; los demás servidores compatibles --Ollama, LM
  * Studio, llama.cpp, OpenRouter-- siguen con el nombre de siempre y no conocen
- * el nuevo. Se mira la direccion porque es lo unico que distingue a uno de otro.
+ * el nuevo. Se mira la dirección porque es lo único que distingue a uno de otro.
  */
 function maxTokensField(base: string, max: number): Record<string, number> {
   const official = /(^|\/\/)([^/]*\.)?openai\.com(\/|$)/i.test(base);
@@ -307,7 +307,7 @@ function maxTokensField(base: string, max: number): Record<string, number> {
 }
 
 /**
- * Quita la barra final y comprueba que sea una direccion de verdad. Sin esto
+ * Quita la barra final y comprueba que sea una dirección de verdad. Sin esto
  * el autocompletado del navegador puede colar cualquier texto en el campo.
  */
 function resolveBaseUrl(provider: { provider: AiProvider; baseUrl: string }): string {
@@ -333,7 +333,7 @@ export async function saveAiConfig(input: Partial<StoredConfig>): Promise<Stored
 }
 
 /* ------------------------------------------------------------------ */
-/* Elegir con que se atiende una peticion                               */
+/* Elegir con que se atiende una petición                               */
 /* ------------------------------------------------------------------ */
 
 /** El proveedor y el modelo de una eleccion, si los dos siguen existiendo. */
@@ -359,7 +359,7 @@ export interface Resolved {
  * Decide con que se atiende.
  *
  * Lo que pide quien construye manda, pero solo si existe: un modelo que se
- * quito de los ajustes no puede dejar la peticion sin atender, asi que se cae
+ * quito de los ajustes no puede dejar la petición sin atender, así que se cae
  * en lo que este puesto por defecto.
  */
 export function resolveChoice(cfg: StoredConfig, choice?: Partial<AiChoice>): Resolved {
@@ -376,7 +376,7 @@ export function resolveChoice(cfg: StoredConfig, choice?: Partial<AiChoice>): Re
   return {
     provider: picked.provider,
     model: picked.model,
-    // Un nivel que el modelo no ofrece no es una peticion mal escrita: es un
+    // Un nivel que el modelo no ofrece no es una petición mal escrita: es un
     // ajuste que se quedo viejo. Se baja al mas parecido en vez de fallar.
     thinking: aiNearestThinking(picked.model, asked),
   };
@@ -386,15 +386,15 @@ export function resolveChoice(cfg: StoredConfig, choice?: Partial<AiChoice>): Re
  * Como se le pide pensar a un servidor que habla el formato de ChatGPT.
  *
  * OpenRouter lo recibe en su propio bloque `reasoning`, que es lo que sabe
- * repartir entre las marcas que enruta; los demas entienden el
+ * repartir entre las marcas que enruta; los demás entienden el
  * `reasoning_effort` de ChatGPT. Sin nivel no se manda nada: hay servidores
- * que rechazan el campo aunque venga vacio.
+ * que rechazan el campo aunque venga vacío.
  *
  * llama.cpp es distinto: no se le pregunta que nombres declara su plantilla,
  * se le manda lo mismo que manda su propia interfaz --un tope de tokens, mas
  * el interruptor `enable_thinking`, mas `reasoning_control` para poder cortar
- * el pensamiento en marcha--. Por defecto piensa siempre, asi que apagarlo hay
- * que decirlo expresamente, tambien cuando se elige "sin pensar".
+ * el pensamiento en marcha--. Por defecto piensa siempre, así que apagarlo hay
+ * que decirlo expresamente, también cuando se elige "sin pensar".
  */
 function thinkingField(cfg: Resolved): Record<string, unknown> {
   if (cfg.model.thinkingBudget) {
@@ -415,7 +415,7 @@ function thinkingField(cfg: Resolved): Record<string, unknown> {
  * Lo que se le deja pensar, en ideas, a un modelo de Claude.
  *
  * El presupuesto tiene que caber dentro de lo que puede escribir --si no, el
- * servidor rechaza la peticion-- y dejar sitio para la respuesta. Un modelo con
+ * servidor rechaza la petición-- y dejar sitio para la respuesta. Un modelo con
  * un tope demasiado corto se queda sin pensar en vez de fallar.
  */
 function thinkingBudget(model: AiModel, thinking: AiThinking): number {
@@ -431,10 +431,10 @@ function thinkingBudget(model: AiModel, thinking: AiThinking): number {
 /* ------------------------------------------------------------------ */
 
 /**
- * Una imagen que viaja con la primera peticion.
+ * Una imagen que viaja con la primera petición.
  *
- * Es lo unico de un adjunto que no cabe en el texto del contexto: el resto de
- * los archivos --HTML, CSS, una hoja de calculo ya en CSV-- se cuentan con
+ * Es lo único de un adjunto que no cabe en el texto del contexto: el resto de
+ * los archivos --HTML, CSS, una hoja de cálculo ya en CSV-- se cuentan con
  * palabras, y una imagen hay que ensenarla. Va en bloques de contenido, que es
  * como la reciben los dos formatos de proveedor.
  */
@@ -446,7 +446,7 @@ export interface PromptImage {
 }
 
 /**
- * Un turno anterior de la conversacion, tal como se le vuelve a poner delante.
+ * Un turno anterior de la conversación, tal como se le vuelve a poner delante.
  *
  * Solo el texto: lo que se escribio y lo que se respondio. Ni razonamiento ni
  * llamadas a herramientas --ver `priorTurns` en `server/ai/aiPage/index.ts`--, que es lo
@@ -484,7 +484,7 @@ export interface Turn {
   /** Cuanto contexto ocupo el turno, si su servidor lo conto. */
   usage?: TurnUsage;
   /**
-   * Lo que hubo que ceder para que el turno saliera adelante. La peticion se
+   * Lo que hubo que ceder para que el turno saliera adelante. La petición se
    * atendio igual, pero no entera: quien la hizo tiene que enterarse.
    */
   notice?: string;
@@ -505,9 +505,9 @@ export interface Conversation {
   ask(onProgress?: (ev: TurnProgress) => void): Promise<Turn>;
   reply(results: { id: string; output: string }[]): void;
   /**
-   * Pone un mensaje mas en la conversacion, como si lo escribiera quien pide.
+   * Pone un mensaje mas en la conversación, como si lo escribiera quien pide.
    *
-   * Es para lo que el modelo no llego a pedir y aun asi tiene que ver --una
+   * Es para lo que el modelo no llego a pedir y aun así tiene que ver --una
    * revision forzada al cerrar el turno--: un resultado de herramienta no
    * sirve ahi, porque nombra una llamada que el modelo nunca hizo.
    */
@@ -537,13 +537,13 @@ function anthropicConversation(
     ...(baseUrl ? { baseURL: baseUrl } : {}),
   });
   /*
-   * Las imagenes van delante del texto y no detras: el modelo lee la peticion
-   * ya sabiendo que tiene delante, en vez de encontrarse las imagenes despues
+   * Las imagenes van delante del texto y no detras: el modelo lee la petición
+   * ya sabiendo que tiene delante, en vez de encontrarse las imagenes después
    * de haberla entendido sin ellas.
    */
   const messages: Anthropic.MessageParam[] = [
     // Los turnos anteriores van delante, en el orden en que ocurrieron: la
-    // peticion de ahora se lee sabiendo de que se venia hablando.
+    // petición de ahora se lee sabiendo de que se venia hablando.
     ...history.map((turn) => ({ role: turn.role, content: turn.text })),
     {
       role: "user" as const,
@@ -577,7 +577,7 @@ function anthropicConversation(
     async ask(onProgress) {
       /*
        * Se pide la respuesta en streaming y se va contando lo que llega: el
-       * texto segun se escribe y las ideas segun se piensan. Asi quien mira lo
+       * texto segun se escribe y las ideas segun se piensan. Así quien mira lo
        * ve avanzar en vez de esperar a que el modelo termine un turno entero.
        */
       const stream = client.messages.stream(
@@ -589,11 +589,11 @@ function anthropicConversation(
           messages,
           ...(budget ? { thinking: { type: "enabled" as const, budget_tokens: budget } } : {}),
         },
-        // Detener la peticion corta tambien lo que el modelo este escribiendo:
+        // Detener la petición corta también lo que el modelo este escribiendo:
         // esperar a que termine el turno seria no detener nada.
         signal ? { signal } : undefined,
       );
-      // `snapshot` es todo lo que se lleva escrito del fragmento: se manda asi,
+      // `snapshot` es todo lo que se lleva escrito del fragmento: se manda así,
       // acumulado, para no encadenar trocitos en el cliente.
       stream.on("text", (_delta, snapshot) => onProgress?.({ tipo: "texto", texto: snapshot }));
       stream.on("thinking", (_delta, snapshot) =>
@@ -611,7 +611,7 @@ function anthropicConversation(
       const truncated = response.stop_reason === "max_tokens";
       const hadToolUse = response.content.some((b) => b.type === "tool_use");
       // Un tool_use cortado a medias por el tope de tokens no se ejecuta ni
-      // se manda de vuelta: si quedara en el historial sin su resultado, la
+      // se manda de vuelta: si quedará en el historial sin su resultado, la
       // proxima ronda fallaria pidiendo uno que nunca existio.
       const kept: Anthropic.ContentBlock[] = truncated
         ? response.content.filter((b) => b.type !== "tool_use")
@@ -638,7 +638,7 @@ function anthropicConversation(
             }));
 
       // El razonamiento vive en los bloques `thinking`. Los `redacted_thinking`
-      // llegan cifrados y no se pueden leer, asi que no se muestran.
+      // llegan cifrados y no se pueden leer, así que no se muestran.
       const reasoning = kept
         .filter((b): b is Anthropic.ThinkingBlock => b.type === "thinking")
         .map((b) => b.thinking)
@@ -650,8 +650,8 @@ function anthropicConversation(
         calls,
         reasoning: reasoning || undefined,
         usage: {
-          // Lo leido de la memoria del proveedor tambien ocupa sitio delante:
-          // sin sumarlo, una conversacion larga pareceria caber en nada.
+          // Lo leido de la memoria del proveedor también ocupa sitio delante:
+          // sin sumarlo, una conversación larga pareceria caber en nada.
           input:
             response.usage.input_tokens +
             (response.usage.cache_read_input_tokens ?? 0) +
@@ -680,7 +680,7 @@ function anthropicConversation(
 }
 
 /**
- * Si el servidor rechazo la peticion por las imagenes que llevaba.
+ * Si el servidor rechazo la petición por las imagenes que llevaba.
  *
  * Que un modelo mire imagenes es una casilla de sus ajustes, y una casilla es
  * lo que alguien dijo, no lo que el modelo hace. Cuando lo que dice la casilla
@@ -695,7 +695,7 @@ const IMAGE_REJECTED = [
   /does not support[^.\n]*(image|vision|multimodal)/i,
 ];
 
-/** Lo que se dice cuando la peticion salio adelante, pero sin las imagenes. */
+/** Lo que se dice cuando la petición salio adelante, pero sin las imagenes. */
 const WITHOUT_IMAGES =
   "El modelo elegido no mira imágenes: se atendió la petición sin ellas. " +
   "Quita «Ve imágenes» en sus ajustes, o elige un modelo con visión.";
@@ -733,9 +733,9 @@ function openAiConversation(
 ): Conversation {
   const base = resolveBaseUrl(cfg.provider);
   /*
-   * La peticion se guarda aparte de la lista porque puede hacer falta
+   * La petición se guarda aparte de la lista porque puede hacer falta
    * rehacerla: si el servidor rechaza las imagenes, se le quitan y se vuelve a
-   * preguntar. Es el unico mensaje al que le pasa.
+   * preguntar. Es el único mensaje al que le pasa.
    */
   const asked: Record<string, unknown> = {
     role: "user",
@@ -756,7 +756,7 @@ function openAiConversation(
     asked,
   ];
 
-  /** Dejar la peticion en solo texto. Dice si habia imagenes que quitar. */
+  /** Dejar la petición en solo texto. Dice si había imagenes que quitar. */
   const dropImages = (): boolean => {
     if (!Array.isArray(asked.content)) return false;
     asked.content = prompt;
@@ -788,20 +788,20 @@ function openAiConversation(
             tool_choice: "auto",
             stream: true,
             // El recuento no viaja en el streaming si no se pide: hay que
-            // pedirlo aqui o no habria contra que medir el contexto.
+            // pedirlo aquí o no habria contra que medir el contexto.
             stream_options: { include_usage: true },
             ...thinkingField(cfg),
           }),
-          // Detener la peticion corta tambien lo que el modelo este escribiendo.
+          // Detener la petición corta también lo que el modelo este escribiendo.
           ...(signal ? { signal } : {}),
         });
 
       let res = await send();
       let failed = res.ok ? null : ((await res.json().catch(() => null)) as unknown);
       /*
-       * Adjuntar mal no puede tumbar una peticion, y una casilla mal puesta
+       * Adjuntar mal no puede tumbar una petición, y una casilla mal puesta
        * tampoco. Si lo que sobraba eran las imagenes, se quitan y se pregunta
-       * otra vez: se pierde lo que la imagen aportaba, no la peticion. Una sola
+       * otra vez: se pierde lo que la imagen aportaba, no la petición. Una sola
        * vez, porque la segunda ya va sin ellas.
        */
       let notice: string | undefined;
@@ -826,7 +826,7 @@ function openAiConversation(
       let reasoning = "";
       let usage: TurnUsage | undefined;
       // Cuando el proveedor corta por el "Maximo por respuesta" configurado
-      // llega como "length" aqui, en el fragmento final: no hay otro aviso.
+      // llega como "length" aquí, en el fragmento final: no hay otro aviso.
       let finishReason: string | undefined;
       const calls: { index: number; id: string; name: string; args: string }[] = [];
 
@@ -899,7 +899,7 @@ function openAiConversation(
         }
       }
 
-      // Una llamada cuyos argumentos no cierran en JSON valido no se arregla
+      // Una llamada cuyos argumentos no cierran en JSON válido no se arregla
       // rellenando lo que falta: se descarta entera, nunca se ejecuta con
       // `{}` puesto a mano. Es lo que pasa siempre que se corto a medias.
       let droppedCall = false;
@@ -955,13 +955,13 @@ function openAiConversation(
 }
 
 /* ------------------------------------------------------------------ */
-/* Abrir una conversacion con herramientas                              */
+/* Abrir una conversación con herramientas                              */
 /* ------------------------------------------------------------------ */
 
 /**
- * Prepara una conversacion con el proveedor elegido. Quien la abre pone el
- * texto de sistema, la primera peticion y las herramientas; el bucle de rondas
- * tambien es suyo, porque solo el sabe cuando parar.
+ * Prepara una conversación con el proveedor elegido. Quien la abre pone el
+ * texto de sistema, la primera petición y las herramientas; el bucle de rondas
+ * también es suyo, porque solo el sabe cuando parar.
  *
  * Con `signal`, pararlo corta la llamada al proveedor a mitad. Quien llama
  * tiene que mirar la senal para no confundir ese corte con un fallo.
@@ -974,7 +974,7 @@ export async function startConversation(
     signal?: AbortSignal;
     choice?: Partial<AiChoice>;
     images?: PromptImage[];
-    /** Los turnos anteriores de la conversacion, del mas viejo al mas nuevo. */
+    /** Los turnos anteriores de la conversación, del mas viejo al mas nuevo. */
     history?: PriorTurn[];
   } = {},
 ): Promise<Conversation> {
@@ -983,7 +983,7 @@ export async function startConversation(
   const picked = resolveChoice(cfg, opts.choice);
 
   // Un modelo sin vista no sabe que hacer con una imagen, y hay servidores que
-  // rechazan la peticion entera por llevarla. Se suelta y ya: lo demas del
+  // rechazan la petición entera por llevarla. Se suelta y ya: lo demás del
   // adjunto --su nombre, que se adjunto-- sigue contado en el contexto.
   const images = picked.model.vision ? (opts.images ?? []) : [];
 
@@ -997,14 +997,14 @@ export async function startConversation(
  * Un proveedor tal y como llega del formulario, listo para hablarle.
  *
  * Se usa para todo lo que hay que hacer contra un servidor antes de guardarlo
- * --probarlo, mirar su catalogo--: lo que se prueba es lo que se esta
+ * --probarlo, mirar su catálogo--: lo que se prueba es lo que se esta
  * escribiendo, no lo que hay guardado. La clave es la excepcion: si el campo
- * viene vacio es que no se toco, asi que se usa la que ya estaba.
+ * viene vacío es que no se toco, así que se usa la que ya estaba.
  */
 export async function providerFromInput(
   input: Partial<StoredProvider> | undefined,
   /**
-   * Si sin clave no hay nada que hacer. Mirar un catalogo publico no la
+   * Si sin clave no hay nada que hacer. Mirar un catálogo público no la
    * necesita, y pedirla ahi obligaria a tenerla a mano solo para ver que
    * modelos existen.
    */
@@ -1108,12 +1108,12 @@ export const AI_MISSING =
 /**
  * Una sola pregunta, una sola respuesta de texto.
  *
- * La varita magica trabaja asi: cada paso manda un trozo del archivo y
+ * La varita magica trabaja así: cada paso manda un trozo del archivo y
  * recibe ese mismo trozo reescrito. No hace falta la rueda de herramientas
  * que usa la generacion de pantallas.
  *
  * Va siempre con el modelo que este puesto por defecto: son peticiones que
- * nadie pide a mano, asi que no hay quien elija.
+ * nadie pide a mano, así que no hay quien elija.
  */
 export async function askAi(
   system: string,
@@ -1122,7 +1122,7 @@ export async function askAi(
   /**
    * Con que atenderla. Sin esto va con lo que este puesto por defecto, que es
    * lo que quieren las tareas de una sola pregunta --explicar para que se usa
-   * una columna, arreglar una pagina rota--. La pasada de la memoria si lo
+   * una columna, arreglar una página rota--. La pasada de la memoria si lo
    * manda: por defecto atiende con el mismo modelo del turno que la disparo.
    */
   choice?: Partial<AiChoice>,
@@ -1134,8 +1134,8 @@ export async function askAi(
   /*
    * Lo que pide quien llama es lo que ocupa la respuesta. Un modelo que
    * piensa gasta de ese mismo tope antes de escribir la primera palabra, y si
-   * se lo termina la respuesta no llega recortada: llega vacia, que es
-   * indistinguible de un "no tengo nada que decir" --asi se perdio en silencio
+   * se lo termina la respuesta no llega recortada: llega vacía, que es
+   * indistinguible de un "no tengo nada que decir" --así se perdio en silencio
    * la primera memoria que se intento guardar--. Por eso al que piensa se le
    * suma sitio para pensar, sin pasar nunca de lo que el modelo puede
    * escribir.
@@ -1188,7 +1188,7 @@ export async function askAi(
     });
   } catch (err) {
     // Si el servidor de IA no responde, hay que decir cual y por que: es lo
-    // unico que le sirve a quien tiene que ir a arreglarlo.
+    // único que le sirve a quien tiene que ir a arreglarlo.
     const detail = err instanceof Error ? err.message : String(err);
     throw new HttpError(502, `No se pudo conectar con ${base}. ${detail}`);
   }

@@ -13,25 +13,25 @@ import { relationCell, type Row } from "./cellValues";
  * `id` y usa los nombres tecnicos como cabecera, de modo que un archivo
  * exportado reimporta emparejandose limpio.
  *
- * **La contrasena no sale, y no porque se filtre.** Lo que se escribe aqui son
+ * **La contrasena no sale, y no porque se filtre.** Lo que se escribe aquí son
  * las columnas de la tabla, una por una, y la contrasena no es una columna: no
- * esta en `fields` ni en la fila. No hay una lista de la que excluirla, asi que
- * tampoco hay una lista que alguien pueda olvidarse de mantener. Si algun dia
- * se anade un tipo de columna que guarde secretos, esta es la funcion que hay
+ * esta en `fields` ni en la fila. No hay una lista de la que excluirla, así que
+ * tampoco hay una lista que alguien pueda olvidarse de mantener. Si algún dia
+ * se añade un tipo de columna que guarde secretos, esta es la función que hay
  * que volver a mirar. Ver `web/src/components/database/PasswordForm.svelte`.
  */
 
 /**
  * Valor plano de una celda, tal como viaja en el archivo exportado.
  *
- * Una relacion sale con el valor de la columna que ensena, nunca con el id: es
+ * Una relación sale con el valor de la columna que enseña, nunca con el id: es
  * lo que hace que el archivo se vuelva a emparejar al reimportarlo, y lo que
  * evita que un id aparezca en un archivo que alguien va a abrir.
  */
 export function cellExportValue(field: FieldDef, row: Row, people: AppPerson[] = []): string {
   if (isRelationField(field) && field.multiple !== true) {
     // Con enlace, la llave del registro; sin el, el valor que se quedo sin
-    // dueno. Un enlace roto no tiene nada que ensenar y sale vacio.
+    // dueno. Un enlace roto no tiene nada que ensenar y sale vacío.
     return relationCell(row, field, people).label;
   }
   const value = row[field.name];
@@ -41,7 +41,7 @@ export function cellExportValue(field: FieldDef, row: Row, people: AppPerson[] =
   return String(value);
 }
 
-/** Cuantas filas saldran con una celda de relacion vacia por tener el enlace roto. */
+/** Cuantas filas saldran con una celda de relación vacía por tener el enlace roto. */
 export function brokenLinkCount(fields: FieldDef[], rows: Row[], people: AppPerson[] = []): number {
   const relations = fields.filter((f) => isRelationField(f) && f.multiple !== true);
   if (!relations.length) return 0;
@@ -50,7 +50,7 @@ export function brokenLinkCount(fields: FieldDef[], rows: Row[], people: AppPers
   ).length;
 }
 
-/** El aviso que se da antes de descargar, o vacio si no hay nada que avisar. */
+/** El aviso que se da antes de descargar, o vacío si no hay nada que avisar. */
 export function brokenLinkWarning(
   fields: FieldDef[],
   rows: Row[],
@@ -90,7 +90,7 @@ export function rowsToJson(fields: FieldDef[], rows: Row[], people: AppPerson[] 
     rows.map((row) => {
       const out: Record<string, unknown> = { id: row.id ?? "" };
       for (const f of fields) {
-        // La relacion sale por su llave tambien aqui: los dos formatos tienen
+        // La relación sale por su llave también aquí: los dos formatos tienen
         // que reimportarse igual.
         out[f.name] =
           isRelationField(f) && f.multiple !== true
@@ -109,7 +109,7 @@ export function rowsToJson(fields: FieldDef[], rows: Row[], people: AppPerson[] 
  *
  * Es lo mismo que sale al CSV --los nombres tecnicos arriba, la columna `id`
  * primero, las relaciones por el valor que ensenan-- pero sin escaparlo ni
- * unirlo con comas: una hoja de calculo guarda celdas, no una linea de texto.
+ * unirlo con comas: una hoja de cálculo guarda celdas, no una línea de texto.
  */
 export function rowsToMatrix(
   fields: FieldDef[],
@@ -129,7 +129,7 @@ export function rowsToMatrix(
  * constructor ve, y un archivo llamado `personas.csv` cuando en pantalla dice
  * "Personas y roles" no se reconoce como suyo al volver a soltarlo.
  *
- * Pasa por el mismo saneado que cualquier nombre tecnico, asi que la etiqueta
+ * Pasa por el mismo saneado que cualquier nombre tecnico, así que la etiqueta
  * con mayusculas, tildes y espacios sale como `personas-y-roles`. La capa que
  * reconoce el archivo al soltarlo compara con ese mismo saneado, y ademas
  * contra el nombre tecnico, para que los archivos de antes de este cambio
@@ -154,9 +154,9 @@ export function downloadBlob(name: string, blob: Blob) {
   anchor.click();
   anchor.remove();
   /*
-   * La direccion se suelta despues, no en la misma vuelta: el navegador
+   * La dirección se suelta después, no en la misma vuelta: el navegador
    * empieza la descarga en la siguiente, y retirarsela antes le deja una
-   * descarga cancelada --o un archivo vacio-- sin decir nada.
+   * descarga cancelada --o un archivo vacío-- sin decir nada.
    */
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }

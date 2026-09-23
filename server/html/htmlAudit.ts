@@ -1,23 +1,23 @@
 /**
- * La revision de estilo de una pagina.
+ * La revision de estilo de una página.
  *
- * `revisar_errores` dibuja la pagina y trae lo que solto la consola. Eso coge
- * lo que falla; no coge lo que se ve mal. Una pagina puede dibujarse limpia y
- * aun asi haberse escrito su propio boton con un azul a mano, apuntar a una
+ * `revisar_errores` dibuja la página y trae lo que solto la consola. Eso coge
+ * lo que falla; no coge lo que se ve mal. Una página puede dibujarse limpia y
+ * aun así haberse escrito su propio botón con un azul a mano, apuntar a una
  * variable que no existe --que no falla: se queda sin valor y el hueco
  * desaparece sin avisar-- o poner el color de relleno de la marca como letra,
- * que es lo unico que arruina una pantalla entera.
+ * que es lo único que arruina una pantalla entera.
  *
- * Esto lee el HTML y lo dice. Sin navegador, asi que funciona siempre: aunque
- * no haya nadie mirando, aunque la peticion venga de fuera del panel.
+ * Esto lee el HTML y lo dice. Sin navegador, así que funciona siempre: aunque
+ * no haya nadie mirando, aunque la petición venga de fuera del panel.
  *
  * Los mensajes van en ingles porque los lee el modelo, como todo lo que se le
  * pasa (ver `shared/htmlContract.ts`). Lo que el modelo escribe sigue siendo
  * espanol.
  *
  * La regla al escribir una comprobacion nueva: **ninguna puede saltar sobre
- * una pagina bien escrita**. Un aviso falso se paga caro -- el modelo lo
- * arregla, rompe algo por el camino y gasta una ronda. Por eso aqui no hay
+ * una página bien escrita**. Un aviso falso se paga caro -- el modelo lo
+ * arregla, rompe algo por el camino y gasta una ronda. Por eso aquí no hay
  * heuristicas de "esto parece una tarjeta hecha a mano": solo cosas que o son
  * ciertas o no lo son.
  */
@@ -43,20 +43,20 @@ const MAX_POR_REGLA = 4;
 /**
  * Todas las variables que la hoja servida declara, sacadas de la hoja misma.
  *
- * Se calcula y no se escribe a mano a proposito: es la lista contra la que se
+ * Se calcula y no se escribe a mano a propósito: es la lista contra la que se
  * decide si un `var(--algo)` existe, y una lista escrita aparte se quedaria
- * vieja el dia que alguien anada un token. Aqui no puede.
+ * vieja el dia que alguien anada un token. Aquí no puede.
  */
 export const KNOWN_VARS: ReadonlySet<string> = new Set(
   [...PAGE_STYLES.matchAll(/(--[a-z0-9-]+)\s*:/gi)].map((m) => m[1].toLowerCase()),
 );
 
 /**
- * Las clases que la hoja define, tambien sacadas de la hoja.
+ * Las clases que la hoja define, también sacadas de la hoja.
  *
  * Sirve para lo contrario que `KNOWN_VARS`: para saber si una clase escrita en
- * el HTML es del catalogo o es de la pagina. Una clase de la pagina no tiene
- * nada de malo -- lo que se mira es si hay piezas del catalogo sin usar.
+ * el HTML es del catálogo o es de la página. Una clase de la página no tiene
+ * nada de malo -- lo que se mira es si hay piezas del catálogo sin usar.
  */
 export const KNOWN_CLASSES: ReadonlySet<string> = new Set(
   [...PAGE_STYLES.matchAll(/\.(-?[_a-z][\w-]*)/gi)].map((m) => m[1]),
@@ -144,7 +144,7 @@ function checkColors(css: string[], out: StyleFinding[]): void {
       for (const { prop, value } of declsOf(block.body)) {
         if (!COLOR_PROPS.test(prop)) continue;
         // `oklch()` y `color-mix()` son los que usa la casa; un color a mano
-        // dentro de un color-mix sigue siendo un color a mano, asi que no se
+        // dentro de un color-mix sigue siendo un color a mano, así que no se
         // perdona el valor entero, solo se busca la forma escrita a pelo.
         if (!HEX.test(value) && !FUNC_COLOR.test(value) && !NAMED.test(value)) continue;
         out.push({
@@ -166,13 +166,13 @@ function checkColors(css: string[], out: StyleFinding[]): void {
  * descuadrada sin que nada lo diga.
  */
 function checkVars(html: string, css: string[], out: StyleFinding[]): void {
-  // Lo que el propio documento declara vale, claro: una pagina puede tener
-  // sus variables. Se recogen antes de juzgar ningun uso.
+  // Lo que el propio documento declara vale, claro: una página puede tener
+  // sus variables. Se recogen antes de juzgar ningún uso.
   const own = new Set<string>();
   for (const sheet of css) {
     for (const m of sheet.matchAll(/(--[a-z0-9-]+)\s*:/gi)) own.add(m[1].toLowerCase());
   }
-  // Y las que deja el puente en la raiz desde JavaScript.
+  // Y las que deja el puente en la raíz desde JavaScript.
   for (const m of html.matchAll(/setProperty\(\s*["'](--[a-z0-9-]+)["']/gi)) {
     own.add(m[1].toLowerCase());
   }
@@ -201,8 +201,8 @@ const VIVID_FILL = /var\(\s*--vivid-([a-z]+)\s*\)/i;
 /**
  * El color de relleno usado como letra.
  *
- * Es el error que arruina una pantalla entera y el mas facil de cometer: el
- * hexadecimal de la empresa puede ser un amarillo, y un titulo amarillo sobre
+ * Es el error que arruina una pantalla entera y el mas fácil de cometer: el
+ * hexadecimal de la empresa puede ser un amarillo, y un título amarillo sobre
  * papel blanco no se lee. Para eso estan las variantes `-text`.
  */
 function checkFillAsInk(css: string[], out: StyleFinding[]): void {
@@ -274,7 +274,7 @@ function checkFillWithoutInk(css: string[], out: StyleFinding[]): void {
 
 /**
  * Un selector que apunta a la banda: `.hero` y sus tres partes, nada mas.
- * `.hero-banner`, que seria una clase de la pagina, no cuenta.
+ * `.hero-banner`, que seria una clase de la página, no cuenta.
  */
 const HERO_SEL = /\.hero(?:-title|-sub|-actions)?(?![\w-])/i;
 
@@ -286,13 +286,13 @@ const SURFACE_INK =
 const SURFACE_FILL = /var\(\s*--(surface-[a-z]+|bg-level\d)\s*\)/i;
 
 /**
- * La banda de portada repintada por la pagina.
+ * La banda de portada repintada por la página.
  *
- * Es la unica pieza del catalogo que se pinta con el relleno pleno de la
- * marca, y por eso la unica donde las tintas de alrededor dejan de valer: la
+ * Es la única pieza del catálogo que se pinta con el relleno pleno de la
+ * marca, y por eso la única donde las tintas de alrededor dejan de valer: la
  * letra del papel sobre el color de la empresa no se lee. La banda ya trae
- * resuelto lo que lleva dentro --la tinta, el boton vacio, el principal
- * levantado--, asi que escribirle un color encima solo puede empeorarlo.
+ * resuelto lo que lleva dentro --la tinta, el botón vacío, el principal
+ * levantado--, así que escribirle un color encima solo puede empeorarlo.
  *
  * Las dos cosas que se miran son ciertas o no lo son: o el selector apunta a
  * la banda y pone una tinta de papel, o no.
@@ -306,7 +306,7 @@ function checkHero(css: string[], out: StyleFinding[]): void {
       /*
        * Una regla que cambia el relleno Y la tinta a la vez ya no esta usando
        * la banda: la ha convertido en una superficie cualquiera, y lo que
-       * queda se lee. Raro, pero no roto, y aqui no se avisa de lo que se lee.
+       * queda se lee. Raro, pero no roto, y aquí no se avisa de lo que se lee.
        */
       const rebased =
         decls.some(
@@ -344,12 +344,12 @@ function checkHero(css: string[], out: StyleFinding[]): void {
 }
 
 /**
- * Piezas del catalogo escritas a pelo.
+ * Piezas del catálogo escritas a pelo.
  *
  * La hoja viste una etiqueta desnuda para que nada salga roto (ver
  * `styles/page.css`), pero el vestido bueno es el de la clase: con ella vienen
  * los tamanos, los estados y el foco. Esto no es un fallo, es una pieza sin
- * estrenar, y por eso el mensaje lo dice asi.
+ * estrenar, y por eso el mensaje lo dice así.
  */
 const CATALOG_FOR: { tag: string; clase: string; que: string }[] = [
   { tag: "button", clase: "btn", que: "the button of the house, with its sizes and states" },
@@ -377,7 +377,7 @@ function checkBareElements(html: string, out: StyleFinding[]): void {
   }
 
   // Un <input> se mira aparte: la casilla y el interruptor tienen su propio
-  // marcado (`.choice`) y ahi el input va desnudo a proposito.
+  // marcado (`.choice`) y ahi el input va desnudo a propósito.
   let bareInputs = 0;
   let sample = "";
   for (const m of html.matchAll(/<input(\s[^>]*)?>/gi)) {
@@ -404,7 +404,7 @@ function checkBareElements(html: string, out: StyleFinding[]): void {
  * `</table>` se ve casi igual, pero deja de ser parte de la tabla: no lo lee
  * quien navega con lector, y en pantalla estrecha se queda fuera del scroll
  * horizontal. Es cierto o no lo es --o el pie cuelga de un `<tfoot>` abierto,
- * o no cuelga--, asi que no puede saltar sobre una pagina bien escrita.
+ * o no cuelga--, así que no puede saltar sobre una página bien escrita.
  */
 function checkTableFoot(html: string, out: StyleFinding[]): void {
   for (const m of html.matchAll(/<[a-z]+\s[^>]*class\s*=\s*["'][^"']*\btable-foot\b/gi)) {
@@ -454,7 +454,7 @@ function checkIcons(html: string, out: StyleFinding[]): void {
 /* ------------------------------------------------------------------ */
 
 /**
- * Revisa el HTML de una pagina contra el sistema de la casa.
+ * Revisa el HTML de una página contra el sistema de la casa.
  *
  * Devuelve la lista tal cual, ya recortada: como mucho `MAX_POR_REGLA` de cada
  * clase de aviso, porque veinte veces el mismo fallo no dice mas que cuatro y

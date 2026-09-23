@@ -1,45 +1,45 @@
 /**
  * Archivos sueltos convertidos en contexto para la IA.
  *
- * Es la unica puerta: un archivo que se suelta encima del editor y no se va a
- * volver ni pagina ni tabla acaba aqui, se sube al almacen de adjuntos de la
- * aplicacion y viaja con la siguiente peticion como una referencia.
+ * Es la única puerta: un archivo que se suelta encima del editor y no se va a
+ * volver ni página ni tabla acaba aquí, se sube al almacen de adjuntos de la
+ * aplicación y viaja con la siguiente petición como una referencia.
  *
  * La subida arranca al soltarlo, no al enviar: para cuando se termina de
  * escribir que hacer con el, el archivo ya esta guardado. Mientras va en
  * camino, su badge lo dice y no impide seguir escribiendo; quitarlo antes de
  * que termine cancela la subida.
  *
- * Lo que la IA sabe hacer con el lo decide quien escribe: aqui solo se le pone
+ * Lo que la IA sabe hacer con el lo decide quien escribe: aquí solo se le pone
  * delante. "Toma como referencia este HTML para crear la pantalla de pedidos"
- * es una peticion; el archivo es lo que la hace posible.
+ * es una petición; el archivo es lo que la hace posible.
  *
- * Una hoja de calculo se sube ya convertida a filas y columnas: leer un `.xlsx`
+ * Una hoja de cálculo se sube ya convertida a filas y columnas: leer un `.xlsx`
  * depende de una libreria que solo vive en el navegador, y lo que un modelo lee
- * bien es el CSV. Lo demas se sube tal cual, sin recortar: lo que se recorta es
- * lo que se le ensena al modelo, y eso lo decide el servidor.
+ * bien es el CSV. Lo demás se sube tal cual, sin recortar: lo que se recorta es
+ * lo que se le enseña al modelo, y eso lo decide el servidor.
  */
 import type { AiFile, AiFileKind } from "@shared/types";
 
 import { api } from "./pb";
 
-/** Y una imagen, en bytes. Por encima de esto casi ningun modelo la acepta. */
+/** Y una imagen, en bytes. Por encima de esto casi ningún modelo la acepta. */
 export const MAX_AI_IMAGE_BYTES = 5_000_000;
 
-/** Cuantos archivos caben en una misma peticion. */
+/** Cuantos archivos caben en una misma petición. */
 export const MAX_AI_FILES = 8;
 
 /**
  * A partir de cuanto un pegado deja de ser lo que se escribe y pasa a ser
  * material.
  *
- * Pegar una pagina entera en la barra no es una peticion: es poner algo
+ * Pegar una página entera en la barra no es una petición: es poner algo
  * delante para que se mire. Se trata como tal --entra como adjunto, con su
  * badge-- y el campo se queda libre para decir que hay que hacer con ello.
  *
- * Por lineas y por tamano, porque las dos cosas delatan lo mismo por caminos
- * distintos: una hoja de estilos son muchas lineas cortas, y un HTML minificado
- * es una sola linea larguisima.
+ * Por líneas y por tamaño, porque las dos cosas delatan lo mismo por caminos
+ * distintos: una hoja de estilos son muchas líneas cortas, y un HTML minificado
+ * es una sola línea larguisima.
  */
 export const PASTE_AS_FILE_CHARS = 2_000;
 export const PASTE_AS_FILE_LINES = 20;
@@ -63,7 +63,7 @@ let pastes = 0;
 
 /**
  * Con que extension entra lo que se pega sin nombre. Una captura llega como
- * un archivo sin nombre util, y sin extension no se sabria leer.
+ * un archivo sin nombre útil, y sin extension no se sabria leer.
  */
 const CLIPBOARD_EXTENSION: Record<string, string> = {
   "image/png": ".png",
@@ -82,7 +82,7 @@ const CLIPBOARD_EXTENSION: Record<string, string> = {
  * copio en el escritorio.
  *
  * El que ya trae nombre entra con el suyo --es lo que se lee en el badge-- y
- * la captura, que no lo trae, entra con uno puesto aqui. Lo que no se sepa
+ * la captura, que no lo trae, entra con uno puesto aquí. Lo que no se sepa
  * leer se queda fuera, y entonces el pegado sigue su camino normal.
  */
 export function pastedFiles(data: DataTransfer | null): File[] {
@@ -114,7 +114,7 @@ export function pastedAsFile(text: string): File | null {
 /** Las imagenes que los modelos con vista saben leer. */
 const IMAGE_TYPES = [".png", ".jpg", ".jpeg", ".gif", ".webp"];
 
-/** Por extension, de que clase es. Lo que no este aqui no se puede adjuntar. */
+/** Por extension, de que clase es. Lo que no este aquí no se puede adjuntar. */
 const BY_EXTENSION: [string[], AiFileKind][] = [
   [[".html", ".htm"], "html"],
   [[".css"], "css"],
@@ -153,7 +153,7 @@ export function aiFileKind(file: File): AiFileKind | null {
   return null;
 }
 
-/** Si se puede adjuntar a una peticion. */
+/** Si se puede adjuntar a una petición. */
 export const canAttachToAi = (file: File) => aiFileKind(file) !== null;
 
 /** El icono con el que se dibuja su badge. Son nombres de Hugeicons. */
@@ -162,8 +162,8 @@ export const AI_FILE_ICON: Record<AiFileKind, string> = {
   css: "paint-brush-02",
   js: "source-code",
   json: "source-code",
-  csv: "table-01",
-  sheet: "table-01",
+  csv: "file-spreadsheet",
+  sheet: "file-spreadsheet",
   text: "file-01",
   image: "image-01",
 };
@@ -172,37 +172,37 @@ let counter = 0;
 const nextId = () => `f${++counter}`;
 
 /**
- * Un adjunto mientras se escribe la peticion.
+ * Un adjunto mientras se escribe la petición.
  *
- * Es un `AiFile` con una marca mas: si todavia va en camino. Sin referencia no
+ * Es un `AiFile` con una marca mas: si todavía va en camino. Sin referencia no
  * se puede mandar --el servidor no sabria que archivo es-- pero si se puede
  * dibujar y se puede quitar, que es lo que hace que adjuntar algo grande no
  * bloquee el campo de texto.
  */
 export interface DraftFile extends AiFile {
-  /** La subida sigue en marcha: todavia no hay referencia. */
+  /** La subida sigue en marcha: todavía no hay referencia. */
   uploading: boolean;
 }
 
 /*
- * Las subidas en marcha, por badge. Viven fuera del almacen de la conversacion
+ * Las subidas en marcha, por badge. Viven fuera del almacen de la conversación
  * porque un `AbortController` no es estado que se dibuje: es lo que hace falta
  * para poder cortar una subida cuando su badge se quita.
  */
 const uploads = new Map<string, AbortController>();
 
-/** Cortar la subida de un badge, si todavia iba en camino. */
+/** Cortar la subida de un badge, si todavía iba en camino. */
 export function cancelUpload(id: string): void {
   uploads.get(id)?.abort();
   uploads.delete(id);
 }
 
 /**
- * El badge con el que un archivo entra en la conversacion, antes de subirlo.
+ * El badge con el que un archivo entra en la conversación, antes de subirlo.
  *
  * Falla con un mensaje en espanol cuando el archivo no se puede adjuntar: no
- * es de una clase que se sepa leer, o la imagen es mas grande de lo que ningun
- * modelo acepta. Se comprueba antes de subir nada: rechazarlo despues de la
+ * es de una clase que se sepa leer, o la imagen es mas grande de lo que ningún
+ * modelo acepta. Se comprueba antes de subir nada: rechazarlo después de la
  * espera seria hacer esperar para nada.
  */
 export function draftAiFile(file: File): DraftFile {
@@ -240,7 +240,7 @@ export async function uploadAiFile(
   uploads.set(draft.id, stop);
 
   try {
-    // La hoja de calculo se sube en CSV: es lo que un modelo lee bien, lo que
+    // La hoja de cálculo se sube en CSV: es lo que un modelo lee bien, lo que
     // el servidor sabe trocear en filas, y de paso deja de importar en que
     // formato venia. Su nombre no cambia: es con el que se la nombra.
     let body = file;
@@ -277,25 +277,25 @@ export const wasCancelled = (err: unknown): boolean =>
   err instanceof DOMException && err.name === "AbortError";
 
 /* ------------------------------------------------------------------ */
-/* El camino hasta la conversacion                                      */
+/* El camino hasta la conversación                                      */
 /* ------------------------------------------------------------------ */
 
 /*
  * Quien suelta el archivo --el constructor entero, que es donde se escuchan
  * los arrastres-- y quien pinta los badges --el panel de la IA, que vive en
- * otra rama del arbol-- no se conocen. Se avisan por aqui, igual que el cursor
+ * otra rama del árbol-- no se conocen. Se avisan por aquí, igual que el cursor
  * de seleccion se avisa por `pagePicker`.
  *
- * Con una diferencia: el panel puede no estar montado todavia. Soltar un
+ * Con una diferencia: el panel puede no estar montado todavía. Soltar un
  * archivo con el dock escondido lo trae, y traerlo monta el panel un instante
- * despues del aviso. Por eso lo que se manda espera en una cola en vez de
- * gritarse al vacio: el panel la vacia al montarse.
+ * después del aviso. Por eso lo que se manda espera en una cola en vez de
+ * gritarse al vacío: el panel la vacía al montarse.
  */
 
 let queue: File[] = [];
 const takers = new Set<(files: File[]) => void>();
 
-/** Mandar archivos a la conversacion. Los lee el panel, que sabe de cual es. */
+/** Mandar archivos a la conversación. Los lee el panel, que sabe de cual es. */
 export function sendFilesToAi(files: File[]): void {
   if (!files.length) return;
   if (takers.size === 0) {

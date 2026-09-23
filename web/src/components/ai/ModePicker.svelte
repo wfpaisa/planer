@@ -1,5 +1,5 @@
 <!--
-  Con que animo se va a pedir: cambiar la pagina ya, o conversar el plan antes.
+  Con que animo se va a pedir: cambiar la página ya, o conversar el plan antes.
 
   Es lo mismo que decidia el item "Activar modo Plan" del menu de adjuntar,
   pero a la vista y con las dos salidas juntas: el modo se mira justo antes de
@@ -46,8 +46,8 @@
       onclick={toggle}
       data-tip={locked
         ? "Plan cerrado: decide en la tarjeta del plan"
-        : "Elegir como trabaja la IA"}
-      aria-label="Elegir como trabaja la IA"
+        : "Elegir cómo trabaja la IA"}
+      aria-label="Elegir cómo trabaja la IA"
       class="btn-pick-ai-mode btn sm"
       class:on={plan}
     >
@@ -77,7 +77,7 @@
     {/snippet}
     <MenuItem
       icon={planIcon}
-      description="Spec detallada para proyectos complejos"
+      description="Define un plan antes de hacer cambios"
       onclick={() => {
         close();
         onPick(true);
@@ -102,7 +102,7 @@
       color: var(--text-primary);
     }
 
-    /* En Plan el boton se queda encendido: es un modo, no un clic suelto. */
+    /* En Plan el botón se queda encendido: es un modo, no un clic suelto. */
     &.on {
       background: var(--accent-soft);
       color: var(--accent-soft-text);

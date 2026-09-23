@@ -14,8 +14,8 @@
   }: {
     icon?: Snippet;
     /**
-     * La segunda linea: para que sirve la opcion, cuando el rotulo solo no
-     * basta para elegir. Sale debajo del titulo, mas pequena y apagada.
+     * La segunda línea: para que sirve la opción, cuando el rotulo solo no
+     * basta para elegir. Sale debajo del título, mas pequena y apagada.
      */
     description?: string;
     danger?: boolean;
@@ -51,8 +51,8 @@
   }
 
   /*
-    Con descripcion el item deja de ser una linea: el icono se queda arriba,
-    a la altura del titulo, y no centrado contra el bloque entero.
+    Con descripcion el item deja de ser una línea: el icono se queda arriba,
+    a la altura del título, y no centrado contra el bloque entero.
   */
   .menu-item-described {
     align-items: flex-start;

@@ -1,16 +1,16 @@
 /**
  * Que pasa con las filas que senalaban a un registro que se va a borrar.
  *
- * Vive en `server/` y no en `shared/` porque es lo unico que hace que la regla
+ * Vive en `server/` y no en `shared/` porque es lo único que hace que la regla
  * sea una y no tres: hay tres caminos que borran una fila --la cuadricula del
- * constructor, la orden `borrar` de una pagina publicada y quitarle el acceso
- * a una persona-- y los tres pasan por aqui. Ver `design.md` D7 de
+ * constructor, la orden `borrar` de una página publicada y quitarle el acceso
+ * a una persona-- y los tres pasan por aquí. Ver `design.md` D7 de
  * `relacion-automatica-con-personas`.
  *
  * PocketBase solo sabe hacer dos cosas al borrar lo apuntado: anular el enlace
  * o arrastrar la fila. La cascada se le deja a el (`cascadeDelete`); conservar
- * el valor no puede, asi que corre aqui, antes del borrado, leyendo lo que la
- * celda ensenaba mientras el registro todavia existe.
+ * el valor no puede, así que corre aquí, antes del borrado, leyendo lo que la
+ * celda ensenaba mientras el registro todavía existe.
  */
 import { isPeopleTable, MEMBER_FIELD, personKeyValue, storedFields } from "../shared/people.ts";
 import { firstUnique } from "../shared/relations.ts";
@@ -41,11 +41,11 @@ interface Referrer {
 /* ------------------------------------------------------------------ */
 
 /**
- * Las columnas de la aplicacion que apuntan a esta tabla, con las filas suyas
+ * Las columnas de la aplicación que apuntan a esta tabla, con las filas suyas
  * que senalan a alguno de esos registros.
  *
  * Se busca por el identificador de la fila y no por el tipo de la columna: con
- * un solo tipo de relacion, lo que hace que una columna hable de un registro es
+ * un solo tipo de relación, lo que hace que una columna hable de un registro es
  * a que tabla apunta. La tabla de origen se salta a si misma solo cuando la
  * fila que apunta es una de las que se van.
  */
@@ -82,7 +82,7 @@ async function referrersTo(
   return out;
 }
 
-/** Las tablas de una aplicacion, o vacio si no se pueden leer. */
+/** Las tablas de una aplicación, o vacío si no se pueden leer. */
 async function tablesOf(appId: string): Promise<TableRecord[]> {
   const res = await listRecords<TableRecord>(INTERNAL.tables, {
     filter: `app = "${quote(appId)}"`,
@@ -100,7 +100,7 @@ async function tablesOf(appId: string): Promise<TableRecord[]> {
  * Lo que cada registro que se va ensenaba, por su identificador.
  *
  * Sale de la propia fila salvo en la tabla de personas, donde la llave puede
- * ser el correo, que no esta en su coleccion: lo guarda la cuenta. Ver
+ * ser el correo, que no esta en su colección: lo guarda la cuenta. Ver
  * `design.md` D10.
  */
 async function shownBy(
@@ -123,8 +123,8 @@ async function shownBy(
     const id = String(row.id ?? "");
     if (isPeopleTable(target)) {
       const person = await personOfRow(target, row);
-      // Sin valor en esa columna queda el correo, que es lo unico que toda
-      // cuenta tiene. Una fila sin ningun valor es una fila que perdio el dato.
+      // Sin valor en esa columna queda el correo, que es lo único que toda
+      // cuenta tiene. Una fila sin ningún valor es una fila que perdio el dato.
       const value = personKeyValue(person, key) || person.email;
       if (value) out.set(id, value);
       continue;
@@ -136,7 +136,7 @@ async function shownBy(
   return out;
 }
 
-/** Una fila de la tabla de personas, con lo que su cuenta anade. */
+/** Una fila de la tabla de personas, con lo que su cuenta añade. */
 async function personOfRow(table: TableRecord, row: Record<string, unknown>): Promise<AppPerson> {
   const memberId = String(row[MEMBER_FIELD] ?? "");
   const account = memberId
@@ -166,8 +166,8 @@ async function personOfRow(table: TableRecord, row: Record<string, unknown>): Pr
 /**
  * Cuantas filas se conservan y cuantas se borran si se van estos registros.
  *
- * No se reusa el recuento de `server/dataImpact.ts`: aquel cuenta **paginas**
- * que declaran una tabla o una columna que va a cambiar de forma, y aqui se
+ * No se reusa el recuento de `server/dataImpact.ts`: aquel cuenta **páginas**
+ * que declaran una tabla o una columna que va a cambiar de forma, y aquí se
  * cuentan **filas** de otras tablas que senalan a unos registros concretos. No
  * comparten ni la unidad ni la pregunta.
  */
@@ -195,12 +195,12 @@ export async function deleteImpact(
  *
  * Sin esto, borrar una fila convertia en "enlace roto" todas las que la
  * senalaban: la celda se quedaba con un id que ya no resuelve y el dato que la
- * fila estaba diciendo --la cedula del conductor de cuarenta multas-- no se
+ * fila estaba diciendo --la cédula del conductor de cuarenta multas-- no se
  * veia en ninguna parte. El exceso de velocidad ocurrio igual, y quien lo mira
  * necesita saber de quien era.
  *
  * Solo toca las columnas que conservan el valor: las declaradas en cascada se
- * llevan la fila entera, asi que no hay nada que conservar en ella.
+ * llevan la fila entera, así que no hay nada que conservar en ella.
  */
 export async function parkReferences(
   appId: string,
@@ -245,7 +245,7 @@ export async function parkReferences(
 /**
  * Borra unas filas conservando lo que decian de ellas las de otras tablas.
  *
- * Es la unica puerta: los tres caminos que borran llaman aqui, para que la
+ * Es la única puerta: los tres caminos que borran llaman aquí, para que la
  * conducta declarada en la columna sea una regla y no una costumbre de cada
  * pantalla. Devuelve cuantas se fueron.
  */

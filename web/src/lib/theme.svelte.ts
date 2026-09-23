@@ -25,13 +25,13 @@ media.addEventListener("change", (e) => {
 const resolved = () => chosen ?? (systemDark ? "dark" : DEFAULT_THEME);
 
 /*
- * El `data-theme` esta siempre puesto, tambien cuando nadie ha elegido: es lo
- * que mira `brand.css` para saber si el color de una aplicacion se recorta
+ * El `data-theme` esta siempre puesto, también cuando nadie ha elegido: es lo
+ * que mira `brand.css` para saber si el color de una aplicación se recorta
  * contra papel claro u oscuro, y lo que mira `form.css` para vestir los
- * campos. El mismo calculo lo hace el guion de `index.html` antes de pintar,
+ * campos. El mismo cálculo lo hace el guion de `index.html` antes de pintar,
  * para que no haya parpadeo.
  *
- * Va en un `$effect.root` porque esto no vive dentro de ningun componente:
+ * Va en un `$effect.root` porque esto no vive dentro de ningún componente:
  * dura lo que dure la pestana.
  */
 $effect.root(() => {

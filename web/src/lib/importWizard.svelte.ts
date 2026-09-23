@@ -3,7 +3,7 @@
  * pantalla esta, el archivo leido y como se emparejan sus columnas.
  *
  * A donde va cada columna y como se convierte cada celda vive en
- * `importPlan.ts`; aqui esta el hilo que va de "un archivo" a "sus filas ya
+ * `importPlan.ts`; aquí esta el hilo que va de "un archivo" a "sus filas ya
  * convertidas", que es lo que cada paso necesita leer.
  */
 import type { TableRecord } from "@shared/types";
@@ -37,7 +37,7 @@ export interface ImportNotice {
 
 /**
  * Pasa por las tres pantallas del asistente sin recrearse: la instancia nace
- * al abrir el dialogo y muere con el.
+ * al abrir el diálogo y muere con el.
  */
 export class ImportWizard {
   #table: () => TableRecord;
@@ -53,7 +53,7 @@ export class ImportWizard {
    * De donde viene el contenido: de un archivo o pegado a mano.
    *
    * Las dos formas escriben el mismo `text` --un archivo se lee y se vuelca
-   * ahi--, asi que esto solo decide cual de las dos se ensena. Empieza en el
+   * ahi--, así que esto solo decide cual de las dos se enseña. Empieza en el
    * archivo, que es lo que se hace casi siempre; el area de pegar ocupaba media
    * pantalla para el caso raro.
    */
@@ -61,22 +61,22 @@ export class ImportWizard {
   /**
    * El nombre del ultimo archivo leido.
    *
-   * Con el area de texto escondida, la zona de arrastre es lo unico que queda
+   * Con el area de texto escondida, la zona de arrastre es lo único que queda
    * mirando: sin decir que archivo entro, soltar uno y no soltar nada se ven
    * igual.
    */
   fileName = $state("");
   /**
    * Lo que hay que contar de esta importacion, con su tono. No todo lo que se
-   * dice aqui es un fallo --una hoja de mas, filas que se quedaron fuera-- y
+   * dice aquí es un fallo --una hoja de mas, filas que se quedaron fuera-- y
    * contarlo todo en rojo hacia parecer roto lo que solo estaba incompleto.
    */
   notice = $state<ImportNotice | null>(null);
   /**
    * Lo que se cambio a mano, por nombre de columna.
    *
-   * Solo lo cambiado: lo demas sale de `defaultMapping` cada vez que se lee el
-   * archivo. Asi cambiar el separador sin salir de la previsualizacion vuelve a
+   * Solo lo cambiado: lo demás sale de `defaultMapping` cada vez que se lee el
+   * archivo. Así cambiar el separador sin salir de la previsualizacion vuelve a
    * leerlo conservando lo elegido, y una columna que con el separador nuevo ya
    * no existe deja de mirarse sola.
    */
@@ -104,7 +104,7 @@ export class ImportWizard {
   setTarget = (column: string, target: ColumnTarget): void => {
     this.overrides = { ...this.overrides, [column]: target };
   };
-  /** Devolver una columna a lo sugerido: se quita lo que se habia elegido. */
+  /** Devolver una columna a lo sugerido: se quita lo que se había elegido. */
   clearTarget = (column: string): void => {
     const next = { ...this.overrides };
     delete next[column];
@@ -128,7 +128,7 @@ export class ImportWizard {
   /**
    * El archivo que entro pero no se puede importar.
    *
-   * Es lo unico que la zona de arrastre tiene que ensenar de un archivo ya
+   * Es lo único que la zona de arrastre tiene que ensenar de un archivo ya
    * leido: el que se puede importar no llega a verse ahi, porque abre la
    * previsualizacion en cuanto se lee.
    */
@@ -139,9 +139,9 @@ export class ImportWizard {
    * Lo sugerido, con lo elegido a mano encima.
    *
    * Con `$derived.by` y no con `$derived` por la tabla: un campo de clase que
-   * el constructor rellena no existe todavia cuando corren los inicializadores
-   * de los demas campos, asi que leerlo ahi mismo no compila. Dentro de la
-   * funcion se lee cuando toca, que es cuando ya esta.
+   * el constructor rellena no existe todavía cuando corren los inicializadores
+   * de los demás campos, así que leerlo ahi mismo no compila. Dentro de la
+   * función se lee cuando toca, que es cuando ya esta.
    */
   mapping = $derived.by(() =>
     this.parsedTable
@@ -170,7 +170,7 @@ export class ImportWizard {
       return;
     }
     try {
-      // Una hoja de calculo se convierte a CSV antes de nada: de ahi en
+      // Una hoja de cálculo se convierte a CSV antes de nada: de ahi en
       // adelante es el mismo archivo que cualquier otro, con el mismo lector y
       // el mismo emparejado de columnas.
       if (isSheetFile(file)) {
@@ -207,14 +207,14 @@ export class ImportWizard {
    * Un archivo que se leyo bien pasa solo a la previsualizacion.
    *
    * Antes se quedaba en la primera pantalla, con la zona de arrastre en verde
-   * diciendo que ya estaba cargado y un boton "Previsualizar" al lado: un paso
+   * diciendo que ya estaba cargado y un botón "Previsualizar" al lado: un paso
    * que solo servia para confirmar lo que ya se veia. Se sigue de largo, que es
    * a donde se iba igualmente.
    *
    * El que NO se puede importar --ilegible, sin columnas, con mas filas de la
-   * cuenta-- se queda aqui: ahi la primera pantalla si tiene algo que decir, y
-   * lo dice en rojo. Lo avisado al leerlo (una hoja de calculo con varias
-   * pestanas) viaja con el aviso, que la previsualizacion tambien ensena.
+   * cuenta-- se queda aquí: ahi la primera pantalla si tiene algo que decir, y
+   * lo dice en rojo. Lo avisado al leerlo (una hoja de cálculo con varias
+   * pestanas) viaja con el aviso, que la previsualizacion también enseña.
    */
   seguir = (): void => {
     if (this.fileOk) this.stage = "preview";

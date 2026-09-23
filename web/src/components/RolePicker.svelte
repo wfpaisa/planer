@@ -1,9 +1,9 @@
 <!--
-  Marca los roles de una pagina o de una persona.
-  Sin ninguno marcado, lo ve cualquiera que entre a la aplicacion.
+  Marca los roles de una página o de una persona.
+  Sin ninguno marcado, lo ve cualquiera que entre a la aplicación.
 
-  Cada rol es una etiqueta del catalogo que se enciende y se apaga: `tint-1`
-  cuando esta marcado y `off` --la pastilla sin fondo, solo su linea-- cuando
+  Cada rol es una etiqueta del catálogo que se enciende y se apaga: `tint-1`
+  cuando esta marcado y `off` --la pastilla sin fondo, solo su línea-- cuando
   no. Es el mismo gesto, y la misma pieza, que en el resto del panel.
 -->
 <script lang="ts">
@@ -29,8 +29,7 @@
 
 {#if !roles.length}
   <p class="empty-roles-hint">
-    Esta aplicacion todavia no tiene roles. Se crean desde la tabla "Personas y roles", en la base
-    de datos.
+    Esta aplicación no tiene roles. Créalos en la tabla "Personas y roles".
   </p>
 {:else}
   <div class="picker-roles">

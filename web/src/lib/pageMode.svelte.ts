@@ -5,11 +5,11 @@ const modeKey = (appId: string) => `plane-app-mode:${appId}`;
 const media = matchMedia("(prefers-color-scheme: dark)");
 
 /**
- * Claro u oscuro en una aplicacion publicada.
+ * Claro u oscuro en una aplicación publicada.
  *
  * Lo elige quien mira, no quien construye: la marca es del constructor, el modo
  * es de quien tiene la pantalla delante. Mientras nadie elija manda lo que pida
- * el sistema, y en cuanto alguien elige queda guardado para esa aplicacion en
+ * el sistema, y en cuanto alguien elige queda guardado para esa aplicación en
  * ese navegador.
  */
 export function pageMode(appId: () => string) {

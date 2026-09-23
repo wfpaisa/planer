@@ -5,7 +5,7 @@
   El contorno del rango no se dibuja celda a celda con cuatro bordes sueltos:
   cada celda sabe por que lados suyos pasa el borde del rectangulo (`edges`) y
   pinta solo esos. Asi el rango se ve como una figura y no como una rejilla de
-  cuadros, y no hace falta ningun elemento flotante por encima que haya que
+  cuadros, y no hace falta ningún elemento flotante por encima que haya que
   volver a medir con cada desplazamiento.
 -->
 <script lang="ts" module>
@@ -97,9 +97,9 @@
   } = $props();
 
   /**
-   * Lo que se lleva escrito, sin guardar todavia.
+   * Lo que se lleva escrito, sin guardar todavía.
    *
-   * Una relacion empieza sin valor a proposito: lo que se escribe en ella es la
+   * Una relación empieza sin valor a propósito: lo que se escribe en ella es la
    * llave, y la llave de una fila ya guardada vive en el registro enlazado, no
    * en la celda. `KeyPicker` la saca de la fila cuando no le llega nada.
    */
@@ -108,9 +108,9 @@
   /**
    * La celda, para poder traerla a la vista.
    *
-   * Moverse con las flechas hasta el final de la pagina dejaba el cursor fuera
+   * Moverse con las flechas hasta el final de la página dejaba el cursor fuera
    * de lo que se ve: la cuadricula se desplaza sola, pero solo por lo que el
-   * raton hace, y el teclado no mueve ningun foco que el navegador siga.
+   * ratón hace, y el teclado no mueve ningún foco que el navegador siga.
    */
   let box = $state<HTMLTableCellElement | null>(null);
 
@@ -125,7 +125,7 @@
    *
    * Se busca en el nodo en vez de pedirselo a cada tipo de control: `autofocus`
    * es un atributo que el navegador solo atiende al cargar el documento, y una
-   * celda se abre mucho despues. Sin esto, la celda se veia abierta pero las
+   * celda se abre mucho después. Sin esto, la celda se veia abierta pero las
    * teclas seguian llegando a la cuadricula.
    */
   let editBox = $state<HTMLDivElement | null>(null);
@@ -140,7 +140,7 @@
      */
     (control ?? editBox).focus();
     if (control) openPicker(control);
-    // Lo que ya habia se reemplaza al escribir, como en cualquier hoja de
+    // Lo que ya había se reemplaza al escribir, como en cualquier hoja de
     // calculo; lo que se abrio tecleando se continua, no se selecciona.
     if (!seed && control instanceof HTMLInputElement && control.type !== "checkbox") {
       control.select();
@@ -151,11 +151,11 @@
    * Pulsar fuera del control guarda lo escrito, en vez de perderlo.
    *
    * Los campos de texto ya lo hacian por su cuenta --pierden el foco y eso los
-   * cierra-- pero los que no son un campo no pierden ningun foco: en una
+   * cierra-- pero los que no son un campo no pierden ningún foco: en una
    * columna de opciones multiples se marcaban tres roles, se pulsaba fuera y no
    * quedaba ninguno.
    *
-   * Escucha en la fase de captura porque la celda de destino tambien atiende el
+   * Escucha en la fase de captura porque la celda de destino también atiende el
    * mismo `mousedown`, y cierra la edicion antes de que este llegue a correr.
    */
   $effect(() => {
@@ -218,7 +218,7 @@
   {#if editing}
     <!--
       Las teclas del control no son de la cuadricula: Enter y Escape ya cierran
-      la celda, y dejandolas subir llegaban tambien al teclado de la grilla, que
+      la celda, y dejandolas subir llegaban también al teclado de la grilla, que
       leia el Escape como "suelta el rango" y dejaba sin cursor la celda que se
       acababa de cerrar.
     -->
@@ -228,7 +228,7 @@
       tabindex="-1"
       onmousedown={(e) => {
         /*
-         * El raton dentro del control no es un clic en la celda. Sin cortarlo
+         * El ratón dentro del control no es un clic en la celda. Sin cortarlo
          * aqui subia al `<td>`, que devuelve el foco a la cuadricula, y poner
          * el cursor entre dos palabras cerraba la edicion en marcha.
          */
@@ -305,7 +305,7 @@
     }
 
     /*
-      El control de edicion se sale de la celda a proposito: una celda angosta
+      El control de edicion se sale de la celda a propósito: una celda angosta
       no puede encoger lo que se escribe. Va por encima de las de al lado y de
       la fila fijada de la izquierda.
     */
@@ -339,7 +339,7 @@
       /*
         Las divisiones de dentro del rango se siguen viendo --sin ellas el
         bloque elegido es una mancha y no se sabe cuantas celdas lleva-- pero en
-        el color del propio rango: la linea gris de la rejilla de fuera lo
+        el color del propio rango: la línea gris de la rejilla de fuera lo
         cortaba en trozos que no son suyos.
       */
       border-left-color: color-mix(in oklab, var(--accent) 30%, transparent);
@@ -370,7 +370,7 @@
     /*
       Pasar por una fila del rango no la saca de el: el lavado de siempre
       borraba el color de lo elegido y la fila parecia deseleccionarse al
-      acercar el raton. Es el mismo color, un poco mas encendido. El cursor se
+      acercar el ratón. Es el mismo color, un poco mas encendido. El cursor se
       queda fuera: ya tiene el suyo, que es el mas marcado de los tres.
     */
     :global(tr:hover) > &.cell-grid-db-selected:not(.cell-grid-db-active) {

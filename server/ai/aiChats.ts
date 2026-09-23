@@ -1,16 +1,16 @@
 /**
  * Las conversaciones con la inteligencia artificial.
  *
- * Pertenecen a la pagina donde se hicieron, no a la aplicacion: la lista de
- * una pagina ensena solo las suyas, asi que ninguna entrada necesita decir en
- * que pagina se hizo, y no hay forma de abrir una hecha en otra --seguir
- * escribiendo ahi cambiaria una pagina distinta de la que el hilo nombra--.
+ * Pertenecen a la página donde se hicieron, no a la aplicación: la lista de
+ * una página enseña solo las suyas, así que ninguna entrada necesita decir en
+ * que página se hizo, y no hay forma de abrir una hecha en otra --seguir
+ * escribiendo ahi cambiaria una página distinta de la que el hilo nombra--.
  *
- * Borrar la pagina se las lleva: lo hace la cascada de la relacion `page`.
+ * Borrar la página se las lleva: lo hace la cascada de la relación `page`.
  *
- * Guardadas hay muchas, pero **abierta hay una sola en toda la aplicacion**: la
- * ultima en la que se hablo, apuntada en la aplicacion. La pagina que la tiene
- * la repone al abrirse; las demas empiezan en blanco, aunque tengan
+ * Guardadas hay muchas, pero **abierta hay una sola en toda la aplicación**: la
+ * ultima en la que se hablo, apuntada en la aplicación. La página que la tiene
+ * la repone al abrirse; las demás empiezan en blanco, aunque tengan
  * conversaciones suyas guardadas. Vive en la base de datos y no en el navegador
  * porque quien sigue desde otro equipo tiene que encontrarse delante la misma
  * que dejo, y solo esa.
@@ -30,16 +30,16 @@ import { quote } from "../filter.ts";
 import { createRecord, deleteRecord, firstRecord, listRecords, updateRecord } from "../pb.ts";
 import { pruneAiFiles } from "./aiFiles.ts";
 
-/** Cuantas conversaciones se conservan por aplicacion. */
+/** Cuantas conversaciones se conservan por aplicación. */
 const MAX_CHATS = 50;
 
-/** Cuantos mensajes se conservan dentro de una conversacion. */
+/** Cuantos mensajes se conservan dentro de una conversación. */
 const MAX_MESSAGES = 60;
 
 const title = (text: string) => text.trim().replace(/\s+/g, " ").slice(0, 120) || "Sin título";
 
 /**
- * Los nombres que acompanaban a una peticion --los elementos senalados-- tal
+ * Los nombres que acompanaban a una petición --los elementos senalados-- tal
  * como se guardan: texto corto y nada mas. Lo que no sea texto se descarta en
  * vez de viajar deformado.
  */
@@ -52,9 +52,9 @@ function readNames(value: unknown): string[] {
 }
 
 /**
- * Los adjuntos que nombraba una peticion.
+ * Los adjuntos que nombraba una petición.
  *
- * Una conversacion de antes del almacen de adjuntos guarda solo el nombre, en
+ * Una conversación de antes del almacen de adjuntos guarda solo el nombre, en
  * una lista de textos. Se lee igual --la burbuja sigue diciendo con que se
  * pidio-- pero sin referencia: ese contenido no se guardo nunca y no hay forma
  * de recuperarlo.
@@ -108,7 +108,7 @@ function readMessages(value: unknown): AiMessage[] {
     .filter((m) => m !== null);
 }
 
-/** La lista de una pagina, de la mas reciente a la mas vieja. */
+/** La lista de una página, de la mas reciente a la mas vieja. */
 export async function listChats(appId: string, pageId: string): Promise<AiChatSummary[]> {
   const res = await listRecords<AiChat>(INTERNAL.chats, {
     filter: `app = "${quote(appId)}" && page = "${quote(pageId)}"`,
@@ -127,17 +127,17 @@ export async function getChat(appId: string, id: string): Promise<AiChat> {
     INTERNAL.chats,
     `app = "${quote(appId)}" && id = "${quote(id)}"`,
   );
-  if (!chat) throw new HttpError(404, "Esa conversacion ya no existe");
+  if (!chat) throw new HttpError(404, "Esa conversación ya no existe");
   return { ...chat, messages: readMessages(chat.messages) };
 }
 
 /**
- * Marca implementado el plan cerrado mas reciente de la conversacion.
+ * Marca implementado el plan cerrado mas reciente de la conversación.
  *
  * Es lo que hace "pasar a modo Implementador" desde un plan cerrado (D2, D1
  * de `ia-modo-plan`): el plan no se edita ni se reabre, solo se le cambia esta
- * marca, y desde ahi la conversacion corre con las herramientas de siempre.
- * Sin ningun plan sin implementar, no hay nada que marcar.
+ * marca, y desde ahi la conversación corre con las herramientas de siempre.
+ * Sin ningún plan sin implementar, no hay nada que marcar.
  */
 function markPlanImplemented(messages: AiMessage[]): AiMessage[] {
   const at = messages.findLastIndex((m) => m.from === "ia" && m.plan && !m.plan.implementado);
@@ -148,7 +148,7 @@ function markPlanImplemented(messages: AiMessage[]): AiMessage[] {
 }
 
 /**
- * Guarda la peticion y la respuesta. Sin `chatId` abre una conversacion nueva;
+ * Guarda la petición y la respuesta. Sin `chatId` abre una conversación nueva;
  * con el, sigue la que estaba, que es lo que hace que abrir una nueva no
  * pierda la anterior.
  */
@@ -169,7 +169,7 @@ export async function appendToChat(opts: {
 
   if (existing) {
     const saved = await updateRecord<AiChat>(INTERNAL.chats, existing.id, { messages });
-    // Pedir algo es dejarla abierta: la de otra pagina deja de estarlo.
+    // Pedir algo es dejarla abierta: la de otra página deja de estarlo.
     await setOpenChat(opts.appId, existing.id);
     return { ...saved, messages };
   }
@@ -184,8 +184,8 @@ export async function appendToChat(opts: {
 
   await setOpenChat(opts.appId, created.id);
   await pruneChats(opts.appId);
-  // El tope se pudo llevar la ultima conversacion que nombraba algun adjunto:
-  // es el unico momento en que uno puede quedarse sin nadie que lo nombre.
+  // El tope se pudo llevar la ultima conversación que nombraba algún adjunto:
+  // es el único momento en que uno puede quedarse sin nadie que lo nombre.
   await pruneAiFiles(opts.appId).catch(() => 0);
   return { ...created, messages };
 }
@@ -193,8 +193,8 @@ export async function appendToChat(opts: {
 /**
  * La que quedo abierta, si sigue existiendo.
  *
- * Se comprueba contra las conversaciones de la aplicacion: el tope se lleva las
- * mas viejas y borrar una pagina se lleva las suyas, asi que lo apuntado puede
+ * Se comprueba contra las conversaciones de la aplicación: el tope se lleva las
+ * mas viejas y borrar una página se lleva las suyas, así que lo apuntado puede
  * apuntar a algo que ya no esta. Eso se lee como que no hay ninguna abierta, no
  * como un error: lo que toca entonces es empezar en blanco.
  */
@@ -208,12 +208,12 @@ export async function readOpenChat(app: AppRecord): Promise<AiOpenChat | null> {
   return chat ? { chat: chat.id, page: chat.page } : null;
 }
 
-/** Deja abierta esta y ninguna otra. Vacio: la aplicacion se queda sin ninguna. */
+/** Deja abierta esta y ninguna otra. Vacío: la aplicación se queda sin ninguna. */
 export async function setOpenChat(appId: string, chatId: string): Promise<void> {
   await updateRecord(INTERNAL.apps, appId, { openChat: chatId });
 }
 
-/** Deja la aplicacion en el tope, quitando las mas viejas. */
+/** Deja la aplicación en el tope, quitando las mas viejas. */
 async function pruneChats(appId: string): Promise<void> {
   const res = await listRecords<{ id: string }>(INTERNAL.chats, {
     filter: `app = "${quote(appId)}"`,

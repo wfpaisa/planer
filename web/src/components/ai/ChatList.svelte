@@ -1,7 +1,7 @@
 <!--
-  Las conversaciones anteriores de la pagina abierta.
+  Las conversaciones anteriores de la página abierta.
 
-  Son de la pagina, no de la aplicacion: aqui estan todas las que hay y todas
+  Son de la página, no de la aplicación: aqui estan todas las que hay y todas
   se hicieron aqui, asi que ninguna necesita decir en cual.
 -->
 <script lang="ts" module>
@@ -33,14 +33,14 @@
 
 <div class="chat-list flex h-full flex-col gap-3">
   <Button size="sm" variant="ghost" onclick={onBack} class="btn-back-to-chat">
-    <Icon name="arrow-left-01" size={13} /> Volver a la conversacion
+    <Icon name="arrow-left-01" size={13} /> Volver a la conversación
   </Button>
 
   <div class="chat-list-items flex-1 flex flex-col gap-1">
     {#if chats.length === 0}
       <div class="chat-list-empty flex flex-col items-center gap-2 text-center">
         <Icon name="messages-square" size={20} class="chat-list-empty-icon" />
-        <p class="chat-list-empty-text">Todavia no hay conversaciones guardadas.</p>
+        <p class="chat-list-empty-text">No hay conversaciones guardadas.</p>
       </div>
     {/if}
 
@@ -61,7 +61,7 @@
   .chat-list {
     min-height: 0;
 
-    /* Vive en el boton del `Button`, que es otro componente. */
+    /* Vive en el botón del `Button`, que es otro componente. */
     & :global(.btn-back-to-chat) {
       align-self: flex-start;
     }
@@ -87,9 +87,9 @@
     color: var(--text-muted);
   }
 
-  /* Cada conversacion es `.opt` del catalogo, con `.opt-label` para el
-     titulo. Aqui solo lo propio: la lista va sin cercos --serian una reja de
-     cinco lineas-- y el cerco aparece bajo el cursor, que es cuando dice cual
+  /* Cada conversación es `.opt` del catálogo, con `.opt-label` para el
+     título. Aqui solo lo propio: la lista va sin cercos --serian una reja de
+     cinco líneas-- y el cerco aparece bajo el cursor, que es cuando dice cual
      se va a abrir. */
   .btn-open-conversation {
     border-color: transparent;

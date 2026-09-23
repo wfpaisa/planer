@@ -1,15 +1,15 @@
 <!--
-  Lo senalado con el cursor, como badges dentro de la conversacion.
+  Lo senalado con el cursor, como badges dentro de la conversación.
 
   Son los mismos badges que los atajos --misma forma, misma manera de
-  quitarlos-- porque son la misma clase de cosa: algo anadido a la peticion que
+  quitarlos-- porque son la misma clase de cosa: algo anadido a la petición que
   se puede retirar antes de enviarla sin tocar lo que se llevaba escrito.
 
-  Lo que dice cada badge depende de lo que se haya senalado. Un titulo o un
+  Lo que dice cada badge depende de lo que se haya senalado. Un título o un
   parrafo se nombran por su etiqueta --`h1`, `p`--, porque ahi lo que importa
   es de que rango es el texto y no lo que dice, que ya se esta viendo en la
-  pagina. Cualquier otra cosa se nombra como se llama en la conversacion
-  ("tabla Clientes"), que es lo unico que la distingue de las de al lado.
+  página. Cualquier otra cosa se nombra como se llama en la conversación
+  ("tabla Clientes"), que es lo único que la distingue de las de al lado.
 -->
 <script lang="ts">
   import type { PickedBlock } from "@shared/types";

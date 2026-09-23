@@ -1,10 +1,10 @@
 <!--
-  Claro u oscuro: el mismo boton en todas partes.
+  Claro u oscuro: el mismo botón en todas partes.
 
-  Habia tres copias --el panel, la demo y la aplicacion publicada-- con tres
+  Había tres copias --el panel, la demo y la aplicación publicada-- con tres
   medidas y dos velocidades de giro distintas. La pieza es siempre la misma: un
-  boton fantasma con el sol y la luna en la misma celda, del que solo se ve el
-  que corresponde al modo puesto. Lo unico que cambia de un sitio a otro es de
+  botón fantasma con el sol y la luna en la misma celda, del que solo se ve el
+  que corresponde al modo puesto. Lo único que cambia de un sitio a otro es de
   donde sale `dark` y a quien se le cuenta el cambio, y eso entra por props.
 -->
 <script lang="ts">
@@ -25,7 +25,7 @@
     dark: boolean;
     /** El modo al que se quiere ir. */
     onToggle: (next: ThemeName) => void;
-    /** Que se ofrece al pulsar en oscuro; tambien compone el `aria-label`. */
+    /** Que se ofrece al pulsar en oscuro; también compone el `aria-label`. */
     tipLight?: string;
     /** Que se ofrece al pulsar en claro. */
     tipDark?: string;
@@ -77,9 +77,9 @@
         opacity 0.3s;
     }
 
-    /* Cual sobra lo dice el boton, no un ancestro: en una aplicacion publicada
+    /* Cual sobra lo dice el botón, no un ancestro: en una aplicación publicada
        dentro del panel hay dos `data-theme` en la cadena --el del panel y el de
-       la aplicacion-- y mirar hacia arriba escondia los dos iconos a la vez. */
+       la aplicación-- y mirar hacia arriba escondia los dos iconos a la vez. */
     &[aria-pressed="false"] :global(.mode-toggle-sun) {
       opacity: 0;
       transform: rotate(90deg) scale(0.5);

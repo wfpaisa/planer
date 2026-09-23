@@ -1,8 +1,8 @@
 <!--
-  La lista de tablas de la aplicacion.
+  La lista de tablas de la aplicación.
 
-  El encabezado es el mismo que el de las paginas: las dos mitades de la
-  aplicacion se listan igual, asi que se leen igual.
+  El encabezado es el mismo que el de las páginas: las dos mitades de la
+  aplicación se listan igual, asi que se leen igual.
 -->
 <script lang="ts" module>
   import { SHEET_ACCEPT } from "../../lib/sheet";
@@ -17,7 +17,7 @@
    * Lo que el selector del sistema ofrece al buscar el archivo de una tabla.
    *
    * Son las mismas extensiones que sabe leer `dropFiles`: si aqui se ofreciera
-   * alguna de mas, se podria elegir un archivo que despues no se entiende.
+   * alguna de mas, se podria elegir un archivo que después no se entiende.
    */
   const DATA_ACCEPT = `.csv,.tsv,.json,text/csv,application/json,${SHEET_ACCEPT}`;
 </script>
@@ -62,7 +62,7 @@
   const builder = useBuilder();
 
   /**
-   * El dialogo del nombre. Con `table` a nulo es una tabla que todavia no
+   * El diálogo del nombre. Con `table` a nulo es una tabla que todavía no
    * existe; con tabla es cambiarle el nombre a una que ya esta.
    */
   let naming = $state<{ table: TableRecord | null } | null>(null);
@@ -85,7 +85,7 @@
     const query = filter.trim().toLowerCase();
     const list =
       canFilter && query ? tables.filter((t) => t.label.toLowerCase().includes(query)) : tables;
-    // Personas encabeza la lista: es de donde sale quien entra a la aplicacion
+    // Personas encabeza la lista: es de donde sale quien entra a la aplicación
     // y donde se nombran los roles, asi que se busca antes que ninguna otra.
     return [...list].sort((a, b) => Number(isPeopleTable(b)) - Number(isPeopleTable(a)));
   });
@@ -97,9 +97,9 @@
   }
 
   /**
-   * El selector del sistema, escondido. Lo abre el boton de importar: un
+   * El selector del sistema, escondido. Lo abre el botón de importar: un
    * `<input type="file">` a la vista no se puede vestir como los demas
-   * elementos de la lista, y el boton si.
+   * elementos de la lista, y el botón si.
    */
   let filePicker = $state<HTMLInputElement | null>(null);
 
@@ -109,14 +109,14 @@
    * Aqui no se lee ni se crea nada: es el que ya recoge los que se sueltan, y
    * el que sabe preguntar que hacer con el --una tabla nueva, o filas de una
    * que ya existe si resulta que el archivo es suyo--. Elegirlo y arrastrarlo
-   * acaban en el mismo sitio a proposito: es la misma decision, tomada con el
-   * raton de dos maneras.
+   * acaban en el mismo sitio a propósito: es la misma decision, tomada con el
+   * ratón de dos maneras.
    */
   function takeFile(files: FileList | File[] | null) {
     if (!files?.length) return;
     builder.openFile(files);
-    // El selector se vacia: sin esto, volver a elegir el mismo archivo no
-    // avisa --para el navegador no cambio nada-- y el boton parece roto.
+    // El selector se vacía: sin esto, volver a elegir el mismo archivo no
+    // avisa --para el navegador no cambio nada-- y el botón parece roto.
     if (filePicker) filePicker.value = "";
   }
 
@@ -167,7 +167,7 @@
   }
 
   /**
-   * Deja la tabla de usuarios como el dia que nacio: vacia y con sus columnas
+   * Deja la tabla de usuarios como el dia que nacio: vacía y con sus columnas
    * de siempre.
    *
    * Existe porque una importacion que no encuentra a donde mandar sus columnas
@@ -175,7 +175,7 @@
    * --`avatar`, `verified`, `emailVisibility`-- que no sirven para nada aqui.
    * Quitarlas de una en una es media tarde.
    *
-   * Se lleva las columnas propias con lo que tuvieran dentro y tambien a la
+   * Se lleva las columnas propias con lo que tuvieran dentro y también a la
    * gente: quien la restablece esta deshaciendo una importacion entera, y
    * dejarla con las personas dentro obligaba a borrarlas aparte para volver de
    * verdad al principio. Las cuentas no se tocan --son comunes a todas las
@@ -189,7 +189,7 @@
     try {
       /*
        * Las personas primero. Cada acceso que se quita se lleva la cuenta con
-       * la que esa persona entraba aqui, su fila y lo que esta aplicacion
+       * la que esa persona entraba aqui, su fila y lo que esta aplicación
        * supiera de ella; si algo falla a mitad, la tabla conserva sus columnas
        * y con ellas lo que queda por revisar.
        */
@@ -210,7 +210,7 @@
        * de todas las tablas y la cuenta del aviso al quitar un rol-- y las
        * filas las tiene la cuadricula, que solo se relee cuando cambia algo
        * suyo. Sin esto las dos seguian ensenando a los que acaban de irse, y la
-       * unica salida era recargar el sitio.
+       * única salida era recargar el sitio.
        */
       await builder.reloadPeople();
       builder.touchData();
@@ -307,7 +307,7 @@
         </button>
         <!--
           El hueco de los punticos esta reservado desde el principio: el nombre
-          de la tabla no se encoge al pasar el raton, y lo que se tapaba antes
+          de la tabla no se encoge al pasar el ratón, y lo que se tapaba antes
           ahora tiene su sitio.
         -->
         <div class="options-table-sidebar">
@@ -329,7 +329,7 @@
                 --exportar e importar-- se queda.
               -->
               {#if isPeopleTable(table)}
-                <!-- Vacia a proposito: mantiene el aire de arriba del menu. -->
+                <!-- Vacía a propósito: mantiene el aire de arriba del menu. -->
                 <!-- <MenuLabel>{"\u00a0"}</MenuLabel> -->
               {:else}
                 <MenuItem
@@ -413,7 +413,7 @@
     {/if}
 
     <!--
-      Crear una tabla es el siguiente elemento de la lista, no un boton aparte:
+      Crear una tabla es el siguiente elemento de la lista, no un botón aparte:
       se pide donde terminan las que ya hay.
 
       Importar va justo detras porque es la otra forma de que nazca una, con los
@@ -421,8 +421,9 @@
       es lo mismo para quien no arrastra, y acaba en la misma pregunta.
     -->
     {#if !filter}
+      <li><MenuSeparator /></li>
       <li>
-        <button type="button" onclick={openCreate} class="btn-new-table-link btn btn-ghost">
+        <button type="button" onclick={openCreate} class="btn-new-table-link btn btn-ghost sm">
           <Icon name="add-square" size={18} class="icon-new-table-link" />
           <span>Nueva tabla</span>
         </button>
@@ -431,7 +432,7 @@
         <button
           type="button"
           onclick={() => filePicker?.click()}
-          class="btn-import-file-link btn btn-ghost"
+          class="btn-import-file-link btn btn-ghost sm"
         >
           <Icon name="upload-01" size={18} class="icon-import-file-link" />
           <span>Importar archivo</span>
@@ -499,17 +500,16 @@
   <ConfirmDialog
     open={!!resetting}
     onClose={() => (resetting = null)}
-    title="Restablecer"
-    confirmLabel="Eliminar"
+    title="Restablecer la tabla"
+    confirmLabel="Restablecer"
     {busy}
     onConfirm={() => void confirmReset()}
   >
     {#snippet message()}
-      Esta acción eliminará columnas y datos a su estado inicial, ¿deseas continuar?
+      Se eliminarán las columnas y los datos añadidos. La tabla volverá a su estado inicial.
       <span class="reset-table-warning block">
-        Se borran las cuentas de esta aplicación: quien entraba con ellas deja de poder hacerlo, y
-        se va también su fila con sus columnas propias. Si alguna de esas personas está invitada en
-        otra aplicación, allí no cambia nada. No tiene vuelta atrás.
+        También se borrarán las cuentas y filas de esta aplicación. Las mismas personas conservarán
+        el acceso a otras aplicaciones. Esta acción no se puede deshacer.
       </span>
     {/snippet}
   </ConfirmDialog>
@@ -536,7 +536,7 @@
         align-items: baseline;
         gap: var(--sp-6);
 
-        /* El rotulo es `.eyebrow` del catalogo; aqui solo el peso, que en
+        /* El rotulo es `.eyebrow` del catálogo; aqui solo el peso, que en
            una barra estrecha manda un punto mas que en una lista. */
         & .title-tables-label {
           font-weight: 600;
@@ -671,7 +671,7 @@
         color: var(--text-muted);
       }
 
-      /* El selector del sistema no se ve ni se tabula: lo abre el boton de al
+      /* El selector del sistema no se ve ni se tabula: lo abre el botón de al
          lado, que es quien lleva el nombre y el vestido. */
       & .input-import-file-link {
         display: none;

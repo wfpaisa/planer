@@ -2,11 +2,11 @@
    COMPONENTS — piezas reutilizables
    ----------------------------------------------------------
    Todo se apoya en los tokens de theme.css (--bg-level2, --accent,
-   --chart-1..4, --sp-*, --radius-*, --shadow-*): ningun color ni
-   medida esta escrito a mano, asi que estas piezas se adaptan solas
+   --chart-1..4, --sp-*, --radius-*, --shadow-*): ningún color ni
+   medida esta escrito a mano, así que estas piezas se adaptan solas
    al tema y a la paleta que haya activa.
 
-   Nada aqui sabe de este proyecto. Los componentes que necesitan
+   Nada aquí sabe de este proyecto. Los componentes que necesitan
    comportamiento lo resuelven con CSS (:checked, :has(), popover,
    @starting-style) salvo el toast, que se lanza desde
    js/components.js.
@@ -15,7 +15,7 @@
    - El select abre una lista vestida por nosotros y no la del
      sistema operativo: `appearance: base-select`, bajo @supports.
      Ver la nota en su bloque.
-   - `.table` trae linea entre columnas: aqui las tablas son de
+   - `.table` trae línea entre columnas: aquí las tablas son de
      datos y se leen por columna. Ver la nota en su bloque.
    ========================================================== */
 
@@ -51,7 +51,7 @@
   }
 }
 
-/* Accion principal: la unica que se pinta con el acento */
+/* Accion principal: la única que se pinta con el acento */
 .btn-primary {
   background: var(--accent);
   color: var(--accent-text);
@@ -63,7 +63,7 @@
   }
 }
 
-/* Boton cuadrado de solo icono */
+/* Botón cuadrado de solo icono */
 .btn-icon {
   width: 2.375rem;
   height: 2.375rem;
@@ -112,7 +112,7 @@
   }
 }
 
-/* Boton minimo: aparece dentro de filas y listas */
+/* Botón minimo: aparece dentro de filas y listas */
 .mini-btn {
   width: 1.75rem;
   height: 1.75rem;
@@ -137,15 +137,15 @@
 
 /* ==========================================================
    Modificadores
-   Van DESPUES de .btn, .btn-icon y .mini-btn a proposito: tienen la
-   misma especificidad que ellos, asi que solo ganan por orden. Puestos
+   Van DESPUÉS de .btn, .btn-icon y .mini-btn a propósito: tienen la
+   misma especificidad que ellos, así que solo ganan por orden. Puestos
    antes, .btn-icon recuperaba su fondo y su borde y el fantasma no se
    veia en los botones de icono.
    ========================================================== */
 
 /* Sin fondo, sin borde y sin sombra: para la accion que acompana a
-   otra y no debe competir con ella. Lo unico que lo dibuja es el
-   hover, por eso ese estado no es opcional aqui. */
+   otra y no debe competir con ella. Lo único que lo dibuja es el
+   hover, por eso ese estado no es opcional aquí. */
 .btn-ghost {
   background: none;
   border-color: transparent;
@@ -173,7 +173,7 @@
 }
 
 /* Pendiente: algo esta a medias --hay cambios sin publicar-- y no es
-   un error. Avisa sin alarmar, asi que va sin relleno: el color en la
+   un error. Avisa sin alarmar, así que va sin relleno: el color en la
    letra y en el borde, que es lo que distingue un aviso de un peligro. */
 .btn-warning {
   border-color: var(--warning);
@@ -203,11 +203,11 @@
 }
 
 /* Peligro solo al apuntarlo: en reposo se lee como cualquier otro
-   boton de la fila --no pide atencion-- y avisa cuando el cursor ya
+   botón de la fila --no pide atencion-- y avisa cuando el cursor ya
    esta encima, que es el instante en que importa. Para lo que sale de
    una barra o un pie y no se quiere gritar de continuo.
 
-   Anadido de este repo: cerrar sesion se escribia a mano en el pie de
+   Anadido de este repo: cerrar sesión se escribia a mano en el pie de
    la sidebar publicada y en el de la demo, con la misma receta. */
 .btn-danger-quiet:hover {
   border-color: var(--danger);
@@ -215,7 +215,7 @@
   color: var(--danger);
 }
 
-/* Medida corta, la misma que .btn-icon.sm: un boton con texto que
+/* Medida corta, la misma que .btn-icon.sm: un botón con texto que
    convive con ellos en una barra tiene que medir lo mismo. */
 .btn.sm {
   min-height: 2rem;
@@ -227,8 +227,8 @@
   }
 }
 
-/* Puesto: el boton que abre un panel se queda marcado mientras el panel
-   esta abierto, para que se vea de donde salio. Es el hover en firme, asi
+/* Puesto: el botón que abre un panel se queda marcado mientras el panel
+   esta abierto, para que se vea de donde salio. Es el hover en firme, así
    que solo vale para los que no traen color propio: sobre el primario o
    el destructivo taparia justo lo que los distingue. */
 .btn.active:not(.btn-primary, .btn-danger, .btn-warning),
@@ -246,7 +246,7 @@
    botones igual de azules sin decir cual hay que pulsar.
 
    Lo dice el marcado --`aria-pressed`, que ya es lo que anuncia el lector de
-   pantalla-- y no una clase aparte: asi el color y lo que se dice en voz alta
+   pantalla-- y no una clase aparte: así el color y lo que se dice en voz alta
    no se pueden separar por olvido. Se aparta de los que traen color propio,
    igual que hace `.active`: sobre el primario o el destructivo taparia justo
    lo que los distingue.
@@ -270,9 +270,9 @@
   }
 }
 
-/* Pastilla: solo cambia el radio, asi que se combina con cualquier
+/* Pastilla: solo cambia el radio, así que se combina con cualquier
    variante (.btn-primary, .btn-ghost) y con .btn-icon / .mini-btn.
-   Va despues de los tres para ganarles el border-radius por orden. */
+   Va después de los tres para ganarles el border-radius por orden. */
 .btn-rounded {
   border-radius: 62.5rem;
 }
@@ -280,7 +280,7 @@
 /* ==========================================================
    Card
    Columna: cabecera arriba, pie abajo y el cuerpo llenando el
-   hueco. Asi dos cards contiguas alinean sus pies aunque su
+   hueco. Así dos cards contiguas alinean sus pies aunque su
    contenido mida distinto, sin igualar alturas a mano.
    ========================================================== */
 .card {
@@ -297,7 +297,7 @@
 }
 
 /* Opaca: `--bg-card` es translucido en oscuro --lo que quiere una
-   pagina publicada, donde la card se posa sobre el lienzo-- y en el
+   página publicada, donde la card se posa sobre el lienzo-- y en el
    panel las secciones de ajustes, la ficha de una app o el formulario
    de entrada necesitan separarse del fondo. Anadido de este repo:
    cinco pantallas repetian el mismo `background: var(--bg-level2)`. */
@@ -313,7 +313,7 @@
   gap: var(--sp-14);
   padding: var(--sp-18) var(--sp-20) 0;
 
-  /* El bloque de titulo cede antes que las acciones */
+  /* El bloque de título cede antes que las acciones */
   & > :first-child {
     min-width: 0;
   }
@@ -337,7 +337,7 @@
   align-items: center;
   gap: 0.5rem;
 
-  /* En estrecho los filtros bajan a su propia linea, a lo ancho */
+  /* En estrecho los filtros bajan a su propia línea, a lo ancho */
   @media (max-width: 38.75rem) {
     &:has(> .chips) {
       flex: 1 1 100%;
@@ -352,7 +352,7 @@
 /* Cuerpo y pie completan a .card-head: el mismo eje horizontal que
    la cabecera, y el pie empuja sus acciones a la derecha. */
 .card-body {
-  /* Es el unico que crece: empuja al pie contra el borde inferior */
+  /* Es el único que crece: empuja al pie contra el borde inferior */
   flex: 1;
   min-height: 0;
   padding: var(--sp-14) var(--sp-20) var(--sp-18);
@@ -380,25 +380,25 @@
 /* ==========================================================
    Hero: la banda de portada, pintada con el color de la marca
 
-   Es la unica pieza del catalogo que se pinta con el relleno
-   pleno, asi que es tambien la unica donde lo de alrededor deja
+   Es la única pieza del catálogo que se pinta con el relleno
+   pleno, así que es también la única donde lo de alrededor deja
    de valer: encima de la marca, la letra del papel no se lee y
-   el boton principal --que es de la marca-- desaparece.
+   el botón principal --que es de la marca-- desaparece.
 
    Por eso la banda trae resuelto lo que lleva dentro. La tinta
    es `--accent-text`, que es la que la casa calcula para leerse
    sobre el acento --blanca sobre una marca oscura, negra sobre
    una clara-- y se voltea sola el dia que la empresa cambia de
-   color. Y los botones se visten aqui:
+   color. Y los botones se visten aquí:
 
-     .btn          se vacia: el cerco y la letra, en esa tinta
+     .btn          se vacía: el cerco y la letra, en esa tinta
      .btn-primary  se levanta: blanco, con la marca oscurecida
 
    El principal es blanco en los dos modos, y no el papel de la
-   casa: la banda se pinta con el color de la empresa tambien en
-   oscuro, asi que lo que se levanta encima se levanta igual. Su
+   casa: la banda se pinta con el color de la empresa también en
+   oscuro, así que lo que se levanta encima se levanta igual. Su
    letra no puede ser `--accent-text` --sobre una marca clara esa
-   tinta es negra, pero sobre una clara la banda tambien lo pide
+   tinta es negra, pero sobre una clara la banda también lo pide
    distinto-- ni la marca a secas: es `--color-accent-800`, la
    marca llevada a una claridad oscura, que se lee sobre blanco
    venga la paleta que venga.
@@ -469,11 +469,11 @@
 /* ==========================================================
    Chips / Tabs / Segmentos: un mismo mecanismo, dos nombres
    La pastilla activa es un ::before que se desplaza; al pasar el
-   cursor viaja hasta la opcion apuntada y vuelve al soltarla.
+   cursor viaja hasta la opción apuntada y vuelve al soltarla.
    Funciona con botones (.active, lo marca el JS) o con radios
    ocultos + <label> (sin JS ninguno).
    `.chips`/`.chip` son un selector suelto (un filtro, un rango de
-   fechas): no navegan a ningun sitio. `.tab-list`/`.tab` son lo
+   fechas): no navegan a ningún sitio. `.tab-list`/`.tab` son lo
    mismo para cuando SI hay pestanas de verdad --con `role="tablist"`
    o dentro de `.tabs`--; comparten el mecanismo para no duplicarlo.
    ========================================================== */
@@ -495,7 +495,7 @@
   border: var(--border-width) solid var(--border);
   border-radius: calc(var(--radius-md) + 0.125rem);
 
-  /* El numero de opciones se deduce del propio marcado */
+  /* El número de opciones se deduce del propio marcado */
   &:has(> :nth-child(2):last-child) {
     --n: 2;
   }
@@ -528,7 +528,7 @@
       opacity 0.2s;
   }
 
-  /* Sin opcion elegida no se dibuja: aparece al pasar el cursor */
+  /* Sin opción elegida no se dibuja: aparece al pasar el cursor */
   &:not(:has(> :is(.chip, .tab).active)):not(:has(> input:checked)) {
     &::before {
       opacity: 0;
@@ -539,9 +539,9 @@
     }
   }
 
-  /* Donde para la pastilla: en la opcion marcada... `--active` la
+  /* Donde para la pastilla: en la opción marcada... `--active` la
      desplaza con la cuenta de columnas iguales; `--pill-anchor` nombra
-     la opcion para que la variante `fit` (abajo) la tome por ancla */
+     la opción para que la variante `fit` (abajo) la tome por ancla */
   &:has(> :is(.chip, .tab):nth-of-type(1).active),
   &:has(> input:nth-of-type(1):checked) {
     --active: 0;
@@ -658,17 +658,17 @@
   }
 }
 
-/* ---- Variante `fit`: cada opcion a su ancho natural ----
-   La pastilla de arriba mide "el total entre el numero de opciones",
-   cuenta que solo cuadra si todas las columnas son iguales. Aqui las
+/* ---- Variante `fit`: cada opción a su ancho natural ----
+   La pastilla de arriba mide "el total entre el número de opciones",
+   cuenta que solo cuadra si todas las columnas son iguales. Aquí las
    columnas miden su contenido y la pastilla no calcula: se ancla a la
-   opcion marcada o apuntada (anchor positioning) y toma su borde y su
+   opción marcada o apuntada (anchor positioning) y toma su borde y su
    ancho con anchor()/anchor-size(); la transicion de left/width sigue
    deslizando --position-area no anima entre posiciones--. Los nombres
-   `--seg-*` los declara cada opcion y los elige la maquina de estados
+   `--seg-*` los declara cada opción y los elige la maquina de estados
    de arriba mediante --pill-anchor; `anchor-scope` encierra los
    nombres en cada instancia y, donde aun no exista, no debe convivir
-   con otra `.fit` en la pagina: un nombre repetido se resuelve al
+   con otra `.fit` en la página: un nombre repetido se resuelve al
    ultimo que lo declara. Sin anclas no se aplica nada y queda el
    reparto igual de la base. */
 @supports (anchor-name: --a) {
@@ -779,7 +779,7 @@
    Dos sitios y una sola regla: dentro de un `.field` --lo normal, con
    su etiqueta y su ayuda-- o suelto con `.field-control`, para el que
    va sin nada alrededor: el buscador de una tabla, la celda de la
-   rejilla, el campo de una fila. Se escriben juntos a proposito, para
+   rejilla, el campo de una fila. Se escriben juntos a propósito, para
    que un control no se vista distinto segun donde caiga.
    ========================================================== */
 .field :is(input, select, textarea),
@@ -840,12 +840,12 @@ select.field-control {
 }
 
 /* ==========================================================
-   La lista de un select, tambien nuestra
+   La lista de un select, también nuestra
    ----------------------------------------------------------
    Anadido de este repo. La lista que se abre al pulsar un select la
    dibujaba hasta ahora el sistema operativo: ni el tema ni la paleta
-   llegaban a ella, asi que un panel oscuro abria un desplegable claro
-   y ninguna opcion se podia marcar con el acento. Con
+   llegaban a ella, así que un panel oscuro abria un desplegable claro
+   y ninguna opción se podia marcar con el acento. Con
    `appearance: base-select` la lista pasa a ser HTML corriente y se
    viste como el menu del panel --mismo fondo, mismo radio, misma
    sombra, mismo renglon bajo el cursor--, que es de lo que hace las
@@ -856,21 +856,21 @@ select.field-control {
    porque donde no exista se queda exactamente lo de arriba: la flecha
    dibujada al fondo y la lista nativa.
 
-   Va por `select` a secas y no por las clases del vestido --la unica
+   Va por `select` a secas y no por las clases del vestido --la única
    vez que esta hoja nombra una etiqueta desnuda-- porque una lista
-   nativa no la puede vestir nadie, ni el `.field` ni la pagina: o la
-   cambia aqui el catalogo o se queda del sistema. El vestido del
+   nativa no la puede vestir nadie, ni el `.field` ni la página: o la
+   cambia aquí el catálogo o se queda del sistema. El vestido del
    control sigue siendo cosa de las clases, debajo.
 
-   El boton del control no se escribe a mano (`<button><selectedcontent>`):
-   lo pone el navegador. Asi una pagina publicada, que trae el select
+   El botón del control no se escribe a mano (`<button><selectedcontent>`):
+   lo pone el navegador. Así una página publicada, que trae el select
    pelado que le enseno el contrato, se ve igual que el panel sin tener
    que saber nada de esto.
    ========================================================== */
 @supports (appearance: base-select) {
   select {
     appearance: base-select;
-    /* El boton que dibuja el navegador estira de arriba abajo y deja el
+    /* El botón que dibuja el navegador estira de arriba abajo y deja el
        texto colgando del borde de arriba: centrado, cae donde el de un
        input corriente. */
     align-items: center;
@@ -892,7 +892,7 @@ select.field-control {
 
     /* La flecha del navegador es un triangulo relleno; la del sistema es
        el mismo chevron de siempre. No viaja como SVG con el color
-       grabado dentro: va de mascara sobre `currentColor`, asi sale de
+       grabado dentro: va de mascara sobre `currentColor`, así sale de
        --text-muted y sigue al tema. */
     &::picker-icon {
       content: "";
@@ -951,7 +951,7 @@ select.field-control {
       translate: 0 0;
     }
 
-    /* ---- Cada opcion es un renglon del menu ---- */
+    /* ---- Cada opción es un renglon del menu ---- */
     & option {
       display: flex;
       align-items: center;
@@ -967,8 +967,8 @@ select.field-control {
       text-transform: none;
       cursor: pointer;
 
-      /* El `display` de aqui le gana al del navegador, asi que una
-         opcion oculta --la que guarda lo escrito a mano en un
+      /* El `display` de aquí le gana al del navegador, así que una
+         opción oculta --la que guarda lo escrito a mano en un
          `InputPicker`-- volveria a salir como un renglon en blanco. */
       &[hidden] {
         display: none;
@@ -997,7 +997,7 @@ select.field-control {
 
       /* La marca de lo elegido va al final del renglon y guarda su sitio
          aunque no se vea: si apareciera y desapareciera, los textos
-         bailarian de una opcion a otra. */
+         bailarian de una opción a otra. */
       &::checkmark {
         content: "\2713";
         order: 1;
@@ -1014,9 +1014,9 @@ select.field-control {
 
     /* ---- Grupos y separadores: los rotulos del menu ----
        El rotulo de un grupo lo dibuja el navegador: el atributo `label`
-       no es un elemento y no se deja apuntar. Asi que el vestido --el
+       no es un elemento y no se deja apuntar. Así que el vestido --el
        mismo `.eyebrow` con el que se rotula un menu-- va en el
-       `optgroup` y baja heredado, y es la opcion la que repone debajo
+       `optgroup` y baja heredado, y es la opción la que repone debajo
        lo que no es suyo. Un `<legend>` escrito a mano hereda igual: solo
        hay que darle su hueco. */
     & optgroup {
@@ -1040,9 +1040,9 @@ select.field-control {
     }
   }
 
-  /* El vestido del catalogo apaga la apariencia nativa y le guardaba su
+  /* El vestido del catálogo apaga la apariencia nativa y le guardaba su
      hueco a la flecha de fondo. Pesa mas que el `select` pelado de
-     arriba, asi que hay que repetirle las dos cosas: la apariencia, y
+     arriba, así que hay que repetirle las dos cosas: la apariencia, y
      el hueco que ya no hace falta --la flecha es ahora un elemento mas
      del renglon, y el control vuelve a tener el mismo aire a los dos
      lados--. */
@@ -1160,7 +1160,7 @@ input[type="range"].field-control {
  * de al lado --su gap es el de sus propias partes-- y esa separacion la venia
  * poniendo cada contenedor: `.modal-body` la tiene, un `<div>` intermedio que
  * agrupa campos no, y ahi los campos salen pegados. Toda agrupacion de campos
- * lleva esta clase, tambien la que se rellena desde JavaScript.
+ * lleva esta clase, también la que se rellena desde JavaScript.
  */
 .field-stack {
   display: flex;
@@ -1361,7 +1361,7 @@ input[type="range"].field-control {
 }
 
 /* Ajuste optico del glifo: los iconos de la fuente no vienen centrados
-   en su em, asi que el tick cae bajo y a la derecha. Se corrige el
+   en su em, así que el tick cae bajo y a la derecha. Se corrige el
    dibujo, no la caja: el area clicable y el borde no se mueven.
    Se afina por instancia con style="--nudge-x: ...; --nudge-y: ...". */
 .ico-nudge {
@@ -1373,7 +1373,7 @@ input[type="range"].field-control {
   }
 }
 
-/* Toggle: aqui el input SI se ve, pintado como pista + perilla */
+/* Toggle: aquí el input SI se ve, pintado como pista + perilla */
 .switch input {
   flex: none;
   width: 2.875rem;
@@ -1436,7 +1436,7 @@ input[type="range"].field-control {
   }
 
   /* Encendida, la perilla esta pegada al borde derecho: lo que crece es el
-     lado izquierdo. El `left` cede lo mismo que gana el ancho, asi que el
+     lado izquierdo. El `left` cede lo mismo que gana el ancho, así que el
      borde derecho se queda clavado y se ve estirarse, no desplazarse. */
   &:enabled:checked:active::after {
     left: -0.25rem;
@@ -1455,7 +1455,7 @@ input[type="range"].field-control {
 }
 
 /* ---- Rating: estrellas en orden inverso para que el hover
-        encienda tambien las anteriores con un solo selector ---- */
+        encienda también las anteriores con un solo selector ---- */
 .rating {
   position: relative;
   display: inline-flex;
@@ -1498,14 +1498,14 @@ input[type="range"].field-control {
 }
 
 /* ----------------------------------------------------------
-   Opcion: la caja que se elige
+   Opción: la caja que se elige
    ----------------------------------------------------------
    Anadido de este repo: el panel repetia esta misma receta en
-   nueve pantallas --el tipo de columna, el icono de una pagina,
+   nueve pantallas --el tipo de columna, el icono de una página,
    la visibilidad al publicar, la salida que propone la IA, el
    proveedor de modelos...-- cada una con su borde, su radio y su
    tinte de acento escritos a mano. Es la pieza que le faltaba al
-   catalogo entre la casilla (`.choice`, una marca) y la pastilla
+   catálogo entre la casilla (`.choice`, una marca) y la pastilla
    (`.tag`, una etiqueta): una caja con su nombre y su explicacion
    que se queda marcada al elegirla.
 
@@ -1554,7 +1554,7 @@ input[type="range"].field-control {
   }
 
   /* Elegida: el tinte del acento, no el acento pleno. La caja sigue
-     siendo de lectura, asi que se tine sin invertir la tinta. */
+     siendo de lectura, así que se tine sin invertir la tinta. */
   &.active {
     border-color: color-mix(in oklab, var(--accent) 50%, transparent);
     background: var(--accent-soft);
@@ -1606,10 +1606,10 @@ input[type="range"].field-control {
   }
 }
 
-/* Mosaico: la opcion que se elige mirando y no leyendo --una
+/* Mosaico: la opción que se elige mirando y no leyendo --una
    muestra de color, una miniatura--. NO es una `.opt`: aquella
-   pinta un fondo al apuntarla, y aqui el fondo es el contenido.
-   Lo unico que la enmarca es el cerco, por eso es mas grueso; se
+   pinta un fondo al apuntarla, y aquí el fondo es el contenido.
+   Lo único que la enmarca es el cerco, por eso es mas grueso; se
    levanta un pelo al apuntarla y la elegida lleva el halo del
    foco, que es lo que se ve de lejos en una rejilla de cuarenta.
 
@@ -1638,7 +1638,7 @@ input[type="range"].field-control {
 }
 
 /* El cuadro de un color suelto. Se escribia dos veces con dos medidas
-   --1.25rem el que ensena el color puesto dentro del campo hexadecimal,
+   --1.25rem el que enseña el color puesto dentro del campo hexadecimal,
    1.75rem el que se pulsa en los accesos rapidos-- siendo la misma cosa.
    La medida vive en `--swatch-size` para que no vuelva a separarse; el
    cerco y la marca de elegido los pone `.opt-tile` cuando se pulsa. */
@@ -1670,7 +1670,7 @@ input[type="range"].field-control {
     background: transparent;
   }
 
-  /* Punteado: el hueco que espera a que se llene (una lista vacia,
+  /* Punteado: el hueco que espera a que se llene (una lista vacía,
      el sitio donde se suelta un archivo). */
   &.dashed {
     border-style: dashed;
@@ -1784,14 +1784,14 @@ input[type="range"].field-control {
 
 /* Tag: etiqueta de categoria o de estado.
 
-   El color lo pone SIEMPRE una clase, nunca un estilo en linea: `.tint-1` es
+   El color lo pone SIEMPRE una clase, nunca un estilo en línea: `.tint-1` es
    la normal, `.tint-2`..`.tint-10` reparten categorias --diez colores fijos,
    iguales en claro y en oscuro y con cualquier paleta puesta--, y
    `.tag-success` / `.tag-warning` / `.tag-error` son las que de verdad
    significan algo.
 
    La pastilla a secas --sin ninguna de esas clases-- es el estado apagado:
-   solo su linea, que es como se queda un filtro que no esta puesto. Encender
+   solo su línea, que es como se queda un filtro que no esta puesto. Encender
    y apagar es, entonces, poner y quitar `.tint-1`. */
 .tag {
   display: inline-flex;
@@ -1808,8 +1808,8 @@ input[type="range"].field-control {
     box-shadow 200ms,
     color 200ms;
 
-  /* La etiqueta que se enciende es un boton: el toque y el borde a cero van
-     aqui, y no repetidos en cada pantalla que tiene filtros. */
+  /* La etiqueta que se enciende es un botón: el toque y el borde a cero van
+     aquí, y no repetidos en cada pantalla que tiene filtros. */
   &:is(button) {
     cursor: pointer;
     border: 0;
@@ -1820,7 +1820,7 @@ input[type="range"].field-control {
   }
 
   /* Apagada: sin fondo, solo el anillo. La lista se escribe entera a
-     proposito --un `[class*="tint-"]` tambien casaria con una clase de la
+     propósito --un `[class*="tint-"]` también casaria con una clase de la
      pantalla que solo se llame parecido. */
   &:not(
     .tint-1,
@@ -1844,14 +1844,14 @@ input[type="range"].field-control {
     }
   }
 
-  /* Sin esto el icono se queda con el tamano global de theme.css
+  /* Sin esto el icono se queda con el tamaño global de theme.css
      (1.125rem) y estira la pastilla por encima de su texto. */
   & i {
     font-size: var(--text-xs);
   }
 
-  /* Con un boton de cerrar dentro, el hueco de su lado sobra: el propio
-     boton ya separa del borde. */
+  /* Con un botón de cerrar dentro, el hueco de su lado sobra: el propio
+     botón ya separa del borde. */
   &:has(.tag-remove) {
     padding-right: 0.25rem;
   }
@@ -1862,8 +1862,8 @@ input[type="range"].field-control {
 
      El contorno va al mismo 30% que el de los tintes, pero sacado del
      color fuerte --`--success`, no `--success-bg`--, que es de donde
-     sale tambien su letra: el fondo de estas tres es un token opaco y
-     no una transparencia del color, asi que no sirve de origen. */
+     sale también su letra: el fondo de estas tres es un token opaco y
+     no una transparencia del color, así que no sirve de origen. */
   &.tag-success {
     background: var(--success-bg);
     color: var(--success);
@@ -1883,8 +1883,8 @@ input[type="range"].field-control {
   }
 }
 
-/* El boton para quitar un tag: vive dentro de el, no aparte. Su color sale
-   de `currentColor` a proposito: asi seguia sea cual sea el tinte del tag
+/* El botón para quitar un tag: vive dentro de el, no aparte. Su color sale
+   de `currentColor` a propósito: así seguia sea cual sea el tinte del tag
    que lo lleva, sin necesitar una variante propia por color. */
 .tag-remove {
   display: inline-flex;
@@ -1910,7 +1910,7 @@ input[type="range"].field-control {
 /* Punto de estado: una sola clase en el propio contenedor, sin
    elemento dentro. El punto es su ::after y el halo va como anillo
    de box-shadow en ese mismo pseudo, no como un segundo elemento:
-   asi el componente gasta un unico pseudo y deja el otro libre.
+   así el componente gasta un único pseudo y deja el otro libre.
 
    El color viaja en --status-color para que la animacion, que vive
    fuera de la regla, pueda leerlo sin repetir un keyframe por estado. */
@@ -1974,10 +1974,10 @@ input[type="range"].field-control {
 }
 
 /* Quien esta dentro: el nombre encima y la cuenta debajo, los dos
-   recortados antes que empujar al avatar o al boton de al lado. Va
+   recortados antes que empujar al avatar o al botón de al lado. Va
    junto a un `.avatar` en el pie de una barra lateral.
 
-   Anadido de este repo: el pie de la aplicacion publicada y el de la
+   Anadido de este repo: el pie de la aplicación publicada y el de la
    demo lo escribian igual, cada uno por su cuenta. */
 .identity {
   min-width: 0;
@@ -2005,7 +2005,7 @@ input[type="range"].field-control {
   }
 }
 
-/* Leyenda de una grafica: cuadro de color + texto */
+/* Leyenda de una gráfica: cuadro de color + texto */
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -2185,7 +2185,7 @@ input[type="range"].field-control {
   gap: var(--sp-9);
 }
 
-/* Icono en linea, sin caja: el color lo pone el acento */
+/* Icono en línea, sin caja: el color lo pone el acento */
 .kpi-ico {
   width: 1.5rem;
   height: 1.5rem;
@@ -2292,7 +2292,7 @@ input[type="range"].field-control {
       padding-bottom: 0;
     }
 
-    /* El riel y el punto comparten celda: el punto, opaco, tapa la linea */
+    /* El riel y el punto comparten celda: el punto, opaco, tapa la línea */
     &::after {
       content: "";
       grid-column: 2;
@@ -2381,7 +2381,7 @@ input[type="range"].field-control {
   }
 }
 
-/* ---- Steps: el numero lo pone un contador, no el marcado ---- */
+/* ---- Steps: el número lo pone un contador, no el marcado ---- */
 .steps {
   list-style: none;
   margin: 0;
@@ -2418,7 +2418,7 @@ input[type="range"].field-control {
       color: var(--text-muted);
     }
 
-    /* La linea une un paso con el anterior */
+    /* La línea une un paso con el anterior */
     & + li::after {
       content: "";
       position: absolute;
@@ -2448,7 +2448,7 @@ input[type="range"].field-control {
       background: var(--accent-soft);
     }
 
-    /* El tramo detras de un paso hecho tambien se pinta */
+    /* El tramo detras de un paso hecho también se pinta */
     &.done + li::after {
       background: var(--accent);
     }
@@ -2512,7 +2512,7 @@ input[type="range"].field-control {
   overflow: hidden;
 }
 
-/* El scroll horizontal vive aqui: la pagina nunca se desplaza en X */
+/* El scroll horizontal vive aquí: la página nunca se desplaza en X */
 .table-wrap {
   overflow-x: auto;
   padding: var(--sp-14) 0 0;
@@ -2582,11 +2582,11 @@ input[type="range"].field-control {
     vertical-align: middle;
   }
 
-  /* Anadido de este repo: linea entre columnas, de serie.
+  /* Anadido de este repo: línea entre columnas, de serie.
      Una tabla de datos --y las del panel lo son todas-- se lee por
-     columnas antes que por filas; sin la linea, dos celdas cortas
+     columnas antes que por filas; sin la línea, dos celdas cortas
      seguidas parecen una sola. Va entre columnas y no en el borde
-     de fuera (`+`, nunca en la primera), para no dibujar dos lineas
+     de fuera (`+`, nunca en la primera), para no dibujar dos líneas
      contra el borde de la tarjeta. */
   & th + th,
   & td + td {
@@ -2614,7 +2614,7 @@ input[type="range"].field-control {
 
   /*
     Sin pie, la ultima fila cierra la tabla con su propio borde. Con <tfoot>,
-    la linea la pone el borde superior del pie: quitamos el de la fila para no
+    la línea la pone el borde superior del pie: quitamos el de la fila para no
     dibujar dos.
   */
   &:has(tfoot) tbody tr:last-child td {
@@ -2633,7 +2633,7 @@ input[type="range"].field-control {
   background: light-dark(oklch(0% 0 0 / 0.03), oklch(100% 0 0 / 0.02));
 
   /*
-    El pie va dentro del <tfoot>, asi que es tan ancho como la tabla y se
+    El pie va dentro del <tfoot>, así que es tan ancho como la tabla y se
     desplaza con ella. Los dos extremos se pegan al borde visible del scroll
     para que el recuento y el pager sigan a la vista en pantalla estrecha.
   */
@@ -2698,7 +2698,7 @@ input[type="range"].field-control {
   background: var(--border);
 }
 
-/* Separador con texto en medio: las lineas las ponen los pseudos */
+/* Separador con texto en medio: las líneas las ponen los pseudos */
 .divider-text {
   display: flex;
   align-items: center;
@@ -2745,9 +2745,9 @@ input[type="range"].field-control {
   }
 
   /* Cada escalon a renglon. Anadido de este repo: un escalon puede llevar
-     icono delante del texto, y un glifo suelto en linea cuelga de la base en
+     icono delante del texto, y un glifo suelto en línea cuelga de la base en
      vez de quedar en el eje. La barra pasa a ser un elemento mas del renglon,
-     asi que su margen lo hace ahora el hueco --la misma medida de antes. */
+     así que su margen lo hace ahora el hueco --la misma medida de antes. */
   & li {
     display: flex;
     align-items: center;
@@ -2773,8 +2773,8 @@ input[type="range"].field-control {
   }
 }
 
-/* ---- Menu: popover anclado al boton que lo abre. Se cierra solo
-        al clicar fuera o con Esc, sin una linea de JS ---- */
+/* ---- Menu: popover anclado al botón que lo abre. Se cierra solo
+        al clicar fuera o con Esc, sin una línea de JS ---- */
 .menu-btn {
   anchor-name: --menu;
 
@@ -2787,7 +2787,7 @@ input[type="range"].field-control {
   margin: 0;
   padding: 0.3125rem;
   min-width: 12.5rem;
-  /* Se abre TAPANDO lo que hay detras, asi que se separa mas que el
+  /* Se abre TAPANDO lo que hay detras, así que se separa mas que el
      resto de lo que flota: --border-float, --shadow-xl y --bg-float,
      que en oscuro sube un punto sobre la tarjeta de debajo. Anadido
      de este repo; antes compartia los tres con la card y contra una
@@ -2851,10 +2851,10 @@ input[type="range"].field-control {
   background: var(--border);
 }
 
-/* ---- Disparador discreto: el boton que abre un menu dentro de
-        una celda o un encabezado. No es un boton de barra --no
+/* ---- Disparador discreto: el botón que abre un menu dentro de
+        una celda o un encabezado. No es un botón de barra --no
         lleva fondo ni borde en reposo-- pero se deja apuntar: la
-        linea solo asoma bajo el cursor.
+        línea solo asoma bajo el cursor.
 
         Anadido de este repo: los encabezados de la importacion
         (destino, tipo y llave) llevaban tres copias de la misma
@@ -2912,7 +2912,7 @@ input[type="range"].field-control {
    superior, del fondo y del cierre con Esc.
    ========================================================== */
 
-/* Medidas del dialogo: cada instancia puede fijar --modal-w y
+/* Medidas del diálogo: cada instancia puede fijar --modal-w y
    --modal-h, y los max-* garantizan siempre 1rem de aire. */
 .modal {
   --modal-w: 26.25rem;
@@ -2972,7 +2972,7 @@ input[type="range"].field-control {
     color: var(--text-muted);
   }
 
-  /* El cierre siempre al extremo, mida lo que mida el titulo */
+  /* El cierre siempre al extremo, mida lo que mida el título */
   & .btn-icon {
     margin-left: auto;
     flex: none;
@@ -3074,7 +3074,7 @@ input[type="range"].field-control {
     opacity: 1;
   }
 
-  /* El drawer llena el alto, asi que su cuerpo es el que scrollea */
+  /* El drawer llena el alto, así que su cuerpo es el que scrollea */
   & .modal-body {
     gap: var(--sp-16);
   }
@@ -3166,7 +3166,7 @@ input[type="range"].field-control {
   }
 }
 
-/* ---- Alert: el aviso en linea, dentro del contenido ---- */
+/* ---- Alert: el aviso en línea, dentro del contenido ---- */
 .alert {
   display: flex;
   align-items: flex-start;
@@ -3217,7 +3217,7 @@ input[type="range"].field-control {
   }
 }
 
-/* Sin soporte de popover el bloque queda visible en linea, no roto */
+/* Sin soporte de popover el bloque queda visible en línea, no roto */
 @supports not selector(:popover-open) {
   .modal,
   .drawer,
@@ -3305,12 +3305,12 @@ input[type="range"].field-control {
   animation: shimmer 1.3s ease-in-out infinite;
 }
 
-/* Boton en carga: se bloquea igual que :disabled y solo gira su icono */
+/* Botón en carga: se bloquea igual que :disabled y solo gira su icono */
 .is-loading > i {
   animation: spin 0.8s linear infinite;
 }
 
-/* Mientras carga manda el icono de carga: el propio del boton cede el sitio */
+/* Mientras carga manda el icono de carga: el propio del botón cede el sitio */
 .is-loading > i:not(.hgi-loading-03) {
   display: none;
 }
@@ -3388,14 +3388,14 @@ input[type="range"].field-control {
 /* Fondo + tinta de cada uno de los diez tintes.
 
    Cada clase solo elige SU color --`--tinte`-- y la mezcla se escribe una
-   sola vez debajo. Los dos valores salen de ese unico color, no de una pareja
+   sola vez debajo. Los dos valores salen de ese único color, no de una pareja
    de tokens medidos a mano.
 
    La mezcla va en la propiedad y no en un token de theme.css: `var()` dentro
    de una variable se resuelve DONDE SE DECLARA, y la tinta lleva dentro
    --text-primary; calculada en :root se quedaria con el gris del documento de
    fuera y una vista previa clara dentro del panel oscuro saldria con la tinta
-   del tema equivocado. Aqui se resuelve en la propia etiqueta, que es quien
+   del tema equivocado. Aquí se resuelve en la propia etiqueta, que es quien
    conoce su tema. */
 .tint-1 {
   --tinte: var(--tinte-1);
@@ -3429,7 +3429,7 @@ input[type="range"].field-control {
 }
 
 :is(.tint-1, .tint-2, .tint-3, .tint-4, .tint-5, .tint-6, .tint-7, .tint-8, .tint-9, .tint-10) {
-  /* El fondo es el tinte casi entero en transparencia, no un color opaco: asi
+  /* El fondo es el tinte casi entero en transparencia, no un color opaco: así
      la pastilla se apoya igual sobre la tarjeta, sobre el campo o sobre una
      fila marcada, sin una variante por superficie. */
   background: color-mix(in oklab, var(--tinte) 14%, transparent);
@@ -3437,15 +3437,15 @@ input[type="range"].field-control {
   /* Y su contorno, el mismo tinte al doble de fuerza: lo justo para que la
      pastilla tenga filo sobre un fondo del color de su relleno --una fila
      marcada, un campo hundido-- donde el 14% solo no la recorta. Va de
-     sombra hacia dentro y no de `border`: no ocupa sitio, asi que la pastilla
-     no cambia de tamano al encenderse, y sobrevive al `border: 0` con el que
-     la etiqueta que es boton se quita el borde del navegador. Es el mismo
+     sombra hacia dentro y no de `border`: no ocupa sitio, así que la pastilla
+     no cambia de tamaño al encenderse, y sobrevive al `border: 0` con el que
+     la etiqueta que es botón se quita el borde del navegador. Es el mismo
      mecanismo con el que se dibuja la pastilla apagada. */
   box-shadow: inset 0 0 0 var(--border-width) color-mix(in oklab, var(--tinte) 30%, transparent);
 
-  /* La tinta es el mismo tinte empujado hacia el texto de la pagina, que es
+  /* La tinta es el mismo tinte empujado hacia el texto de la página, que es
      lo que la oscurece en claro y la aclara en oscuro sin escribir dos veces
-     nada. El tope de luminosidad es lo unico que no sale de la mezcla: los
+     nada. El tope de luminosidad es lo único que no sale de la mezcla: los
      tintes ya de por si claros (ambar, oliva) se quedaban en 3:1 sobre el
      fondo palido, y los oscuros (pizarra) en 4,4:1 sobre el fondo de noche.
      Recortando en 0.48 / 0.72 el peor de los diez queda en 4,8:1 --medido
@@ -3465,8 +3465,8 @@ input[type="range"].field-control {
 }
 
 /* Rotulo de grupo: el renglon en versalitas que encabeza una lista
-   o una seccion de un menu. No es un titulo --no se lee, se ojea--
-   asi que va en el tono accesorio y nunca en negrita de titular.
+   o una sección de un menu. No es un título --no se lee, se ojea--
+   así que va en el tono accesorio y nunca en negrita de titular.
 
    Anadido de este repo: diez pantallas lo escribian a mano con las
    mismas cinco declaraciones y tres interletrajes distintos. */

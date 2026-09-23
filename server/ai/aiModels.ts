@@ -1,10 +1,10 @@
 /**
- * El catalogo de modelos de un servidor que sabe contarlo.
+ * El catálogo de modelos de un servidor que sabe contarlo.
  *
  * OpenRouter publica lo que hace falta saber de cada modelo --cuanto le cabe
  * delante, cuanto puede escribir, si piensa y con que niveles, si ve
- * imagenes--, asi que no hay ninguna razon para que eso se escriba a mano.
- * Aqui se lee y se traduce a lo que la plataforma entiende.
+ * imagenes--, así que no hay ninguna razon para que eso se escriba a mano.
+ * Aquí se lee y se traduce a lo que la plataforma entiende.
  *
  * Lo que no viene o no se entiende no rompe nada: se cae en una medida
  * prudente, que quien administra puede corregir en la misma pantalla.
@@ -18,7 +18,7 @@ const CACHE_MS = 10 * 60_000;
 
 const cache = new Map<string, { at: number; models: AiModel[] }>();
 
-/** Lo que interesa de una ficha del catalogo. El resto se ignora. */
+/** Lo que interesa de una ficha del catálogo. El resto se ignora. */
 interface CatalogEntry {
   id?: string;
   name?: string;
@@ -33,17 +33,17 @@ interface CatalogEntry {
 }
 
 /**
- * Los niveles llegan con el nombre que les da el servidor y se guardan asi.
+ * Los niveles llegan con el nombre que les da el servidor y se guardan así.
  *
  * Traducirlos a una escala propia seria perder los que no caben en ella: un
  * modelo que ofrece `max` no ofrece "mucho", ofrece `max`, y eso es lo que hay
- * que mandarle. La unica igualacion es `none`, que es como se escribe en
- * algunos sitios lo mismo que aqui se llama `off`.
+ * que mandarle. La única igualacion es `none`, que es como se escribe en
+ * algunos sitios lo mismo que aquí se llama `off`.
  */
 const normalizeEffort = (level: string): AiThinking =>
   level.trim().toLowerCase() === "none" ? AI_THINKING_OFF : level.trim().toLowerCase();
 
-/** Una ficha del catalogo, en lo que la plataforma sabe usar. */
+/** Una ficha del catálogo, en lo que la plataforma sabe usar. */
 function readEntry(raw: CatalogEntry): AiModel | null {
   const id = String(raw.id ?? "").trim();
   if (!id) return null;
@@ -65,24 +65,24 @@ function readEntry(raw: CatalogEntry): AiModel | null {
   }
   /*
    * Hay modelos que dicen que piensan sin decir con que niveles. Ahi la lista
-   * se queda vacia, que es como se dice "los de siempre"; rellenarla a medias
+   * se queda vacía, que es como se dice "los de siempre"; rellenarla a medias
    * seria recortarle niveles que si acepta.
    *
-   * Y a los que declaran niveles solo se les anade "sin pensar" si de verdad
+   * Y a los que declaran niveles solo se les añade "sin pensar" si de verdad
    * pueden no pensar: pedirselo a uno que piensa siempre es pedirle algo que su
    * servidor no va a hacer.
    */
   if (efforts.length && !raw.reasoning?.mandatory && !efforts.includes(AI_THINKING_OFF)) {
     efforts.unshift(AI_THINKING_OFF);
   }
-  // Un modelo cuyo unico nivel es "sin pensar" no piensa, diga lo que diga.
+  // Un modelo cuyo único nivel es "sin pensar" no piensa, diga lo que diga.
   const reasons = thinking && !(efforts.length === 1 && efforts[0] === AI_THINKING_OFF);
 
   return {
     id,
     label: String(raw.name ?? "").trim(),
     // Sin tope declarado se deja uno prudente que quepa en su contexto: pedirle
-    // mas de lo que acepta hace fallar la peticion entera.
+    // mas de lo que acepta hace fallar la petición entera.
     maxTokens: max > 0 ? max : Math.min(AI_NEW_MODEL.maxTokens, window || AI_NEW_MODEL.maxTokens),
     contextWindow: window,
     thinking: reasons,
@@ -152,12 +152,12 @@ function detectsThinking(template: string): boolean {
 }
 
 /**
- * El unico modelo que atiende un servidor de llama.cpp, leido de `/props`.
+ * El único modelo que atiende un servidor de llama.cpp, leido de `/props`.
  *
- * A diferencia de OpenRouter, aqui no hay lista que buscar: el servidor sirve
- * un modelo cargado y eso es lo unico que puede haber. `/props` vive en la
- * raiz del servidor, no bajo `/v1`, asi que se le quita ese trozo a la
- * direccion antes de preguntarle.
+ * A diferencia de OpenRouter, aquí no hay lista que buscar: el servidor sirve
+ * un modelo cargado y eso es lo único que puede haber. `/props` vive en la
+ * raíz del servidor, no bajo `/v1`, así que se le quita ese trozo a la
+ * dirección antes de preguntarle.
  *
  * Si piensa, no se le preguntan sus propios niveles: se le ofrecen los cinco
  * fijos de llama.cpp (`AI_THINKING_BUDGET_LEVELS`), con tope de tokens en vez
@@ -186,7 +186,7 @@ export async function llamaCppModel(base: string, apiKey: string): Promise<AiMod
   };
 }
 
-/** El catalogo de llama.cpp es siempre el mismo: el unico modelo cargado. */
+/** El catálogo de llama.cpp es siempre el mismo: el único modelo cargado. */
 export async function llamaCppCatalog(base: string, apiKey: string): Promise<AiModel[]> {
   return [await llamaCppModel(base, apiKey)];
 }
@@ -240,7 +240,7 @@ export async function findCatalogModel(base: string, apiKey: string, id: string)
     data?: CatalogEntry;
   } | null;
   const direct = one?.data ? readEntry(one.data) : null;
-  // El catalogo responde con el nombre canonico --con fecha--; se conserva el
+  // El catálogo responde con el nombre canonico --con fecha--; se conserva el
   // que se escribio, que es el que hay que mandarle luego al servidor.
   if (direct) return { ...direct, id: wanted };
 

@@ -2,7 +2,7 @@
  * Prueba de extremo a extremo de las relaciones por llave.
  * Uso:  bun run scripts/smoke-relaciones.ts
  *
- * Comprueba lo que no se puede comprobar leyendo el codigo: que una columna
+ * Comprueba lo que no se puede comprobar leyendo el código: que una columna
  * definida ocupa de verdad dos columnas reales, que un valor que no encuentra
  * dueno no tumba la fila, y que corregir la llave en el destino se propaga sin
  * tocar las filas enlazadas.
@@ -28,9 +28,9 @@ const PASSWORD = process.env.PB_ADMIN_PASSWORD ?? "planer-admin-1234";
 /**
  * PocketBase, sin pasar por el proxy.
  *
- * El proxy `/pb/` solo deja pasar registros, sesiones y archivos: la sesion de
+ * El proxy `/pb/` solo deja pasar registros, sesiones y archivos: la sesión de
  * superusuario y los esquemas se piden a la base directamente, que es donde el
- * servidor tambien los pide. Ver `publicPbPath` en `server/index.ts`.
+ * servidor también los pide. Ver `publicPbPath` en `server/index.ts`.
  */
 const PB = process.env.PB_URL ?? "http://127.0.0.1:8090";
 
@@ -85,7 +85,7 @@ check("tabla destino creada", !!conductores.id);
 
 console.log("\n3. La marca de unica llega a la base como indice");
 // Se comprueba por su efecto y no leyendo el esquema: la definicion de una
-// coleccion solo la lee un superusuario, y aqui hay una sesion de constructor.
+// colección solo la lee un superusuario, y aquí hay una sesión de constructor.
 await call(records(conductores.dataCollection), {
   method: "POST",
   body: JSON.stringify({ documento: "1098765432", nombre: "Ana Ruiz" }),
@@ -266,10 +266,10 @@ check(
 
 console.log("\n11. Una columna que apunta a personas se ancla a la fila, no a la cuenta");
 /*
- * Es la diferencia que este cambio vino a borrar. Antes habia dos anclas para
- * la misma persona --la fila del destino en una relacion, la cuenta en una
+ * Es la diferencia que este cambio vino a borrar. Antes había dos anclas para
+ * la misma persona --la fila del destino en una relación, la cuenta en una
  * columna de persona-- y la del medio decidia cosas que si se ven. Ahora hay
- * una: el id de la fila de la tabla de personas, como en cualquier relacion.
+ * una: el id de la fila de la tabla de personas, como en cualquier relación.
  */
 const invitado = await call<{ email: string }>(`/api/apps/${app.id}/members`, {
   method: "POST",
@@ -289,7 +289,7 @@ const pepito = invitados.find((p) => p.email === "pepito@test.com");
 check("la lista de invitados lo trae", !!pepito);
 check("y trae el id de su fila, que es con lo que se enlaza", !!pepito?.fila);
 
-// La fila de personas de Pepito, leida de la coleccion de la tabla: es de donde
+// La fila de personas de Pepito, leida de la colección de la tabla: es de donde
 // tiene que salir el id que se guarda en la celda.
 const filasPersonas = await call<{ items: Record<string, unknown>[] }>(
   `${records(personas.dataCollection)}?perPage=200`,
@@ -298,7 +298,7 @@ const filaPepito = filasPersonas.items.find((r) => String(r.id) === pepito?.fila
 check("esa fila existe de verdad en la tabla de personas", !!filaPepito);
 check("y no es el id de la cuenta", pepito?.fila !== pepito?.id);
 
-// La cedula de Pepito, para poder emparejar por una llave que no es el correo.
+// La cédula de Pepito, para poder emparejar por una llave que no es el correo.
 await call(records(personas.dataCollection, String(pepito?.fila ?? "")), {
   method: "PATCH",
   body: JSON.stringify({ nombre: "Pepito Perez" }),
@@ -405,7 +405,7 @@ check(
 
 const ajeno = await matchValues(porCorreo, ["ajeno@example.com"], {
   ...peopleLookup,
-  // Nadie de fuera esta invitado aqui: no puede casar con ninguna fila.
+  // Nadie de fuera esta invitado aquí: no puede casar con ninguna fila.
   people: async () => [],
 });
 check("un correo de fuera no encuentra a nadie", !ajeno.get("ajeno@example.com")?.id);
@@ -440,7 +440,7 @@ const trasCuadricula = await multaDe(suMulta.id);
 check("la cuadricula: la fila sigue ahi y sin enlace", trasCuadricula.enlace === "");
 check("y ensena el documento que ensenaba", trasCuadricula.sinEnlace === "5150000");
 
-// Camino 2: la orden `borrar` de una pagina publicada.
+// Camino 2: la orden `borrar` de una página publicada.
 const otro = await call<{ id: string }>(records(conductores.dataCollection), {
   method: "POST",
   body: JSON.stringify({ documento: "5160000", nombre: "Luis Paz" }),
@@ -606,7 +606,7 @@ const superRes = await fetch(`${PB}/api/collections/_superusers/auth-with-passwo
 if (!superRes.ok) throw new Error(`superusuario -> ${superRes.status} ${await superRes.text()}`);
 const superuser = (await superRes.json()) as { token: string };
 /**
- * Una llamada con la sesion de superusuario, que es la unica que toca esquemas.
+ * Una llamada con la sesión de superusuario, que es la única que toca esquemas.
  * Va a la base directamente: el proxy no deja pasar la API de esquemas.
  */
 const asSuper = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
@@ -661,7 +661,7 @@ await asSuper(`/pb/api/collections/tables/records/${viejas.id}`, {
   }),
 });
 
-// Una fila de alguien invitado aqui, y otra de una cuenta que no lo esta.
+// Una fila de alguien invitado aquí, y otra de una cuenta que no lo esta.
 const otraApp = await call<{ id: string }>("/api/apps", {
   method: "POST",
   body: JSON.stringify({ name: `Ajena ${Date.now()}` }),
@@ -746,8 +746,8 @@ check(
  *
  * Reconocer a que tabla pertenece un archivo y enlazar lo que estaba esperando
  * son decisiones suyas --viven en `web/src/lib`-- y comprobarlas repitiendolas
- * aqui seria comprobar la copia. Se le cambia al cliente del panel la direccion
- * y la sesion, y de ahi en adelante es el mismo codigo que corre el navegador.
+ * aquí seria comprobar la copia. Se le cambia al cliente del panel la dirección
+ * y la sesión, y de ahi en adelante es el mismo código que corre el navegador.
  */
 const { pb } = await import("../web/src/lib/pb.ts");
 pb.baseURL = `${BASE}/pb`;
@@ -755,7 +755,7 @@ pb.authStore.save(token, null);
 
 /*
  * El panel pide a su servidor con rutas relativas, que un navegador resuelve
- * contra el origen de la pagina. Aqui no hay origen, asi que se le da uno: es
+ * contra el origen de la página. Aquí no hay origen, así que se le da uno: es
  * lo mismo que se acaba de hacer con `pb.baseURL`, para el resto de la API.
  */
 const fetchSinOrigen = globalThis.fetch;
@@ -772,7 +772,7 @@ const { guessPersonFields } = await import("../web/src/lib/personGuess.ts");
 const { peopleImportNote } = await import("../web/src/lib/importPlan.ts");
 const { isPeopleTable } = await import("../shared/people.ts");
 
-/** Las tablas de la aplicacion, recien leidas. */
+/** Las tablas de la aplicación, recien leidas. */
 const tablesNow = async (): Promise<TableRecord[]> =>
   (
     await call<{ items: TableRecord[] }>(
@@ -780,7 +780,7 @@ const tablesNow = async (): Promise<TableRecord[]> =>
     )
   ).items;
 
-/** Un archivo de los que se sueltan, armado aqui mismo. */
+/** Un archivo de los que se sueltan, armado aquí mismo. */
 const csvFile = (name: string, lines: string[]): File =>
   new File([lines.join("\n")], name, { type: "text/csv" });
 
@@ -845,7 +845,7 @@ const porColumnasDeMas = await matchingTable(
 );
 check("una columna de mas y esa capa ya no decide", porColumnasDeMas === null);
 
-// Capa 3: el nombre tecnico, que es el unico que distingue a las dos Multas.
+// Capa 3: el nombre tecnico, que es el único que distingue a las dos Multas.
 const porNombreTecnico = await matchingTable(
   tablasParaSoltar,
   csvFile(`${multasB.name}.csv`, ["nada;de;nada", "1;2;3"]),
@@ -892,7 +892,7 @@ check(
 );
 check("y se reconoce como la tabla de personas, no como una cualquiera", isPeopleTable(idaYVuelta));
 
-// Y tambien por el nombre solo: un archivo suyo al que le quitaron todo menos
+// Y también por el nombre solo: un archivo suyo al que le quitaron todo menos
 // una columna sigue siendo el de personas, que es lo que impide crear otra.
 const soloPorNombre = await matchingTable(
   tablasConPersonas,
@@ -958,7 +958,7 @@ await call(`/api/tables/${chequeos.id}`, {
 });
 
 // Las personas que el archivo habria traido: una con el documento que se
-// esperaba, otra con el que ya se dio por bueno, y dos con el mismo codigo.
+// esperaba, otra con el que ya se dio por bueno, y dos con el mismo código.
 const nuevas: { email: string; documento?: string; codigo?: string }[] = [
   { email: "esperada@test.com", documento: "90909090" },
   { email: "aceptada@test.com", documento: "12121212" },
@@ -1035,7 +1035,7 @@ check("una cifra en cero no dice su frase", parteCorto === "Se importó 1 person
 console.log("\n20. Una columna de texto que resulta nombrar personas");
 /*
  * Las filas llegaron antes que la gente: una columna de texto con documentos
- * escritos a mano, y despues se invita a quien los lleva.
+ * escritos a mano, y después se invita a quien los lleva.
  */
 const notas = await call<TableRecord>(`/api/apps/${app.id}/tables`, {
   method: "POST",
@@ -1081,9 +1081,9 @@ check(
 console.log("\n21. Las ordenes con las que la IA crea tablas y columnas");
 /*
  * Se llaman las ordenes directamente, sin el modelo delante. Lo que hay que
- * comprobar es que crear una relacion funciona y que un rechazo dice el paso
+ * comprobar es que crear una relación funciona y que un rechazo dice el paso
  * que falta; que el modelo acierte a pedirlo es otra cosa, y cuesta una
- * peticion de verdad por cada intento.
+ * petición de verdad por cada intento.
  */
 {
   const { runTool } = await import("../server/ai/aiPage/toolRuntime.ts");
@@ -1127,7 +1127,7 @@ console.log("\n21. Las ordenes con las que la IA crea tablas y columnas");
 
   const tabla = (nombre: string) => ctx.tables.find((t) => t.name === nombre);
 
-  /* La marca de columna unica deja de perderse por el camino. */
+  /* La marca de columna única deja de perderse por el camino. */
   const empleados = await runTool(
     "crear_tabla",
     {
@@ -1160,7 +1160,7 @@ console.log("\n21. Las ordenes con las que la IA crea tablas y columnas");
   check("la llave no deja repetir el valor", repetida.status >= 400);
 
   // Marcar una llave sobre una tabla que ya tiene filas tampoco falla: el
-  // indice no cuenta las celdas vacias, y las filas nuevas nacen vacias.
+  // índice no cuenta las celdas vacias, y las filas nuevas nacen vacias.
   const conFilas = await runTool(
     "agregar_columnas",
     { tabla: empleadosTabla?.name, fields: [{ label: "Carnet", type: "text", unique: true }] },
@@ -1168,7 +1168,7 @@ console.log("\n21. Las ordenes con las que la IA crea tablas y columnas");
   );
   check("se puede marcar una llave sobre una tabla con filas", !conFilas.startsWith("Error:"));
 
-  /* Una tabla nueva que apunta a la anterior, sin decir que ensena. */
+  /* Una tabla nueva que apunta a la anterior, sin decir que enseña. */
   const turnos = await runTool(
     "crear_tabla",
     {
@@ -1192,7 +1192,7 @@ console.log("\n21. Las ordenes con las que la IA crea tablas y columnas");
   );
 
   // La misma forma que una creada desde el panel: dos columnas reales, la del
-  // enlace y la del valor que todavia no encontro dueno.
+  // enlace y la del valor que todavía no encontro dueno.
   const conValorSuelto = await call<{ id: string; empleado: string; empleado_sin_enlace: string }>(
     records(turnosTabla?.dataCollection ?? ""),
     {
@@ -1278,7 +1278,7 @@ console.log("\n21. Las ordenes con las que la IA crea tablas y columnas");
   check("ninguno de los tres rechazos creo una tabla", ctx.tables.length === cuantas + 1);
   check("ni dejo aviso en el panel", ctx.steps.length === avisos + 1);
 
-  /* La IA se recupera sola: le anade la llave al destino y vuelve a pedirlo. */
+  /* La IA se recupera sola: le añade la llave al destino y vuelve a pedirlo. */
   await runTool(
     "agregar_columnas",
     { tabla: sinLlave?.name, fields: [{ label: "Codigo", type: "text", unique: true }] },

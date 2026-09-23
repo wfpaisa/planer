@@ -1,6 +1,6 @@
 /**
- * Ejecucion de las ordenes que la IA puede pedir sobre una pagina: el
- * despachador `runTool` y una funcion por herramienta con trabajo real.
+ * Ejecucion de las ordenes que la IA puede pedir sobre una página: el
+ * despachador `runTool` y una función por herramienta con trabajo real.
  */
 import { IMPORT_BATCH_CHUNK, MAX_IMPORT_ROWS } from "../../../shared/importBatch.ts";
 import { detectSeparator, type ParsedTable, parseImport } from "../../../shared/importParse.ts";
@@ -56,23 +56,23 @@ import { MAX_QUERY_ROWS } from "./tools.ts";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
-/** Revisiones que se le consienten a una peticion. */
+/** Revisiones que se le consienten a una petición. */
 export const MAX_PROBES = 2;
 
 /** Salidas que se pintan en una pregunta. Mas no se eligen de un vistazo. */
 const MAX_OPTIONS = 4;
 
-/** El HTML que tiene ahora mismo la pagina abierta. */
+/** El HTML que tiene ahora mismo la página abierta. */
 async function currentHtml(ctx: ToolContext): Promise<string> {
   if (!ctx.page.doc) return "";
   return (await readDoc(ctx.app.id, ctx.page.doc)) ?? "";
 }
 
 /**
- * Guarda el documento despues de editar un trozo.
+ * Guarda el documento después de editar un trozo.
  *
  * Una edicion parcial se guarda igual que una reescritura: mismo camino, misma
- * version, mismo punto al que volver. Desde "Cambios" no se distingue una de
+ * versión, mismo punto al que volver. Desde "Cambios" no se distingue una de
  * otra, que es justo lo que hace que se pueda deshacer.
  */
 async function saveEdit(ctx: ToolContext, html: string, sources: HtmlSource[]): Promise<void> {
@@ -83,17 +83,17 @@ async function saveEdit(ctx: ToolContext, html: string, sources: HtmlSource[]): 
 }
 
 /**
- * Le pone nombre e icono a una pagina que todavia se llama como nacio.
+ * Le pone nombre e icono a una página que todavía se llama como nacio.
  *
- * Una pagina recien creada se llama "Pagina 3", lleva un archivo generico por
- * icono y esta en blanco: las dos cosas son relleno, no una decision, asi que
+ * Una página recien creada se llama "Página 3", lleva un archivo generico por
+ * icono y esta en blanco: las dos cosas son relleno, no una decision, así que
  * la primera vez que se escribe se cambian por unas que digan de que va la
  * pantalla. El que manda es lo que propuso la IA, que es quien leyo lo que se
- * pidio; si no mando nombre, se saca del titulo de lo que acaba de escribir,
+ * pidio; si no mando nombre, se saca del título de lo que acaba de escribir,
  * que dice lo mismo. Un icono no se deduce de nada: si no lo mando, o mando uno
- * que la fuente no tiene, la pagina se queda con el suyo.
+ * que la fuente no tiene, la página se queda con el suyo.
  *
- * Lo elegido a mano no se toca nunca, aunque la pagina se reescriba entera:
+ * Lo elegido a mano no se toca nunca, aunque la página se reescriba entera:
  * cambiarle a alguien lo que ya decidio es perderle algo suyo. Cada uno mira su
  * propio relleno, porque se pueden haber puesto por separado.
  */
@@ -132,7 +132,7 @@ async function parseAiFile(saved: {
  *
  * En lotes y no una a una porque son las mismas escrituras que hace la
  * importacion manual y el mismo tope las gobierna: el tramo es una transaccion,
- * asi que del que falle no entra ninguna fila. Las que no se pudieron convertir
+ * así que del que falle no entra ninguna fila. Las que no se pudieron convertir
  * se quedan fuera contadas, con lo que dijo la conversion.
  */
 async function fillTable(
@@ -214,8 +214,8 @@ function hold(ctx: ToolContext, change: StructureChange, name: string): string {
 }
 
 /*
- * La friccion es asimetrica y la decide la direccion, no el tamano del
- * cambio: quitar se aplica aqui mismo, dar se apunta con su consecuencia
+ * La friccion es asimetrica y la decide la dirección, no el tamaño del
+ * cambio: quitar se aplica aquí mismo, dar se apunta con su consecuencia
  * delante. Ver `accessRisky` en `dataImpact.ts`.
  */
 async function runCambiarAcceso(
@@ -240,7 +240,7 @@ async function runCambiarAcceso(
     : undefined;
   const roles = named?.filter((r) => (ctx.app.roles ?? []).includes(r));
   // Nombrar roles y que no quede ninguno no es "quitarselos todos": es que
-  // esos roles no existen. Guardarlo asi le borraria en silencio los que si
+  // esos roles no existen. Guardarlo así le borraria en silencio los que si
   // tiene, que es lo contrario de lo que se pidio.
   if (named?.length && !roles?.length) {
     note("Roles que la aplicación no define", false);
@@ -289,7 +289,7 @@ async function runCambiarAcceso(
 }
 
 /*
- * Quien abre la pagina. Es lo unico que de verdad deja datos fuera de un
+ * Quien abre la página. Es lo único que de verdad deja datos fuera de un
  * navegador: esconder por rol dentro del HTML es presentacion. Por eso se
  * aplica directo y se obliga a decir a quien deja fuera.
  */
@@ -308,7 +308,7 @@ async function runCambiarRolesPagina(
 
   const roles = named.filter((r) => (ctx.app.roles ?? []).includes(r));
   // Nombrar roles y que no quede ninguno no es "abrirla a todos": es que
-  // esos roles no existen. Guardarlo asi abriria la pagina a cualquiera,
+  // esos roles no existen. Guardarlo así abriria la página a cualquiera,
   // que es lo contrario de lo que se pidio.
   if (named.length && !roles.length) {
     note("Roles que la aplicación no define", false);
@@ -333,10 +333,10 @@ async function runCambiarRolesPagina(
 }
 
 /*
- * La unica orden que cierra el turno. No escribe nada: deja la pregunta
+ * La única orden que cierra el turno. No escribe nada: deja la pregunta
  * apuntada y el bucle de rondas para al verla. La respuesta no vuelve por
- * aqui --llega como una peticion nueva, con la pregunta dentro-- porque
- * cada peticion abre una conversacion nueva con el modelo.
+ * aquí --llega como una petición nueva, con la pregunta dentro-- porque
+ * cada petición abre una conversación nueva con el modelo.
  */
 function runPreguntar(
   input: Record<string, unknown>,
@@ -404,7 +404,7 @@ async function runRevisarErrores(
 
   /*
    * El estilo se revisa siempre. No hace falta navegador --se lee del
-   * codigo-- asi que llega tambien cuando no hay nadie mirando, que es
+   * código-- así que llega también cuando no hay nadie mirando, que es
    * justo cuando el dibujado no se puede hacer.
    */
   const estilo = auditPageHtml(html);
@@ -472,14 +472,14 @@ async function runEscribirPagina(
   ctx.reviewed = false;
 
   /*
-   * La revision de estilo va aqui y no solo en "revisar_errores": lo
-   * escrito acaba de pasar por delante del modelo, asi que es el momento
+   * La revision de estilo va aquí y no solo en "revisar_errores": lo
+   * escrito acaba de pasar por delante del modelo, así que es el momento
    * mas barato de corregirlo. Esperar al final significa reescribir.
    */
   const estilo = auditPageHtml(html);
   note(`Página "${ctx.page.name}" escrita · ${auditSummary(estilo)}`, !estilo.length);
 
-  // El nombre va despues de guardar: lo que se nombra es una pantalla que
+  // El nombre va después de guardar: lo que se nombra es una pantalla que
   // ya existe, y si la escritura falla no se renombra nada.
   const named = await namePage(ctx, input, html);
   if (named.name) note(`Página nombrada "${named.name}"`);
@@ -557,7 +557,7 @@ async function runEditarBloque(
   } catch (err) {
     if (err instanceof BlockError) {
       // El mensaje del error va en ingles, como todo lo que lee el modelo,
-      // asi que el paso que ve quien construye se escribe aparte.
+      // así que el paso que ve quien construye se escribe aparte.
       note(`No se pudo editar el bloque "${String(input.bloque ?? "")}"`, false);
       return `Error: ${err.message}`;
     }
@@ -566,7 +566,7 @@ async function runEditarBloque(
 }
 
 /*
- * Leer un adjunto entero, por tramos. No cambia nada: es la unica forma de
+ * Leer un adjunto entero, por tramos. No cambia nada: es la única forma de
  * contestar con una cifra en vez de con la muestra, que son unas pocas
  * filas de las que traiga.
  */
@@ -614,7 +614,7 @@ async function runLeerArchivo(
 /*
  * Llenar una tabla desde un adjunto. Lo que llega es el emparejamiento, no
  * los datos: el servidor lee el archivo guardado, convierte cada celda al
- * tipo de su columna y escribe las filas. Anade, nunca reemplaza.
+ * tipo de su columna y escribe las filas. Añade, nunca reemplaza.
  */
 async function runLlenarTabla(
   name: string,
@@ -666,8 +666,8 @@ async function runLlenarTabla(
   await ctx.step();
   const done = await fillTable(ctx, table, parsed, plan);
 
-  // Una tabla que ya tenia filas se avisa: lo que se anade convive con lo
-  // que habia, y quien construye tiene que enterarse sin preguntarlo.
+  // Una tabla que ya tenia filas se avisa: lo que se añade convive con lo
+  // que había, y quien construye tiene que enterarse sin preguntarlo.
   if (done.before > 0) {
     ctx.notices.push(
       `"${table.label}" ya tenía ${done.before} ${done.before === 1 ? "fila" : "filas"}; las ${done.written} del archivo se añadieron a ellas.`,
@@ -714,7 +714,7 @@ async function runConsultarDatos(
   const shown = res.items.length;
   return JSON.stringify({
     tabla: table.name,
-    // Cuantas filas tiene la tabla, y cuantas de ellas van aqui. Las dos,
+    // Cuantas filas tiene la tabla, y cuantas de ellas van aquí. Las dos,
     // separadas y dichas: contar las de la muestra era lo que hacia que
     // una tabla de cientos de filas se contara por decenas.
     total: res.totalItems,
@@ -747,8 +747,8 @@ async function runCrearTabla(
   }
   await ctx.step();
 
-  // Unico dentro de la aplicacion: el nombre es con lo que la IA y el HTML
-  // de una pagina nombran la tabla, y dos con el mismo dejan la segunda
+  // Único dentro de la aplicación: el nombre es con lo que la IA y el HTML
+  // de una página nombran la tabla, y dos con el mismo dejan la segunda
   // inalcanzable. Ver `uniqueTableName`.
   const tableName = await uniqueTableName(ctx.app.id, label);
   const collection = dataCollectionName(ctx.app.slug, `${tableName}_${uid()}`);
@@ -788,7 +788,7 @@ async function runAgregarColumnas(
   if (!added.length) return "Error: no column arrived.";
   await ctx.step();
 
-  // Ninguna regla nombra una columna que acaba de nacer, asi que no hace
+  // Ninguna regla nombra una columna que acaba de nacer, así que no hace
   // falta soltarlas antes: esto no puede romper nada.
   const { fields } = await updateDataCollection({
     dataCollection: table.dataCollection,
@@ -818,8 +818,8 @@ async function runRenombrarColumna(
   if (!label) return "Error: the new name is missing.";
   await ctx.step();
 
-  // Solo cambia la etiqueta: el nombre tecnico y el id se quedan, asi que
-  // ni los datos ni las paginas que la declaran se enteran.
+  // Solo cambia la etiqueta: el nombre tecnico y el id se quedan, así que
+  // ni los datos ni las páginas que la declaran se enteran.
   const fields = (table.fields ?? []).map((f) => (f.name === current.name ? { ...f, label } : f));
   const saved = await updateRecord<TableRecord>(INTERNAL.tables, table.id, { fields });
   Object.assign(table, saved);
@@ -846,9 +846,9 @@ async function runCambiarColumna(
   if (name === "cambiar_tipo_columna" && !isFieldType(input.tipo)) {
     return "Error: that column type does not exist.";
   }
-  // El listado de tipos de esta orden ya deja fuera la relacion. Esto es
+  // El listado de tipos de esta orden ya deja fuera la relación. Esto es
   // lo que de verdad cierra el camino: sin el, un tipo que llegue igual
-  // archivaria una peticion sin destino que revienta al aplicarse.
+  // archivaria una petición sin destino que revienta al aplicarse.
   if (name === "cambiar_tipo_columna" && input.tipo === "relation") {
     return "Error: a column that already exists is not turned into a relation from here. The builder does it from the panel, which keeps the values already stored.";
   }
@@ -885,7 +885,7 @@ async function runBorrarTabla(input: Record<string, unknown>, ctx: ToolContext):
  * Ejecuta una orden de la IA y devuelve lo que la IA lee a continuacion.
  *
  * Se exporta para poder comprobar las ordenes sin el modelo delante: lo que
- * hay que probar es que crear una tabla con una relacion funciona y que un
+ * hay que probar es que crear una tabla con una relación funciona y que un
  * rechazo dice el paso que falta, no que el modelo acierte a pedirlo.
  */
 export async function runTool(

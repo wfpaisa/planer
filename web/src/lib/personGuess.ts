@@ -1,24 +1,24 @@
 /**
- * Que columna de un archivo esta nombrando a un usuario de la aplicacion.
+ * Que columna de un archivo esta nombrando a un usuario de la aplicación.
  *
- * Un archivo que sale de otro sistema no trae relaciones: trae la cedula, el
- * correo o el codigo pegado en cada fila. Ese texto ya identifica a alguien
- * --a alguien que suele estar invitado a la aplicacion-- y dejarlo suelto es
- * perder la unica pista que hay para enlazarlo.
+ * Un archivo que sale de otro sistema no trae relaciones: trae la cédula, el
+ * correo o el código pegado en cada fila. Ese texto ya identifica a alguien
+ * --a alguien que suele estar invitado a la aplicación-- y dejarlo suelto es
+ * perder la única pista que hay para enlazarlo.
  *
  * No se adivina por el nombre de la columna. Un archivo de verdad la llama
- * "cedula", "CC", "documento", "id_empleado" o "N° identificacion", y ninguna
+ * "cédula", "CC", "documento", "id_empleado" o "N° identificacion", y ninguna
  * lista de nombres cubre eso. Se mira el contenido: si los valores de una
  * columna son los que ya tienen los usuarios en alguna de las suyas, esa
  * columna los esta nombrando. La prueba es el dato, no la palabra.
  *
  * "Sin repetidos" tampoco se pregunta a la columna, se cuenta. Un valor que dos
- * usuarios comparten no nombra a ninguno, asi que no suma; los demas de esa
+ * usuarios comparten no nombra a ninguno, así que no suma; los demás de esa
  * misma columna siguen valiendo. Descartar la columna entera por un valor
- * repetido dejaba fuera la cedula de toda una nomina por dos empleados mal
+ * repetido dejaba fuera la cédula de toda una nómina por dos empleados mal
  * cargados.
  *
- * Aqui solo se cuenta. Quien decide es quien construye, en el dialogo que sale
+ * Aquí solo se cuenta. Quien decide es quien construye, en el diálogo que sale
  * al soltar el archivo: esto le pone delante lo que coincide y con cuanto.
  */
 import { personKeyFields, personKeyValue } from "@shared/people";
@@ -37,7 +37,7 @@ export interface PersonKeyMatch {
    * No se enlazan --no se puede saber a cual-- y se guardan a la vista, igual
    * que los que no corresponden a nadie. Se cuentan aparte para poder decirlo
    * antes de crear la tabla: es un dato repetido en los usuarios, y quien
-   * construye es el unico que puede arreglarlo.
+   * construye es el único que puede arreglarlo.
    */
   ambiguous: number;
 }
@@ -53,19 +53,19 @@ export interface PersonColumnGuess {
   keys: PersonKeyMatch[];
 }
 
-/** La relacion que se acepto en el dialogo. */
+/** La relación que se acepto en el diálogo. */
 export interface PersonLink {
   /** Columna del archivo que pasa a ser de tipo persona. */
   column: string;
-  /** Columna de usuarios que esa columna ensena y por la que empareja. */
+  /** Columna de usuarios que esa columna enseña y por la que empareja. */
   key: string;
 }
 
 /**
- * Un valor sirve de pista si es corto y no esta vacio.
+ * Un valor sirve de pista si es corto y no esta vacío.
  *
  * El tope no es capricho: una celda de trescientos caracteres es una nota, no
- * la cedula de nadie, y compararla contra la lista entera de usuarios cuesta
+ * la cédula de nadie, y compararla contra la lista entera de usuarios cuesta
  * sin poder acertar nunca.
  */
 const MAX_VALUE = 120;
@@ -146,10 +146,10 @@ function matchKeys(
  * Las columnas del archivo que estan nombrando usuarios, la mas clara primero.
  *
  * Se ordenan por proporcion y no por cantidad: veinte aciertos de veinte
- * valores es una cedula, y veinte de mil es una casualidad con muchas filas
+ * valores es una cédula, y veinte de mil es una casualidad con muchas filas
  * detras. La proporcion distingue las dos; la cantidad, no.
  *
- * Una columna sin ningun acierto no se propone. Sin un solo valor que case, la
+ * Una columna sin ningún acierto no se propone. Sin un solo valor que case, la
  * pregunta no tendria nada que la respalde y seria adivinar en voz alta.
  */
 export function guessPersonColumns(opts: {
@@ -194,7 +194,7 @@ export interface PersonTextColumn {
  * Las columnas de texto que ya estan en una tabla y resultan nombrar personas.
  *
  * Es la misma comparacion que al soltar un archivo, mirada desde el otro lado
- * del tiempo: alli las filas llegan antes que la columna, y aqui la columna
+ * del tiempo: alli las filas llegan antes que la columna, y aquí la columna
  * llevaba meses guardada cuando por fin se invita a la gente que nombra. En los
  * dos casos lo que decide es el contenido, nunca el nombre de la columna.
  *
@@ -204,7 +204,7 @@ export interface PersonTextColumn {
 export function guessPersonFields(opts: {
   /** Las tablas donde buscar, sin la de personas. */
   tables: TableRecord[];
-  /** Todas las tablas de la aplicacion: de ahi salen las llaves de persona. */
+  /** Todas las tablas de la aplicación: de ahi salen las llaves de persona. */
   all: TableRecord[];
   /** Las filas leidas de cada tabla, por su identificador. */
   rows: Map<string, Record<string, unknown>[]>;
@@ -222,8 +222,8 @@ export function guessPersonFields(opts: {
     if (rows.length === 0) continue;
 
     for (const field of table.fields ?? []) {
-      // Solo texto suelto: una columna que ya apunta a algun sitio no hay que
-      // convertirla, y una fecha o un numero no nombran a nadie.
+      // Solo texto suelto: una columna que ya apunta a algún sitio no hay que
+      // convertirla, y una fecha o un número no nombran a nadie.
       if (field.type !== "text" || field.multiple === true || field.system !== undefined) continue;
 
       const values = new Set<string>();

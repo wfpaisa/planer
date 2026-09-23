@@ -1,7 +1,7 @@
 <!--
-  La misma pantalla en los dos fondos, una al lado de la otra. Es la unica forma
+  La misma pantalla en los dos fondos, una al lado de la otra. Es la única forma
   honesta de ensenar la paleta: lo que se dibuja aqui pasa por `palettes.css`
-  y el puente de `compat.css` igual que lo hara en la aplicacion publicada.
+  y el puente de `compat.css` igual que lo hara en la aplicación publicada.
 -->
 <script lang="ts">
   import type { AppTheme } from "@shared/types";
@@ -24,7 +24,7 @@
 
       <!--
         Una pantalla en pequeno, con los trabajos del color: la banda de
-        marca (relleno, tinta derivada), el titular, el boton y el enlace.
+        marca (relleno, tinta derivada), el titular, el botón y el enlace.
       -->
       <div class="preview-brand-screen card card-solid">
         <div class="preview-brand-band">
@@ -33,7 +33,7 @@
         </div>
         <div class="preview-brand-body">
           <p class="preview-brand-title">Clientes del mes</p>
-          <p class="preview-brand-note">Una linea de texto normal, para ver el contraste.</p>
+          <p class="preview-brand-note">Texto de muestra para comprobar el contraste.</p>
           <div class="preview-brand-actions">
             <button type="button" class="btn btn-primary sm">Guardar</button>
             <button type="button" class="btn sm">Cancelar</button>
@@ -53,7 +53,7 @@
       grid-template-columns: 1fr 1fr;
     }
 
-    /* Las dos cajas son del catalogo: la de fuera `.inset` --el papel sobre
+    /* Las dos cajas son del catálogo: la de fuera `.inset` --el papel sobre
        el que se posa la muestra-- y la de dentro `.card.card-solid`, que es
        la pantalla en pequeno. Cada una lleva su `data-theme`, asi que las dos
        tienen que reponer su fondo: una variable se resuelve donde se declara,
@@ -61,7 +61,7 @@
     & .preview-brand-card {
       padding: var(--sp-16);
 
-      /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+      /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
       & .preview-brand-tag {
         margin-bottom: var(--sp-12);
       }

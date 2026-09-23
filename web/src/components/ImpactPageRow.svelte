@@ -1,5 +1,5 @@
 <!--
-  Una pagina afectada por un cambio con riesgo.
+  Una página afectada por un cambio con riesgo.
 
   El nombre esta desde el primer momento --sale del manifiesto-- y el "para
   que" cuesta una consulta a la IA, asi que solo se pide cuando se abre.

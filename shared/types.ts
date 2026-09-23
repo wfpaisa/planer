@@ -1,6 +1,6 @@
 /**
  * Tipos compartidos entre el servidor y el panel.
- * Todo lo que viaja por la red esta descrito aqui.
+ * Todo lo que viaja por la red esta descrito aquí.
  */
 import type { AppTheme } from "./brand.ts";
 
@@ -8,7 +8,7 @@ import type { AppTheme } from "./brand.ts";
  * Tipos de columna que puede crear el usuario.
  *
  * Apuntar a otra tabla es una sola cosa, `relation`, se apunte a donde se
- * apunte. La tabla de personas de la aplicacion es una tabla destino mas: no
+ * apunte. La tabla de personas de la aplicación es una tabla destino mas: no
  * hay un tipo aparte para ella.
  */
 export type FieldType =
@@ -27,7 +27,7 @@ export type FieldType =
  * Los mismos tipos, para comprobarlos en tiempo de ejecucion.
  *
  * Hace falta donde un tipo llega de fuera --lo que propone la IA, lo que
- * contesta el dialogo de impacto-- y el tipo de TypeScript ya no esta. El
+ * contesta el diálogo de impacto-- y el tipo de TypeScript ya no esta. El
  * `satisfies` es lo que hace que anadir un tipo arriba y olvidarse de esta
  * lista no compile.
  */
@@ -65,36 +65,36 @@ export interface FieldDef {
   /** Id de la tabla destino para el tipo `relation`. */
   relationTableId?: string;
   /**
-   * Nombre tecnico de la columna de la tabla destino que se ensena en lugar del
-   * id. Vale para la grilla, la exportacion y la pagina publicada. Solo para
+   * Nombre tecnico de la columna de la tabla destino que se enseña en lugar del
+   * id. Vale para la grilla, la exportacion y la página publicada. Solo para
    * `relation`.
    *
-   * Vacio en las columnas de antes de este cambio: hasta que la migracion la
-   * rellena, se cae a la primera columna unica del destino, que es lo que la
+   * Vacío en las columnas de antes de este cambio: hasta que la migración la
+   * rellena, se cae a la primera columna única del destino, que es lo que la
    * grilla adivinaba antes.
    */
   displayField?: string;
   /**
    * Nombre tecnico de la columna del destino que se ve entre parentesis, detras
-   * de la que se ensena. Solo para `relation`.
+   * de la que se enseña. Solo para `relation`.
    *
    * Existe porque la llave con la que se reconoce a alguien y la que dice quien
-   * es no suelen ser la misma: la celda ensena la cedula --que es lo que trae
+   * es no suelen ser la misma: la celda enseña la cédula --que es lo que trae
    * el archivo y lo que se escribe-- y el correo al lado dice de quien se
    * trata, sin obligar a elegir entre las dos.
    *
-   * Vacio: no se ensena nada detras.
+   * Vacío: no se enseña nada detras.
    */
   detailField?: string;
   /**
-   * Nadie puede repetir su valor en esta tabla. Solo una columna unica sirve de
+   * Nadie puede repetir su valor en esta tabla. Solo una columna única sirve de
    * llave para emparejar: si dos personas se llaman igual, el nombre no
    * identifica a nadie.
    */
   unique?: boolean;
   /**
    * Que pasa con las filas de esta columna cuando se borra aquello a lo que
-   * apuntan. Solo para `relation`. Vacio: `keep`.
+   * apuntan. Solo para `relation`. Vacío: `keep`.
    *
    * No se pregunta al crear la columna --ahi ya se piden tres cosas, y esta es
    * sobre algo que quiza no pase nunca-- sino en su tarjeta. Ver `design.md`
@@ -104,12 +104,12 @@ export interface FieldDef {
   /**
    * Columna del sistema: la sostiene la plataforma y no el constructor.
    *
-   * Su valor no esta en la coleccion de la tabla sino en otra --la cuenta comun
-   * o el enlace persona-aplicacion-- y se superpone al pintar. Marcarla es lo
+   * Su valor no esta en la colección de la tabla sino en otra --la cuenta comun
+   * o el enlace persona-aplicación-- y se superpone al pintar. Marcarla es lo
    * que decide dos cosas a la vez: que no se pueda borrar, renombrar ni cambiar
    * de tipo, y por que camino escribe su celda. Ver `shared/people.ts`.
    *
-   * Vacio en cualquier columna que haya puesto el constructor.
+   * Vacío en cualquier columna que haya puesto el constructor.
    */
   system?: SystemFieldKind;
 }
@@ -149,25 +149,25 @@ export interface DeleteImpact {
 }
 
 /**
- * Una columna de relacion ocupa dos columnas reales en la base: la relacion
- * (el id, o vacio) y el valor sin dueno (texto, o vacio). Nunca estan las dos
+ * Una columna de relación ocupa dos columnas reales en la base: la relación
+ * (el id, o vacío) y el valor sin dueno (texto, o vacío). Nunca estan las dos
  * llenas a la vez.
  *
- * El texto no es una copia de lo que se ensena --eso se lee siempre del registro
+ * El texto no es una copia de lo que se enseña --eso se lee siempre del registro
  * enlazado-- sino el corralito de lo que no encontro dueno. En una tabla sana
- * esta vacio en todas las filas.
+ * esta vacío en todas las filas.
  */
 export const ORPHAN_SUFFIX = "_sin_enlace";
 
-/** Nombre real de la columna que guarda el valor sin dueno de una relacion. */
+/** Nombre real de la columna que guarda el valor sin dueno de una relación. */
 export function orphanFieldName(fieldName: string): string {
   return `${fieldName}${ORPHAN_SUFFIX}`;
 }
 
 /**
- * El nombre tecnico que sale de un titulo escrito a mano.
+ * El nombre tecnico que sale de un título escrito a mano.
  *
- * Vive aqui y no en `server/schema.ts`, que es quien lo aplica, porque la
+ * Vive aquí y no en `server/schema.ts`, que es quien lo aplica, porque la
  * tarjeta de columna necesita saber en que se va a convertir lo que se esta
  * escribiendo antes de mandarlo. Con una copia en cada lado, el aviso de la
  * pantalla y el rechazo del servidor acabarian hablando de nombres distintos.
@@ -182,7 +182,7 @@ export function slugify(value: string, fallback = "item"): string {
   return out || fallback;
 }
 
-/** Nombre tecnico valido para una columna o tabla de PocketBase. */
+/** Nombre tecnico válido para una columna o tabla de PocketBase. */
 export function identifier(value: string, fallback = "campo"): string {
   const out = slugify(value, fallback)
     .replace(/-/g, "_")
@@ -196,10 +196,10 @@ export function isRelationField(field: Pick<FieldDef, "type">): boolean {
 }
 
 /**
- * Que columna del destino ensena una relacion.
+ * Que columna del destino enseña una relación.
  *
- * Vacio es "no lo declara": el respaldo no vive aqui porque depende de la tabla
- * destino --su primera columna unica-- y esta funcion no la tiene delante. Lo
+ * Vacío es "no lo declara": el respaldo no vive aquí porque depende de la tabla
+ * destino --su primera columna única-- y esta función no la tiene delante. Lo
  * pone `relationTarget` en `shared/relations.ts`, que si la tiene.
  */
 export function displayFieldOf(field: Pick<FieldDef, "displayField">): string {
@@ -209,8 +209,8 @@ export function displayFieldOf(field: Pick<FieldDef, "displayField">): string {
 /**
  * Que columna del destino va entre parentesis, si va alguna.
  *
- * La misma columna dos veces no dice nada, asi que si coincide con la que se
- * ensena no se ensena detras.
+ * La misma columna dos veces no dice nada, así que si coincide con la que se
+ * enseña no se enseña detras.
  */
 export function detailFieldOf(field: Pick<FieldDef, "displayField" | "detailField">): string {
   const display = displayFieldOf(field);
@@ -223,14 +223,14 @@ export interface TableMeta {
   columnOrder?: string[];
   hidden?: string[];
   widths?: Record<string, number>;
-  /** Colores asignados a cada opcion de los campos `select`. */
+  /** Colores asignados a cada opción de los campos `select`. */
   optionColors?: Record<string, Record<string, string>>;
   /**
    * Columnas del sistema (`id`, `created`, `updated`) que el constructor
    * pidio mostrar. Las que faltan quedan ocultas por defecto.
    */
   systemVisible?: string[];
-  /** Filas por pagina en la grilla. `0` significa mostrar todas. */
+  /** Filas por página en la grilla. `0` significa mostrar todas. */
   pageSize?: number;
 }
 
@@ -259,20 +259,20 @@ export interface TableRecord {
   system?: boolean;
 }
 
-/** Alguien con acceso a una aplicacion publicada. */
+/** Alguien con acceso a una aplicación publicada. */
 export interface AppPerson {
   /**
-   * Id de su cuenta en esta aplicacion. Es con lo que llega la sesion, no con
+   * Id de su cuenta en esta aplicación. Es con lo que llega la sesión, no con
    * lo que se enlaza: lo que guarda una columna que apunta a personas es
    * `fila`.
    */
   id: string;
   /**
-   * Id de su fila en la tabla de personas de esta aplicacion.
+   * Id de su fila en la tabla de personas de esta aplicación.
    *
    * Es el ancla de toda columna que apunte a la tabla de personas, igual que en
-   * cualquier otra relacion. Vacio solo mientras su fila todavia no existe
-   * --alguien recien invitado, una aplicacion a medio arrancar--; la repone
+   * cualquier otra relación. Vacío solo mientras su fila todavía no existe
+   * --alguien recien invitado, una aplicación a medio arrancar--; la repone
    * `syncPersonRows`.
    */
   fila?: string;
@@ -281,16 +281,16 @@ export interface AppPerson {
   /** Que pantallas ve. Puede tener varios de los roles de la app. */
   roles: string[];
   /**
-   * Sus columnas propias en la tabla de personas de esta aplicacion, por
-   * nombre de columna. Vacio si la aplicacion no le ha puesto ninguna.
+   * Sus columnas propias en la tabla de personas de esta aplicación, por
+   * nombre de columna. Vacío si la aplicación no le ha puesto ninguna.
    */
   campos?: Record<string, unknown>;
 }
 
 /**
- * La apariencia con la que se pinta la aplicacion publicada: paleta y tamano
+ * La apariencia con la que se pinta la aplicación publicada: paleta y tamaño
  * de letra. Es la apariencia, no el modo: claro u oscuro lo elige quien mira
- * la pagina. Ver `shared/brand.ts`.
+ * la página. Ver `shared/brand.ts`.
  */
 export type { AppTheme };
 
@@ -304,18 +304,18 @@ export interface AppRecord {
   owner: string;
   theme: AppTheme | null;
   /**
-   * Roles que define esta aplicacion, con el nombre que quiera el constructor.
-   * Deciden que paginas y que bloques ve cada persona invitada.
+   * Roles que define esta aplicación, con el nombre que quiera el constructor.
+   * Deciden que páginas y que bloques ve cada persona invitada.
    */
   roles: string[];
   /**
-   * Id de la version que ve el publico. Vacio: la app todavia no se publico
+   * Id de la versión que ve el público. Vacío: la app todavía no se publicó
    * con el historial, y el enlace sirve el estado vivo.
    */
   liveVersion?: string;
   /**
-   * Id de la conversacion con la IA que quedo abierta, en la pagina que sea.
-   * Vacio: ninguna, y cada pagina del panel empieza en blanco.
+   * Id de la conversación con la IA que quedo abierta, en la página que sea.
+   * Vacío: ninguna, y cada página del panel empieza en blanco.
    */
   openChat?: string;
   created: string;
@@ -323,28 +323,28 @@ export interface AppRecord {
 }
 
 /* ------------------------------------------------------------------ */
-/* Tablas que declara una pagina                                        */
+/* Tablas que declara una página                                        */
 /* ------------------------------------------------------------------ */
 
 /**
- * Las seis ordenes de datos de una pagina publicada.
+ * Las seis ordenes de datos de una página publicada.
  *
- * Vive aqui porque es lo que viaja por la red: el documento nombra la orden y
+ * Vive aquí porque es lo que viaja por la red: el documento nombra la orden y
  * el servidor la reparte. No queda ninguna otra decision colgada de ella --el
  * reparto de filas por rol se retiro-- salvo que las tres de escritura exigen
- * sesion iniciada.
+ * sesión iniciada.
  *
  * `contar` no trae filas: cuenta en el servidor. Existe porque `listar` tiene
- * techo, y sin ella la unica forma de saber cuantas filas cumplen algo era
+ * techo, y sin ella la única forma de saber cuantas filas cumplen algo era
  * bajarselas todas y contarlas en el navegador --que es justo lo que el techo
- * impide, asi que la cuenta salia corta y nadie se enteraba--.
+ * impide, así que la cuenta salia corta y nadie se enteraba--.
  */
 export type AccessOp = "listar" | "contar" | "obtener" | "crear" | "actualizar" | "borrar";
 
 /**
- * Una tabla que usa el HTML de una pagina, con nombres propios.
+ * Una tabla que usa el HTML de una página, con nombres propios.
  *
- * Las columnas se guardan por su identidad interna, no por su nombre: asi
+ * Las columnas se guardan por su identidad interna, no por su nombre: así
  * renombrar una columna no obliga a tocar el HTML. El puente traduce en los
  * dos sentidos usando este mapa.
  */
@@ -357,13 +357,13 @@ export interface HtmlSource {
 }
 
 /**
- * Un bloque tal como quedo guardado en una pagina de antes de que una pagina
+ * Un bloque tal como quedo guardado en una página de antes de que una página
  * fuera un documento HTML.
  *
  * Solo se lee, nunca se escribe: es lo que mira la conversion asistida para
  * poder pedirle a la IA el HTML equivalente. Por eso todo es opcional y nada
  * distingue un tipo de otro con precision: lo que se necesita es contar que
- * habia, no volver a dibujarlo.
+ * había, no volver a dibujarlo.
  */
 export interface LegacyBlock {
   id: string;
@@ -413,30 +413,30 @@ export interface PageRecord {
   icon: string;
   order: number;
   isHome: boolean;
-  /** No es una pagina: es un texto que agrupa a las de alrededor en el sidebar. */
+  /** No es una página: es un texto que agrupa a las de alrededor en el sidebar. */
   separator?: boolean;
   /**
-   * Huella del documento HTML de la pagina. Vacia: la pagina todavia no tiene
+   * Huella del documento HTML de la página. Vacía: la página todavía no tiene
    * nada escrito.
    */
   doc?: string;
-  /** Tablas que puede pedir el HTML de la pagina. Nada mas esta permitido. */
+  /** Tablas que puede pedir el HTML de la página. Nada mas esta permitido. */
   sources?: HtmlSource[];
   /**
-   * Roles que pueden abrirla. Vacio: la abre cualquiera que alcance la
-   * aplicacion --lo que la pantalla ensena como `Todos`--.
+   * Roles que pueden abrirla. Vacío: la abre cualquiera que alcance la
+   * aplicación --lo que la pantalla enseña como `Todos`--.
    *
-   * Con uno o mas roles marcados la pagina exige sesion iniciada y uno de
-   * ellos, aunque la aplicacion sea publica. No hay un estado guardado de
-   * `Todos`: es la consecuencia de que la lista este vacia. Ver `design.md` D2.
+   * Con uno o mas roles marcados la página exige sesión iniciada y uno de
+   * ellos, aunque la aplicación sea publica. No hay un estado guardado de
+   * `Todos`: es la consecuencia de que la lista este vacía. Ver `design.md` D2.
    */
   roles?: string[];
   /**
-   * Las reglas funcionales de la pagina, en markdown plano y una por vineta:
+   * Las reglas funcionales de la página, en markdown plano y una por vineta:
    * quien puede hacer que, que datos son obligatorios, que prohibe el negocio.
-   * Vacia: la pagina todavia no tiene ninguna regla guardada.
+   * Vacía: la página todavía no tiene ninguna regla guardada.
    *
-   * No viaja a la aplicacion publicada: es del constructor. Ver `page-memory`.
+   * No viaja a la aplicación publicada: es del constructor. Ver `page-memory`.
    */
   memory?: string;
 }
@@ -447,8 +447,8 @@ export interface AppBundle {
   pages: PageRecord[];
   tables: TableRecord[];
   /**
-   * Roles de quien esta mirando. El HTML de una pagina no puede tener su
-   * propio padron de personas, asi que necesita esto para saber a quien tiene
+   * Roles de quien esta mirando. El HTML de una página no puede tener su
+   * propio padron de personas, así que necesita esto para saber a quien tiene
    * delante. En la vista previa son todos los de la app: el constructor lo ve
    * todo.
    */
@@ -456,10 +456,10 @@ export interface AppBundle {
 }
 
 /**
- * Codigo del error de intentar guardar sin cuenta iniciada.
+ * Código del error de intentar guardar sin cuenta iniciada.
  *
  * Viaja aparte del mensaje para que el puente lo distinga del resto de errores
- * y ponga el aviso de iniciar sesion sin que el HTML de la pagina participe.
+ * y ponga el aviso de iniciar sesión sin que el HTML de la página participe.
  * Ver `design.md` D4.
  */
 export const NEEDS_SESSION = "sin-sesion";
@@ -475,7 +475,7 @@ export interface ApiError {
 /* ------------------------------------------------------------------ */
 
 /**
- * Una pagina tal como quedo guardada en una version.
+ * Una página tal como quedo guardada en una versión.
  *
  * El HTML no se copia: se nombra por la huella de su contenido, igual que en
  * el borrador.
@@ -487,14 +487,14 @@ export type SnapshotPage = Pick<
   doc?: string;
   sources?: HtmlSource[];
   /**
-   * Solo en las versiones creadas antes de que una pagina fuera un documento.
-   * Se lee para saber que esa version es de las de antes; nunca se escribe.
+   * Solo en las versiones creadas antes de que una página fuera un documento.
+   * Se lee para saber que esa versión es de las de antes; nunca se escribe.
    */
   blocks?: LegacyBlock[];
 };
 
 /**
- * Presentacion de una tabla dentro de una version.
+ * Presentacion de una tabla dentro de una versión.
  * Nunca guarda columnas ni tipos: la estructura real vive en la base y se
  * resuelve al momento de servir, para que restaurar no pueda perder datos.
  */
@@ -507,7 +507,7 @@ export interface SnapshotTable {
   fieldLabels: Record<string, string>;
 }
 
-/** Todo el diseno de una aplicacion en un momento dado. */
+/** Todo el diseño de una aplicación en un momento dado. */
 export interface DesignSnapshot {
   name: string;
   icon: string;
@@ -517,13 +517,13 @@ export interface DesignSnapshot {
   tables: SnapshotTable[];
 }
 
-/** Como nacio una version. */
+/** Como nacio una versión. */
 export type VersionKind = "publish" | "manual";
 
 export interface AppVersion {
   id: string;
   app: string;
-  /** Numero correlativo dentro de la app, para nombrarla sin ambiguedad. */
+  /** Número correlativo dentro de la app, para nombrarla sin ambiguedad. */
   number: number;
   label: string;
   kind: VersionKind;
@@ -543,7 +543,7 @@ export type AppVersionSummary = Omit<AppVersion, "snapshot"> & {
   authorName: string;
   live: boolean;
   /**
-   * Guarda paginas de bloques, de antes de que una pagina fuera un documento.
+   * Guarda páginas de bloques, de antes de que una página fuera un documento.
    * Se puede mirar, no se puede restaurar.
    */
   legacy: boolean;
@@ -553,7 +553,7 @@ export interface VersionsView {
   versions: AppVersionSummary[];
   /** Huella del borrador actual. */
   draftHash: string;
-  /** El borrador es distinto de la version en vivo. */
+  /** El borrador es distinto de la versión en vivo. */
   hasChanges: boolean;
   liveVersion: string;
 }
@@ -567,7 +567,7 @@ export interface VersionsView {
  *
  * Decide dos cosas: con que formato se le habla y de donde salen los datos de
  * sus modelos. `openrouter` habla el formato de ChatGPT, pero ademas tiene un
- * catalogo publico, asi que sus modelos no hay que describirlos a mano.
+ * catálogo público, así que sus modelos no hay que describirlos a mano.
  */
 export type AiProvider = "anthropic" | "openai" | "openrouter" | "llamacpp";
 
@@ -575,19 +575,19 @@ export type AiProvider = "anthropic" | "openai" | "openrouter" | "llamacpp";
  * Cuanto se le pide pensar antes de responder, con el nombre que le da su
  * propio servidor: `low`, `high`, `max`...
  *
- * No es una escala cerrada porque no lo es en ningun sitio: cada modelo dice
- * cuales ofrece --OpenRouter lo publica en su catalogo-- y ahi aparecen niveles
- * que la plataforma no puede conocer de antemano. Lo unico fijo es `off`, que
+ * No es una escala cerrada porque no lo es en ningún sitio: cada modelo dice
+ * cuales ofrece --OpenRouter lo publica en su catálogo-- y ahi aparecen niveles
+ * que la plataforma no puede conocer de antemano. Lo único fijo es `off`, que
  * significa no pedir nada y lo entienden todos porque no se manda.
  */
 export type AiThinking = string;
 
-/** No pensar. Es lo unico que vale igual en todos los servidores. */
+/** No pensar. Es lo único que vale igual en todos los servidores. */
 export const AI_THINKING_OFF = "off";
 
 /**
  * Los niveles que se ofrecen cuando el servidor no dice cuales tiene. Es el
- * caso de Claude y de los compatibles con ChatGPT, que no publican catalogo.
+ * caso de Claude y de los compatibles con ChatGPT, que no publican catálogo.
  */
 export const AI_THINKING_DEFAULT: AiThinking[] = ["off", "low", "medium", "high"];
 
@@ -595,17 +595,17 @@ export const AI_THINKING_DEFAULT: AiThinking[] = ["off", "low", "medium", "high"
 export interface AiModel {
   /** El nombre con el que lo conoce su servidor: `claude-opus-5`, `gpt-5`. */
   id: string;
-  /** Como se le llama en el panel. Vacio: se le llama por su nombre tecnico. */
+  /** Como se le llama en el panel. Vacío: se le llama por su nombre tecnico. */
   label: string;
   /** Tope de lo que puede escribir en una respuesta. */
   maxTokens: number;
-  /** Cuanto le cabe delante, peticion y respuesta juntas. 0: no se sabe. */
+  /** Cuanto le cabe delante, petición y respuesta juntas. 0: no se sabe. */
   contextWindow: number;
   /** Si sabe pensar antes de responder. */
   thinking: boolean;
   /**
    * Los niveles de pensamiento que este modelo ofrece, tal y como los nombra
-   * su servidor. Vacio: no los declara, y se ofrecen los de siempre.
+   * su servidor. Vacío: no los declara, y se ofrecen los de siempre.
    *
    * Se guardan con su nombre de verdad --y no traducidos a una escala
    * propia-- porque es lo que hay que mandarle luego: un modelo que ofrece
@@ -613,7 +613,7 @@ export interface AiModel {
    * este modelo piensa siempre.
    */
   efforts: AiThinking[];
-  /** Si sabe mirar imagenes. Solo se muestra; todavia no se le manda ninguna. */
+  /** Si sabe mirar imagenes. Solo se muestra; todavía no se le manda ninguna. */
   vision: boolean;
   /**
    * Si piensa se le pide con un tope de tokens, no con un nombre de nivel.
@@ -631,7 +631,7 @@ export interface AiProviderConfig {
   /** Como se le llama en el panel: "Claude del trabajo", "Ollama de casa". */
   name: string;
   provider: AiProvider;
-  /** Direccion del servidor. Vacio usa la oficial del proveedor. */
+  /** Dirección del servidor. Vacío usa la oficial del proveedor. */
   baseUrl: string;
   models: AiModel[];
   /**
@@ -641,7 +641,7 @@ export interface AiProviderConfig {
   enabled: boolean;
 }
 
-/** Con que se atiende una peticion: de que servidor, que modelo y cuanto piensa. */
+/** Con que se atiende una petición: de que servidor, que modelo y cuanto piensa. */
 export interface AiChoice {
   /** El `id` del proveedor. */
   provider: string;
@@ -651,12 +651,12 @@ export interface AiChoice {
 }
 
 /**
- * La intencion de modo Plan que manda el boton del composer con la siguiente
- * peticion. Quien decide el estado real es el servidor, a partir del hilo: ver
+ * La intencion de modo Plan que manda el botón del composer con la siguiente
+ * petición. Quien decide el estado real es el servidor, a partir del hilo: ver
  * `design.md` D1 de `ia-modo-plan`.
  *
- * - `activar`: empezar --o seguir en-- modo Plan para esta peticion.
- * - `cortar`: orden de implementar a mitad de conversacion (D4): no manda
+ * - `activar`: empezar --o seguir en-- modo Plan para esta petición.
+ * - `cortar`: orden de implementar a mitad de conversación (D4): no manda
  *   texto nuevo al modelo, cierra el plan con lo que la IA tenia hasta ahora y
  *   lo deja listo para construir.
  * - `implementar`: pasar de un plan ya cerrado a modo Implementador.
@@ -668,10 +668,10 @@ export interface AiConfig {
   /** Lo que se usa cuando quien pide no elige otra cosa. */
   fallback: AiChoice;
   /**
-   * Con que se atiende la pasada que escribe la memoria de una pagina.
+   * Con que se atiende la pasada que escribe la memoria de una página.
    *
-   * Vacio --lo normal-- es el modelo con el que se atendio la peticion: una
-   * segunda configuracion que nadie mantiene se queda vieja. Esta por si mas
+   * Vacío --lo normal-- es el modelo con el que se atendio la petición: una
+   * segunda configuración que nadie mantiene se queda vieja. Esta por si mas
    * adelante conviene uno mas barato para esta tarea, que es corta y siempre
    * la misma. Ver `memoria-de-pagina/design.md` D7.
    */
@@ -680,9 +680,9 @@ export interface AiConfig {
   /** Muestra en cada respuesta del chat el contexto que se le manda al modelo. */
   debugButton: boolean;
   /**
-   * Minutos que se deja correr una peticion antes de cortarla sola, como si
+   * Minutos que se deja correr una petición antes de cortarla sola, como si
    * quien la pidio hubiera apretado "detener". Protege contra un proveedor
-   * colgado o una conversacion que no cierra sola. 0: sin tope.
+   * colgado o una conversación que no cierra sola. 0: sin tope.
    */
   runTimeoutMinutes: number;
 }
@@ -698,10 +698,10 @@ export interface AiConfigView extends Omit<AiConfig, "providers"> {
 }
 
 /**
- * Cuanto contexto lleva gastado la peticion.
+ * Cuanto contexto lleva gastado la petición.
  *
  * `input` es todo lo que el modelo tuvo delante en el ultimo turno --el
- * sistema, la conversacion entera y lo que devolvieron las herramientas--, asi
+ * sistema, la conversación entera y lo que devolvieron las herramientas--, así
  * que es lo que de verdad ocupa. Contra `window` se ve cuanto queda libre.
  */
 export interface AiUsage {
@@ -709,7 +709,7 @@ export interface AiUsage {
   output: number;
   /** Lo que le cabe al modelo. 0: no esta declarado y no hay contra que medir. */
   window: number;
-  /** El modelo que atendio, para poder decirlo aunque se cambie despues. */
+  /** El modelo que atendio, para poder decirlo aunque se cambie después. */
   model: string;
 }
 
@@ -735,8 +735,8 @@ export interface AiMessage {
   steps?: AiStep[];
   /**
    * La pregunta que la IA dejo abierta en este mensaje, si pregunto. Se guarda
-   * para que al volver a la conversacion se lea que se pregunto, no solo la
-   * respuesta que vino despues.
+   * para que al volver a la conversación se lea que se pregunto, no solo la
+   * respuesta que vino después.
    */
   question?: AiQuestion;
   /**
@@ -754,8 +754,8 @@ export interface AiMessage {
    */
   reasoning?: string;
   /**
-   * Los archivos que se adjuntaron a la peticion: su nombre y la referencia de
-   * lo guardado. El contenido no se guarda aqui --vive en el almacen de
+   * Los archivos que se adjuntaron a la petición: su nombre y la referencia de
+   * lo guardado. El contenido no se guarda aquí --vive en el almacen de
    * adjuntos-- pero la referencia si, y es lo que hace que la IA los siga
    * teniendo delante en los turnos siguientes.
    */
@@ -768,14 +768,14 @@ export interface AiMessage {
 }
 
 /**
- * Una conversacion pertenece a la pagina donde se hizo: la lista de una pagina
- * ensena solo las suyas, y no se puede abrir una hecha en otra. Borrar la
- * pagina se lleva sus conversaciones.
+ * Una conversación pertenece a la página donde se hizo: la lista de una página
+ * enseña solo las suyas, y no se puede abrir una hecha en otra. Borrar la
+ * página se lleva sus conversaciones.
  */
 export interface AiChat {
   id: string;
   app: string;
-  /** Id de la pagina donde se abrio. */
+  /** Id de la página donde se abrio. */
   page: string;
   /** Lo primero que se pidio, recortado. */
   title: string;
@@ -788,16 +788,16 @@ export interface AiChat {
 export type AiChatSummary = Omit<AiChat, "messages"> & { count: number };
 
 /**
- * La conversacion que quedo abierta, que es una sola en toda la aplicacion: la
- * ultima en la que se hablo, en cualquiera de sus paginas.
+ * La conversación que quedo abierta, que es una sola en toda la aplicación: la
+ * ultima en la que se hablo, en cualquiera de sus páginas.
  *
- * Solo hace falta saber cual es y de que pagina: con eso, la pagina que la
- * tiene la repone al abrirse y las demas empiezan en blanco.
+ * Solo hace falta saber cual es y de que página: con eso, la página que la
+ * tiene la repone al abrirse y las demás empiezan en blanco.
  */
 export interface AiOpenChat {
-  /** Id de la conversacion. */
+  /** Id de la conversación. */
   chat: string;
-  /** Id de la pagina donde se tuvo. */
+  /** Id de la página donde se tuvo. */
   page: string;
 }
 
@@ -808,7 +808,7 @@ export interface AiOpenChat {
 /**
  * Los cambios de estructura con riesgo. Los que no lo tienen --crear una
  * tabla, anadir una columna, renombrar una columna-- se aplican solos y no
- * llegan hasta aqui.
+ * llegan hasta aquí.
  */
 export type ChangeKind = "borrar_columna" | "cambiar_tipo" | "borrar_tabla";
 
@@ -819,15 +819,15 @@ export interface StructureChange {
   /** Nombre tecnico de la columna, cuando el cambio es de columna. */
   field?: string;
   fieldLabel?: string;
-  /** Id interno de la columna: es lo que declaran las paginas. */
+  /** Id interno de la columna: es lo que declaran las páginas. */
   fieldId?: string;
   /** Tipo pedido, solo para el cambio de tipo. */
   newType?: FieldType;
-  /** El cambio contado en una linea. */
+  /** El cambio contado en una línea. */
   what: string;
 }
 
-/** Una pagina que declara lo que se va a cambiar. */
+/** Una página que declara lo que se va a cambiar. */
 export interface ImpactedPage {
   id: string;
   name: string;
@@ -835,8 +835,8 @@ export interface ImpactedPage {
 
 /**
  * `conservar`: se hace la variante que no destruye nada.
- * `aplicar`: se hace el cambio y las paginas afectadas quedan como estan.
- * `aplicar_y_arreglar`: ademas la IA reescribe esas paginas.
+ * `aplicar`: se hace el cambio y las páginas afectadas quedan como estan.
+ * `aplicar_y_arreglar`: ademas la IA reescribe esas páginas.
  * `no_tocar`: la tabla se queda igual.
  */
 export type ImpactChoice = "conservar" | "aplicar" | "aplicar_y_arreglar" | "no_tocar";
@@ -848,7 +848,7 @@ export interface ImpactOption {
 }
 
 export interface DataImpact {
-  /** La peticion que motiva el cambio: el "para que" del dialogo. */
+  /** La petición que motiva el cambio: el "para que" del diálogo. */
   request: string;
   changes: StructureChange[];
   pages: ImpactedPage[];
@@ -863,7 +863,7 @@ export interface DataImpact {
 /**
  * Hacia donde va un cambio de acceso.
  *
- * Es lo unico que decide cuanta friccion lleva. Dar acceso nuevo no se puede
+ * Es lo único que decide cuanta friccion lleva. Dar acceso nuevo no se puede
  * deshacer --lo que alguien vio, lo vio-- y por eso siempre pasa por una
  * confirmacion que nombra la consecuencia. Quitarlo se resuelve directo:
  * como mucho corrige algo que sobraba, y el punto de vuelta atras sigue ahi.
@@ -873,23 +873,23 @@ export type AccessDirection = "dar" | "quitar";
 /**
  * Un cambio de roles sobre una persona invitada, pedido por la IA.
  *
- * No es un `StructureChange`: no tiene tabla, y las cuatro salidas del dialogo
+ * No es un `StructureChange`: no tiene tabla, y las cuatro salidas del diálogo
  * de impacto --conservar, aplicar, aplicar y arreglar, no tocar-- no
  * significan nada para un permiso. Va por su lado, con su aviso propio.
  */
 export interface AccessChange {
-  /** Id de la cuenta de la persona dentro de esta aplicacion. */
+  /** Id de la cuenta de la persona dentro de esta aplicación. */
   personId: string;
   /** Como se le llama en el aviso. */
   personName: string;
   personEmail: string;
   direction: AccessDirection;
-  /** Los roles con los que queda. Es la lista entera, no lo que se anade. */
+  /** Los roles con los que queda. Es la lista entera, no lo que se añade. */
   roles: string[];
   /**
    * Lo que pasa a poder hacer --o a no poder hacer-- esa persona, dicho en una
    * frase y en lenguaje llano: "Ana podra ver los pedidos de todos los
-   * clientes, no solo los suyos". No un boton generico de autorizar.
+   * clientes, no solo los suyos". No un botón generico de autorizar.
    */
   consequence: string;
 }
@@ -902,10 +902,10 @@ export interface AccessChange {
  * Un elemento del documento senalado con el cursor de seleccion.
  *
  * Nace en el puente --que es quien puede escuchar dentro del marco-- viaja al
- * panel como badge de la conversacion, y de ahi al servidor con la peticion.
+ * panel como badge de la conversación, y de ahi al servidor con la petición.
  *
  * Lleva donde esta y el HTML que tiene ahora, para que la IA no necesite
- * releer la pagina entera para saber que se le senalo. Si el elemento es
+ * releer la página entera para saber que se le senalo. Si el elemento es
  * enorme, el HTML va recortado y se dice.
  */
 export interface PickedBlock {
@@ -913,7 +913,7 @@ export interface PickedBlock {
   id: string;
   /** El nombre de bloque que ya lleva, si alguna edicion se lo puso. */
   name: string;
-  /** Como se le llama en la conversacion: "tabla Clientes", "seccion Precios". */
+  /** Como se le llama en la conversación: "tabla Clientes", "sección Precios". */
   label: string;
   /** La etiqueta HTML que es, en minuscula: "h1", "div", "span". */
   tag: string;
@@ -933,52 +933,52 @@ export interface PickedBlock {
  * De que clase es un archivo que se le adjunta a la IA.
  *
  * No es su extension ni su MIME: es como hay que contarselo al modelo. Todo lo
- * que se lee como texto viaja dentro del contexto, en un bloque de codigo con
- * su lenguaje puesto; una imagen no, y por eso es la unica clase aparte.
+ * que se lee como texto viaja dentro del contexto, en un bloque de código con
+ * su lenguaje puesto; una imagen no, y por eso es la única clase aparte.
  *
- * Una hoja de calculo entra como `sheet` aunque llegue en `.xlsx`: lo que
+ * Una hoja de cálculo entra como `sheet` aunque llegue en `.xlsx`: lo que
  * viaja es su contenido convertido a CSV, que es lo que un modelo lee bien.
  */
 export type AiFileKind = "html" | "css" | "js" | "json" | "csv" | "sheet" | "text" | "image";
 
 /**
- * Un archivo adjunto a una peticion a la IA.
+ * Un archivo adjunto a una petición a la IA.
  *
  * Nace en el navegador --se suelta encima del editor-- se sube al almacen de
- * adjuntos en cuanto se suelta, y vive como badge en la conversacion mientras
- * se escribe la peticion.
+ * adjuntos en cuanto se suelta, y vive como badge en la conversación mientras
+ * se escribe la petición.
  *
  * Lleva la referencia de lo guardado, no el contenido: el contenido se guarda
  * una sola vez (`server/ai/aiFiles.ts`) y de ahi lo leen tanto la muestra que se
- * le cuenta al modelo como las ordenes que lo abren entero. Asi un archivo de
- * varios megabytes no engorda ninguna peticion, y sigue estando en los turnos
- * siguientes de la conversacion.
+ * le cuenta al modelo como las ordenes que lo abren entero. Así un archivo de
+ * varios megabytes no engorda ninguna petición, y sigue estando en los turnos
+ * siguientes de la conversación.
  */
 export interface AiFile {
   /** Identidad del badge en el panel. No significa nada fuera de el. */
   id: string;
   /**
-   * El adjunto guardado. Vacio mientras la subida va en camino: un badge sin
-   * referencia todavia no se puede mandar con una peticion.
+   * El adjunto guardado. Vacío mientras la subida va en camino: un badge sin
+   * referencia todavía no se puede mandar con una petición.
    */
   ref: string;
   /** El nombre del archivo, tal como venia. */
   name: string;
   kind: AiFileKind;
-  /** El tipo que declaro el navegador. Puede venir vacio. */
+  /** El tipo que declaro el navegador. Puede venir vacío. */
   mime: string;
   /** Lo que ocupa el original, en bytes. */
   size: number;
 }
 
 /**
- * Un adjunto tal y como queda nombrado dentro de una conversacion guardada.
+ * Un adjunto tal y como queda nombrado dentro de una conversación guardada.
  *
- * Es lo que hace que preguntar por un archivo dos turnos despues no obligue a
- * adjuntarlo otra vez: la conversacion recuerda que adjuntos nombro cada
- * peticion, y el contexto de la siguiente los vuelve a poner delante.
+ * Es lo que hace que preguntar por un archivo dos turnos después no obligue a
+ * adjuntarlo otra vez: la conversación recuerda que adjuntos nombro cada
+ * petición, y el contexto de la siguiente los vuelve a poner delante.
  *
- * Tambien es lo que decide cuanto vive un adjunto: uno que ninguna conversacion
+ * También es lo que decide cuanto vive un adjunto: uno que ninguna conversación
  * nombra se puede borrar.
  */
 export interface AiChatFile {
@@ -986,7 +986,7 @@ export interface AiChatFile {
   ref: string;
   name: string;
   kind: AiFileKind;
-  /** Lo que ocupa, en bytes. Se lee en la burbuja de la peticion. */
+  /** Lo que ocupa, en bytes. Se lee en la burbuja de la petición. */
   size: number;
 }
 
@@ -994,9 +994,9 @@ export interface AiChatFile {
 /* Lo que la IA pregunta antes de construir                             */
 /* ------------------------------------------------------------------ */
 
-/** Una de las salidas de una pregunta: lo que se lee en el boton. */
+/** Una de las salidas de una pregunta: lo que se lee en el botón. */
 export interface AiQuestionOption {
-  /** El texto del boton. Corto: es lo que se elige de un vistazo. */
+  /** El texto del botón. Corto: es lo que se elige de un vistazo. */
   label: string;
   /** Que significa elegirlo, si el rotulo solo no basta. */
   description?: string;
@@ -1005,30 +1005,30 @@ export interface AiQuestionOption {
 /**
  * Lo que la IA pregunta cuando no puede seguir sin saberlo.
  *
- * Solo cabe aqui una eleccion entre cosas que ya existen en la aplicacion
- * --que tabla, que fuente--: una pregunta de diseno abierto no tiene opciones
+ * Solo cabe aquí una eleccion entre cosas que ya existen en la aplicación
+ * --que tabla, que fuente--: una pregunta de diseño abierto no tiene opciones
  * que ofrecer y se resuelve construyendo algo y dejando corregir.
  *
- * Preguntar cierra el turno: la IA no sigue escribiendo despues de preguntar.
- * Elegir una opcion manda una peticion nueva.
+ * Preguntar cierra el turno: la IA no sigue escribiendo después de preguntar.
+ * Elegir una opción manda una petición nueva.
  */
 export interface AiQuestion {
-  /** Lo que se pregunta, en una linea. */
+  /** Lo que se pregunta, en una línea. */
   question: string;
-  /** De que va, en dos o tres palabras. Rotula el bloque en la conversacion. */
+  /** De que va, en dos o tres palabras. Rotula el bloque en la conversación. */
   header: string;
   options: AiQuestionOption[];
 }
 
-/** Lo que responde la IA cuando escribe una pagina. */
+/** Lo que responde la IA cuando escribe una página. */
 export interface AiPageResult {
   message: string;
   steps: AiStep[];
   /** Avisos cortos de lo que se aplico solo por no tener riesgo. */
   notices: string[];
-  /** La pagina cambio: hay que volver a leerla. */
+  /** La página cambio: hay que volver a leerla. */
   changed: boolean;
-  /** Cambios con riesgo esperando decision. Vacio: no hay nada que preguntar. */
+  /** Cambios con riesgo esperando decision. Vacío: no hay nada que preguntar. */
   impact: DataImpact | null;
   /**
    * La IA cerro el turno preguntando en vez de construir. `null` es lo normal:
@@ -1041,30 +1041,30 @@ export interface AiPageResult {
    */
   plan: { texto: string; implementado: boolean } | null;
   /**
-   * Accesos que la IA quiere dar y todavia no ha dado: cada uno se confirma
-   * por separado, con su consecuencia delante. Los que quitan no llegan aqui,
+   * Accesos que la IA quiere dar y todavía no ha dado: cada uno se confirma
+   * por separado, con su consecuencia delante. Los que quitan no llegan aquí,
    * se aplican solos.
    */
   access: AccessChange[];
-  /** Conversacion donde quedo guardada la peticion. */
+  /** Conversación donde quedo guardada la petición. */
   chatId: string;
   /** El razonamiento del modelo, si lo envio. */
   reasoning?: string;
-  /** Se detuvo a media peticion porque se pidio pararla. */
+  /** Se detuvo a media petición porque se pidio pararla. */
   stopped: boolean;
   /** Cuanto contexto se gasto, si el servidor lo conto. */
   usage?: AiUsage;
 }
 
 /**
- * Una peticion a la IA que el servidor tiene en marcha.
+ * Una petición a la IA que el servidor tiene en marcha.
  *
- * La peticion no vive en la conexion que la pidio: recargar o cerrar el
+ * La petición no vive en la conexion que la pidio: recargar o cerrar el
  * navegador no la corta. Esto es lo que hace falta para reconocerla al volver.
  */
 export interface AiRunInfo {
   id: string;
-  /** Lo que se pidio, para poder reponerlo en la conversacion al volver. */
+  /** Lo que se pidio, para poder reponerlo en la conversación al volver. */
   prompt: string;
   /** Cuando empezo. */
   started: string;
@@ -1073,15 +1073,15 @@ export interface AiRunInfo {
 }
 
 /**
- * Las paginas de una aplicacion donde la IA esta trabajando ahora mismo.
+ * Las páginas de una aplicación donde la IA esta trabajando ahora mismo.
  *
- * Es la fuente de verdad de la senal: se pregunta al entrar en la aplicacion,
- * y a partir de ahi la mantiene al dia el hilo de avisos de cada peticion. Una
- * peticion terminada que solo espera a que recojan su resultado no esta aqui:
+ * Es la fuente de verdad de la senal: se pregunta al entrar en la aplicación,
+ * y a partir de ahi la mantiene al dia el hilo de avisos de cada petición. Una
+ * petición terminada que solo espera a que recojan su resultado no esta aquí:
  * no es trabajo en curso.
  */
 export interface AiActiveRun {
-  /** La pagina donde trabaja. */
+  /** La página donde trabaja. */
   page: string;
   /** Cuando empezo. */
   started: string;
@@ -1092,10 +1092,10 @@ export interface AiActiveRun {
 /* ------------------------------------------------------------------ */
 
 /**
- * La constancia de la ultima peticion de una pagina.
+ * La constancia de la ultima petición de una página.
  *
- * Una por pagina, sobrescrita en cada peticion: no es un historial. Existe
- * para poder entender despues un fallo que no se puede reproducir, asi que se
+ * Una por página, sobrescrita en cada petición: no es un historial. Existe
+ * para poder entender después un fallo que no se puede reproducir, así que se
  * guarda siempre, haya terminado bien o mal, y sin depender de haber encendido
  * nada antes.
  */
@@ -1121,7 +1121,7 @@ export interface AiDebugEntry {
   updated: string;
 }
 
-/** Lo que se lee del registro de una pagina. `null`: no hay nada guardado. */
+/** Lo que se lee del registro de una página. `null`: no hay nada guardado. */
 export type AiDebugRead = AiDebugEntry | null;
 
 /**
@@ -1131,11 +1131,11 @@ export type AiDebugRead = AiDebugEntry | null;
  * donde va, pero nada de esto es el resultado. El resultado llega una sola vez,
  * en `fin`, y es el mismo `AiPageResult` de siempre.
  *
- * Lo mismo se cuenta a quien pidio la peticion y a quien se engancha despues de
- * recargar: el que llega tarde recibe primero, de golpe, lo que ya habia.
+ * Lo mismo se cuenta a quien pidio la petición y a quien se engancha después de
+ * recargar: el que llega tarde recibe primero, de golpe, lo que ya había.
  */
 export type AiProgress =
-  /** Lo primero de toda conexion: a que peticion se acaba de enganchar. */
+  /** Lo primero de toda conexion: a que petición se acaba de enganchar. */
   | { tipo: "inicio"; runId: string }
   | { tipo: "texto"; texto: string }
   | { tipo: "paso"; paso: AiStep }
@@ -1168,13 +1168,13 @@ export type AiProgress =
 /**
  * Un fallo que solto un documento al dibujarse.
  *
- * Es lo que se veria en la consola del navegador al inspeccionar la pagina,
- * recogido por el puente y traido hasta aqui.
+ * Es lo que se veria en la consola del navegador al inspeccionar la página,
+ * recogido por el puente y traido hasta aquí.
  */
 export interface PageIssue {
   /**
    * `js`: una excepcion sin recoger. `promesa`: una promesa rechazada que nadie
-   * atrapo. `recurso`: algo que la pagina pidio y no cargo. `consola`: lo que el
+   * atrapo. `recurso`: algo que la página pidio y no cargo. `consola`: lo que el
    * propio documento escribio con `console.error`.
    */
   tipo: "js" | "promesa" | "recurso" | "consola";
@@ -1192,10 +1192,10 @@ export interface PageProbeReport {
   warnings: string[];
 }
 
-/** Lo que responde el dialogo de impacto una vez decidido. */
+/** Lo que responde el diálogo de impacto una vez decidido. */
 export interface ImpactResult {
   message: string;
   steps: AiStep[];
-  /** Paginas que la IA reescribio, si se autorizo. */
+  /** Páginas que la IA reescribio, si se autorizo. */
   fixed: string[];
 }

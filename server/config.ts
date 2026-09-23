@@ -9,7 +9,7 @@ export const config = {
   /**
    * Prefijo privado por el que se llega a PocketBase entero, consola incluida.
    *
-   * Vacio --lo normal-- es que no se monte: desde fuera no hay forma de llegar
+   * Vacío --lo normal-- es que no se monte: desde fuera no hay forma de llegar
    * a la consola ni a la API que define colecciones. Solo vive en el entorno
    * del servidor, nunca en el repositorio. Ver `publicPbPath` en
    * `server/index.ts`.
@@ -18,8 +18,8 @@ export const config = {
   /**
    * Hay un proxy inverso delante (nginx, Caddy, Cloudflare).
    *
-   * Cambia de quien se cree que es una peticion, que es lo que reparte el tope
-   * de intentos: con proxy delante manda la cabecera que el trae --es el unico
+   * Cambia de quien se cree que es una petición, que es lo que reparte el tope
+   * de intentos: con proxy delante manda la cabecera que el trae --es el único
    * que sabe quien llamo--; sin el, la cabecera la escribe quien llama y se
    * descarta. Ver `proxyToPocketBase` en `server/index.ts`.
    */

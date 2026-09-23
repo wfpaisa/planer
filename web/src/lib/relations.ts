@@ -1,7 +1,7 @@
 /**
- * El emparejado por llave, con la sesion de quien esta en el panel.
+ * El emparejado por llave, con la sesión de quien esta en el panel.
  *
- * La logica vive en `shared/relations.ts`; aqui solo se le da de donde leer.
+ * La logica vive en `shared/relations.ts`; aquí solo se le da de donde leer.
  */
 import {
   type Lookup,
@@ -25,7 +25,7 @@ export function panelLookup(people: AppPerson[]): Lookup {
   return {
     find: async (collection, filter) =>
       await pb.collection(collection).getFullList<Record<string, unknown>>({ filter, batch: 200 }),
-    // Solo las invitadas a esta aplicacion, nunca la lista comun de cuentas.
+    // Solo las invitadas a esta aplicación, nunca la lista comun de cuentas.
     people: async () => people,
   };
 }
@@ -33,14 +33,14 @@ export function panelLookup(people: AppPerson[]): Lookup {
 /**
  * Enlaza los valores que estaban esperando en el corralito de una columna.
  *
- * Convertir una columna de texto en relacion deja sus valores en el corralito y
- * la relacion vacia. En el momento del cambio no se puede hacer otra cosa: una
- * cedula escrita a mano no es el id de ninguna fila, y el servidor que cambia el
+ * Convertir una columna de texto en relación deja sus valores en el corralito y
+ * la relación vacía. En el momento del cambio no se puede hacer otra cosa: una
+ * cédula escrita a mano no es el id de ninguna fila, y el servidor que cambia el
  * tipo no sabe contra que emparejarla. Pero en cuanto la columna ya dice a donde
  * apunta y por que llave, esos valores se resuelven de una vez.
  *
  * Sin esto, convertir una columna de trece filas dejaba trece "sin enlace" que
- * habia que resolver una por una, aunque todas nombraran a alguien que ya estaba
+ * había que resolver una por una, aunque todas nombraran a alguien que ya estaba
  * invitado. Ese trabajo a mano era el precio de una conversion, y no tenia por
  * que serlo.
  *
@@ -67,7 +67,7 @@ export async function linkParkedValues(opts: {
     .catch(() => []);
 
   // Las dos columnas nunca estan llenas a la vez, pero una fila recien enlazada
-  // puede traer todavia el texto: esa ya no se toca.
+  // puede traer todavía el texto: esa ya no se toca.
   const parked = rows.filter((row) => !row[field.name] && String(row[orphan] ?? ""));
   if (parked.length === 0) return 0;
 
@@ -97,13 +97,13 @@ export async function linkParkedValues(opts: {
 /**
  * Pasa los valores escritos a lo que se guarda de verdad.
  *
- * Solo se tocan las columnas de relacion que se hayan escrito: una fila cuyo
+ * Solo se tocan las columnas de relación que se hayan escrito: una fila cuyo
  * enlace ya venia roto y no se ha tocado se guarda igual. Si no, cada persona
- * que sale de la aplicacion convertiria sus filas en intocables.
+ * que sale de la aplicación convertiria sus filas en intocables.
  *
  * Un valor que no encuentra dueno no impide guardar: se queda en el corralito
  * de su columna, a la vista y arreglable. No hay ninguna columna que obligue a
- * lo contrario --la de dueno de fila se retiro-- asi que aqui no se rechaza
+ * lo contrario --la de dueno de fila se retiro-- así que aquí no se rechaza
  * nada.
  */
 export async function resolveRowValues(opts: {
@@ -132,7 +132,7 @@ export async function resolveRowValues(opts: {
   return out;
 }
 
-/** Empareja un solo valor. Vacio no busca nada: es una celda que se deja sin poner. */
+/** Empareja un solo valor. Vacío no busca nada: es una celda que se deja sin poner. */
 export async function matchOne(
   field: FieldDef,
   tables: TableRecord[],
@@ -149,11 +149,11 @@ export async function matchOne(
 /**
  * El aviso de un valor repetido en una columna que no admite repetidos.
  *
- * PocketBase dice "debe ser unico" y ahi se acaba: no dice con quien choca, que
- * es justo lo unico que le sirve a quien esta escribiendo. Aqui se busca la
+ * PocketBase dice "debe ser único" y ahi se acaba: no dice con quien choca, que
+ * es justo lo único que le sirve a quien esta escribiendo. Aquí se busca la
  * fila que ya lo tiene y se nombra.
  *
- * Devuelve vacio si el error no es de unicidad o si no se encuentra la otra
+ * Devuelve vacío si el error no es de unicidad o si no se encuentra la otra
  * fila; en ese caso vale el mensaje de siempre.
  */
 export async function uniqueClashMessage(

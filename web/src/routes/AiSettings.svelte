@@ -1,6 +1,6 @@
 <!--
   Los ajustes de la cuenta: lo que vale para todo el panel, no para una
-  aplicacion. El tamano de letra, el tema y los servidores de IA.
+  aplicación. El tamaño de letra, el tema y los servidores de IA.
 -->
 <script lang="ts">
   import type { AiConfigView } from "@shared/types";
@@ -37,11 +37,10 @@
     <main id="ai-settings-main" class="main-ai-settings">
       <div class="ai-settings-head">
         <h1 class="ai-settings-title">Ajustes</h1>
-        <p class="ai-settings-subtitle">Configuraciones globales.</p>
+        <p class="ai-settings-subtitle">Preferencias de la cuenta.</p>
       </div>
 
-      <!-- Lo primero es la IA: es lo unico que hay que configurar para que el
-           panel sirva de algo. -->
+      <!-- La configuración de IA ocupa la sección principal. -->
       <ErrorNote message={loaded.error} />
       {#if loaded.data}
         <AiForm initial={loaded.data} />
@@ -82,7 +81,7 @@
     }
   }
 
-  /* El boton vive en `Button.svelte`; aqui se centra el icono como en un boton icono. */
+  /* El botón vive en `Button.svelte`; aqui se centra el icono como en un botón icono. */
   :global(.ai-settings-back) {
     align-items: center;
     justify-content: center;
@@ -93,13 +92,13 @@
     max-width: 56rem;
     padding: 2rem 1.25rem;
 
-    /* Los hijos de debajo son componentes: su raiz no es de aqui. */
+    /* Los hijos de debajo son componentes: su raíz no es de aqui. */
     & > :global(* + *) {
       margin-top: var(--sp-20);
     }
   }
 
-  /* Las dos caben en media pagina; en estrecho vuelven a la fila unica. Las
+  /* Las dos caben en media página; en estrecho vuelven a la fila única. Las
      tarjetas son componentes, asi que se estiran solas hasta la altura de la
      mas alta y el pie de cada una queda contra su borde inferior. */
   .pair-ai-settings {

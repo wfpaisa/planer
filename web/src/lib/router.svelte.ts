@@ -3,16 +3,16 @@
  *
  * Escrito en casa, y no tomado de una libreria, por tres razones que se ven
  * mejor juntas: hay cinco rutas de primer nivel y dos anidadas, la guardia de
- * sesion tiene que esperar a que se sepa si hay sesion --no antes--, y el
+ * sesión tiene que esperar a que se sepa si hay sesión --no antes--, y el
  * constructor abre sus ajustes y su vista previa como capas encima de la ruta
- * que ya estaba. Eso ultimo es la "ubicacion de fondo", y casi ningun router
+ * que ya estaba. Eso ultimo es la "ubicacion de fondo", y casi ningún router
  * pequeno lo hace.
  *
- * La ubicacion vive en el estado del historial, asi que sobrevive a ir y
+ * La ubicacion vive en el estado del historial, así que sobrevive a ir y
  * volver con los botones del navegador. Ver `navigate`.
  */
 
-/** Lo que se guarda en el historial junto a cada direccion. */
+/** Lo que se guarda en el historial junto a cada dirección. */
 export interface RouteState {
   /**
    * La ruta que se estaba mirando cuando se abrio esta encima.
@@ -47,7 +47,7 @@ let current = $state<RouteLocation>(read());
  * Donde se esta. Se lee como un objeto normal y es reactivo: quien lo lea
  * dentro de un `$derived` o de una plantilla se vuelve a calcular al navegar.
  *
- * Es de solo lectura a proposito --se cambia con `navigate`-- y por eso son
+ * Es de solo lectura a propósito --se cambia con `navigate`-- y por eso son
  * captadores: una runa reasignada no se puede exportar tal cual.
  */
 export const location = {
@@ -69,7 +69,7 @@ window.addEventListener("popstate", () => {
   current = read();
 });
 
-/** Ir a otra direccion. Sin recargar: el historial se mueve y la vista con el. */
+/** Ir a otra dirección. Sin recargar: el historial se mueve y la vista con el. */
 export function navigate(
   to: string,
   options: { replace?: boolean; state?: RouteState | null } = {},
@@ -81,7 +81,7 @@ export function navigate(
 }
 
 /**
- * Un enlace que no recarga la pagina.
+ * Un enlace que no recarga la página.
  *
  * `<a href="/a/1" use:link>` o, para abrir algo encima de lo que ya se ve,
  * `<a href="/a/1/ajustes" use:link={{ state: { background } }}>`.
@@ -121,7 +121,7 @@ export function link(
 const segments = (path: string) => path.split("/").filter(Boolean);
 
 /**
- * Compara un patron con una direccion.
+ * Compara un patron con una dirección.
  *
  * Entiende dos cosas y ninguna mas: `:nombre` toma un tramo, y `*` al final
  * toma lo que quede. Devuelve `null` si no encaja.
@@ -150,10 +150,10 @@ export function matchPath(
 export type RouteComponent = any;
 
 export interface RouteDef {
-  /** El patron, contado desde la raiz del router: `/a/:appId/*`. */
+  /** El patron, contado desde la raíz del router: `/a/:appId/*`. */
   path: string;
   component: RouteComponent;
-  /** Hace falta sesion. La guardia la aplica `Router.svelte`. */
+  /** Hace falta sesión. La guardia la aplica `Router.svelte`. */
   guarded?: boolean;
 }
 

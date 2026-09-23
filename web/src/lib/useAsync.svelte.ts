@@ -11,10 +11,10 @@ export interface Async<T> {
 /**
  * Carga datos y cuenta en que va: cargando, error, y como volver a pedirlos.
  *
- * La peticion se pasa como funcion y se vuelve a lanzar cuando cambie algo de
- * lo que esa funcion lea. Ahi esta la diferencia con la version de React, que
+ * La petición se pasa como función y se vuelve a lanzar cuando cambie algo de
+ * lo que esa función lea. Ahi esta la diferencia con la versión de React, que
  * pedia una lista de dependencias a mano y traia un `biome-ignore` encima para
- * callar al analizador: aqui las dependencias son lo que se lee, y no hay lista
+ * callar al analizador: aquí las dependencias son lo que se lee, y no hay lista
  * que mantener.
  *
  *   const apps = useAsync(() => api<AppRecord[]>("/api/apps"));
@@ -25,7 +25,7 @@ export function useAsync<T>(fn: () => Promise<T>): Async<T> {
   let error = $state("");
   let loading = $state(true);
 
-  /** Sube con cada peticion; solo contesta la ultima. */
+  /** Sube con cada petición; solo contesta la ultima. */
   let turn = 0;
 
   async function run() {

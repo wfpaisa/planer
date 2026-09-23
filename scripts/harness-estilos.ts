@@ -1,10 +1,10 @@
 /**
- * El banco de pruebas del sistema de estilos de una pagina.
+ * El banco de pruebas del sistema de estilos de una página.
  *
  * Uso:  bun run harness
  *
  * No hace falta servidor ni navegador: todo lo que comprueba se puede leer del
- * codigo, y por eso puede correr en cada cambio.
+ * código, y por eso puede correr en cada cambio.
  *
  * Hay tres cosas que tienen que decir lo mismo y viven en tres sitios:
  *
@@ -12,15 +12,15 @@
  *   2. `shared/htmlContract.ts` lo que se le promete al modelo
  *   3. `server/html/htmlAudit.ts`   lo que se le reprocha cuando se sale
  *
- * Separarse es facil y no avisa. Si el contrato ensena `class="tabla"` y en el
- * catalogo la clase se llama `.table`, el modelo escribe una pagina sin
+ * Separarse es fácil y no avisa. Si el contrato enseña `class="tabla"` y en el
+ * catálogo la clase se llama `.table`, el modelo escribe una página sin
  * vestir y nadie se entera hasta verla. Si la revision reprocha una variable
  * que si existe, el modelo la quita y rompe la pantalla para callar un aviso
  * falso. Esto ata los tres.
  *
  * Y una cuarta: la revision tiene que saltar con lo que esta mal y callarse
  * con lo que esta bien. Un aviso falso cuesta una ronda entera --el modelo lo
- * arregla y estropea algo por el camino-- asi que los casos buenos pesan aqui
+ * arregla y estropea algo por el camino-- así que los casos buenos pesan aquí
  * tanto como los malos.
  */
 import { auditPageHtml, KNOWN_CLASSES, KNOWN_VARS } from "../server/html/htmlAudit.ts";
@@ -41,7 +41,7 @@ function check(name: string, ok: boolean, detail = ""): void {
 }
 
 /* ------------------------------------------------------------------ */
-/* 1. Lo que el contrato ensena, ¿existe?                               */
+/* 1. Lo que el contrato enseña, ¿existe?                               */
 /* ------------------------------------------------------------------ */
 
 const contract = buildHtmlDocs();
@@ -50,7 +50,7 @@ console.log("\nEl contrato contra el catalogo");
 
 /*
  * Las clases que el contrato escribe dentro de un `class="..."`. Solo esas: el
- * texto tambien nombra clases en prosa (`.table-wrap`), y ahi un nombre suelto
+ * texto también nombra clases en prosa (`.table-wrap`), y ahi un nombre suelto
  * puede ser cualquier cosa. Lo que se comprueba es lo copiable.
  */
 const taught = new Set<string>();
@@ -62,7 +62,7 @@ for (const m of contract.matchAll(/class="([^"]+)"/g)) {
 
 /**
  * Las que no salen de la hoja de componentes y no tienen por que estar ahi:
- * los iconos, que son la fuente, y los modificadores que el catalogo declara
+ * los iconos, que son la fuente, y los modificadores que el catálogo declara
  * anidados (`&.sm`, `&.info`) y por eso no aparecen como clase de primer nivel.
  */
 const OWN =
@@ -70,7 +70,7 @@ const OWN =
 /**
  * Las que el contrato inventa como ejemplo de "una clase tuya, descriptiva".
  * Van en espanol porque eso es justo lo que el contrato pide para ellas, y es
- * lo que las distingue de las del catalogo, que estan en ingles.
+ * lo que las distingue de las del catálogo, que estan en ingles.
  */
 const EXAMPLES = /^(?:lista-|tarjeta-|cabecera|caja-|pantalla-|mi-)/;
 
@@ -110,8 +110,8 @@ check("trae la paleta viva", PAGE_STYLES.includes("--vivid-teal:"));
 check("trae la capa de pagina", PAGE_STYLES.includes(".plane-tarjeta"));
 /*
  * El contrato le dice al modelo que esconda con `hidden`. El navegador lo
- * esconde con el peso de una etiqueta, asi que cualquier pieza del catalogo
- * con `display` propio --`.card` es `display: flex`-- lo anula y la seccion se
+ * esconde con el peso de una etiqueta, así que cualquier pieza del catálogo
+ * con `display` propio --`.card` es `display: flex`-- lo anula y la sección se
  * queda a la vista sin que nada avise. Que la hoja lo remate es lo que hace
  * cierta esa frase; ver `web/src/styles/page.css`.
  */
@@ -132,7 +132,7 @@ check(
 
 console.log("\nLa revision de estilo");
 
-/** Una pagina escrita como dice el contrato. No puede saltar nada. */
+/** Una página escrita como dice el contrato. No puede saltar nada. */
 const BUENA = `<!doctype html>
 <html><head>
 <link rel="stylesheet" href="/plane/estilos.css">
@@ -308,8 +308,8 @@ for (const caso of CALLA) {
  * la fuente no tiene sale como un hueco en blanco: ni error, ni aviso, ni
  * nada que mirar. Y son dos saltos --la lista contra la fuente, y la lista
  * contra el subconjunto que va dentro del marco-- porque anadir un nombre a
- * `PAGE_ICONS` y no volver a recortar la fuente deja la pagina bien en su
- * direccion y en blanco en la vista previa, que es el peor sitio para
+ * `PAGE_ICONS` y no volver a recortar la fuente deja la página bien en su
+ * dirección y en blanco en la vista previa, que es el peor sitio para
  * enterarse.
  */
 console.log("\nLos iconos");

@@ -1,19 +1,19 @@
 /**
  * El cursor que senala un elemento del documento.
  *
- * El boton que lo enciende vive en el dock, y el marco donde hay que
- * encenderlo vive en la escena de la pagina: dos ramas distintas del arbol,
+ * El botón que lo enciende vive en el dock, y el marco donde hay que
+ * encenderlo vive en la escena de la página: dos ramas distintas del árbol,
  * sin nadie en comun mas que la escena entera. Pasarlo de padres a hijos
  * obligaria a atravesar media docena de componentes que no tienen nada que ver
- * con esto, asi que el estado vive fuera, como la conversacion.
+ * con esto, así que el estado vive fuera, como la conversación.
  *
- * Lo senalado no se guarda aqui: viaja al panel y se queda en la conversacion
- * de la pagina, junto a lo que se esta escribiendo. Aqui solo esta el
+ * Lo senalado no se guarda aquí: viaja al panel y se queda en la conversación
+ * de la página, junto a lo que se esta escribiendo. Aquí solo esta el
  * interruptor, que es lo que de verdad comparten los dos lados.
  *
  * En React esto era un `useSyncExternalStore` con su lista de suscriptores
  * escrita a mano. Con runas el modulo guarda su propio `$state` y quien lo lea
- * al dibujarse se entera solo; lo unico que sigue habiendo a mano es el aviso
+ * al dibujarse se entera solo; lo único que sigue habiendo a mano es el aviso
  * de lo senalado, que no es estado sino un suceso.
  */
 import type { PickedBlock } from "@shared/types";

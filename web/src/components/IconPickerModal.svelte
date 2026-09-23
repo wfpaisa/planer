@@ -5,9 +5,9 @@
   import Input from "./ui/Input.svelte";
   import Modal from "./ui/Modal.svelte";
 
-  /** Cuantos iconos se dibujan por busqueda. Mas que esto no cabe ni se lee. */
+  /** Cuantos iconos se dibujan por búsqueda. Mas que esto no cabe ni se lee. */
   const LIMIT = 120;
-  /** El tamano de los iconos dentro del buscador. */
+  /** El tamaño de los iconos dentro del buscador. */
   const SIZE = 32;
 
   let {
@@ -25,8 +25,8 @@
   let query = $state("");
   let search = $state<HTMLInputElement | null>(null);
 
-  /* Cada apertura empieza con la busqueda en blanco y el foco en el campo: es
-     lo unico que se va a hacer nada mas abrir. */
+  /* Cada apertura empieza con la búsqueda en blanco y el foco en el campo: es
+     lo único que se va a hacer nada mas abrir. */
   $effect(() => {
     if (!open) return;
     query = "";
@@ -74,9 +74,9 @@
 
     <p class="icon-picker-note block">
       {#if shown.total === 0}
-        Ningun icono con ese nombre.
+        Ningún icono coincide con la búsqueda.
       {:else if shown.total > LIMIT}
-        {LIMIT} de {shown.total} iconos. Afina la busqueda para ver el resto.
+        {LIMIT} de {shown.total} iconos. Escribe una búsqueda más precisa.
       {:else}
         {shown.total}
         {shown.total === 1 ? "icono" : "iconos"}.
@@ -97,8 +97,8 @@
     overflow-y: auto;
     margin-top: var(--sp-12);
 
-    /* La celda es `.opt` del catalogo; aqui solo su medida, que es cuadrada
-       y sin texto: lo unico que lleva dentro es el glifo, centrado. */
+    /* La celda es `.opt` del catálogo; aqui solo su medida, que es cuadrada
+       y sin texto: lo único que lleva dentro es el glifo, centrado. */
     & .panel-icon-cell {
       width: 3rem;
       height: 3rem;

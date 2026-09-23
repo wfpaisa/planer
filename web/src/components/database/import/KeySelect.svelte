@@ -2,15 +2,15 @@
   Con que llave se empareja esta columna en esta importacion.
 
   De una tabla corriente se ofrecen sus columnas unicas; de la de usuarios, las
-  que puedan nombrar a alguien, esten marcadas o no --la cedula de una nomina
+  que puedan nombrar a alguien, esten marcadas o no --la cédula de una nómina
   importada nunca lo esta--. En las dos, un valor que senala a dos registros no
   enlaza a ninguno: eso lo decide `matchValues` mirando el dato, no la marca.
 
-  Elegir aqui no cambia lo que ensena la grilla, que lo decide la definicion de
+  Elegir aqui no cambia lo que enseña la grilla, que lo decide la definicion de
   la columna.
 
   Vive en el encabezado de su columna, junto a los otros botones, y por eso es
-  un boton con menu y no una lista desplegable del navegador.
+  un botón con menu y no una lista desplegable del navegador.
 -->
 <script lang="ts">
   import { keyCandidates, relationTarget } from "@shared/relations";
@@ -86,7 +86,7 @@
     color: var(--text-muted);
   }
 
-  /* El disparador es `.trigger-quiet` del catalogo --el mismo del encabezado
+  /* El disparador es `.trigger-quiet` del catálogo --el mismo del encabezado
      de una columna importada--; aqui solo su tope de ancho y su tinta, que es
      la de un dato de apoyo y no la del nombre de la columna. */
   .key-select-trigger {

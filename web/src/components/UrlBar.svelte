@@ -1,46 +1,46 @@
 <!--
-  La barra de direccion, como la de un navegador.
+  La barra de dirección, como la de un navegador.
 
-  No navega: cuenta. Encima de la pagina abierta --y solo de ella, que el dock
+  No navega: cuenta. Encima de la página abierta --y solo de ella, que el dock
   de la IA sigue teniendo su columna al lado-- se lee el enlace exacto con el
-  que quedara publicada, para no tener que imaginarselo ni abrir "Compartir"
+  que quedará publicada, para no tener que imaginarselo ni abrir "Compartir"
   para verlo. El candado o el globo dicen de un vistazo si hace falta permiso
   para entrar, y las dos acciones de siempre --copiar y abrir en otra pestana--
   estan a mano.
 
   Se ve como la de Safari, y por las mismas razones: un campo ancho y centrado
-  en la fila, sin borde, apenas un tono por encima del fondo; el texto tambien
-  centrado y en la tipografia del sistema, con el nombre de la aplicacion en
+  en la fila, sin borde, apenas un tono por encima del fondo; el texto también
+  centrado y en la tipografia del sistema, con el nombre de la aplicación en
   negro y el resto del enlace en gris, que es lo que deja leer de un vistazo
-  "de quien es esta pagina". Los dos iconitos no entran en esa cuenta: van
+  "de quien es esta página". Los dos iconitos no entran en esa cuenta: van
   pegados a los lados del campo, asi que el enlace queda centrado en la fila y
   no corrido por lo que le crece al lado.
 
-  El enlace no se escribe, se lee: el campo entero es el boton de copiar, que
+  El enlace no se escribe, se lee: el campo entero es el botón de copiar, que
   es lo que casi siempre se viene a hacer. El iconito de copiar vive dentro,
   apagado, y se enciende al pasar por encima --es la pista de que el campo se
   puede tocar--; al copiar, el campo entero se pone verde un momento.
 
-  Mientras la aplicacion no este publicada el enlace se ve apagado y lo dice
-  con todas sus letras: es lo que sera, todavia no lo que es.
+  Mientras la aplicación no este publicada el enlace se ve apagado y lo dice
+  con todas sus letras: es lo que sera, todavía no lo que es.
 
-  A la izquierda del campo vive el unico boton que trae y esconde el dock de
+  A la izquierda del campo vive el único botón que trae y esconde el dock de
   la IA. Lleva un halo animado para distinguirse del resto: es la puerta a lo
-  que construye la aplicacion, no un mando mas, y aqui queda junto al enlace
+  que construye la aplicación, no un mando mas, y aqui queda junto al enlace
   que la IA ayuda a armar.
 
   A la derecha del campo, antes de "Abrir", estan las dos cosas que se le
-  hacen al HTML de la pagina: verlo y volver atras. Estaban enterradas en los
-  ajustes de la pagina, a dos clics del sidebar, y son de las que se piden
+  hacen al HTML de la página: verlo y volver atras. Estaban enterradas en los
+  ajustes de la página, a dos clics del sidebar, y son de las que se piden
   mientras se construye: aqui quedan al lado de lo que tocan.
 
-  Delante de las dos esta con que ojos se mira la pagina. Lleva el rol escrito
-  --no solo un icono-- porque es lo unico de la barra que cambia lo que se ve
+  Delante de las dos esta con que ojos se mira la página. Lleva el rol escrito
+  --no solo un icono-- porque es lo único de la barra que cambia lo que se ve
   debajo, y con que ojos se esta mirando hay que poder leerlo sin abrir nada.
-  Con `admin` es un boton mas; con cualquier otro rol se queda marcado, y
+  Con `admin` es un botón mas; con cualquier otro rol se queda marcado, y
   entonces la barra de la vista previa se enciende debajo.
 
-  Traer un HTML de fuera ya no vive aqui ni en ningun boton: se suelta el
+  Traer un HTML de fuera ya no vive aqui ni en ningún botón: se suelta el
   archivo encima del editor y se elige que hacer con el.
 -->
 <script lang="ts">
@@ -52,7 +52,6 @@
   import type { AiDockState } from "../lib/aiDock.svelte";
   import { cx } from "../lib/cx";
   import Icon from "./Icon.svelte";
-  import PlanerAvatar from "./PlanerAvatar.svelte";
   import { Button, Dropdown, MenuItem, MenuSeparator } from "./ui";
 
   let {
@@ -70,35 +69,35 @@
   }: {
     app: AppRecord;
     page?: PageRecord;
-    /** Si la IA esta configurada. Si no, no se trae su boton. */
+    /** Si la IA esta configurada. Si no, no se trae su botón. */
     aiReady?: boolean;
-    /** Estado del dock de la IA; el boton lo abre y lo cierra. */
+    /** Estado del dock de la IA; el botón lo abre y lo cierra. */
     dock?: AiDockState;
-    /** El HTML que hay escrito en la pagina. */
+    /** El HTML que hay escrito en la página. */
     onOpenCode?: () => void;
-    /** Como estaba antes esta pagina. */
+    /** Como estaba antes esta página. */
     onOpenChanges?: () => void;
     /**
-     * Quien puede entrar en la aplicacion. Lo abre el candado: es lo que el
+     * Quien puede entrar en la aplicación. Lo abre el candado: es lo que el
      * candado cuenta, asi que es donde tiene que llevar al pulsarlo.
      *
      * Sin nadie que lo escuche el candado se queda en lo que era --un aviso
-     * con su globito-- y no finge ser un boton.
+     * con su globito-- y no finge ser un botón.
      */
     onOpenAccess?: () => void;
     /**
-     * Con quien se puede mirar la pagina, en el orden en que se ofrece.
+     * Con quien se puede mirar la página, en el orden en que se ofrece.
      *
      * Llegan ya rotuladas y ya ordenadas en vez de en crudo porque "sin
-     * sesion" no es un rol y no tiene nombre que ensenar: quien decide como se
+     * sesión" no es un rol y no tiene nombre que ensenar: quien decide como se
      * llama cada salida, y en que orden van, es quien manda la lista; aqui
      * solo se pintan. `linea` pide la raya de separacion justo encima, que es
-     * lo unico que la lista puede decir de su propia forma.
+     * lo único que la lista puede decir de su propia forma.
      */
     previewOptions?: { value: string; label: string; linea?: boolean }[];
     /** Cual de esas esta puesta ahora mismo. */
     previewValue?: string;
-    /** Si lo puesto no es el rol de quien construye: el boton se queda marcado. */
+    /** Si lo puesto no es el rol de quien construye: el botón se queda marcado. */
     previewing?: boolean;
     onPreviewRole?: (value: string) => void;
   } = $props();
@@ -111,7 +110,7 @@
   const url = $derived(page && !page.isHome ? `${base}/${page.slug}` : base);
   const open = $derived(app.visibility === "public");
 
-  /** El boton de la IA solo esta cuando hay IA y la ventana da para su columna. */
+  /** El botón de la IA solo esta cuando hay IA y la ventana da para su columna. */
   const showAi = $derived(!!aiReady && !!dock && !dock.tooNarrow);
 
   /** El desplegable de la vista previa solo esta si alguien escucha lo elegido. */
@@ -147,8 +146,8 @@
 <!--
   Una de las del HTML: cuadrada, apagada, y su nombre en el globito.
 
-  Si nadie la escucha no se dibuja, que es lo que deja usar la barra tambien
-  donde no hay pagina que ajustar.
+  Si nadie la escucha no se dibuja, que es lo que deja usar la barra también
+  donde no hay página que ajustar.
 -->
 {#snippet action(
   tip: string,
@@ -175,7 +174,7 @@
 {#snippet codeIcon()}<Icon name="source-code" size={18} />{/snippet}
 
 <!-- Los dos lados piden el mismo ancho (`flex-1 basis-0`), asi que el campo
-     cae en el centro de la fila y no se corre segun lo que mida el boton de al
+     cae en el centro de la fila y no se corre segun lo que mida el botón de al
      lado, que es como se lee en Safari. -->
 <div id="builder-urlbar" class="bar-address flex shrink-0 items-center gap-2">
   <span
@@ -183,10 +182,10 @@
     class={cx("side-urlbar-left", showAi ? "side-urlbar-left-with-ai" : "side-urlbar-left-empty")}
   >
     {#if showAi && dock && !dock.open}
-      <!-- El boton que abre el dock cuando esta cerrado. Que la IA este
+      <!-- El botón que abre el dock cuando esta cerrado. Que la IA este
            trabajando se dice en el globo de ayuda y nada mas: el halo de
            color que lo rodeaba se retiro. El envoltorio existe para que el
-           boton no se encoja; cuando la ventana no da para la columna, se
+           botón no se encoja; cuando la ventana no da para la columna, se
            retira con ella. -->
       <span class="dock-ai-wrap">
         <Button
@@ -202,14 +201,12 @@
           class="btn-rounded btn-primary"
         >
           <Icon name="bubble-chat" size={20} /> Abrir chat
-
-          <!-- <PlanerAvatar mood="normal" size={24} color="white" /> -->
         </Button>
       </span>
     {/if}
   </span>
 
-  <!-- `group`: el iconito de copiar se entera de que el raton esta sobre el
+  <!-- `group`: el iconito de copiar se entera de que el ratón esta sobre el
        campo entero, no solo sobre el. El relleno de los lados es el hueco de
        los dos iconitos, que van encima; sin el, el enlace largo pasaria por
        debajo. -->
@@ -270,7 +267,7 @@
     <dir class="public-right-links">
       <!-- El globito lee lo copiado igual que el icono, pero solo lo cuenta a
            quien vuelve a pasar por encima: la capa de globos se queda con el
-           texto que habia al asomar (ver `TooltipLayer`). No hace falta mas,
+           texto que había al asomar (ver `TooltipLayer`). No hace falta mas,
            que el campo entero poniendose verde ya lo dice en el momento. -->
       <span
         onclick={copy}
@@ -298,13 +295,13 @@
   </div>
 
   <!-- Las del HTML van sueltas, solo el icono y su globito: ponerles nombre
-       volveria la fila un menu. Abrir si lleva el suyo: es la unica que saca de
+       volveria la fila un menu. Abrir si lleva el suyo: es la única que saca de
        aqui, y una flecha sola no dice a donde. Copiar ya vive en el campo. -->
   <span class="group-html-actions">
     <!--
-      Con que ojos se esta mirando la pagina. Va aqui y no dentro del
+      Con que ojos se esta mirando la página. Va aqui y no dentro del
       documento porque no es del documento: es de quien lo mira, y se cambia
-      tantas veces como haga falta mientras se construye. El boton dice
+      tantas veces como haga falta mientras se construye. El botón dice
       siempre con quien se esta mirando, asi que no hace falta abrirlo para
       saberlo.
     -->
@@ -487,7 +484,7 @@
   }
 
   /* El hueco del que no esta marcado mide lo mismo que el visto bueno: sin el,
-     los rotulos del menu bailarian de linea en linea. */
+     los rotulos del menu bailarian de línea en línea. */
   .hole-preview-role {
     display: inline-block;
     width: 13px;

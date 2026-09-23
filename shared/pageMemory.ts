@@ -1,13 +1,13 @@
 /**
- * La memoria de una pagina: sus reglas funcionales, una por vineta.
+ * La memoria de una página: sus reglas funcionales, una por vineta.
  *
- * Es texto, no una estructura: se lee entero en cada peticion a la IA, se edita
- * a mano en una caja y se borra con la pagina. Aqui vive lo unico que hay que
+ * Es texto, no una estructura: se lee entero en cada petición a la IA, se edita
+ * a mano en una caja y se borra con la página. Aquí vive lo único que hay que
  * decidir sobre el, y vive compartido porque lo usan los dos sitios que
  * escriben: la ruta por la que guarda quien construye y la pasada que escribe
  * al cerrar un turno.
  *
- * Nada de esto recorta por tamano. Lo que mantiene la memoria corta es como
+ * Nada de esto recorta por tamaño. Lo que mantiene la memoria corta es como
  * escribe la pasada --una regla por vineta, reemplazar antes que agregar algo
  * parecido, no escribir ante la duda--, no un corte que haria desaparecer una
  * regla que nadie estaba mirando. Ver `design.md` D6.
@@ -16,9 +16,9 @@
 /**
  * El texto tal como se guarda.
  *
- * Plano: los saltos de linea se conservan --son lo que separa una vineta de la
- * siguiente-- y de lo demas solo se quitan los caracteres de control, que no
- * dicen nada y ensucian lo que se le manda al modelo. Los finales de linea de
+ * Plano: los saltos de línea se conservan --son lo que separa una vineta de la
+ * siguiente-- y de lo demás solo se quitan los caracteres de control, que no
+ * dicen nada y ensucian lo que se le manda al modelo. Los finales de línea de
  * Windows se unifican para que la misma regla escrita en dos equipos sea el
  * mismo texto, que es de lo que depende nombrar una vineta (D4).
  */
@@ -32,10 +32,10 @@ export function normalizeMemory(value: unknown): string {
 }
 
 /**
- * Sin los caracteres de control, menos el salto de linea y el tabulador.
+ * Sin los caracteres de control, menos el salto de línea y el tabulador.
  *
  * Se recorre en vez de escribirse como expresion regular porque una expresion
- * con caracteres de control dentro es lo que prohibe la regla de lint, y aqui
+ * con caracteres de control dentro es lo que prohibe la regla de lint, y aquí
  * la prohibicion tiene razon: escritos no se ven.
  */
 function withoutControls(text: string): string {
@@ -50,7 +50,7 @@ function withoutControls(text: string): string {
 /** El marcador con el que se escribe cada regla. */
 const BULLET = "- ";
 
-/** Si una linea es una vineta, lo que dice sin el marcador. */
+/** Si una línea es una vineta, lo que dice sin el marcador. */
 function bulletText(line: string): string | null {
   const match = /^\s*[-*]\s+(.*)$/.exec(line);
   return match ? match[1].trim() : null;
@@ -90,7 +90,7 @@ const sameBullet = (a: string, b: string): boolean =>
  * aparece, la operacion se descarta y la memoria queda como estaba: perder una
  * escritura es recuperable, pisar una regla ajena no. Ver `design.md` D4.
  *
- * Devuelve el texto nuevo, o `null` si no habia nada que cambiar --tanto
+ * Devuelve el texto nuevo, o `null` si no había nada que cambiar --tanto
  * porque la pasada dijo que no como porque nombro algo que ya no esta--.
  */
 export function applyMemoryOp(memory: string, operation: MemoryOp): string | null {
@@ -132,11 +132,11 @@ export function applyMemoryOp(memory: string, operation: MemoryOp): string | nul
  * Aplica varias operaciones, en el orden en que vienen.
  *
  * Cada una trabaja sobre el resultado de la anterior: reemplazar una vineta y
- * despues nombrarla por su texto nuevo funciona, y nombrarla por el viejo ya
+ * después nombrarla por su texto nuevo funciona, y nombrarla por el viejo ya
  * no. Es el orden lo que las hace legibles, y por eso no se reordenan.
  *
  * Una operacion que no cambia nada --nombra una vineta que ya no esta, o
- * repite una regla escrita-- se salta sin detener a las demas: que la pasada
+ * repite una regla escrita-- se salta sin detener a las demás: que la pasada
  * falle en una de diez no es motivo para perder las otras nueve.
  *
  * Devuelve el texto nuevo, o `null` si ninguna cambio nada.

@@ -1,5 +1,5 @@
 <!--
-  Elegir la paleta de una aplicacion.
+  Elegir la paleta de una aplicación.
 
   Son las 46 de `palettes.css` en sus tres grupos (Vivos / Pasteles /
   Monocromos), la de partida de `theme.css` ("Por defecto", suelta y siempre
@@ -7,14 +7,14 @@
   chips -- el mismo mecanismo de `paletteTabs` en el panel de referencia
   (`/home/projects/ia/dashboard`) -- para no tener que bajar por 46 muestras
   a la vez. "Personalizado" va primero y es el que se abre sin nada elegido
-  todavia: es el punto de partida mas rapido, y de ahi sale el color a mano
+  todavía: es el punto de partida mas rápido, y de ahi sale el color a mano
   con el que arranca "Por defecto" (`DEFAULT_BRAND_COLOR`), para que las dos
-  muestras coincidan. Cada muestra del catalogo es una rampa con los cuatro
+  muestras coincidan. Cada muestra del catálogo es una rampa con los cuatro
   colores crudos de la paleta -- el principal manda y los tres acompanan.
 
-  Detalle fino: el `data-palette` va en la RAMPA, no en el boton. La marca de
+  Detalle fino: el `data-palette` va en la RAMPA, no en el botón. La marca de
   "elegida" se pinta con el acento de la paleta puesta; si el atributo fuera
-  del boton, cada muestra pintaria su marca con su propio acento y la
+  del botón, cada muestra pintaria su marca con su propio acento y la
   elegida no se distinguiria de las demas.
 -->
 <script lang="ts">
@@ -28,7 +28,7 @@
 
   let { value, onChange }: { value: AppTheme; onChange: (next: AppTheme) => void } = $props();
 
-  /* La de partida, pintada con sus colores fijos: ningun data-palette la
+  /* La de partida, pintada con sus colores fijos: ningún data-palette la
      activa, asi que la rampa no puede salir de una variable. */
   const DEFAULT_COLORS = [
     "oklch(60% 0.3 256)",
@@ -50,21 +50,21 @@
   ];
 
   // Sin paleta puesta ("Por defecto") se entra al color a mano: es el punto
-  // de partida mas rapido, y ahi mismo se ve resaltada la de partida.
+  // de partida mas rápido, y ahi mismo se ve resaltada la de partida.
   const tabOf = (palette: string | null): Tab => {
     if (palette === CUSTOM_PALETTE || palette === null) return "custom";
     return PALETTES.find((p) => p.id === palette)?.group ?? "custom";
   };
 
-  // Se entra al grupo de la paleta puesta -- tambien si `value` llega
-  // despues del montaje, como al cargar los ajustes de una aplicacion --;
+  // Se entra al grupo de la paleta puesta -- también si `value` llega
+  // después del montaje, como al cargar los ajustes de una aplicación --;
   // desde ahi cada quien navega los chips a su gusto (el derived se deja
   // sobreescribir) sin que la paleta que ya tenia le vuelva a mover el
   // grupo por debajo, y solo se recalcula si `value.palette` cambia de
   // verdad.
   let activeTab = $derived<Tab>(tabOf(value.palette));
 
-  // Elegir una paleta no se lleva el tamano de letra: son dos mandos.
+  // Elegir una paleta no se lleva el tamaño de letra: son dos mandos.
   const pick = (palette: string | null) => onChange({ ...value, palette });
 </script>
 
@@ -164,7 +164,7 @@
       }
     }
 
-    /* La muestra es `.opt-tile` del catalogo --el cerco grueso, el pelo de
+    /* La muestra es `.opt-tile` del catálogo --el cerco grueso, el pelo de
        levante y el halo de la elegida--; aqui solo su reparto: la rampa
        encima del nombre. */
     & .swatch-palette {

@@ -2,13 +2,13 @@
  * Que puede romper un cambio de la base de datos, y que no.
  *
  * Las columnas se guardan por su id interno y el API de tablas los devuelve
- * tal cual, asi que PocketBase renombra en sitio: un cambio de nombre no
- * pierde datos ni obliga a tocar ninguna pagina. Borrar y cambiar el tipo si.
+ * tal cual, así que PocketBase renombra en sitio: un cambio de nombre no
+ * pierde datos ni obliga a tocar ninguna página. Borrar y cambiar el tipo si.
  * De ahi salen los dos grupos.
  *
- * "Que paginas usan la tabla X" se responde recorriendo el `sources` de las
- * paginas. No hay indice aparte: el manifiesto es lo que el puente consulta en
- * cada llamada, asi que no puede quedarse desincronizado.
+ * "Que páginas usan la tabla X" se responde recorriendo el `sources` de las
+ * páginas. No hay índice aparte: el manifiesto es lo que el puente consulta en
+ * cada llamada, así que no puede quedarse desincronizado.
  */
 import { isPeopleNameField, isPeopleTable } from "../shared/people.ts";
 import type {
@@ -37,8 +37,8 @@ import { dropDataCollection, updateDataCollection } from "./schema.ts";
 export type Operation = ChangeKind | "crear_tabla" | "agregar_columna" | "renombrar_columna";
 
 /**
- * Sin riesgo: nadie declara todavia lo que se crea, y renombrar no cambia el
- * id, asi que el manifiesto de las paginas absorbe el cambio.
+ * Sin riesgo: nadie declara todavía lo que se crea, y renombrar no cambia el
+ * id, así que el manifiesto de las páginas absorbe el cambio.
  * Con riesgo: lo que se declara deja de existir o deja de valer.
  */
 const RISKY: Record<Operation, boolean> = {
@@ -53,15 +53,15 @@ const RISKY: Record<Operation, boolean> = {
 export const isRisky = (op: Operation): boolean => RISKY[op] === true;
 
 /**
- * Si un cambio de acceso tiene riesgo, que aqui se decide solo por su
- * direccion.
+ * Si un cambio de acceso tiene riesgo, que aquí se decide solo por su
+ * dirección.
  *
  * Dar acceso nuevo lo tiene siempre: lo que alguien alcanzo a ver ya lo vio, y
- * ningun punto de vuelta atras deshace eso. Quitarlo no: como mucho corrige
+ * ningún punto de vuelta atras deshace eso. Quitarlo no: como mucho corrige
  * algo que sobraba, y lo quitado se vuelve a dar.
  *
- * No mira ni el nivel ni los roles a proposito. Pasar de "mira" a "administra"
- * y anadir un rol son la misma cosa vistas desde aqui --alguien alcanza algo
+ * No mira ni el nivel ni los roles a propósito. Pasar de "mira" a "administra"
+ * y anadir un rol son la misma cosa vistas desde aquí --alguien alcanza algo
  * que antes no-- y clasificarlas distinto solo abriria un hueco por el que
  * colar lo segundo.
  */
@@ -72,8 +72,8 @@ export const accessRisky = (direction: AccessDirection): boolean => direction ==
 /* ------------------------------------------------------------------ */
 
 /**
- * Las paginas que declaran una tabla o, si se nombra, una columna suya.
- * La columna se busca por id interno porque asi la guarda el manifiesto.
+ * Las páginas que declaran una tabla o, si se nombra, una columna suya.
+ * La columna se busca por id interno porque así la guarda el manifiesto.
  */
 export function pagesUsing(pages: PageRecord[], tableId: string, fieldId?: string): ImpactedPage[] {
   const out: ImpactedPage[] = [];
@@ -89,7 +89,7 @@ export function pagesUsing(pages: PageRecord[], tableId: string, fieldId?: strin
   return out;
 }
 
-/** Todas las paginas afectadas por un grupo de cambios, sin repetir. */
+/** Todas las páginas afectadas por un grupo de cambios, sin repetir. */
 export function pagesForChanges(pages: PageRecord[], changes: StructureChange[]): ImpactedPage[] {
   const seen = new Map<string, ImpactedPage>();
   for (const change of changes) {
@@ -101,7 +101,7 @@ export function pagesForChanges(pages: PageRecord[], changes: StructureChange[])
 }
 
 /* ------------------------------------------------------------------ */
-/* Las salidas del dialogo                                              */
+/* Las salidas del diálogo                                              */
 /* ------------------------------------------------------------------ */
 
 /** Un cambio tiene variante inocua cuando se puede conseguir sin destruir. */
@@ -123,8 +123,8 @@ export function harmlessOf(change: StructureChange): string {
 }
 
 /**
- * Las opciones del dialogo. La primera es siempre la que no rompe nada, y la
- * de no tocar la tabla esta siempre: sin ella, la unica salida de una pregunta
+ * Las opciones del diálogo. La primera es siempre la que no rompe nada, y la
+ * de no tocar la tabla esta siempre: sin ella, la única salida de una pregunta
  * seria aceptarla.
  */
 export function impactOptions(changes: StructureChange[], pages: ImpactedPage[]): ImpactOption[] {
@@ -144,7 +144,7 @@ export function impactOptions(changes: StructureChange[], pages: ImpactedPage[])
     label: "No tocar la tabla",
     hint: "La base de datos se queda igual y la IA sigue con lo que si puede hacer.",
   };
-  // Sin variante inocua, la unica opcion que no rompe nada es esta, asi que
+  // Sin variante inocua, la única opción que no rompe nada es esta, así que
   // pasa a ir primera.
   if (!harmless.length) options.push(noTouch);
 
@@ -178,7 +178,7 @@ export function impactOptions(changes: StructureChange[], pages: ImpactedPage[])
  * Reescribe las columnas de una tabla.
  *
  * No hay que soltar las reglas antes: la regla de una tabla no nombra ninguna
- * columna --solo dice quien es el dueno de la aplicacion-- desde que se retiro
+ * columna --solo dice quien es el dueno de la aplicación-- desde que se retiro
  * la columna que decidia quien ve cada fila. Ver `accessRules`.
  */
 async function writeFields(table: TableRecord, fields: FieldDef[]): Promise<TableRecord> {
@@ -201,7 +201,7 @@ async function hideField(table: TableRecord, name: string): Promise<void> {
 
 /**
  * Hace un cambio, con o sin su variante inocua. Devuelve como contarlo.
- * Las filas nunca se tocan aqui: lo unico que cambia es la estructura.
+ * Las filas nunca se tocan aquí: lo único que cambia es la estructura.
  */
 export async function applyChange(opts: {
   table: TableRecord;
@@ -219,10 +219,10 @@ export async function applyChange(opts: {
     case "borrar_columna": {
       const field = fieldOf(table, change.field);
       if (!field) return `La columna "${change.field}" ya no existe en "${table.label}".`;
-      // Una columna de relacion ocupa dos columnas reales --la relacion y su
+      // Una columna de relación ocupa dos columnas reales --la relación y su
       // valor sin dueno-- y las dos se van con ella: `updateDataCollection` solo
-      // emite el corralito de las relaciones que siguen en la lista, asi que lo
-      // que se quita aqui desaparece entero. Ocultarla no borra ninguna.
+      // emite el corralito de las relaciones que siguen en la lista, así que lo
+      // que se quita aquí desaparece entero. Ocultarla no borra ninguna.
       if (opts.harmless) {
         await hideField(table, field.name);
         return `Se ocultó "${field.label}" en "${table.label}"; sus datos siguen ahí.`;
@@ -238,9 +238,9 @@ export async function applyChange(opts: {
       const field = fieldOf(table, change.field);
       if (!field) return `La columna "${change.field}" ya no existe en "${table.label}".`;
       const type = (change.newType ?? field.type) as FieldType;
-      // Dejar de ser una relacion se lleva tambien su valor sin dueno, por lo
-      // mismo que al borrarla: deja de emitirse. Al reves --pasar a relacion--
-      // el corralito nace vacio, que es su estado normal.
+      // Dejar de ser una relación se lleva también su valor sin dueno, por lo
+      // mismo que al borrarla: deja de emitirse. Al reves --pasar a relación--
+      // el corralito nace vacío, que es su estado normal.
 
       if (opts.harmless) {
         // La nueva nace sin id: PocketBase le asigna uno y la vieja se queda
@@ -280,12 +280,12 @@ export function readChoice(value: unknown): ImpactChoice {
   if (typeof value === "string" && CHOICES.includes(value as ImpactChoice)) {
     return value as ImpactChoice;
   }
-  throw new HttpError(400, "Esa salida del dialogo no existe");
+  throw new HttpError(400, "La opción elegida no existe");
 }
 
 /**
  * Vuelve a armar los cambios contra las tablas de ahora mismo. Lo que manda el
- * panel es lo que se le mostro, no una orden: aqui se comprueba que siga
+ * panel es lo que se le mostro, no una orden: aquí se comprueba que siga
  * existiendo antes de tocar nada.
  */
 export function readChanges(value: unknown, tables: TableRecord[]): StructureChange[] {
@@ -297,10 +297,10 @@ export function readChanges(value: unknown, tables: TableRecord[]): StructureCha
     if (!KINDS.includes(raw.kind as ChangeKind)) continue;
     const table = tables.find((t) => t.id === raw.tableId);
     if (!table) continue;
-    // La tabla de personas no se borra por aqui tampoco. La ruta de borrar
+    // La tabla de personas no se borra por aquí tampoco. La ruta de borrar
     // tablas lo comprueba (`guardSystemTable`), y este camino --lo que la IA
-    // propone y el dialogo confirma-- llegaba hasta `dropDataCollection` sin
-    // pasar por ella: se llevaria por delante quien entra a la aplicacion.
+    // propone y el diálogo confirma-- llegaba hasta `dropDataCollection` sin
+    // pasar por ella: se llevaria por delante quien entra a la aplicación.
     if (raw.kind === "borrar_tabla" && isPeopleTable(table)) continue;
 
     const change: StructureChange = {
@@ -315,7 +315,7 @@ export function readChanges(value: unknown, tables: TableRecord[]): StructureCha
       if (!field) continue;
       // Las dos columnas que sostienen el acceso no se borran ni cambian de
       // tipo: es la misma defensa que `guardSystemFields` hace en la ruta de
-      // tablas, puesta tambien en este camino.
+      // tablas, puesta también en este camino.
       if (field.system !== undefined) continue;
       // La del nombre si cambia de tipo --es del constructor-- pero tampoco se
       // borra: es de donde sale el nombre de cada persona.
@@ -325,7 +325,7 @@ export function readChanges(value: unknown, tables: TableRecord[]): StructureCha
       change.fieldId = field.id;
       if (change.kind === "cambiar_tipo") {
         // Un tipo que no existe llegaba hasta la base y volvia como "Tipo de
-        // columna desconocido": aqui el cambio simplemente no se aplica.
+        // columna desconocido": aquí el cambio simplemente no se aplica.
         if (!isFieldType(raw.newType)) continue;
         change.newType = raw.newType;
       }
@@ -336,7 +336,7 @@ export function readChanges(value: unknown, tables: TableRecord[]): StructureCha
   return out;
 }
 
-/** El cambio contado en una linea, para el dialogo y para el historial. */
+/** El cambio contado en una línea, para el diálogo y para el historial. */
 export function describeChange(change: StructureChange): string {
   switch (change.kind) {
     case "borrar_columna":

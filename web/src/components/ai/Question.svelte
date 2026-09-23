@@ -1,16 +1,16 @@
 <!--
   Lo que la IA pregunto cuando no podia seguir sin saberlo.
 
-  No es un dialogo encima de nada: se lee dentro de la conversacion, en el
+  No es un diálogo encima de nada: se lee dentro de la conversación, en el
   turno donde se pregunto, porque es parte de lo que la IA respondio.
 
-  Elegir una opcion no contesta hacia atras --la peticion ya termino--: manda
-  una peticion nueva que lleva dentro la pregunta y lo elegido. Por eso los
+  Elegir una opción no contesta hacia atras --la petición ya termino--: manda
+  una petición nueva que lleva dentro la pregunta y lo elegido. Por eso los
   botones solo estan vivos en el ultimo turno: contestar a una pregunta vieja
   reabriria algo que ya se resolvio.
 
   Debajo de las opciones va siempre "Otro": lo que la IA ofrece son las salidas
-  que se le ocurrieron, no todas las que hay, y sin una salida abierta la unica
+  que se le ocurrieron, no todas las que hay, y sin una salida abierta la única
   forma de decir la tercera cosa era ignorar la pregunta y escribir abajo,
   perdiendo el hilo de a que se estaba contestando. Se escribe aqui, en la
   pregunta, y se manda como una respuesta mas.
@@ -35,7 +35,7 @@
     onOther: (text: string) => void;
   } = $props();
 
-  /** El campo abierto: mientras lo este, ocupa el sitio del boton "Otro". */
+  /** El campo abierto: mientras lo este, ocupa el sitio del botón "Otro". */
   let writing = $state(false);
   let text = $state("");
   let field = $state<HTMLTextAreaElement | null>(null);
@@ -86,7 +86,7 @@
     {/each}
 
     <!--
-      La salida abierta. Cerrada es una opcion mas --se lee en la misma columna
+      La salida abierta. Cerrada es una opción mas --se lee en la misma columna
       que las otras, al final, porque es la que se elige cuando ninguna vale--;
       abierta se convierte en el campo, en su sitio, sin mover lo de arriba.
 
@@ -153,7 +153,7 @@
 </div>
 
 <style>
-  /* La caja es `.card.card-solid` del catalogo --en oscuro la del catalogo es
+  /* La caja es `.card.card-solid` del catálogo --en oscuro la del catálogo es
      translucida y esta se posa sobre el fondo del chat--; aqui solo el hueco
      que la separa del turno de arriba y su acolchado, que es mas corto que el
      de una card de pantalla. */
@@ -175,9 +175,9 @@
   }
 
   /*
-   * Cada salida es `.opt` del catalogo, con su par `.opt-label` / `.opt-hint`,
-   * y ocupa su linea entera: se eligen leyendolas, no comparando anchos, y el
-   * detalle de abajo necesita el ancho para caber en una linea.
+   * Cada salida es `.opt` del catálogo, con su par `.opt-label` / `.opt-hint`,
+   * y ocupa su línea entera: se eligen leyendolas, no comparando anchos, y el
+   * detalle de abajo necesita el ancho para caber en una línea.
    */
   .btn-question-option,
   .btn-question-other {
@@ -192,8 +192,8 @@
     }
   }
 
-  /* El campo ocupa el hueco de la opcion que lo abrio: mismo ancho, pegado a
-     la ultima opcion, con sus dos botones debajo a la derecha. */
+  /* El campo ocupa el hueco de la opción que lo abrio: mismo ancho, pegado a
+     la ultima opción, con sus dos botones debajo a la derecha. */
   .question-ai-other {
     display: flex;
     flex-direction: column;

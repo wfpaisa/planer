@@ -1,7 +1,7 @@
 <!--
   El globo de ayuda del panel.
 
-  Antes lo dibujaba daisyUI con pseudo-elementos dentro del propio boton, asi
+  Antes lo dibujaba daisyUI con pseudo-elementos dentro del propio botón, asi
   que cualquier antepasado con desplazamiento o con `overflow-hidden` lo
   cortaba: el sidebar, la grilla de la base de datos, la lista de versiones.
   Ahora hay una sola capa, montada al final del documento, que escucha a
@@ -24,7 +24,7 @@
   const GAP = 8;
   /** Margen minimo contra el borde de la ventana. */
   const EDGE = 8;
-  /** Lo que se espera con el raton encima antes de asomarlo. */
+  /** Lo que se espera con el ratón encima antes de asomarlo. */
   const DELAY = 140;
 
   const OPPOSITE: Record<Side, Side> = {
@@ -58,7 +58,7 @@
    *
    * Los avisos que lo piden --`focusout`, `pointerout`-- los manda el navegador
    * en el mismo instante en que el elemento sale del documento, y eso ocurre
-   * mientras Svelte esta desmontando lo que habia: ahi el estado no se puede
+   * mientras Svelte esta desmontando lo que había: ahi el estado no se puede
    * tocar. Un microtask lo deja para cuando el dibujado ya termino, que es
    * antes del siguiente cuadro y nadie lo nota. El turno es lo que evita que
    * una orden vieja apague un globo que acaba de asomar.
@@ -119,7 +119,7 @@
     const onFocus = (e: FocusEvent) => {
       const el = pick(e);
       // Solo con el teclado: al hacer clic el globo ya sobra, y quedarse pegado
-      // al boton pulsado tapa lo que acaba de pasar.
+      // al botón pulsado tapa lo que acaba de pasar.
       if (!el?.matches(":focus-visible")) return hide();
       show(el, true);
     };

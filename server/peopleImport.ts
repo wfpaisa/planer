@@ -3,13 +3,13 @@
  *
  * Tiene ruta propia y no pasa por la escritura en lote del navegador, y no es
  * un capricho: una fila de personas no se puede crear escribiendo en la
- * coleccion de la aplicacion. Necesita una cuenta detras --que el navegador no
+ * colección de la aplicación. Necesita una cuenta detras --que el navegador no
  * puede consultar-- y un enlace con esta. Solo el servidor ve las tres cosas a
  * la vez.
  *
- * De aqui sale tambien lo que hay que decir antes de guardar: cuantas personas
+ * De aquí sale también lo que hay que decir antes de guardar: cuantas personas
  * ya estan y cuantas cuentas se crearian. Dar de alta a doscientos empleados
- * desde el Excel de nomina es medio producto para una empresa, y tambien es lo
+ * desde el Excel de nómina es medio producto para una empresa, y también es lo
  * que convierte un dedazo en doscientas personas fantasma. Por eso se cuenta
  * primero y por eso crear cuentas hay que pedirlo a mano en cada importacion.
  */
@@ -24,13 +24,13 @@ export interface PeopleImportRow {
   /** El correo. Es lo que identifica a la persona. */
   cuenta: string;
   roles?: string[];
-  /** Clave para el alta masiva. No se guarda en ningun sitio de donde se relea. */
+  /** Clave para el alta masiva. No se guarda en ningún sitio de donde se relea. */
   password?: string;
-  /** Las columnas propias de la aplicacion, por nombre tecnico. */
+  /** Las columnas propias de la aplicación, por nombre tecnico. */
   propias?: Record<string, unknown>;
 }
 
-/** Lo que se dice antes de guardar y lo que se informa despues. */
+/** Lo que se dice antes de guardar y lo que se informa después. */
 export interface PeopleImportReport {
   /** Filas cuya persona ya tiene cuenta. */
   existen: number;
@@ -43,7 +43,7 @@ export interface PeopleImportReport {
   /** Los correos dejados fuera, para poder decir cuales. */
   fueraCorreos: string[];
   /**
-   * Los correos que ya tienen cuenta aqui, para poder senalar sus filas.
+   * Los correos que ya tienen cuenta aquí, para poder senalar sus filas.
    *
    * Van todos y no unos cuantos como `fueraCorreos`: con esto la
    * previsualizacion tine las filas que se van a actualizar, y una lista
@@ -54,18 +54,18 @@ export interface PeopleImportReport {
    */
   existenCorreos: string[];
   /**
-   * Los roles que nombra el archivo y la aplicacion todavia no tenia.
+   * Los roles que nombra el archivo y la aplicación todavía no tenia.
    *
    * Se crean al importar. Antes se caian en silencio --el rol que ya existia
    * entraba y el que no, no-- y la columna de roles quedaba a medias sin que
-   * nada lo dijera. Se cuentan aqui para poder decirlo antes de guardar.
+   * nada lo dijera. Se cuentan aquí para poder decirlo antes de guardar.
    */
   rolesNuevos: string[];
   /**
    * Las claves de las cuentas que se acaban de crear, una sola vez.
    *
    * Viajan en la respuesta y no se guardan: es el mismo trato que al invitar a
-   * una persona suelta. Quien importa las copia ahora o le pone otra despues.
+   * una persona suelta. Quien importa las copia ahora o le pone otra después.
    */
   claves: { cuenta: string; clave: string }[];
 }
@@ -98,19 +98,19 @@ export async function importPeople(opts: {
   if (!table) return report;
 
   /*
-   * Los roles que nombra el archivo y la aplicacion no tiene se crean antes de
-   * escribir nada: `writeRow` guarda solo los declarados, asi que si se
-   * crearan despues la primera importacion perderia justo los que la traian.
+   * Los roles que nombra el archivo y la aplicación no tiene se crean antes de
+   * escribir nada: `writeRow` guarda solo los declarados, así que si se
+   * crearan después la primera importacion perderia justo los que la traian.
    *
    * Solo cuentan las filas con un correo utilizable: son las unicas que pueden
-   * llegar a escribirse. Y solo caben hasta el tope de la aplicacion; lo que
+   * llegar a escribirse. Y solo caben hasta el tope de la aplicación; lo que
    * pase de ahi se queda fuera, igual que al nombrarlos a mano.
    */
   const named = new Set<string>();
   for (const row of opts.rows) {
     if (!String(row.cuenta ?? "").includes("@")) continue;
     for (const raw of row.roles ?? []) {
-      // Normalizado ya aqui: es el nombre con el que se va a guardar, y
+      // Normalizado ya aquí: es el nombre con el que se va a guardar, y
       // compararlo sin normalizar crearia un rol nuevo por cada forma de
       // escribir el mismo. Ver `normalizeRole`.
       const name = normalizeRole(raw);
@@ -133,7 +133,7 @@ export async function importPeople(opts: {
       continue;
     }
 
-    // Dentro de esta aplicacion. Que el correo tenga cuenta en otra no cuenta
+    // Dentro de esta aplicación. Que el correo tenga cuenta en otra no cuenta
     // como que ya esta: alli es otra cuenta, con otra clave.
     const account = await firstRecord<{ id: string }>(
       INTERNAL.members,
@@ -162,7 +162,7 @@ export async function importPeople(opts: {
         verified: true,
       });
       // Solo se devuelve la que invento el sistema: si el archivo traia clave,
-      // quien importa ya la tiene y repetirla aqui la esparce sin motivo.
+      // quien importa ya la tiene y repetirla aquí la esparce sin motivo.
       if (!String(row.password ?? "").trim()) {
         report.claves.push({ cuenta: email, clave: password });
       }
@@ -182,8 +182,8 @@ export async function importPeople(opts: {
 /**
  * Deja escrito lo de una persona, cada cosa donde vive.
  *
- * Los roles en el enlace con la aplicacion; las columnas propias en la
- * coleccion de la aplicacion. Reconocer a quien ya esta y actualizarlo, en
+ * Los roles en el enlace con la aplicación; las columnas propias en la
+ * colección de la aplicación. Reconocer a quien ya esta y actualizarlo, en
  * vez de duplicarlo, es solo consecuencia de buscar por correo antes de nada.
  */
 async function writeRow(opts: {

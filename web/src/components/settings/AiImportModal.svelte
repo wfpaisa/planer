@@ -81,7 +81,7 @@
   open
   {onClose}
   title="Importar servidores de inteligencia artificial"
-  description="Pega o arrastra el JSON de una configuración exportada. Las claves no viajan en el archivo: hay que escribirlas después."
+  description="Pega o arrastra una configuración JSON. El archivo no incluye las claves."
 >
   <label
     class="dropzone-ai-config drop-filter dropzone"
@@ -179,7 +179,7 @@
   </div>
 
   {#snippet footer()}
-    <p class="foot-import-ai">Se aplica al formulario; nada cambia hasta que guardes.</p>
+    <p class="foot-import-ai">La configuración no cambiará hasta que guardes.</p>
     <Button buttonClass="btn-cancel-import-ai" onclick={onClose}>Cancelar</Button>
     <Button
       variant="secondary"
@@ -195,7 +195,7 @@
 </Modal>
 
 <style>
-  /* El hueco es `.dropzone` del catalogo; aqui solo lo que este pide de mas:
+  /* El hueco es `.dropzone` del catálogo; aqui solo lo que este pide de mas:
      el respiro, mas corto porque debajo va el textarea con lo mismo escrito a
      mano, y la letra de la instruccion. */
   .drop-filter {
@@ -219,7 +219,7 @@
     line-height: var(--text-xs--line-height);
   }
 
-  /* La caja es `.inset` del catalogo: lo que se lista dentro del modal se
+  /* La caja es `.inset` del catálogo: lo que se lista dentro del modal se
      hunde, no se levanta. Aqui solo su hueco y su tope de alto. */
   .list-import-ai {
     margin-top: var(--sp-12);
@@ -227,7 +227,7 @@
     overflow-y: auto;
     padding: var(--sp-8);
 
-    /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+    /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
     & .list-import-ai-title {
       padding: var(--sp-4) var(--sp-6) var(--sp-6);
     }

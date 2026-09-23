@@ -1,14 +1,14 @@
 <!--
   La columna de la inteligencia artificial.
 
-  La conversacion no se dibuja encima del documento: ocupa su propia columna a
+  La conversación no se dibuja encima del documento: ocupa su propia columna a
   la izquierda de la escena y el documento se estrecha para dejarle sitio.
   Mientras se habla con la IA, lo construido se sigue viendo entero.
 
   Su ancho lo decide quien construye arrastrando el borde derecho, y se
-  recuerda por aplicacion en este navegador --eso vive en `lib/aiDock`--. Se
+  recuerda por aplicación en este navegador --eso vive en `lib/aiDock`--. Se
   esconde por completo --el documento recupera ese ancho-- y vuelve desde el
-  boton de la barra superior; ni esconder ni traer empiezan una conversacion
+  botón de la barra superior; ni esconder ni traer empiezan una conversación
   nueva: lo conversado y lo escrito sin enviar viven en `aiConversation`.
 
   Es solo para quien construye. La vista publicada no lo monta.
@@ -30,22 +30,22 @@
     app: AppRecord;
     page: PageRecord;
     dock: AiDockState;
-    /** Releer paginas y tablas: la IA pudo tocar las dos. */
+    /** Releer páginas y tablas: la IA pudo tocar las dos. */
     onChangedAll: () => Promise<void> | void;
     /** Algo que contar sin interrumpir. */
     onNote: (text: string) => void;
   } = $props();
 
-  /** Los cambios con riesgo que esperan decision, encadenados a la conversacion. */
+  /** Los cambios con riesgo que esperan decision, encadenados a la conversación. */
   let impact = $state<DataImpact | null>(null);
   let column = $state<HTMLElement | null>(null);
-  /** Mientras se arrastra, el asa se queda encendida aunque el raton se salga. */
+  /** Mientras se arrastra, el asa se queda encendida aunque el ratón se salga. */
   let resizing = $state(false);
 
   /*
    * Arrastrar el borde. La medida se escribe directamente sobre el nodo
    * mientras dura y solo se confirma al soltar: un cambio de estado por cada
-   * `pointermove` redibujaria el arbol entero de la conversacion sesenta veces
+   * `pointermove` redibujaria el árbol entero de la conversación sesenta veces
    * por segundo.
    */
   function startResize(e: PointerEvent): void {
@@ -58,7 +58,7 @@
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {
-      /* sin captura, arrastrar muy rapido fuera del borde puede soltar antes */
+      /* sin captura, arrastrar muy rápido fuera del borde puede soltar antes */
     }
 
     const from = e.clientX;
@@ -66,7 +66,7 @@
     let last = base;
     resizing = true;
 
-    // Sin esto, arrastrar va seleccionando el texto de la conversacion.
+    // Sin esto, arrastrar va seleccionando el texto de la conversación.
     const body = document.body.style;
     const priorSelect = body.userSelect;
     const priorCursor = body.cursor;
@@ -125,11 +125,11 @@
 
     <!--
       El borde es el asa. Es decoracion con la que se arrastra, no un mando con
-      estado: quien no use el raton tiene el ancho de partida y el boton que
+      estado: quien no use el ratón tiene el ancho de partida y el botón que
       esconde la columna entera.
 
-      Se agarra por una franja mas ancha que la linea que se ve, y la pastilla a
-      media altura esta siempre dibujada: sin ella habia que adivinar donde
+      Se agarra por una franja mas ancha que la línea que se ve, y la pastilla a
+      media altura esta siempre dibujada: sin ella había que adivinar donde
       apuntar para que el asa se encendiera.
     -->
     <div
@@ -158,7 +158,7 @@
   /*
     Entera dentro de la columna, no a caballo del borde: a la derecha empieza
     el sidebar, que esta en el mismo peldano de la escala de capas y se dibuja
-    despues, asi que cualquier trozo de asa que asome por alli queda debajo y
+    después, asi que cualquier trozo de asa que asome por alli queda debajo y
     no recibe el puntero.
   */
   .dock-resize-handle {
@@ -185,14 +185,14 @@
     transition: background-color 150ms;
   }
 
-  /* La pastilla: lo unico que se ve en reposo, y por eso siempre esta. */
+  /* La pastilla: lo único que se ve en reposo, y por eso siempre esta. */
   .dock-resize-handle::after {
     content: "";
     position: relative;
     width: 0.25rem;
     height: 2.5rem;
     border-radius: 62.5rem;
-    /* Mas marcada que la linea del borde: si comparten color, la pastilla
+    /* Mas marcada que la línea del borde: si comparten color, la pastilla
        desaparece dentro de ella y no hay nada que buscar. */
     background: var(--border-strong);
     transition:

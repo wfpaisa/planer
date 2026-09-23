@@ -1,15 +1,15 @@
 <!--
-  La clave con la que entrara una persona que todavia no existe.
+  La clave con la que entrara una persona que todavía no existe.
 
   No es una columna --la clave no se guarda, no se exporta y no se puede volver
   a leer, ver `PasswordForm.svelte`-- pero se escribe aqui, en el cajon que crea
-  la fila, porque es el unico momento en que se puede elegir sin tener que
-  volver despues a cambiarsela.
+  la fila, porque es el único momento en que se puede elegir sin tener que
+  volver después a cambiarsela.
 
-  Vacio vale: el servidor inventa una, pero esa no la ve nadie --se crea dentro
+  Vacío vale: el servidor inventa una, pero esa no la ve nadie --se crea dentro
   y no se devuelve a la pantalla-- asi que esa persona entra cuando alguien le
   ponga una desde "Cambiar la clave", en su fila. Generarla aqui es lo mismo un
-  paso antes, con la misma funcion que usa el servidor, pero delante: se lee y
+  paso antes, con la misma función que usa el servidor, pero delante: se lee y
   se copia antes de crear a nadie, y entonces la persona ya puede entrar.
 
   Se ve mientras se escribe, sin puntos: no es la clave de quien esta delante
@@ -38,7 +38,7 @@
 
 <div class="field-password flex flex-col">
   <!--
-    Con la misma pinta que la etiqueta de una columna a proposito: en el cajon
+    Con la misma pinta que la etiqueta de una columna a propósito: en el cajon
     se llena de arriba abajo y este es un renglon mas de los que hay que
     rellenar, aunque por dentro no vaya a la tabla.
   -->
@@ -65,7 +65,7 @@
       <Icon name="dices" size={14} /> Generar
     </Button>
     <!--
-      Solo con algo escrito: copiar el hueco vacio no copia nada y deja creyendo
+      Solo con algo escrito: copiar el hueco vacío no copia nada y deja creyendo
       que si.
     -->
     {#if value.trim()}
@@ -81,9 +81,9 @@
   </div>
 
   <!--
-    Vacia tiene consecuencia y se dice aqui: la que inventa el servidor no
+    Vacía tiene consecuencia y se dice aqui: la que inventa el servidor no
     vuelve a la pantalla, asi que esa persona no entra hasta que alguien le
-    ponga una. Es el unico sitio donde se puede avisar a tiempo.
+    ponga una. Es el único sitio donde se puede avisar a tiempo.
   -->
   <p class="hint-password-field" class:hint-password-field-short={short}>
     {short
@@ -134,7 +134,7 @@
       line-height: var(--text-xs--line-height);
       color: var(--text-muted);
 
-      /* Corta pero escrita: no es un fallo del guardado todavia, es lo que
+      /* Corta pero escrita: no es un fallo del guardado todavía, es lo que
          falta para poder guardar. */
       &.hint-password-field-short {
         color: var(--warning);

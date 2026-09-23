@@ -1,6 +1,5 @@
 <!--
-  Deslizador del tamano de letra: se elige un valor y entra en vigor al
-  guardar.
+  El tamaño elegido se aplica al guardar.
 -->
 <script lang="ts" module>
   import { FONT_SIZE_MAX, FONT_SIZE_MIN, FONT_SIZE_STEP } from "../../lib/fontSize.svelte";
@@ -17,8 +16,7 @@
   import SettingsSection from "../SettingsSection.svelte";
   import { Button } from "../ui";
 
-  // El deslizador es continuo; mientras se mueve solo se previsualiza el
-  // numero para que la interfaz no vaya escalando bajo el raton.
+  // El panel no cambia de escala hasta guardar; mientras tanto solo cambia el valor.
   let pending = $state(fontSize.percent);
 </script>
 
@@ -41,7 +39,7 @@
   {icon}
   {footer}
   title="Tamaño de letra"
-  description="Cambia cuánto crece el texto de todo el panel, en porcentaje sobre lo que usa tu navegador."
+  description="Ajusta el texto del panel como porcentaje del tamaño del navegador."
   class="section-font-size"
 >
   <div class="body-font-size w-full">

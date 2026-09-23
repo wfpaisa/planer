@@ -2,11 +2,11 @@
   Los servidores de IA conectados, sus modelos y lo que se usa por defecto.
 
   A la izquierda estan los servidores y a la derecha el que se este mirando.
-  Es la unica forma en la que caben varios sin que la pantalla se vuelva una
+  Es la única forma en la que caben varios sin que la pantalla se vuelva una
   lista infinita de formularios abiertos a la vez.
 
-  Todo se guarda de una vez, con el boton del pie: mientras tanto lo escrito
-  vive aqui, y por eso se puede probar la conexion de algo que todavia no se
+  Todo se guarda de una vez, con el botón del pie: mientras tanto lo escrito
+  vive aqui, y por eso se puede probar la conexion de algo que todavía no se
   ha guardado.
 -->
 <script lang="ts" module>
@@ -59,7 +59,7 @@
   let importing = $state(false);
   /**
    * Lo que se cuenta de esta pantalla, con su tono. Era un aviso por tono --uno
-   * rojo y otro verde-- y solo se ensena uno a la vez; juntarlos evita que un
+   * rojo y otro verde-- y solo se enseña uno a la vez; juntarlos evita que un
    * "falta el nombre tecnico", que es lo que hay que hacer antes de guardar,
    * saliera del lado de lo que se rompio.
    */
@@ -103,7 +103,7 @@
     config = {
       ...config,
       providers: [...config.providers, next],
-      // El primero que se conecta es tambien el que se va a usar: no hay nada
+      // El primero que se conecta es también el que se va a usar: no hay nada
       // mas entre lo que elegir.
       fallback: config.fallback.model
         ? config.fallback
@@ -148,7 +148,7 @@
    */
   function applyImport(plan: AiImportPlan): void {
     config = plan.next;
-    // Las claves escritas y todavia sin guardar siguen siendo suyas mientras su
+    // Las claves escritas y todavía sin guardar siguen siendo suyas mientras su
     // servidor siga estando; las de los que se fueron no valen para nadie.
     const alive = new Set(plan.next.providers.map((p) => p.id));
     keys = Object.fromEntries(Object.entries(keys).filter(([id]) => alive.has(id)));
@@ -249,13 +249,13 @@
   {icon}
   {footer}
   title="Servidores de inteligencia artificial"
-  description="Conecta uno o varios y dale a cada uno los modelos que quieras poder pedir."
+  description="Conecta servidores y configura los modelos disponibles."
   class="section-ai-server"
 >
   <div class="row-ai-toggle opt-row">
     <div class="opt-body">
-      <p class="opt-label">Generación con IA activa</p>
-      <p class="opt-hint">Mientras esté apagado, el panel de IA no aparece en el constructor.</p>
+      <p class="opt-label">Activar generación con IA</p>
+      <p class="opt-hint">Muestra el panel de IA en el constructor.</p>
     </div>
     <Switch checked={config.enabled} onchange={(v) => set({ enabled: v })} />
   </div>
@@ -264,8 +264,7 @@
     <div class="opt-body">
       <p class="opt-label">Mostrar el contexto enviado al modelo</p>
       <p class="opt-hint">
-        Mientras esté encendido, cada respuesta del chat deja ver el contexto —sistema, herramientas
-        y mensajes— que se le mandó al modelo en esa ronda. Apagado, el chat no lo muestra.
+        Muestra el sistema, las herramientas y los mensajes enviados en cada respuesta.
       </p>
     </div>
     <Switch checked={config.debugButton} onchange={(v) => set({ debugButton: v })} />
@@ -275,9 +274,7 @@
     <div class="opt-body">
       <p class="opt-label">Tiempo máximo por petición</p>
       <p class="opt-hint">
-        Si una petición no termina antes de este tiempo —el proveedor colgado, una ronda que no
-        vuelve— se corta sola, como si se hubiera apretado "detener". En minutos; 0 la deja sin
-        tope.
+        Detiene las peticiones que superen este límite. Usa 0 para no aplicar un límite.
       </p>
     </div>
     <Input
@@ -316,21 +313,17 @@
         class="empty-ai-providers inset dashed flex flex-col items-center justify-center gap-2 text-center"
       >
         <Icon name="robotic" size={20} class="icon-ai-empty" />
-        <p class="empty-ai-title">Todavía no hay ningún servidor conectado.</p>
-        <p class="empty-ai-hint">Elige uno de la lista para empezar.</p>
+        <p class="empty-ai-title">No hay servidores conectados.</p>
+        <p class="empty-ai-hint">Añade uno desde la lista.</p>
       </div>
     {/if}
   </div>
 
   <!--
-    Lo que sale puesto en cada peticion. Quien construye lo puede cambiar desde
-    el chat; esto es con lo que empieza.
+    Selección inicial de cada petición; puede cambiarse desde el chat.
   -->
   <div class="grid-ai-fallback inset plain grid gap-4">
-    <Field
-      label="Modelo por defecto"
-      hint="Con el que sale cada petición mientras no se elija otro en el chat."
-    >
+    <Field label="Modelo por defecto" hint="Se usa mientras no elijas otro modelo en el chat.">
       <Select
         value={choiceValue(config.fallback.provider, config.fallback.model)}
         disabled={!usable.length}
@@ -340,7 +333,7 @@
         }}
       >
         {#if !usable.length}
-          <option value="">Todavía no hay ningún modelo</option>
+          <option value="">No hay modelos disponibles</option>
         {/if}
         {#each usable as provider (provider.id)}
           <optgroup label={aiProviderName(provider)}>
@@ -368,14 +361,12 @@
     </Field>
 
     <!--
-      La pasada que guarda las memorias de una pagina. Es corta y siempre la
-      misma, asi que puede convenirle un modelo mas barato que el del turno;
-      mientras no se senale ninguno va con el de la petición, que es lo que
-      evita una segunda configuracion que se quede vieja sin que nadie lo note.
+      Modelo usado para resumir las reglas de la página. Si no se elige uno,
+      se usa el modelo de la petición.
     -->
     <Field
       label="Modelo para las memorias de página"
-      hint="Con el que se guardan las reglas de una página al terminar cada petición. Es una llamada corta."
+      hint="Resume las reglas de la página al terminar cada petición."
     >
       <Select
         value={config.memoryChoice
@@ -394,7 +385,7 @@
           });
         }}
       >
-        <option value="">El mismo de la petición</option>
+        <option value="">Usar el modelo de la petición</option>
         {#each usable as provider (provider.id)}
           <optgroup label={aiProviderName(provider)}>
             {#each provider.models as model (model.id)}
@@ -414,7 +405,7 @@
 {/if}
 
 <style>
-  /* Las tres filas son `.opt-row` del catalogo, con `.opt-label` y
+  /* Las tres filas son `.opt-row` del catálogo, con `.opt-label` y
      `.opt-hint`: aqui no queda nada propio que decir de esa parte. */
   :global(.input-ai-run-timeout) {
     width: 5rem;
@@ -438,7 +429,7 @@
     }
 
     /* El hueco es `.inset.dashed`; aqui solo su respiro, que es el de una
-       columna vacia y no el de una caja de contenido. */
+       columna vacía y no el de una caja de contenido. */
     & .empty-ai-providers {
       padding: var(--sp-40) var(--sp-16);
 
@@ -461,7 +452,7 @@
   }
 
   /* La caja es `.inset.plain` --el cerco sin fondo, que ya lo pone la card
-     de la seccion--; aqui solo el reparto en dos columnas. */
+     de la sección--; aqui solo el reparto en dos columnas. */
   .grid-ai-fallback {
     padding: var(--sp-14);
 

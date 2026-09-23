@@ -3,9 +3,9 @@
   mensajes, tal cual salieron.
 
   Dos procedencias, el mismo sitio para leerlas. `text` es el de esta visita,
-  que llega con la peticion si se pidio en modo debug. Sin el, `load` trae el
-  que quedo guardado en el servidor --uno por pagina, el de la ultima
-  peticion--: es lo que hace que recargar despues de un fallo no pierda
+  que llega con la petición si se pidio en modo debug. Sin el, `load` trae el
+  que quedo guardado en el servidor --uno por página, el de la ultima
+  petición--: es lo que hace que recargar después de un fallo no pierda
   justamente lo que hace falta para entenderlo.
 
   Lo guardado se pide al desplegar, no antes: es lo mas pesado que hay por aqui
@@ -19,9 +19,9 @@
     text = "",
     load,
   }: {
-    /** El contexto de esta visita. Vacio: se pide el guardado. */
+    /** El contexto de esta visita. Vacío: se pide el guardado. */
     text?: string;
-    /** Trae el guardado. `null`: no hay ninguno para esta pagina. */
+    /** Trae el guardado. `null`: no hay ninguno para esta página. */
     load?: () => Promise<{ text: string; truncated: boolean } | null>;
   } = $props();
 
@@ -39,7 +39,7 @@
     failed = "";
     try {
       loaded = await load();
-      if (!loaded) failed = "No hay nada guardado de esta página todavía.";
+      if (!loaded) failed = "No hay contexto guardado para esta página.";
     } catch {
       failed = "No se pudo leer el contexto guardado.";
     } finally {
@@ -62,7 +62,7 @@
       <p class="context-debug-note">Leyendo el contexto guardado…</p>
     {:else if shown}
       {#if loaded?.truncated}
-        <p class="context-debug-note">No cabía entero: esto es la parte que se pudo guardar.</p>
+        <p class="context-debug-note">El contexto se recortó porque superaba el límite.</p>
       {/if}
       <pre class="context-debug-content">{shown}</pre>
     {:else}

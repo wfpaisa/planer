@@ -1,8 +1,8 @@
 <!--
-  Los roles de la aplicacion, en su propia tarjeta.
+  Los roles de la aplicación, en su propia tarjeta.
 
   Los roles ya no tienen pantalla propia: la gestion de quien entra vive en la
-  tabla de personas, como cualquier otra tabla. Lo unico que una tabla no sabe
+  tabla de personas, como cualquier otra tabla. Lo único que una tabla no sabe
   hacer es inventar los nombres con los que se reparte lo que se ve, asi que eso
   se pide desde donde ya se estan usando --la columna de roles y la barra de la
   tabla de personas-- y las dos puertas abren esta misma tarjeta.
@@ -39,7 +39,7 @@
    * De lo que diga el aviso depende algo que no tiene vuelta atras, asi que se
    * cuenta sobre la lista de ahora y no sobre la que el panel trajera de antes.
    * Se quedaba vieja de verdad: "Restablecer columnas" se lleva a todas las
-   * personas de la aplicacion, y hasta recargar el sitio esta tarjeta seguia
+   * personas de la aplicación, y hasta recargar el sitio esta tarjeta seguia
    * contando a las que ya no estaban --y al reves, quien acababa de ser
    * invitado no contaba y el rol se iba sin preguntar nada--.
    *
@@ -57,7 +57,7 @@
    * El nombre tal como va a quedar. El campo se normaliza en cada pulsacion
    * --con `roleDraft`, que deja el guion del final para poder seguir
    * escribiendo-- y esto es lo que de verdad se guarda. Quien lo escribe ve el
-   * resultado antes de decidir, en vez de encontrarselo cambiado despues.
+   * resultado antes de decidir, en vez de encontrarselo cambiado después.
    */
   const value = $derived(normalizeRole(draft));
   // Repetido se mide sobre el nombre normalizado: "JEFE DE ZONA" y
@@ -89,7 +89,7 @@
    * Quitarlo no lo esconde: el servidor lo borra de todas las personas que lo
    * tenian y de todas las pantallas que lo exigian (`pruneRoles` en
    * `server/routes.ts`), y eso no se deshace volviendo a crearlo con el mismo
-   * nombre. `sueltas` son las pantallas donde era el unico rol marcado, que es
+   * nombre. `sueltas` son las pantallas donde era el único rol marcado, que es
    * el cambio que nadie espera: se quedan sin ninguno y vuelven a verlas todos.
    */
   function scope(role: string) {
@@ -133,16 +133,16 @@
   const contar = (n: number, uno: string, varios: string): string =>
     `${n} ${n === 1 ? uno : varios}`;
 
-  /** "12 personas, 3 paginas y 1 separador del menu". */
+  /** "12 personas, 3 páginas y 1 separador del menu". */
   const lista = (items: string[]): string =>
     items.length < 2 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} y ${items.at(-1)}`;
 
   /**
    * Lo que hay que leer antes de decidir.
    *
-   * Se cuenta en cosas --personas, paginas, separadores-- y no en un "esta en
+   * Se cuenta en cosas --personas, páginas, separadores-- y no en un "esta en
    * uso" a secas: la diferencia entre quitarle un rol a una persona y quitarselo
-   * a cuarenta es justo lo que hace dudar, y sin el numero no hay con que.
+   * a cuarenta es justo lo que hace dudar, y sin el número no hay con que.
    */
   const warning = $derived.by(() => {
     if (!removing) return "";
@@ -171,7 +171,7 @@
 </script>
 
 <!--
-  Con la advertencia delante, Escape la cancela a ella y no se lleva tambien la
+  Con la advertencia delante, Escape la cancela a ella y no se lleva también la
   tarjeta de roles: los dos escuchan la tecla en la ventana, y el de aqui --que
   se puso antes-- corre primero y se aparta. El velo tampoco cierra por detras
   de lo que se esta preguntando.
@@ -184,7 +184,7 @@
   }}
   title="Roles"
   icon={ROLE_ICON}
-  description="Nombra los tipos de persona que usan la aplicación: conductor, auditor, taller. Se guardan en minúsculas y con guiones. Luego se marcan en cada página para decidir quién la abre, y en cada persona de esta tabla."
+  description="Crea los roles de la aplicación. Asígnalos a las personas y a las páginas que pueden abrir."
 >
   <div class="body-roles flex flex-col gap-3">
     <div class="row-roles-add join">
@@ -224,7 +224,7 @@
         {#each roles as role (role)}
           <!--
             `admin` no se quita: es el rol de quien construye, la vista previa
-            arranca en el, y quitarlo lo borraria de las paginas que lo tengan
+            arranca en el, y quitarlo lo borraria de las páginas que lo tengan
             marcado. Ver `design.md` D7.
           -->
           <Tag
@@ -275,7 +275,7 @@
       color: var(--text-muted);
     }
 
-    /* El hueco es `.inset.dashed` del catalogo; aqui solo su letra. */
+    /* El hueco es `.inset.dashed` del catálogo; aqui solo su letra. */
     & .empty-roles {
       padding: var(--sp-12);
       font-size: var(--text-xs);

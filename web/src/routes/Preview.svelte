@@ -1,11 +1,11 @@
 <!--
-  Vista previa del borrador o de una version guardada.
+  Vista previa del borrador o de una versión guardada.
 
-  Dibuja exactamente lo mismo que ve un visitante, pero con la sesion del
+  Dibuja exactamente lo mismo que ve un visitante, pero con la sesión del
   constructor y con los avisos de lo que el documento hace mal.
 
-  Se abre como una capa encima del editor, no como una pagina aparte: asi
-  "volver al editor" no navega a ningun sitio, solo cierra la capa, y todo lo
+  Se abre como una capa encima del editor, no como una página aparte: asi
+  "volver al editor" no navega a ningún sitio, solo cierra la capa, y todo lo
   que estaba abierto detras (por ejemplo los cambios) sigue como estaba.
 -->
 <script lang="ts">
@@ -26,7 +26,7 @@
 
   setPeople(appPeople(() => appId));
 
-  /* Depende solo de la aplicacion: uno nuevo por dibujado reiniciaria el marco
+  /* Depende solo de la aplicación: uno nuevo por dibujado reiniciaria el marco
      sin parar. */
   const makePageLoader = $derived((pageId: string) => previewPageLoader(appId, pageId));
 
@@ -34,9 +34,9 @@
 
   /*
    * El historial, solo para poder decir que se esta mirando: el paquete trae la
-   * fotografia, no el numero de la version ni cual esta publicada. Se pide
-   * aparte para que la cinta lo diga con todas las letras tambien cuando se
-   * llega por la direccion, sin pasar por la lista.
+   * fotografia, no el número de la versión ni cual esta publicada. Se pide
+   * aparte para que la cinta lo diga con todas las letras también cuando se
+   * llega por la dirección, sin pasar por la lista.
    */
   const history = useAsync(() => api<VersionsView>(`/api/apps/${appId}/versiones`));
   const versions = $derived(history.data?.versions ?? []);
@@ -45,7 +45,7 @@
 
   /*
    * La lista de cambios se aparto para dejar ver esto. Se ofrece traerla de
-   * vuelta sin cerrar la capa: asi se va de una version a otra --mirar, volver
+   * vuelta sin cerrar la capa: asi se va de una versión a otra --mirar, volver
    * a la lista, mirar la siguiente-- sin salir y entrar cada vez.
    */
   const panelAside = $derived(preview.aside);
@@ -147,9 +147,9 @@
     margin-top: var(--sp-16);
   }
 
-  /* La franja es `.alert.info` del catalogo --el mismo azul y la misma tinta
+  /* La franja es `.alert.info` del catálogo --el mismo azul y la misma tinta
      que el resto de avisos--; aqui solo lo que la hace franja y no caja: sin
-     esquinas, pegada de lado a lado y con la linea solo abajo, que es donde
+     esquinas, pegada de lado a lado y con la línea solo abajo, que es donde
      empieza lo que se esta mirando. */
   .banner-preview {
     border-radius: 0;

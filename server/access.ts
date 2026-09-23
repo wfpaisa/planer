@@ -1,13 +1,13 @@
 /**
- * Quien pregunta, resuelto desde su sesion, y las personas invitadas a una
- * aplicacion.
+ * Quien pregunta, resuelto desde su sesión, y las personas invitadas a una
+ * aplicación.
  *
- * Vive en `server/` y no en `shared/` a proposito: quien mira se decide donde
- * estan los datos y donde esta la sesion, nunca en el navegador.
+ * Vive en `server/` y no en `shared/` a propósito: quien mira se decide donde
+ * estan los datos y donde esta la sesión, nunca en el navegador.
  *
- * Aqui ya no se reparte nada por filas: quien puede abrir una pagina alcanza
- * todas las filas de las tablas que esa pagina declara. Lo unico que separa
- * leer de escribir es la sesion, y eso se comprueba en `server/page/pageData.ts`.
+ * Aquí ya no se reparte nada por filas: quien puede abrir una página alcanza
+ * todas las filas de las tablas que esa página declara. Lo único que separa
+ * leer de escribir es la sesión, y eso se comprueba en `server/page/pageData.ts`.
  */
 import { normalizeRole } from "../shared/people.ts";
 import type { AppPerson, AppRecord } from "../shared/types.ts";
@@ -18,60 +18,61 @@ import { firstRecord, listRecords, updateRecord } from "./pb.ts";
 import { withOwnColumns } from "./peopleTable.ts";
 
 /**
- * Quien pregunta, resuelto desde su sesion.
+ * Quien pregunta, resuelto desde su sesión.
  *
- * Los roles salen de `app_access`, nunca de la peticion. Es la razon de que
+ * Los roles salen de `app_access`, nunca de la petición. Es la razon de que
  * exista este tipo: mientras los roles viajen dentro de un objeto que solo se
- * construye aqui, no hay ninguna via por la que el navegador los proponga.
+ * construye aquí, no hay ninguna via por la que el navegador los proponga.
  */
 export interface Viewer {
   /**
-   * Id de la cuenta. Vacio: no hay una identidad concreta detras.
+   * Id de la cuenta. Vacío: no hay una identidad concreta detras.
    *
-   * Es aparte de tener sesion: el constructor mirando su pagina como un rol
-   * tiene sesion y no es nadie en particular, que es justo lo que se quiere
+   * Es aparte de tener sesión: el constructor mirando su página como un rol
+   * tiene sesión y no es nadie en particular, que es justo lo que se quiere
    * probar. Ver `asViewer`.
    */
   id: string;
-  /** Ha iniciado sesion. Es lo que exigen las tres ordenes que escriben. */
+  /** Ha iniciado sesión. Es lo que exigen las tres ordenes que escriben. */
   signedIn: boolean;
-  /** Es el constructor de la aplicacion. */
+  /** Es el constructor de la aplicación. */
   isOwner: boolean;
   /**
-   * Esta invitado a esta aplicacion.
+   * Esta invitado a esta aplicación.
    *
-   * Es aparte de tener sesion: la cuenta con la que se entra es de una sola
-   * aplicacion, asi que una sesion de otra llega aqui sin invitacion ninguna.
+   * Es aparte de tener sesión: la cuenta con la que se entra es de una sola
+   * aplicación, así que una sesión de otra llega aquí sin invitacion ninguna.
    */
   invited: boolean;
-  /** Roles que le dio el constructor dentro de esta aplicacion. */
+  /** Roles que le dio el constructor dentro de esta aplicación. */
   roles: string[];
 }
 
 const ANON: Viewer = { id: "", signedIn: false, isOwner: false, invited: false, roles: [] };
 
 /**
- * Quien pregunta, a partir de la sesion de la peticion.
+ * Quien pregunta, a partir de la sesión de la petición.
  *
- * No mira el cuerpo ni las cabeceras de la peticion mas que para leer la sesion:
- * una peticion que diga traer el rol de administrador no cambia nada de esto.
+ * No mira el cuerpo ni las cabeceras de la petición mas que para leer la sesión:
+ * una petición que diga traer el rol de administrador no cambia nada de esto.
  */
 export async function resolveViewer(req: Request, app: AppRecord): Promise<Viewer> {
   // Las dos sesiones son colecciones distintas: el panel entra como constructor
   // y las aplicaciones publicadas, como invitado. Un mismo token no vale para
-  // las dos, asi que hay que probar por las dos puertas; sin esto el
-  // constructor probando su propia pagina llegaria aqui como si fuera nadie.
+  // las dos, así que hay que probar por las dos puertas; sin esto el
+  // constructor probando su propia página llegaria aquí como si fuera nadie.
   const builder = await optionalBuilder(req);
   if (builder) {
-    if (builder.id !== app.owner) throw new HttpError(403, "Esta aplicación no es tuya");
+    if (builder.id !== app.owner)
+      throw new HttpError(403, "No tienes permiso para esta aplicación");
     return { id: builder.id, signedIn: true, isOwner: true, invited: true, roles: [] };
   }
 
   const member = await optionalMember(req);
   if (!member) return ANON;
-  // La cuenta es de una aplicacion y de ninguna otra: una sesion de otra no
+  // La cuenta es de una aplicación y de ninguna otra: una sesión de otra no
   // llega ni a preguntar por el enlace. El enlace lo diria igual --no puede
-  // existir para una cuenta ajena-- pero decirlo aqui deja escrito el limite.
+  // existir para una cuenta ajena-- pero decirlo aquí deja escrito el limite.
   if (member.app && member.app !== app.id) {
     return { id: member.id, signedIn: true, isOwner: false, invited: false, roles: [] };
   }
@@ -94,15 +95,15 @@ export async function resolveViewer(req: Request, app: AppRecord): Promise<Viewe
 /**
  * Quien mira, compuesto para la vista previa del constructor.
  *
- * No amplia nunca: deja de ser el dueno a proposito, y con el se va todo lo que
+ * No amplia nunca: deja de ser el dueno a propósito, y con el se va todo lo que
  * el dueno alcanza por serlo.
  *
- * - Sin rol y sin persona: tiene sesion y ningun rol, que es como entra quien
- *   acaba de ser invitado y todavia no le nombraron uno.
+ * - Sin rol y sin persona: tiene sesión y ningún rol, que es como entra quien
+ *   acaba de ser invitado y todavía no le nombraron uno.
  * - Con rol y sin persona: tiene ese rol y ninguna identidad concreta.
  * - Con rol y persona: es esa persona, con su identificador y sus roles reales.
- *   Es lo que permite probar una pantalla que ensena "lo mio".
- * - Sin sesion: es nadie, y ve lo que veria alguien que llega sin cuenta.
+ *   Es lo que permite probar una pantalla que enseña "lo mio".
+ * - Sin sesión: es nadie, y ve lo que veria alguien que llega sin cuenta.
  *
  * Quien puede pedirlo se comprueba donde se recibe. Ver `design.md` D5.
  */
@@ -125,8 +126,8 @@ export function asViewer(opts: {
       roles: [...person.roles],
     };
   }
-  // Sin persona hay sesion y no hay identidad: el constructor sigue teniendo su
-  // sesion de constructor --por eso escribe-- y la pagina no tiene a nadie
+  // Sin persona hay sesión y no hay identidad: el constructor sigue teniendo su
+  // sesión de constructor --por eso escribe-- y la página no tiene a nadie
   // concreto que ensenar cuando pregunta por "lo mio".
   return {
     id: "",
@@ -138,11 +139,11 @@ export function asViewer(opts: {
 }
 
 /**
- * Las personas invitadas a esta aplicacion.
+ * Las personas invitadas a esta aplicación.
  *
  * Sale del enlace y no de la lista de cuentas aunque ahora las cuentas ya sean
- * de una sola aplicacion: el enlace es el que dice los roles, y seguir
- * leyendolo deja una sola respuesta a "quien esta aqui".
+ * de una sola aplicación: el enlace es el que dice los roles, y seguir
+ * leyendolo deja una sola respuesta a "quien esta aquí".
  */
 export async function peopleOf(appId: string): Promise<AppPerson[]> {
   const res = await listRecords<{
@@ -181,18 +182,18 @@ export async function personOf(appId: string, memberId: string): Promise<AppPers
  * Cambia los roles de una persona invitada.
  *
  * Es la escritura que hace pareja con `peopleOf`: las dos leen y escriben el
- * enlace, que es donde de verdad viven los roles. Vive aqui y no en la ruta que
+ * enlace, que es donde de verdad viven los roles. Vive aquí y no en la ruta que
  * la llama porque hay mas de una --la pantalla de personas y la IA-- y los
  * roles tienen que tener un solo sitio donde escribirse.
  *
- * Los roles que la aplicacion ya no define se descartan: nombrar uno que no
+ * Los roles que la aplicación ya no define se descartan: nombrar uno que no
  * existe no da acceso a nada y deja basura en el enlace.
  */
 export async function setPersonAccess(opts: {
   appId: string;
   memberId: string;
   roles?: string[];
-  /** Los roles que define la aplicacion. Lo que no este aqui no se guarda. */
+  /** Los roles que define la aplicación. Lo que no este aquí no se guarda. */
   appRoles?: string[];
 }): Promise<AppPerson> {
   const link = await firstRecord<{ id: string }>(

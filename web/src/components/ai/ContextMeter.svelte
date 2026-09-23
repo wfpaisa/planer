@@ -1,9 +1,9 @@
 <!--
-  Cuanto contexto lleva gastado la peticion.
+  Cuanto contexto lleva gastado la petición.
 
   Se mide lo que el modelo tuvo delante en su ultimo turno, que es lo que de
-  verdad ocupa: la conversacion entera vuelve a ir delante en cada turno. Un
-  modelo sin ventana declarada solo puede decir el numero, sin contra que
+  verdad ocupa: la conversación entera vuelve a ir delante en cada turno. Un
+  modelo sin ventana declarada solo puede decir el número, sin contra que
   medirlo.
 
   El anillo va en SVG y no en conic-gradient: el degradado conico rasteriza el
@@ -72,7 +72,7 @@
       transition: stroke-dasharray 180ms ease-out;
     }
 
-    /* Casi lleno: avisa en ambar, que es lo unico que hay que mirar. */
+    /* Casi lleno: avisa en ambar, que es lo único que hay que mirar. */
     &.meter-ring-high {
       & .meter-track {
         stroke: var(--bg-field);

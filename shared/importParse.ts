@@ -6,13 +6,13 @@
  * de `ImportModal`-- y el servidor lo lee para contarle a la IA lo que trae un
  * adjunto y para llenar una tabla desde el (`server/ai/aiFiles.ts`). Que las dos
  * lecturas sean la misma es lo que hace que lo que se ve antes de importar sea
- * lo que despues entra.
+ * lo que después entra.
  *
  * El CSV se parsea a mano (sin dependencias) respetando el separador elegido,
- * los campos entre comillas, las comillas escapadas y los saltos de linea
+ * los campos entre comillas, las comillas escapadas y los saltos de línea
  * dentro de un campo. El JSON puede venir como lista de objetos o de listas.
  *
- * La lectura de hojas de calculo (`.xlsx`) no esta aqui: depende de una
+ * La lectura de hojas de cálculo (`.xlsx`) no esta aquí: depende de una
  * libreria de navegador y el archivo llega ya convertido a filas y columnas.
  */
 
@@ -85,7 +85,7 @@ export function tokenizeCsv(text: string, separator: string): string[][] {
   }
   if (field.length || row.length) pushRow();
 
-  // Quita las lineas vacias del final.
+  // Quita las líneas vacias del final.
   while (rows.length && rows[rows.length - 1].every((c) => !c.trim())) rows.pop();
   return rows;
 }

@@ -3,7 +3,7 @@
 
   Se pega o se arrastra el JSON que sale de "Exportar estructura"; antes de
   aplicar se muestran las columnas que se van a crear y las que no se pueden,
-  por tipo desconocido o por una relacion sin destino en esta aplicacion.
+  por tipo desconocido o por una relación sin destino en esta aplicación.
 -->
 <script lang="ts" module>
   import type { FieldDef } from "@shared/types";
@@ -218,7 +218,7 @@
 />
 
 <style>
-  /* El hueco es `.dropzone` del catalogo; aqui solo lo que este pide de mas:
+  /* El hueco es `.dropzone` del catálogo; aqui solo lo que este pide de mas:
      el respiro, que es mas corto --el modal es chico y debajo va el textarea
      con lo mismo escrito a mano-- y la letra de la instruccion. */
   .drop-filter {
@@ -242,7 +242,7 @@
     line-height: var(--text-xs--line-height);
   }
 
-  /* La caja es `.inset` del catalogo: lo que se lista dentro del modal se
+  /* La caja es `.inset` del catálogo: lo que se lista dentro del modal se
      hunde, no se levanta. Aqui solo su hueco y su tope de alto. */
   .list-new-columns {
     margin-top: var(--sp-12);
@@ -250,7 +250,7 @@
     overflow-y: auto;
     padding: var(--sp-8);
 
-    /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+    /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
     & .list-new-columns-title {
       padding: var(--sp-4) var(--sp-6) var(--sp-6);
     }

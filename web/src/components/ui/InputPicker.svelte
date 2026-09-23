@@ -3,11 +3,11 @@
 
   El `datalist` del navegador no sirve: esconde lo que no empieza por lo ya
   escrito --con "50" adentro solo ensenaba "50" y "500"-- y su lista no se deja
-  vestir, ni siquiera para marcar por donde va el raton.
+  vestir, ni siquiera para marcar por donde va el ratón.
 
   Asi que quien ofrece las opciones es un `select` de verdad, invisible y del
-  tamano del campo: al pulsar la flecha se le pide que abra la suya, que es la
-  del catalogo y no la del sistema. Lo elegido se copia al campo, que sigue
+  tamaño del campo: al pulsar la flecha se le pide que abra la suya, que es la
+  del catálogo y no la del sistema. Lo elegido se copia al campo, que sigue
   admitiendo texto libre.
 -->
 <script lang="ts">
@@ -27,7 +27,7 @@
   }: Omit<HTMLInputAttributes, "class"> & {
     class?: string;
     options: readonly (string | number)[];
-    /** Se eligio una opcion de la lista. */
+    /** Se eligio una opción de la lista. */
     onPick?: (value: string) => void;
     /** Clases del contenedor, no del campo: es quien manda el ancho. */
     wrapClass?: string;
@@ -44,7 +44,7 @@
     bind:value
     autocomplete="off"
     onblur={(e) => {
-      // Al abrir la lista el foco salta a la opcion marcada. Eso no es irse del
+      // Al abrir la lista el foco salta a la opción marcada. Eso no es irse del
       // campo, y quien lo usa no deberia dar por cerrada la edicion.
       const hacia = e.relatedTarget as HTMLElement | null;
       if (hacia && (hacia === lista || hacia.tagName === "OPTION")) return;
@@ -89,18 +89,18 @@
       const picked = e.currentTarget.value;
       value = picked;
       onPick?.(picked);
-      // Un turno despues: al cerrarse, la lista se queda con el foco, y
+      // Un turno después: al cerrarse, la lista se queda con el foco, y
       // dejarselo seria un campo que ya no escribe.
       setTimeout(() => campo?.focus(), 0);
     }}
   >
-    <!-- Para lo escrito a mano, que no coincide con ninguna opcion. -->
+    <!-- Para lo escrito a mano, que no coincide con ninguna opción. -->
     <option value="" hidden aria-label="Sin opción"></option>
     <!--
-      La llave es el sitio y no el valor: una opcion es su texto y nada mas, asi
+      La llave es el sitio y no el valor: una opción es su texto y nada mas, asi
       que no hay identidad que conservar entre dibujados. Con el valor por
       llave, una lista que trajera dos veces el mismo texto --dos personas con
-      la misma cedula-- tumbaba el campo entero con `each_key_duplicate`. Quien
+      la misma cédula-- tumbaba el campo entero con `each_key_duplicate`. Quien
       pueda, que no repita; quien repita, que no rompa.
     -->
     {#each options as option, i (i)}
@@ -141,7 +141,7 @@
 
     /*
       Invisible, pero su lista no: el `opacity: 0` no la apaga porque el
-      catalogo la saca a la capa de arriba, fuera de este elemento. Asi
+      catálogo la saca a la capa de arriba, fuera de este elemento. Asi
       que aqui se abre la lista del sistema de estilos, la misma que en
       cualquier otro select.
     */

@@ -1,7 +1,6 @@
 <!--
-  La puerta a `/demo`: el catalogo de componentes al completo, con las mismas
-  hojas que viste el panel. No es del producto, y por eso vive aqui y no en el
-  menu.
+  Acceso al catálogo visual del panel. Es una herramienta interna y no forma
+  parte del producto.
 -->
 <script lang="ts">
   import { link } from "../../lib/router.svelte";
@@ -25,12 +24,11 @@
   {icon}
   {footer}
   title="Demo del sistema de estilos"
-  description="El catalogo de componentes al completo, con las mismas hojas que viste el panel."
+  description="Componentes con los estilos reales del panel."
   class="section-demo"
 >
   <p class="text-demo-section">
-    Sirve para comprobar de un vistazo que un cambio en el catalogo no rompio nada en otro sitio. Se
-    puede mirar bajo cualquiera de las paletas y en los dos temas.
+    Comprueba los componentes con cualquier paleta y en modo claro u oscuro.
   </p>
 </SettingsSection>
 
@@ -41,8 +39,7 @@
     color: var(--text-secondary);
   }
 
-  /* El boton vive en `components.css` y cuenta con un <button>; esto es un
-     enlace, asi que el icono se centra a mano. */
+  /* El enlace reutiliza el aspecto de botón; el icono se centra aquí. */
   :global(.link-open-demo) {
     justify-content: center;
     text-decoration: none;

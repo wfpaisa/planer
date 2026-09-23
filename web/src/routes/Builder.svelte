@@ -1,12 +1,12 @@
 <!--
-  El constructor de una aplicacion.
+  El constructor de una aplicación.
 
-  Es el dueno de todo lo que las dos mitades --la aplicacion y sus tablas--
-  comparten: la aplicacion misma, sus tablas, sus paginas, quien esta invitado
+  Es el dueno de todo lo que las dos mitades --la aplicación y sus tablas--
+  comparten: la aplicación misma, sus tablas, sus páginas, quien esta invitado
   y la columna de la IA. Lo presta hacia abajo con `setBuilder` en vez de
   pasarlo prop a prop, porque lo leen seis pantallas y ninguna es hija directa.
 
-  Tambien es el que recoge los archivos que se sueltan. Eso vive aqui y no en
+  También es el que recoge los archivos que se sueltan. Eso vive aqui y no en
   cada pantalla por una razon: soltar vale en cualquier parte del editor, y los
   oyentes tienen que estar en la ventana entera para que el navegador no se
   quede el archivo y lo abra por su cuenta. Los que se eligen a mano en una
@@ -60,12 +60,12 @@
   const MODE_KEYS = Object.keys(IMPORT_MODES) as ImportMode[];
 
   /**
-   * Como llego el archivo, que es lo unico que cambia entre los dos caminos:
-   * se solto encima del editor, o se eligio con el boton de importar.
+   * Como llego el archivo, que es lo único que cambia entre los dos caminos:
+   * se solto encima del editor, o se eligio con el botón de importar.
    *
    * No cambia nada de lo que pasa con el; cambia con que palabras se le cuenta.
    * Decirle "soltaste" a quien acaba de elegirlo en el buscador del sistema
-   * suena a que la aplicacion no se entero de lo que hizo.
+   * suena a que la aplicación no se entero de lo que hizo.
    */
   type FileFrom = "drop" | "pick";
 
@@ -132,13 +132,13 @@
   /**
    * Cuantas veces algo de fuera cambio las filas de una tabla.
    *
-   * Va aparte de `touched` a proposito: ver `dataTouched` en
+   * Va aparte de `touched` a propósito: ver `dataTouched` en
    * `lib/builderContext.ts`.
    */
   let dataTouched = $state(0);
   /**
    * El aviso del constructor. Es uno solo para todo lo que pasa aqui --soltar
-   * un archivo, crear una tabla, escribir una pagina-- y por eso lleva su tono
+   * un archivo, crear una tabla, escribir una página-- y por eso lleva su tono
    * al lado del texto: antes todo iba por la via del error y lo que salia bien
    * se contaba en rojo, como si hubiera fallado.
    */
@@ -157,13 +157,13 @@
    * el. Hasta que no se responda no se toca nada.
    *
    * `from` es solo para hablarle a quien lo trajo con sus palabras: se soltó
-   * encima del editor, o se eligió desde un dialogo. Lo que se puede hacer con
+   * encima del editor, o se eligió desde un diálogo. Lo que se puede hacer con
    * el archivo es lo mismo por los dos caminos.
    */
   let drop = $state<{ file: File; kind: "html" | "data"; from: FileFrom } | null>(null);
   /** Lo elegido en esa pregunta, a la espera de que se confirme. */
   let mode = $state<ImportMode | null>(null);
-  /** Un HTML que va a pisar lo que la pagina abierta ya tiene escrito. */
+  /** Un HTML que va a pisar lo que la página abierta ya tiene escrito. */
   let overwrite = $state<{ file: File; page: PageRecord } | null>(null);
   /**
    * Una tabla nueva cuyo archivo trae una columna que nombra usuarios: se
@@ -174,7 +174,7 @@
     plan: DataFilePlan;
     guesses: PersonColumnGuess[];
   } | null>(null);
-  /** La ultima pagina que se estaba viendo, para volver a ella desde las tablas. */
+  /** La ultima página que se estaba viendo, para volver a ella desde las tablas. */
   let lastAppPath = "";
 
   const people = appPeople(() => appId);
@@ -185,7 +185,7 @@
   /**
    * Las tablas, con la columna de roles ya rellena.
    *
-   * Los roles no se guardan en la tabla: viven en la aplicacion y se ponen aqui
+   * Los roles no se guardan en la tabla: viven en la aplicación y se ponen aqui
    * al leer, para que una copia guardada no se quede vieja en cuanto alguien
    * anada un rol. Se hace en este sitio y no en la cuadricula porque quien lee
    * las tablas es mas de uno --la cuadricula, exportar la estructura, la tarjeta
@@ -234,7 +234,7 @@
 
   setPeople(people);
   setBuilder({
-    // La aplicacion se lee cuando ya llego: nadie que use este contexto se
+    // La aplicación se lee cuando ya llego: nadie que use este contexto se
     // dibuja antes, porque hasta entonces aqui solo hay un cartel de "cargando".
     get app() {
       return app as AppRecord;
@@ -265,10 +265,10 @@
   });
 
   /*
-   * Lo que se esta mirando se apunta fuera del arbol: la lista de versiones se
+   * Lo que se esta mirando se apunta fuera del árbol: la lista de versiones se
    * dibuja debajo de la capa y ahi la ruta que ve es la del fondo. Este es el
-   * unico sitio que ve la de verdad, y de la capa se sale por varios lados: el
-   * boton, la tecla de volver, o un enlace.
+   * único sitio que ve la de verdad, y de la capa se sale por varios lados: el
+   * botón, la tecla de volver, o un enlace.
    */
   $effect(() => {
     setPreviewSource(previewSource);
@@ -299,15 +299,15 @@
    * Soltar vale en cualquier parte del editor. Los oyentes van en la ventana
    * entera y no en la plantilla: un archivo que se suelte fuera de la zona --en
    * el encabezado, en el sidebar-- se lo queda el navegador y lo abre en otra
-   * ventana. Parandolo aqui eso no pasa en ningun sitio.
+   * ventana. Parandolo aqui eso no pasa en ningún sitio.
    *
-   * Solo se despierta con archivos: dentro del editor tambien se arrastran
-   * cosas --una pagina del sidebar a otro sitio de la lista, un trozo de
+   * Solo se despierta con archivos: dentro del editor también se arrastran
+   * cosas --una página del sidebar a otro sitio de la lista, un trozo de
    * texto-- y ninguna de esas es un archivo que traer.
    *
    * El cartel no se apaga por si solo pasado un rato: con el puntero quieto el
    * navegador deja de mandar avisos --no repite `dragover` si nada se mueve--
-   * y cualquier espera lo apagaria con el archivo todavia encima. Se apaga
+   * y cualquier espera lo apagaria con el archivo todavía encima. Se apaga
    * cuando el arrastre acaba: al soltar, al cancelarse, o al salir del borde
    * de la ventana. Nada mas.
    */
@@ -331,13 +331,13 @@
       if (files?.length) handleFiles(files);
     };
 
-    /** Si lo que viene arrastrado son archivos y no algo de la propia pagina. */
+    /** Si lo que viene arrastrado son archivos y no algo de la propia página. */
     const hasFiles = (e: DragEvent) => !!e.dataTransfer?.types.includes("Files");
 
     /*
      * Una tarjeta con su propia zona de soltar --importar una tabla, traer un
      * HTML-- ya paro el evento por su cuenta. Ahi manda ella: ni sale el cartel
-     * ni se cuela una pagina nueva encima de lo que se estaba haciendo.
+     * ni se cuela una página nueva encima de lo que se estaba haciendo.
      */
     const over = (e: DragEvent) => {
       if (!hasFiles(e) || e.defaultPrevented) return;
@@ -352,9 +352,9 @@
       guardar(e.dataTransfer?.files ?? null);
     };
     /*
-     * El archivo salio de la ventana por un borde. `dragleave` salta tambien al
+     * El archivo salio de la ventana por un borde. `dragleave` salta también al
      * cruzar de un elemento al de al lado --y al entrar en el marco de una
-     * pagina, que es otro documento-- asi que solo cuenta el que no deja nada
+     * página, que es otro documento-- asi que solo cuenta el que no deja nada
      * detras y ademas ocurre en el borde: ese si es una salida de verdad.
      */
     const leave = (e: DragEvent) => {
@@ -369,7 +369,7 @@
     /* El arrastre se cancelo: con escape, o soltandolo donde no valia. */
     const end = () => apagar();
     /* Lo mismo que `over`, pero cuando el arrastre pasa por encima del marco de
-       una pagina: alli dentro vive otro documento y el puente es su voz. */
+       una página: alli dentro vive otro documento y el puente es su voz. */
     const fromFrame = () => encender();
     const frameDrop = (e: Event) => {
       const detail = (e as CustomEvent<{ archivos?: File[] }>).detail;
@@ -397,17 +397,17 @@
   /* ---------------------------------------------------------------- */
 
   // Cuando /ajustes se visita directamente (sin estado de fondo), mostramos la
-  // seccion "app" detras del modal en lugar de perder la URL de ajustes. Si ya
-  // hay paginas cargadas, apuntamos a la pagina de inicio para que AppEditor no
-  // redirija la URL real al agregar el id de pagina.
+  // sección "app" detras del modal en lugar de perder la URL de ajustes. Si ya
+  // hay páginas cargadas, apuntamos a la página de inicio para que AppEditor no
+  // redirija la URL real al agregar el id de página.
   const homePage = $derived(pages.find((p) => p.isHome) ?? pages.find((p) => !p.separator));
   const defaultContentPath = $derived(
     homePage ? `/a/${appId}/app/${homePage.id}` : `/a/${appId}/app`,
   );
   // Ajustes y vista previa son capas encima del editor: el contenido de fondo
-  // sigue siendo el que habia antes de abrirlas, para que "volver" no pierda
+  // sigue siendo el que había antes de abrirlas, para que "volver" no pierda
   // nada de lo que estaba abierto. La base de datos no: es la otra mitad de la
-  // aplicacion y ocupa el contenido, con el mismo encabezado arriba.
+  // aplicación y ocupa el contenido, con el mismo encabezado arriba.
   const overlayOpen = $derived(ajustesOpen || !!vistaMatch);
   const contentPath = $derived(
     overlayOpen ? (backgroundLocation?.pathname ?? defaultContentPath) : location.pathname,
@@ -429,7 +429,7 @@
     });
 
   /*
-   * Cambiar de mitad. Volver a la aplicacion vuelve a la pagina que estaba
+   * Cambiar de mitad. Volver a la aplicación vuelve a la página que estaba
    * abierta, no a la de inicio: se fue a mirar las tablas un momento, no a
    * empezar de nuevo.
    */
@@ -445,12 +445,12 @@
     navigate(next === "datos" ? `/a/${appId}/datos` : lastAppPath || defaultContentPath);
 
   /**
-   * La pagina que se esta viendo, si es que se esta viendo alguna.
+   * La página que se esta viendo, si es que se esta viendo alguna.
    *
    * Sale de la URL del contenido y no de un estado propio: la ruta es la que
-   * manda sobre que pagina esta abierta, y con los ajustes encima sigue siendo
+   * manda sobre que página esta abierta, y con los ajustes encima sigue siendo
    * la de detras. En la mitad de las tablas no hay ninguna, y ahi "usar la
-   * pagina actual" no se ofrece.
+   * página actual" no se ofrece.
    */
   const openPage = $derived(
     section === "app"
@@ -479,7 +479,7 @@
    * Si se le puede dar un archivo a la IA ahora mismo.
    *
    * Hace falta un servidor conectado y una ventana que de para la columna: sin
-   * una de las dos, el archivo se quedaria esperando en una conversacion que no
+   * una de las dos, el archivo se quedaria esperando en una conversación que no
    * se puede abrir, y es mejor no ofrecerlo que ofrecerlo y no cumplir.
    */
   const canUseAi = $derived(aiReady && !dock.tooNarrow);
@@ -521,12 +521,12 @@
   const intoPeople = $derived(isPeopleTable(existing) ? existing : null);
 
   /**
-   * Llevar el archivo a la tabla de personas y abrir alli el dialogo de
+   * Llevar el archivo a la tabla de personas y abrir alli el diálogo de
    * importar.
    *
    * No se importa desde aqui: meter filas en la tabla de personas sin crear las
-   * cuentas deja unas filas que no son de nadie. El dialogo de la cuadricula es
-   * el unico camino que crea la cuenta, dice cuantas se van a crear y pide que
+   * cuentas deja unas filas que no son de nadie. El diálogo de la cuadricula es
+   * el único camino que crea la cuenta, dice cuantas se van a crear y pide que
    * se marque expresamente.
    */
   const toPeopleImport = (table: TableRecord, file: File) => {
@@ -537,9 +537,9 @@
   };
 
   /**
-   * Crea la tabla del archivo ya leido, con la relacion que se haya aceptado o
+   * Crea la tabla del archivo ya leido, con la relación que se haya aceptado o
    * sin ninguna. Es el final de los dos caminos de la pregunta, asi que se
-   * ocupa de sus propios errores: al llegar desde el dialogo no hay nadie
+   * ocupa de sus propios errores: al llegar desde el diálogo no hay nadie
    * detras que los recoja.
    */
   const createTable = async (plan: DataFilePlan, personLink: PersonLink | null) => {
@@ -564,12 +564,12 @@
   };
 
   /**
-   * Cerrar la pregunta de la relacion y crear con lo que se respondio.
+   * Cerrar la pregunta de la relación y crear con lo que se respondio.
    *
    * El plan se lee antes de cerrar: `linking` es estado, y las dos salidas del
-   * dialogo lo vacian. Leerlo despues --que es lo que se hacia con un `@const`
+   * diálogo lo vacian. Leerlo después --que es lo que se hacia con un `@const`
    * dentro del `{#if}`-- devolvia el valor ya vaciado, y la tabla no llegaba a
-   * crearse: el dialogo se cerraba y no pasaba nada.
+   * crearse: el diálogo se cerraba y no pasaba nada.
    */
   const closeLinking = (personLink: PersonLink | null) => {
     const pending = linking;
@@ -579,10 +579,10 @@
   };
 
   /**
-   * Llevar los archivos a la conversacion de la IA.
+   * Llevar los archivos a la conversación de la IA.
    *
-   * Se pasa antes a la mitad de la aplicacion --la conversacion vive encima de
-   * una pagina, no de las tablas-- y se trae la columna. Los archivos esperan
+   * Se pasa antes a la mitad de la aplicación --la conversación vive encima de
+   * una página, no de las tablas-- y se trae la columna. Los archivos esperan
    * en su cola hasta que el panel se monte, asi que el orden de estas tres
    * cosas no importa.
    */
@@ -593,7 +593,7 @@
     sendFilesToAi(files);
   };
 
-  /** El HTML del archivo se vuelve una pagina nueva al final de la lista. */
+  /** El HTML del archivo se vuelve una página nueva al final de la lista. */
   const newPageFromHtml = async (file: File) => {
     drop = null;
     hush();
@@ -609,7 +609,7 @@
     }
   };
 
-  /** El HTML del archivo pasa a ser el de la pagina que esta abierta. */
+  /** El HTML del archivo pasa a ser el de la página que esta abierta. */
   const htmlIntoOpenPage = async (file: File, page: PageRecord) => {
     drop = null;
     overwrite = null;
@@ -633,7 +633,7 @@
    *
    * Si alguna columna esta nombrando usuarios se pregunta antes de crear nada:
    * la columna nace de tipo persona y las filas entran ya enlazadas.
-   * Convertirla despues vaciaria la columna.
+   * Convertirla después vaciaria la columna.
    */
   const newTableFromData = async (file: File) => {
     drop = null;
@@ -663,15 +663,15 @@
 
   /*
    * Soltar un archivo vale en cualquier parte del constructor, y soltarlo no
-   * decide nada: se pregunta que hacer con el. Por aqui entra tambien el que
+   * decide nada: se pregunta que hacer con el. Por aqui entra también el que
    * se elige a mano --`openFile` del contexto-- porque la pregunta y lo que se
    * puede responder son las mismas por los dos caminos.
    *
-   * Un HTML puede ser una pagina nueva, el contenido de la que esta abierta, o
+   * Un HTML puede ser una página nueva, el contenido de la que esta abierta, o
    * material para pedirle algo a la IA. Un archivo de datos puede ser una tabla
-   * nueva, filas de una que ya existe, o tambien material. Lo demas que se sepa
+   * nueva, filas de una que ya existe, o también material. Lo demas que se sepa
    * leer --una hoja de estilos, un script, una imagen-- no crea nada en la
-   * aplicacion, asi que va derecho a la conversacion sin preguntar.
+   * aplicación, asi que va derecho a la conversación sin preguntar.
    */
   function handleFiles(files: FileList | File[] | null, from: FileFrom = "drop") {
     const list = Array.from(files ?? []);
@@ -688,7 +688,7 @@
 
     const kind = dropKind(file);
     if (kind === "html" || kind === "data") {
-      // La pregunta es por un archivo: crear dos paginas o dos tablas de una
+      // La pregunta es por un archivo: crear dos páginas o dos tablas de una
       // vez son dos decisiones, no una. Los demas se dicen y se quedan fuera.
       if (list.length > 1) {
         say(
@@ -704,8 +704,8 @@
         say(
           "warning",
           aiReady
-            ? "Ese archivo solo sirve como material para la inteligencia artificial, y la ventana no da para su columna. Ensanchala e intenta otra vez."
-            : "Ese archivo solo sirve como material para la inteligencia artificial, y no hay ninguna conectada.",
+            ? "Este archivo necesita el panel de IA. Amplía la ventana e inténtalo de nuevo."
+            : "Este archivo necesita un servidor de IA. Conecta uno en los ajustes.",
         );
         return;
       }
@@ -735,7 +735,7 @@
        * La lista de invitados se vuelve a pedir aunque el archivo no fuera de
        * personas: una importacion puede haber enlazado filas con ellas, y el
        * siguiente archivo que se suelte empareja contra esta lista. Es lo mismo
-       * que ya hace la cuadricula cuando la importacion va por su dialogo.
+       * que ya hace la cuadricula cuando la importacion va por su diálogo.
        */
       await people.reload();
       // A medias no es un exito: las filas que se quedaron fuera son lo que hay
@@ -757,9 +757,9 @@
 {#if loading}
   <Loading label="Abriendo la aplicación" />
 {:else if !app}
-  <!-- Un error con la aplicacion cargada es un aviso de algo que se intento
+  <!-- Un error con la aplicación cargada es un aviso de algo que se intento
        (soltar un archivo, por ejemplo) y se cuenta dentro, sin tumbar el
-       editor. Sin aplicacion no hay editor que sostener. -->
+       editor. Sin aplicación no hay editor que sostener. -->
   <div class="builder-error">
     <ErrorNote message={notice?.text || "No se encontró la aplicación"} />
     <a href="/" use:link class="builder-error-home inline-block">Volver al inicio</a>
@@ -767,7 +767,7 @@
 {:else}
   <!--
     El encabezado manda a lo ancho; debajo, la escena reparte lo que queda
-    entre el dock, el sidebar y el documento. La barra de direccion ya no cruza
+    entre el dock, el sidebar y el documento. La barra de dirección ya no cruza
     la ventana entera: vive dentro de la escena, encima del documento y sin
     pasar por delante del dock.
   -->
@@ -781,7 +781,7 @@
       onChanged={reloadApp}
     />
     <!--
-      `Note` se pinta en la capa de avisos, no aqui: envolverlo en un boton
+      `Note` se pinta en la capa de avisos, no aqui: envolverlo en un botón
       solo conseguia que arrastrar sobre su texto lo cerrara en vez de
       seleccionarlo. El aviso ya trae su propia equis y su reloj.
     -->
@@ -793,9 +793,9 @@
   </div>
 
   <!--
-    El cartel tapa la ventana entera, no solo la zona del documento: es lo unico
+    El cartel tapa la ventana entera, no solo la zona del documento: es lo único
     que se puede leer mientras dura el arrastre, y de paso hace de escudo sobre
-    el marco de la pagina, que al ser otro documento se quedaria el archivo por
+    el marco de la página, que al ser otro documento se quedaria el archivo por
     su cuenta.
   -->
   {#if dropping || busyDrop}
@@ -808,7 +808,7 @@
     >
       <p class="overlay-drop-copy flex items-center gap-2" role={busyDrop ? "status" : undefined}>
         <!--
-          Mientras se escribe, el giro es la unica senal de que la espera
+          Mientras se escribe, el giro es la única senal de que la espera
           avanza: un cartel quieto no distingue trabajando de colgado.
         -->
         <span class="overlay-drop-icon" aria-hidden="true">
@@ -824,7 +824,7 @@
   {/if}
 
   <!--
-    Se solto un HTML. Se pregunta antes de escribir nada: puede ser una pagina
+    Se solto un HTML. Se pregunta antes de escribir nada: puede ser una página
     nueva, el contenido de la que esta abierta, o material para pedirle algo a
     la IA.
   -->
@@ -844,7 +844,7 @@
           <DropChoice
             buttonClass="btn-drop-html-to-ai"
             label="Usar en el chat de IA"
-            hint="El archivo se adjunta a la conversación. Ahí le pides lo que quieras: que lo tome de referencia, que lo adapte, que saque de él una pantalla."
+            hint="Adjunta el archivo para usarlo como referencia, adaptarlo o crear una pantalla."
             onclick={() => toAi([file])}
           />
         {/if}
@@ -857,7 +857,7 @@
               ? "Lo que esa página tiene escrito ahora se reemplaza por este HTML."
               : "Esa página está en blanco: este HTML pasa a ser el suyo."}
             onclick={() => {
-              // Una pagina en blanco no tiene nada que perder; una escrita si,
+              // Una página en blanco no tiene nada que perder; una escrita si,
               // y eso se pregunta antes con todas las letras.
               if (page.doc) overwrite = { file, page };
               else void htmlIntoOpenPage(file, page);
@@ -885,7 +885,7 @@
 
   <!--
     Se solto un archivo de datos. Los tres modos de importar solo se ofrecen
-    cuando ya hay una tabla que se llama igual; la respuesta todavia no hace
+    cuando ya hay una tabla que se llama igual; la respuesta todavía no hace
     nada, porque cada uno pasa por su confirmacion, que es donde se cuenta con
     todas las letras lo que va a ocurrir.
   -->
@@ -909,11 +909,11 @@
           <DropChoice
             buttonClass="btn-drop-data-to-ai"
             label="Usar en el chat de IA"
-            hint="El archivo se adjunta a la conversación. Ahí le pides lo que quieras: que lo resuma, que arme una pantalla con esos datos, que diga qué columnas convienen."
+            hint="Adjunta el archivo para resumirlo, crear una pantalla o proponer columnas."
             onclick={() => toAi([file])}
           />
         {/if}
-        <!-- Un archivo de personas no ofrece crear una tabla: la aplicacion
+        <!-- Un archivo de personas no ofrece crear una tabla: la aplicación
              tiene una sola tabla de personas y una copia suya al lado no seria
              la misma gente, seria unas filas sin cuenta detras. -->
         {#if !intoPeople}
@@ -929,7 +929,7 @@
           <DropChoice
             buttonClass="btn-drop-data-into-people"
             label={`Importar en "${people.label}"`}
-            hint="Se abre la importación de personas: dice cuántas ya tienen cuenta y cuántas se crearían, y no crea ninguna sin que lo marques."
+            hint="Revisa qué personas ya tienen cuenta y cuáles se crearán antes de importar."
             onclick={() => toPeopleImport(people, file)}
           />
         {:else if existing}
@@ -981,8 +981,8 @@
     onConfirm={() => void runImport()}
   />
 
-  <!-- Reemplazar lo que una pagina ya tiene escrito no se deshace desde aqui:
-       se dice antes, y con el nombre de la pagina delante. -->
+  <!-- Reemplazar lo que una página ya tiene escrito no se deshace desde aqui:
+       se dice antes, y con el nombre de la página delante. -->
   <ConfirmDialog
     open={!!overwrite}
     onClose={() => {
@@ -1052,7 +1052,7 @@
     height: 0.875rem;
     width: 0.875rem;
     border-width: 2px;
-    /* Entero del color de la aplicacion: el aro tenue y la cabeza plena. */
+    /* Entero del color de la aplicación: el aro tenue y la cabeza plena. */
     border-color: color-mix(in srgb, var(--accent) 25%, transparent);
     border-top-color: var(--accent);
   }

@@ -1,13 +1,13 @@
 <!--
   El proceso de un turno: una sola fila que cambia de estado.
 
-  Mientras la IA trabaja, la fila ensena lo ultimo que lleva pensado y se
+  Mientras la IA trabaja, la fila enseña lo ultimo que lleva pensado y se
   desplaza sola para seguir el final del texto: se ve avanzar sin desplegar
   nada y sin ocupar sitio. Al cerrar el turno con respuesta, esa misma fila se
   queda quieta en el principio del razonamiento, con la cuenta de pasos, y lo
   que hay debajo se pliega.
 
-  Es una sola fila y no dos componentes a proposito: lo que se veia vivo y lo
+  Es una sola fila y no dos componentes a propósito: lo que se veia vivo y lo
   que queda guardado son la misma cosa en dos momentos, y partirlo en dos hacia
   que el turno diera un salto al terminar.
 
@@ -41,7 +41,7 @@
     open,
     onToggle,
   }: {
-    /** Lo que la peticion lleva producido, si todavia esta en marcha. */
+    /** Lo que la petición lleva producido, si todavía esta en marcha. */
     progress?: Progress;
     /** Desde cuando trabaja, para el reloj. */
     since?: number;
@@ -89,13 +89,13 @@
    * Lo que se lee en la fila plegada.
    *
    * Trabajando, lo ultimo que lleva pensado, que es lo que se ve avanzar. Ya
-   * cerrado, el principio del razonamiento: la misma linea, quieta.
+   * cerrado, el principio del razonamiento: la misma línea, quieta.
    */
   const summary = $derived(
     working ? latestLine(live) || "Generando" : firstLine(reasoning) || rotulo(count),
   );
 
-  /** La primera linea de un texto: por donde empieza el razonamiento. */
+  /** La primera línea de un texto: por donde empieza el razonamiento. */
   function firstLine(text: string): string {
     const cut = text.indexOf("\n");
     return cut === -1 ? text : text.slice(0, cut);
@@ -116,7 +116,7 @@
     return () => clearInterval(id);
   });
 
-  // La linea sigue el final del texto, al mismo ritmo que los redibujados.
+  // La línea sigue el final del texto, al mismo ritmo que los redibujados.
   const follow = frameThrottle(() => {
     if (line) line.scrollLeft = line.scrollWidth - line.clientWidth;
   });
@@ -144,7 +144,7 @@
 <div class={cx("process-ai inset plain", !folded && "process-open")}>
   <!--
     Trabajando, la fila se anuncia a quien usa un lector de pantalla: "esta
-    trabajando" es informacion, no decoracion, y sin esto la unica senal de que
+    trabajando" es informacion, no decoracion, y sin esto la única senal de que
     algo pasa era visual.
   -->
   <button
@@ -195,7 +195,7 @@
             {/if}
           {/each}
 
-          <!-- Lo que la ronda en marcha lleva pensado, todavia sin cerrar. -->
+          <!-- Lo que la ronda en marcha lleva pensado, todavía sin cerrar. -->
           {#if progress?.reasoning}
             <div class="timeline-thought"><Markdown text={progress.reasoning} /></div>
           {/if}
@@ -217,29 +217,29 @@
 </div>
 
 <style>
-  /* La caja es `.inset.plain` del catalogo --el cerco sin fondo: lo que hay
-     dentro es una linea que se desplaza sola y un fondo pleno la emborronaba--;
+  /* La caja es `.inset.plain` del catálogo --el cerco sin fondo: lo que hay
+     dentro es una línea que se desplaza sola y un fondo pleno la emborronaba--;
      aqui solo el acolchado, que lo ponen las dos filas.
 
-     Sin recorte a proposito: recortando, esta caja seria el contenedor de
+     Sin recorte a propósito: recortando, esta caja seria el contenedor de
      desplazamiento de la cabecera y entonces no se pegaria a nada. No hace
      falta --nada de dentro pinta fondo-- y el pliegue se recorta por su cuenta.
      Se aisla para ordenar sus dos filas sin competir con la escala de capas de
-     fuera: dentro del peldano, la cabecera va delante de la linea de tiempo. */
+     fuera: dentro del peldano, la cabecera va delante de la línea de tiempo. */
   .process-ai {
     isolation: isolate;
     padding: 0;
   }
 
-  /* Desplegada, la linea de tiempo es mas alta que la columna: la cabecera se
+  /* Desplegada, la línea de tiempo es mas alta que la columna: la cabecera se
      queda arriba mientras lo desplegado pasa por debajo, para que bajar a leer
-     no se lleve por delante la unica forma de cerrarla.
+     no se lleve por delante la única forma de cerrarla.
 
      Lleva el fondo de la columna --el mismo que se ve detras, asi que en reposo
      no cambia nada-- porque pegada tiene que tapar lo que pasa por detras.
 
      Plegada tiene alto fijo y se aisla del resto: lo que llega mientras la IA
-     escribe --una linea de razonamiento mas larga que la anterior-- no puede
+     escribe --una línea de razonamiento mas larga que la anterior-- no puede
      mover lo que hay debajo. Ver `design.md` D8. */
   .btn-toggle-process {
     position: sticky;
@@ -277,7 +277,7 @@
       color: var(--text-secondary);
     }
 
-    /* Abierta, abajo ya no hay esquina que redondear --sigue la linea de
+    /* Abierta, abajo ya no hay esquina que redondear --sigue la línea de
        tiempo-- y la raya que las separa viaja con ella y no con lo que se
        desplaza: pegada arriba, sigue separando. */
     &.is-open {
@@ -292,7 +292,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* La linea que se desplaza sola; su barra no se ensena. */
+  /* La línea que se desplaza sola; su barra no se enseña. */
   .process-line {
     min-width: 0;
     overflow: hidden;

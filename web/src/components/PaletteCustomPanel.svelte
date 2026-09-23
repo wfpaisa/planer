@@ -1,19 +1,19 @@
 <!--
   El color a mano, completo: la muestra que anticipa el acento derivado
-  (`data-palette="custom"`, igual que lo hace la aplicacion de verdad), la
+  (`data-palette="custom"`, igual que lo hace la aplicación de verdad), la
   rueda + el hexadecimal -- los presta `PaletteCustomField`, que ya resuelve
   lo delicado de escribir a medias -- y una fila de accesos rapidos para
-  elegir sin saber ningun hexadecimal de memoria.
+  elegir sin saber ningún hexadecimal de memoria.
 
-  El `data-palette="custom"` va en la RAIZ del panel, no solo en la muestra:
-  el anillo del acceso rapido elegido tambien pinta con `var(--accent)`, y si
-  el atributo se quedara solo en la muestra ese anillo heredaria el acento
+  El `data-palette="custom"` va en la RAÍZ del panel, no solo en la muestra:
+  el anillo del acceso rápido elegido también pinta con `var(--accent)`, y si
+  el atributo se quedará solo en la muestra ese anillo heredaria el acento
   ambiente del panel (el de quien construye, no el que se esta eligiendo) en
   vez del exacto que ya se ve en la muestra y en el hexadecimal.
 
   Vive aparte de `PaletteCustomField` porque ese es el campo suelto que basta
-  al crear una aplicacion (`CreateAppModal`); este panel es la version larga,
-  para cuando ya hay un catalogo entero al lado (`PalettePicker`).
+  al crear una aplicación (`CreateAppModal`); este panel es la versión larga,
+  para cuando ya hay un catálogo entero al lado (`PalettePicker`).
 -->
 <script lang="ts">
   import { cx } from "../lib/cx";
@@ -21,8 +21,8 @@
 
   let { value, onChange }: { value: string; onChange: (hex: string) => void } = $props();
 
-  /* Accesos rapidos: un tono por familia, sueltos del catalogo de 46 --aqui
-     no hace falta paleta entera, solo un punto de partida rapido. Los
+  /* Accesos rapidos: un tono por familia, sueltos del catálogo de 46 --aqui
+     no hace falta paleta entera, solo un punto de partida rápido. Los
      nombres son los mismos de los "Monocromos" de `shared/palettes.ts`: son
      la misma familia de color, asi que el hover dice "Esmeralda" y no
      "#00bc7d", que no le dice nada a quien no vive en hexadecimales. */
@@ -56,7 +56,7 @@
     <div class="custom-field-palette flex-1">
       <PaletteCustomField
         label="Color principal"
-        hint="De el salen el acento y la serie de datos, con la tinta medida para que se lea encima."
+        hint="Define el acento y los colores de las gráficas. El texto se ajusta para mantener el contraste."
         {value}
         {onChange}
       />
@@ -102,7 +102,7 @@
       font-weight: 800;
     }
 
-    /* La muestra es `.opt-tile` del catalogo --el cerco y la marca de
+    /* La muestra es `.opt-tile` del catálogo --el cerco y la marca de
        elegido-- con la medida de `.swatch-color`, la misma que el cuadro
        del color puesto ahi arriba. Nada propio que anadir. */
   }

@@ -1,18 +1,18 @@
 /**
- * Las pruebas de dibujado que la IA pide a mitad de una peticion.
+ * Las pruebas de dibujado que la IA pide a mitad de una petición.
  *
- * Aqui no hay navegador. El unico sitio donde el HTML de una pagina se ejecuta
+ * Aquí no hay navegador. El único sitio donde el HTML de una página se ejecuta
  * de verdad --con su puente, sus colores y sus datos-- es el navegador de quien
- * construye, asi que la prueba se le pide a el: el servidor manda un aviso con
+ * construye, así que la prueba se le pide a el: el servidor manda un aviso con
  * la huella del documento, quien este mirando lo dibuja en un marco escondido y
  * devuelve lo que la consola solto.
  *
  * Esto guarda ese hueco de espera. Es memoria de este proceso y no sobrevive a
  * un reinicio, igual que las peticiones en marcha.
  *
- * Si nadie contesta --el panel esta cerrado, la peticion vino de otro sitio--
+ * Si nadie contesta --el panel esta cerrado, la petición vino de otro sitio--
  * la espera vence y la IA se entera de que no se pudo probar. Nunca se queda
- * colgada: una peticion no puede depender de que haya alguien mirando.
+ * colgada: una petición no puede depender de que haya alguien mirando.
  */
 import type { PageIssue, PageProbeReport } from "../../shared/types.ts";
 
@@ -58,8 +58,8 @@ export function openProbe(timeoutMs = PROBE_TIMEOUT): {
 }
 
 /**
- * El panel termino de probar. Devuelve si habia alguien esperando: una
- * respuesta que llega tarde, despues de vencer el plazo, no vale para nada.
+ * El panel termino de probar. Devuelve si había alguien esperando: una
+ * respuesta que llega tarde, después de vencer el plazo, no vale para nada.
  */
 export function closeProbe(report: PageProbeReport): boolean {
   const entry = waiting.get(report.probeId);
@@ -68,7 +68,7 @@ export function closeProbe(report: PageProbeReport): boolean {
   return true;
 }
 
-/** Cierra una espera sin resultado. Para cuando la peticion se detiene. */
+/** Cierra una espera sin resultado. Para cuando la petición se detiene. */
 export function cancelProbe(probeId: string): void {
   waiting.get(probeId)?.settle(null);
 }

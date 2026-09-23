@@ -9,7 +9,7 @@
 </div>
 
 <style>
-  /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco dentro del menu. */
+  /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco dentro del menu. */
   .menu-label {
     padding: var(--sp-8) var(--sp-10) var(--sp-4);
   }

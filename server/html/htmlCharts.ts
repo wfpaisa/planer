@@ -1,30 +1,30 @@
 /**
- * Las graficas de la casa.
+ * Las gráficas de la casa.
  *
- * Una pagina que pinta un panel de indicadores no deberia tener que decidir de
+ * Una página que pinta un panel de indicadores no deberia tener que decidir de
  * que color va cada serie, cuanto mide una barra ni como se ve una etiqueta de
- * eje: si lo decide cada pagina, dos paneles de la misma aplicacion no se
- * parecen. Aqui esta esa decision, una sola vez, encima de Chart.js.
+ * eje: si lo decide cada página, dos paneles de la misma aplicación no se
+ * parecen. Aquí esta esa decision, una sola vez, encima de Chart.js.
  *
  * Lo que se sirve en `/plane/graficas.js` es la libreria y este guion pegados,
  * en ese orden. El guion deja `plane.grafica`, `plane.colores` y `plane.paleta`
- * en el mismo sitio donde ya viven los datos, y vuelve a pintar cada grafica
- * cuando la aplicacion cambia de paleta o de modo.
+ * en el mismo sitio donde ya viven los datos, y vuelve a pintar cada gráfica
+ * cuando la aplicación cambia de paleta o de modo.
  *
- * Los colores de serie salen de la paleta de la aplicacion: los cuatro
+ * Los colores de serie salen de la paleta de la aplicación: los cuatro
  * `--chart-1..4` que trae cada paleta (`styles/palettes.css`), mas cuatro
  * fijos para cuando hacen falta mas de cuatro series. Repartir la escala del
  * acento entre varias series daria un degradado, no identidades -- por eso
- * no se usa `--color-accent-500` aqui --, pero `--chart-1..4` ya son cuatro
+ * no se usa `--color-accent-500` aquí --, pero `--chart-1..4` ya son cuatro
  * tonos pensados para distinguirse entre si, no un degradado de uno solo.
  *
  * La excepcion son las paletas monocromas (`theme-mono-*`): sus cuatro
- * `--chart-1..4` son el mismo tono en distinta luminosidad, asi que una
- * grafica de esa aplicacion con varias series se ve en una sola familia de
- * color. Es la eleccion de quien uso esa paleta, no un error de la grafica.
+ * `--chart-1..4` son el mismo tono en distinta luminosidad, así que una
+ * gráfica de esa aplicación con varias series se ve en una sola familia de
+ * color. Es la eleccion de quien uso esa paleta, no un error de la gráfica.
  *
  * El acento manda cuando hay una sola serie: ahi no hay nada que distinguir
- * y la grafica es de la aplicacion.
+ * y la gráfica es de la aplicación.
  */
 
 import { CHARTS_PATH } from "../../shared/htmlContract.ts";
@@ -32,18 +32,18 @@ import { CHARTS_PATH } from "../../shared/htmlContract.ts";
 /**
  * Como se reconoce un documento que dibuja algo.
  *
- * El guion pesa ciento y pico kilobytes, asi que no va en toda pagina: va en
- * las que lo nombran. Quien sirve un documento --una pagina o un documento
- * suelto-- pregunta con esto y pone la linea si hace falta.
+ * El guion pesa ciento y pico kilobytes, así que no va en toda página: va en
+ * las que lo nombran. Quien sirve un documento --una página o un documento
+ * suelto-- pregunta con esto y pone la línea si hace falta.
  */
 export const USES_CHARTS = /\bplane\s*\.\s*grafica\s*\(|\bnew\s+Chart\s*\(/;
 
-/** La linea que lo trae, con el comentario que dice para que sirve. */
+/** La línea que lo trae, con el comentario que dice para que sirve. */
 export const CHARTS_REF =
-  `<!-- Graficas de Planer: Chart.js con los colores de la aplicacion, en plane.grafica -->\n` +
+  `<!-- Gráficas de Planer: Chart.js usa los colores de la aplicación mediante plane.grafica -->\n` +
   `<script src="${CHARTS_PATH}"></script>`;
 
-/** Los cuatro de mas, para cuando una grafica trae mas series que la paleta. */
+/** Los cuatro de mas, para cuando una gráfica trae mas series que la paleta. */
 const SERIES_EXTRA = [
   "oklch(0.789 0.185 152)",
   "oklch(0.719 0.177 16.8)",
@@ -72,11 +72,11 @@ export const CHART_ADAPTER = `(function () {
    * De donde cuelga todo.
    *
    * Este archivo y el del puente son dos, y cual de los dos corre primero no
-   * lo decide ninguno: depende de en que orden quedaron las lineas en el
+   * lo decide ninguno: depende de en que orden quedaron las líneas en el
    * documento. Por eso aqui no se guarda una referencia al objeto --el puente
-   * puede reemplazarlo despues y dejarnos hablando con uno muerto--, sino que
-   * se pregunta por el cada vez. Si todavia no hay ninguno, se crea: una
-   * grafica sin datos de la plataforma sigue siendo una grafica que se puede
+   * puede reemplazarlo después y dejarnos hablando con uno muerto--, sino que
+   * se pregunta por el cada vez. Si todavía no hay ninguno, se crea: una
+   * gráfica sin datos de la plataforma sigue siendo una gráfica que se puede
    * pintar.
    */
   function P() {
@@ -90,7 +90,7 @@ export const CHART_ADAPTER = `(function () {
   /*
    * El lienzo no entiende \`var(--ink)\` ni \`color-mix(...)\`: hay que darle un
    * color ya resuelto. Se resuelve pintando un pixel y leyendolo, que es lo
-   * unico que funciona igual con \`oklch\`, con \`hsl\` y con un nombre suelto.
+   * único que funciona igual con \`oklch\`, con \`hsl\` y con un nombre suelto.
    */
   var sonda = null;
   var resueltos = {};
@@ -123,7 +123,7 @@ export const CHART_ADAPTER = `(function () {
   }
 
   /*
-   * Cualquier color valido, pasado a un \`rgb()\` de toda la vida.
+   * Cualquier color válido, pasado a un \`rgb()\` de toda la vida.
    *
    * Chart.js trae su propio interprete de colores -- lo usa, por ejemplo, para
    * resolver el color de un arco cuando el mouse pasa por encima -- y ese
@@ -139,14 +139,14 @@ export const CHART_ADAPTER = `(function () {
   }
 
   /*
-   * El relleno de una linea: del color de la serie a transparente, de arriba a
-   * abajo. Un color plano debajo de la linea se ve como una banda de tinta
+   * El relleno de una línea: del color de la serie a transparente, de arriba a
+   * abajo. Un color plano debajo de la línea se ve como una banda de tinta
    * pareja; el degradado se lee como una sombra que cae desde el trazo, que es
    * lo que trae la galeria de demostracion.
    *
-   * Va como funcion -- lo que Chart.js llama una opcion "scriptable" -- porque
+   * Va como función -- lo que Chart.js llama una opción "scriptable" -- porque
    * el gradiente necesita el alto real del lienzo, y ese alto no se conoce
-   * hasta que la grafica mide su area por primera vez.
+   * hasta que la gráfica mide su area por primera vez.
    */
   function relleno(color) {
     return function (contexto) {
@@ -162,7 +162,7 @@ export const CHART_ADAPTER = `(function () {
   /** Los cuatro de mas, normalizados una sola vez: ver \`comoRgb\`. */
   var SERIE_EXTRA_RGB = SERIE_EXTRA.map(comoRgb);
 
-  /** Una variable del tema, ya resuelta, con su respaldo si todavia no llego. */
+  /** Una variable del tema, ya resuelta, con su respaldo si todavía no llego. */
   function variable(nombre, respaldo) {
     var valor = "";
     try {
@@ -179,7 +179,7 @@ export const CHART_ADAPTER = `(function () {
    * \`color-mix()\` --las que trae cualquier app con color propio, en
    * css/palettes.css-- vuelve como ese texto sin resolver, y ni el lienzo ni
    * Chart.js saben pintar con \`"light-dark(...)"\`. Se calla, y la barra sale
-   * negra. La unica forma de que el navegador SI lo resuelva es ponerlo en una
+   * negra. La única forma de que el navegador SI lo resuelva es ponerlo en una
    * propiedad de verdad --\`color\`-- de un elemento de verdad, y leer ahi.
    */
   var sondaColor = null;
@@ -211,7 +211,7 @@ export const CHART_ADAPTER = `(function () {
     return Math.round(n);
   }
 
-  /** Todo lo que una grafica necesita saber del tema, resuelto de una vez. */
+  /** Todo lo que una gráfica necesita saber del tema, resuelto de una vez. */
   function leerPaleta() {
     var oscuro = P().modo === "dark";
     var series = [
@@ -243,8 +243,8 @@ export const CHART_ADAPTER = `(function () {
   /**
    * Los colores de \`n\` series.
    *
-   * Una sola serie va del color de la aplicacion: no hay nada de que
-   * distinguirla y asi la grafica se ve de la casa. Dos o mas van de la paleta
+   * Una sola serie va del color de la aplicación: no hay nada de que
+   * distinguirla y asi la gráfica se ve de la casa. Dos o mas van de la paleta
    * fija, siempre en el mismo orden, para que un filtro que deje fuera una
    * serie no repinte las que quedan.
    */
@@ -310,7 +310,7 @@ export const CHART_ADAPTER = `(function () {
     Chart.defaults.animations.colors = false;
 
     /* La leyenda: puntos pequenos, texto de la casa, alineada a la izquierda
-       con el titulo de la seccion, y aire por debajo. */
+       con el título de la sección, y aire por debajo. */
     var leyenda = Chart.defaults.plugins.legend;
     leyenda.position = "top";
     leyenda.align = "start";
@@ -341,7 +341,7 @@ export const CHART_ADAPTER = `(function () {
 
     Chart.defaults.plugins.title.display = false;
 
-    /* Las lineas del fondo se ven poco a proposito: son una referencia, no
+    /* Las líneas del fondo se ven poco a propósito: son una referencia, no
        parte del dibujo. Y solo las del eje de los valores. */
     Chart.defaults.scale.grid.color = p.linea;
     Chart.defaults.scale.grid.drawTicks = false;
@@ -367,7 +367,7 @@ export const CHART_ADAPTER = `(function () {
   /* ------------------------------------------------------------------ */
 
   /*
-   * La guia vertical. Quien mira apunta a una fecha, no a una linea de 2px:
+   * La guia vertical. Quien mira apunta a una fecha, no a una línea de 2px:
    * la guia dice a que punto del eje corresponde lo que esta leyendo.
    */
   var GUIA = {
@@ -393,9 +393,9 @@ export const CHART_ADAPTER = `(function () {
   };
 
   /*
-   * El hueco vacio. Una grafica sin datos que dibuja los ejes y nada mas
+   * El hueco vacío. Una gráfica sin datos que dibuja los ejes y nada mas
    * parece rota; con una frase en medio se entiende que no hay nada que
-   * ensenar todavia.
+   * ensenar todavía.
    */
   function sinDatos(chart) {
     var datos = chart.data.datasets || [];
@@ -408,7 +408,7 @@ export const CHART_ADAPTER = `(function () {
   var VACIO = {
     id: "planeVacio",
     /* Unos ejes dibujados alrededor de nada --y encima con una escala de
-       mentira, de 0 a 1-- se leen como una grafica rota. Se quitan mientras no
+       mentira, de 0 a 1-- se leen como una gráfica rota. Se quitan mientras no
        haya datos y vuelven solos en cuanto llegan. */
     beforeUpdate: function (chart) {
       var ejes = chart.options.scales;
@@ -418,7 +418,7 @@ export const CHART_ADAPTER = `(function () {
         var eje = ejes[nombre];
         if (!eje) continue;
         if (fuera) {
-          // Se guarda lo que dijo la pagina para devolverselo tal cual.
+          // Se guarda lo que dijo la página para devolverselo tal cual.
           if (!("planeVisible" in eje)) eje.planeVisible = eje.display;
           eje.display = false;
         } else if ("planeVisible" in eje) {
@@ -447,14 +447,14 @@ export const CHART_ADAPTER = `(function () {
   };
 
   /*
-   * Recolorea en cada \`chart.update()\`, no solo al crear la grafica.
+   * Recolorea en cada \`chart.update()\`, no solo al crear la gráfica.
    *
-   * Una pagina casi siempre crea la grafica vacia y la llena despues, cuando
+   * Una página casi siempre crea la gráfica vacía y la llena después, cuando
    * llega la respuesta de \`plane.listar\`: entre una cosa y otra cambia
    * CUANTAS categorias hay, y una barra categorica o un pie necesitan tantos
-   * colores como categorias, no los que habia cuando no habia ninguna.
+   * colores como categorias, no los que había cuando no había ninguna.
    * \`colorear\` ya sabe cuales colores son de la casa (\`planeCasa_*\`) y deja
-   * intactos los que la pagina puso por su cuenta, asi que repintar en cada
+   * intactos los que la página puso por su cuenta, asi que repintar en cada
    * \`update()\` es seguro: a quien coloreo sus barras a mano --como el
    * semaforo de gravedad-- no le toca nada.
    */
@@ -473,7 +473,7 @@ export const CHART_ADAPTER = `(function () {
     return v && typeof v === "object" && !Array.isArray(v);
   };
 
-  /** Une dos objetos hondos. Lo que pidio quien escribe la pagina manda. */
+  /** Une dos objetos hondos. Lo que pidio quien escribe la página manda. */
   function unir(casa, pedido) {
     var salida = {};
     var nombre;
@@ -491,7 +491,7 @@ export const CHART_ADAPTER = `(function () {
 
   var REDONDOS = { pie: 1, doughnut: 1, polarArea: 1 };
 
-  /** Si la grafica lleva las series apiladas, que es lo que abre el hueco. */
+  /** Si la gráfica lleva las series apiladas, que es lo que abre el hueco. */
   function apilada(config) {
     var ejes = (config.options && config.options.scales) || {};
     for (var nombre in ejes) {
@@ -503,10 +503,10 @@ export const CHART_ADAPTER = `(function () {
   /**
    * Pinta un conjunto de datos con su color.
    *
-   * Solo pone lo que no venga puesto: si la pagina eligio un color para una
+   * Solo pone lo que no venga puesto: si la página eligio un color para una
    * serie --el color de un equipo, el de un semaforo-- se respeta.
    */
-  /** Pone una medida solo si la pagina no la trae puesta. */
+  /** Pone una medida solo si la página no la trae puesta. */
   function medida(serie, nombre, valor) {
     if (serie[nombre] === undefined) serie[nombre] = valor;
   }
@@ -526,7 +526,7 @@ export const CHART_ADAPTER = `(function () {
     }
 
     if (suyo === "line" || suyo === "radar") {
-      /* Una linea de 2px, curvada solo lo justo --\`monotone\` no se pasa de
+      /* Una línea de 2px, curvada solo lo justo --\`monotone\` no se pasa de
          largo, asi que nunca dibuja un valle donde no lo hay-- y sin puntos
          hasta que se senalan, con sitio de sobra para acertarles. */
       medida(serie, "borderWidth", 2);
@@ -540,7 +540,7 @@ export const CHART_ADAPTER = `(function () {
       }
       medida(serie, "fill", true);
       if (!serie.pointBackgroundColor) serie.pointBackgroundColor = color;
-      // El anillo del color del fondo separa el punto de la linea que cruza.
+      // El anillo del color del fondo separa el punto de la línea que cruza.
       if (!serie.pointBorderColor) serie.pointBorderColor = paleta.superficie;
       if (!serie.pointHoverBackgroundColor) serie.pointHoverBackgroundColor = color;
       if (!serie.pointHoverBorderColor) serie.pointHoverBorderColor = paleta.superficie;
@@ -583,7 +583,7 @@ export const CHART_ADAPTER = `(function () {
   /*
    * Colorear deja apuntado **el color que puso la casa**, no solo que lo puso.
    * Al cambiar de tema, un color que sigue siendo el que dejamos es de la
-   * paleta vieja y hay que rehacerlo; uno distinto lo cambio la pagina por su
+   * paleta vieja y hay que rehacerlo; uno distinto lo cambio la página por su
    * cuenta --el color de un equipo, el de un semaforo-- y no se toca.
    */
   function colorear(serie, tipo, color, hueco, unica) {
@@ -641,16 +641,16 @@ export const CHART_ADAPTER = `(function () {
   }
 
   /**
-   * Una grafica con el aspecto de la casa.
+   * Una gráfica con el aspecto de la casa.
    *
-   * Se le pasa donde va y la misma configuracion de Chart.js de siempre. Lo
+   * Se le pasa donde va y la misma configuración de Chart.js de siempre. Lo
    * que no diga lo pone la casa: los colores, las medidas, la leyenda, el
-   * cartel y el hueco vacio. Lo que si diga, manda.
+   * cartel y el hueco vacío. Lo que si diga, manda.
    */
   function grafica(destino, config) {
     var lienzo = lienzoDe(destino);
     var previa = Chart.getChart ? Chart.getChart(lienzo) : null;
-    // Volver a pintar encima de una grafica viva deja dos dibujos peleandose
+    // Volver a pintar encima de una gráfica viva deja dos dibujos peleandose
     // por el mismo lienzo. Para cambiar los datos esta \`chart.update()\`.
     if (previa) previa.destroy();
 
@@ -666,8 +666,8 @@ export const CHART_ADAPTER = `(function () {
     }
 
     /*
-     * El alto. Si la caja donde vive ya tiene uno, la grafica lo llena; si no
-     * lo tiene, se le da una proporcion, porque una grafica que mide el alto
+     * El alto. Si la caja donde vive ya tiene uno, la gráfica lo llena; si no
+     * lo tiene, se le da una proporcion, porque una gráfica que mide el alto
      * de su contenedor y ademas lo estira crece sin parar en cada vuelta.
      */
     var caja = lienzo.parentNode;
@@ -686,13 +686,13 @@ export const CHART_ADAPTER = `(function () {
         ? { mode: "nearest", intersect: true }
         : { mode: "index", intersect: false },
       plugins: {
-        // Con una sola serie la leyenda repite el titulo y ocupa sitio; con
-        // dos o mas es lo unico que dice cual es cual sin fiarlo al color. En
+        // Con una sola serie la leyenda repite el título y ocupa sitio; con
+        // dos o mas es lo único que dice cual es cual sin fiarlo al color. En
         // una tarta cada trozo es uno, asi que ahi se cuentan los trozos.
         legend: { display: redonda ? trozos > 1 : series.length > 1 },
         tooltip: {
           callbacks: {
-            // Primero el numero, que es lo que se vino a buscar; el nombre
+            // Primero el número, que es lo que se vino a buscar; el nombre
             // de la serie va detras y mas discreto.
             label: function (ctx) {
               var valor = ctx.parsed;
@@ -720,7 +720,7 @@ export const CHART_ADAPTER = `(function () {
         y: {
           beginAtZero: true,
           grid: { color: paleta.linea },
-          // Media docena de referencias bastan. Un eje con quince lineas se
+          // Media docena de referencias bastan. Un eje con quince líneas se
           // lee peor y ademas compite con lo que hay dibujado encima.
           ticks: { maxTicksLimit: 6 }
         }
@@ -731,8 +731,8 @@ export const CHART_ADAPTER = `(function () {
     var opciones = unir(casa, (config && config.options) || {});
     var chart = new Chart(lienzo, { type: tipo, data: datos, options: opciones });
 
-    // Las que ya no existen se caen de la lista aqui tambien, y no solo al
-    // cambiar de tema: una pagina que rehace sus graficas al filtrar las
+    // Las que ya no existen se caen de la lista aqui también, y no solo al
+    // cambiar de tema: una página que rehace sus gráficas al filtrar las
     // acumularia todas.
     var quedan = [];
     for (var v = 0; v < vivas.length; v++) {
@@ -773,13 +773,13 @@ export const CHART_ADAPTER = `(function () {
     var quedan = [];
     for (var i = 0; i < vivas.length; i++) {
       var chart = vivas[i];
-      // Una grafica destruida deja de tener lienzo: se cae sola de la lista.
+      // Una gráfica destruida deja de tener lienzo: se cae sola de la lista.
       if (!chart.canvas || !chart.ctx) continue;
       quedan.push(chart);
       try {
         repintar(chart);
         chart.update("none");
-      } catch (e) { /* una grafica rota no puede parar a las demas */ }
+      } catch (e) { /* una gráfica rota no puede parar a las demas */ }
     }
     vivas = quedan;
   }
@@ -790,7 +790,7 @@ export const CHART_ADAPTER = `(function () {
   /*
    * Quedar suscrito al tema.
    *
-   * Si el puente ya esta, se hace ahora. Si todavia no --porque este archivo
+   * Si el puente ya esta, se hace ahora. Si todavía no --porque este archivo
    * quedo antes en el documento-- se espera a que avise de que esta listo: en
    * ese momento se vuelve a colgar todo (el puente pudo haber puesto su propio
    * objeto) y se repinta con los colores que acaban de llegar.

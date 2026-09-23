@@ -1,9 +1,9 @@
 <!--
   Una celda en modo lectura.
 
-  Cada tipo de columna se ensena a su manera; lo unico que no es una linea de
-  texto es la relacion, que tiene su propio componente porque una celda de
-  relacion vacia no siempre esta vacia.
+  Cada tipo de columna se enseña a su manera; lo único que no es una línea de
+  texto es la relación, que tiene su propio componente porque una celda de
+  relación vacía no siempre esta vacía.
 -->
 <script lang="ts">
   import { type FieldDef, isRelationField } from "@shared/types";
@@ -19,7 +19,7 @@
 
   const value = $derived(row[field.name]);
   const empty = $derived(value === null || value === undefined || value === "");
-  /* Una relacion se pinta aparte: sin enlace la celda no esta vacia, lleva el
+  /* Una relación se pinta aparte: sin enlace la celda no esta vacía, lleva el
      valor que se escribio y no encontro dueno. */
   const relation = $derived(isRelationField(field) && field.multiple !== true);
   const list = $derived(Array.isArray(value) ? value : [value]);

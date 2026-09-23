@@ -1,13 +1,13 @@
 <!--
   La clave de una persona invitada, que no es una columna de la tabla.
 
-  Es el unico dato del producto que no se puede leer: se pone, se ensena una
-  sola vez y no queda en ningun sitio de donde volver a sacarla. Por eso no esta
+  Es el único dato del producto que no se puede leer: se pone, se enseña una
+  sola vez y no queda en ningún sitio de donde volver a sacarla. Por eso no esta
   entre las columnas, no sale al exportar y vive aqui, en la fila de la persona,
   con su propio camino.
 
-  Se puede escribir una clave o dejarlo vacio y que el servidor invente una: en
-  los dos casos se ensena una sola vez, que es lo unico que hay que copiar antes
+  Se puede escribir una clave o dejarlo vacío y que el servidor invente una: en
+  los dos casos se enseña una sola vez, que es lo único que hay que copiar antes
   de cerrar.
 -->
 <script lang="ts">
@@ -62,7 +62,7 @@
       <Input
         bind:value
         onkeydown={(e) => e.key === "Enter" && void submit()}
-        placeholder="Dejalo vacio y se inventa una"
+        placeholder="Déjalo vacío para generar una clave"
         aria-label="Clave nueva para {email}"
         class="input-password-form"
       />
@@ -87,7 +87,7 @@
 {/if}
 
 <style>
-  /* La caja es `.inset` del catalogo: lo que se abre dentro de la fila de
+  /* La caja es `.inset` del catálogo: lo que se abre dentro de la fila de
      una persona se hunde, no se levanta. */
   .form-password {
     & .row-password-form {

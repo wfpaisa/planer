@@ -1,5 +1,5 @@
 <!--
-  Cortar el plan a mitad de conversacion (D4): un boton, no un texto que el
+  Cortar el plan a mitad de conversación (D4): un botón, no un texto que el
   usuario escriba para que el modelo lo interprete como orden de cierre.
 
   Vive al pie del ultimo turno, donde esta el plan que se va a cortar, y no en

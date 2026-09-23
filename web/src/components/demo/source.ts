@@ -1,7 +1,7 @@
 /*
   El ejemplo de cada ficha, leido del propio archivo de la galeria.
 
-  La galeria no guarda en ningun sitio el codigo de sus ejemplos, y a proposito:
+  La galeria no guarda en ningún sitio el código de sus ejemplos, y a propósito:
   el ejemplo *es* lo que hay escrito en la ficha. Copiarlo a una cadena para
   poder enseñarlo seria tener el mismo componente escrito dos veces, y de las
   dos copias solo se actualiza una.
@@ -9,22 +9,22 @@
   Antes lo que se enseñaba se recomponia de lo pintado, leyendo el DOM de la
   ficha. Servia mientras el ejemplo fuera marcado, pero no cuando la pieza es un
   componente: de `<PlanerAvatar mood="ok" size={24} />` el DOM solo tiene el
-  `<svg>` que salio, y enseñar sus trazados no dice como se usa. Asi que lo que
+  `<svg>` que salio, y enseñar sus trazados no dice como se usa. Así que lo que
   se enseña se saca de los archivos de la galeria --como texto-- buscando el
-  `card-body` de cada ficha por el titulo con el que la dibuja `head()`. Lo que
+  `card-body` de cada ficha por el título con el que la dibuja `head()`. Lo que
   se ve en el modal es entonces, literalmente, lo que hay escrito en la ficha:
   componentes incluidos, y con sus `{#if}` y sus `{#each}` donde los haya.
 
   Se leen las cinco secciones y no una sola porque ahi es donde estan las
-  fichas; `DemoGallery.svelte` solo las compone y no tiene ninguna. Cada titulo
-  es unico en la galeria --es lo que se lee en la cabecera de la ficha-- asi que
+  fichas; `DemoGallery.svelte` solo las compone y no tiene ninguna. Cada título
+  es único en la galeria --es lo que se lee en la cabecera de la ficha-- así que
   juntar los cinco mapas no pisa nada.
 
-  Los archivos pesan lo suyo, asi que se traen con `import()` y no de entrada:
-  lo paga quien abre el codigo de una ficha, y la primera vez nada mas.
+  Los archivos pesan lo suyo, así que se traen con `import()` y no de entrada:
+  lo paga quien abre el código de una ficha, y la primera vez nada mas.
 */
 
-/** El titulo con el que cada ficha llama a `head()`. */
+/** El título con el que cada ficha llama a `head()`. */
 const HEAD = /\{@render head\(\s*"((?:[^"\\]|\\.)*)"/g;
 
 /** Donde empieza el ejemplo. La ficha de la tabla no tiene `card-body`. */
@@ -52,7 +52,7 @@ function body(raw: string, from: number): string | null {
   return null;
 }
 
-/** Sin los blancos de estar dentro de la ficha, y sin lineas vacias de sobra. */
+/** Sin los blancos de estar dentro de la ficha, y sin líneas vacias de sobra. */
 function dedent(code: string): string {
   const lines = code.replace(COMMENT, "").split("\n");
   const pads = lines.filter((l) => l.trim()).map((l) => l.length - l.trimStart().length);
@@ -84,7 +84,7 @@ const SECTIONS = [
   () => import("./DemoAvisos.svelte?raw"),
 ];
 
-/** El ejemplo de cada ficha, por el titulo de su cabecera. */
+/** El ejemplo de cada ficha, por el título de su cabecera. */
 export function loadCardSource(): Promise<Map<string, string>> {
   pending ??= Promise.all(SECTIONS.map((load) => load())).then(
     (mods) => new Map(mods.flatMap((mod) => [...parse(mod.default)])),

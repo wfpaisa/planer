@@ -1,23 +1,23 @@
 /**
  * Como se comporta la IA al conversar: cuando pregunta, cuando revisa, cuando
  * propone, y con cuanta friccion toca un permiso.
- * Uso:  bun run scripts/smoke-ia-conversacion.ts
+ * Uso:  bun run scripts/smoke-ia-conversación.ts
  *
  * Esta bateria es distinta de las otras dos. `smoke-permisos` demuestra que
  * nadie alcanza la fila de otro: la respuesta correcta es siempre la misma y
- * no depende de nadie. Aqui, en cambio, al otro lado hay un modelo, y lo que
+ * no depende de nadie. Aquí, en cambio, al otro lado hay un modelo, y lo que
  * se comprueba es lo que hace con las reglas que se le dieron.
  *
- * De ahi las dos clases de comprobacion, y estan separadas a proposito:
+ * De ahi las dos clases de comprobacion, y estan separadas a propósito:
  *
  * - **Mecanica**: que la pregunta viaje entera hasta el resultado, que el
  *   permiso que da se quede sin aplicar y el que quita se aplique, que la
  *   revision no se pase del tope. Esto no depende del juicio del modelo, y
- *   fallar aqui es un fallo del codigo.
+ *   fallar aquí es un fallo del código.
  * - **De juicio**: que pregunte ante varias tablas posibles y no ante un
- *   pedido de diseno abierto, que no proponga en una correccion chica. Esto si
- *   depende del modelo: un fallo aqui es una senal para afinar la guia, no un
- *   error que arreglar en el codigo. Se cuentan aparte y no tumban la bateria.
+ *   pedido de diseño abierto, que no proponga en una correccion chica. Esto si
+ *   depende del modelo: un fallo aquí es una senal para afinar la guia, no un
+ *   error que arreglar en el código. Se cuentan aparte y no tumban la bateria.
  *
  * Gasta peticiones de verdad contra el servidor de IA configurado.
  */
@@ -43,7 +43,7 @@ let token = "";
 let failures = 0;
 let doubts = 0;
 
-/** Lo que tiene que salir siempre igual. Fallar aqui es un fallo del codigo. */
+/** Lo que tiene que salir siempre igual. Fallar aquí es un fallo del código. */
 function check(label: string, condition: unknown) {
   if (condition) console.log(`  ok    ${label}`);
   else {
@@ -53,7 +53,7 @@ function check(label: string, condition: unknown) {
 }
 
 /**
- * Lo que decide el modelo. Fallar aqui es una senal, no un error.
+ * Lo que decide el modelo. Fallar aquí es una senal, no un error.
  *
  * Una duda sin la evidencia delante no sirve de nada: no se distingue una
  * regla que el modelo no siguio de una prueba mal montada. Por eso, cuando
@@ -76,8 +76,8 @@ function judge(label: string, condition: unknown, evidence?: AiPageResult | null
 /**
  * Sube un adjunto y devuelve su referencia.
  *
- * Los adjuntos ya no viajan dentro de la peticion: se guardan antes, y lo que
- * la peticion lleva es la referencia. Por eso la bateria tiene que subirlos
+ * Los adjuntos ya no viajan dentro de la petición: se guardan antes, y lo que
+ * la petición lleva es la referencia. Por eso la bateria tiene que subirlos
  * igual que lo hace el panel.
  */
 async function upload(
@@ -115,10 +115,10 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 /**
- * Una peticion a la IA, de principio a fin.
+ * Una petición a la IA, de principio a fin.
  *
  * Se consume el hilo de avisos igual que lo haria el panel: lo que interesa es
- * el `fin`, pero se guardan tambien los avisos sueltos --la pregunta llega en
+ * el `fin`, pero se guardan también los avisos sueltos --la pregunta llega en
  * el suyo antes del final-- para poder comprobar que llegaron.
  */
 async function ask(
@@ -144,7 +144,7 @@ async function ask(
     const { done, value } = await reader.read();
     if (done) break;
     buffer += dec.decode(value, { stream: true });
-    // El marco es el de siempre: `data: <json>` y una linea en blanco.
+    // El marco es el de siempre: `data: <json>` y una línea en blanco.
     const chunks = buffer.split("\n\n");
     buffer = chunks.pop() ?? "";
     for (const chunk of chunks) {
@@ -164,9 +164,9 @@ const tools = (result: AiPageResult | null) => (result?.steps ?? []).map((s) => 
 /* ------------------------------------------------------------------ */
 
 /*
- * Lo unico de esta bateria que no depende del modelo ni del servidor: que la
+ * Lo único de esta bateria que no depende del modelo ni del servidor: que la
  * regla de lectura viaje solo donde tiene que viajar. `buildHtmlContract` es
- * una funcion pura, asi que se comprueba antes de iniciar sesion siquiera.
+ * una función pura, así que se comprueba antes de iniciar sesión siquiera.
  */
 console.log("\n0. La regla de para quién es la pantalla llega solo al modelo");
 
@@ -222,7 +222,7 @@ const app = await call<{ id: string }>("/api/apps", {
 check("app creada", !!app.id);
 
 /*
- * Dos tablas de verdad intercambiables para el pedido que viene despues: las
+ * Dos tablas de verdad intercambiables para el pedido que viene después: las
  * mismas columnas y los dos nombres igual de plausibles. Tienen que serlo:
  * si una tuviera una columna llamada "Total" y la otra "Importe", pedir "el
  * total por cliente" ya no seria ambiguo y construir sin preguntar seria lo
@@ -354,7 +354,7 @@ const chica = await ask(
 // Red de arrastre, no bisturi: una propuesta es una frase afirmativa y no hay
 // forma determinista de reconocerla. Lo que si se reconoce es la forma que
 // suele tomar --terminar preguntando si se quiere algo mas-- y con eso basta
-// para que la regla de "en una correccion chica, nada" tenga algun sensor.
+// para que la regla de "en una correccion chica, nada" tenga algún sensor.
 judge(
   "no propone nada en una corrección chica",
   !/\?$/m.test(chica.result?.message ?? ""),
@@ -364,10 +364,10 @@ judge(
 /*
  * Y una que mira una brecha conocida, no una regla de este cambio.
  *
- * Elegir entre editar un bloque y reescribir la pagina entera esta declarado
+ * Elegir entre editar un bloque y reescribir la página entera esta declarado
  * fuera de alcance en `design.md` --Non-Goals y Open Questions-- y hoy no
  * tiene mas sensor que la guia de texto. Esta comprobacion es ese sensor: si
- * duda, no hay nada que arreglar aqui, es la brecha diciendo que sigue ahi.
+ * duda, no hay nada que arreglar aquí, es la brecha diciendo que sigue ahi.
  */
 console.log("\n6b. La brecha abierta: bisturí o reescritura (fuera del alcance de este cambio)");
 judge(
@@ -382,10 +382,10 @@ judge(
  * Las cuatro situaciones que autorizan una propuesta.
  *
  * Solo tres se pueden probar. La cuarta --contradiccion entre lo pedido y lo
- * que ya existe-- se prueba solo dentro de la propia pagina y de las tablas:
- * el contexto del modelo no incluye las demas paginas de la aplicacion
- * (`systemPrompt` le pasa la pagina abierta, las tablas y las personas, nunca
- * `ctx.pages`), asi que una contradiccion con otra pantalla no puede verla.
+ * que ya existe-- se prueba solo dentro de la propia página y de las tablas:
+ * el contexto del modelo no incluye las demás páginas de la aplicación
+ * (`systemPrompt` le pasa la página abierta, las tablas y las personas, nunca
+ * `ctx.pages`), así que una contradiccion con otra pantalla no puede verla.
  * Ver la nota al final.
  *
  * Cada una es un juicio: se mira si la respuesta nombra lo que la situacion
@@ -447,10 +447,10 @@ judge(
   sinUsar.result,
 );
 
-// 3. Dato visible a mas gente de la que el pedido sugiere: pagina abierta a
+// 3. Dato visible a mas gente de la que el pedido sugiere: página abierta a
 //    cualquiera pintando quien es cada cual.
 const expuesta = await nuevaPagina("Directorio", "directorio", "anyone");
-// Nombra la tabla a proposito: sin eso choca con la ambiguedad de mas arriba,
+// Nombra la tabla a propósito: sin eso choca con la ambiguedad de mas arriba,
 // el modelo pregunta --y hace bien-- y nunca llega a mirar quien puede ver esto.
 const dato = await ask(
   app.id,
@@ -500,7 +500,7 @@ if (grant) {
   // Lo que de verdad importa: no se aplico.
   const antes = await call<{ id: string; roles: string[] }[]>(`/api/apps/${app.id}/personas`);
   const ana = antes.find((p) => p.id === grant.personId);
-  // En minuscula: los nombres de rol se normalizan al entrar, asi que buscar
+  // En minuscula: los nombres de rol se normalizan al entrar, así que buscar
   // "Ventas" no encuentra nunca nada y la comprobacion pasaria sola.
   check("el acceso NO se aplicó al pedirlo", !!ana && !ana.roles.includes("ventas"));
 
@@ -550,7 +550,7 @@ const respuestas = [ambiguo, abierto, chica, dar, quitar]
 check("todas las peticiones respondieron algo", respuestas.length > 0);
 /*
  * El nombre sale de la cuenta y no del correo: el correo por defecto da
- * "admin", que es tambien el rol que toda aplicacion define desde que nace, y
+ * "admin", que es también el rol que toda aplicación define desde que nace, y
  * buscar esa palabra no distingue el nombre del rol.
  *
  * Y se busca en vocativo --entre comas, o abriendo el mensaje-- y no suelto:
@@ -604,15 +604,15 @@ const htmlDe = async (pageId: string) => {
   return res.ok ? await res.text() : "";
 };
 
-/** Los roles con los que quedo la pagina: el unico limite que aplica el servidor. */
+/** Los roles con los que quedo la página: el único limite que aplica el servidor. */
 const rolesDe = async (pageId: string) =>
   (await call<{ roles?: string[] }>(`/pb/api/collections/pages/records/${pageId}`)).roles ?? [];
 
 /**
  * Si la pantalla quedo reservada al rol de quien construye, de las dos formas.
  *
- * Limitar la pagina entera es lo que de verdad deja los datos fuera del
- * navegador de los demas, y comprobar el rol dentro del HTML es lo que ajusta
+ * Limitar la página entera es lo que de verdad deja los datos fuera del
+ * navegador de los demás, y comprobar el rol dentro del HTML es lo que ajusta
  * una parte. Las dos reservan el listado; exigir solo la segunda daba por
  * fallada la respuesta mejor de las dos.
  */
@@ -684,7 +684,7 @@ const casa = await nuevaPagina("Conversaciones A", "conv-a");
 const vecina = await nuevaPagina("Conversaciones B", "conv-b");
 
 /*
- * Lo senalado y lo adjunto van en la misma peticion: lo que se comprueba es que
+ * Lo senalado y lo adjunto van en la misma petición: lo que se comprueba es que
  * sus nombres queden en el mensaje guardado, no su contenido. El HTML senalado
  * y el texto del archivo ya viajaron y no tienen por que quedarse.
  */
@@ -764,8 +764,8 @@ console.log("\n13. Lo que está en marcha, y la constancia de cada petición");
 
 /*
  * El bloqueo del panel se sostiene sobre esta ruta: mientras diga que una
- * pagina trabaja, el dock de cualquier otra no admite peticiones. Aqui se
- * comprueba lo que la ruta dice, que es lo unico que vive en el servidor.
+ * página trabaja, el dock de cualquier otra no admite peticiones. Aquí se
+ * comprueba lo que la ruta dice, que es lo único que vive en el servidor.
  */
 const enCurso = ask(app.id, vecina.id, "Añade un párrafo que diga Hola.");
 
@@ -792,9 +792,9 @@ check(
 );
 
 /*
- * La constancia se escribe despues de entregar el resultado --guardarla no
- * puede retrasar lo que recibe quien construye-- asi que puede llegar un
- * instante despues del `fin`. Se espera a que aparezca en vez de mirar una
+ * La constancia se escribe después de entregar el resultado --guardarla no
+ * puede retrasar lo que recibe quien construye-- así que puede llegar un
+ * instante después del `fin`. Se espera a que aparezca en vez de mirar una
  * sola vez.
  */
 async function constanciaDe(pageId: string, dice = ""): Promise<AiDebugRead> {
@@ -819,7 +819,7 @@ check("la petición siguiente reemplaza a la anterior", (segundo?.prompt ?? "").
 check("y no se acumula otra fila", segundo?.id === registro?.id);
 
 /*
- * El fallo es el caso que justifica guardar esto, asi que se provoca uno: se
+ * El fallo es el caso que justifica guardar esto, así que se provoca uno: se
  * apaga la IA de la instalacion, se pide igual y se comprueba que la
  * constancia quedo. Se vuelve a encender pase lo que pase.
  */
@@ -842,14 +842,14 @@ check("y la constancia dice qué pasó", !!delFallo?.answer);
 console.log("\n14. Abierta hay una sola en toda la aplicación");
 
 /*
- * Guardadas hay muchas --una por pagina y por vez-- pero abierta hay una sola:
+ * Guardadas hay muchas --una por página y por vez-- pero abierta hay una sola:
  * la ultima en la que se hablo. Es lo que el panel repone al llegar a su
- * pagina, y por lo que las demas empiezan en blanco aunque tengan las suyas
+ * página, y por lo que las demás empiezan en blanco aunque tengan las suyas
  * guardadas. Vive en la base de datos para que entrar desde otro navegador
  * encuentre delante la misma.
  *
- * Aqui no hace falta pedir nada mas: ya se pidio en dos paginas --`casa` y
- * `vecina`-- y en una tercera que fallo a proposito.
+ * Aquí no hace falta pedir nada mas: ya se pidio en dos páginas --`casa` y
+ * `vecina`-- y en una tercera que fallo a propósito.
  */
 const ahora = await abierta();
 check("la última en la que se habló es la que queda abierta", ahora?.page === vecina.id);
@@ -876,7 +876,7 @@ check(
   reabierta?.chat === nacida && reabierta?.page === casa.id,
 );
 
-// Empezar una conversacion nueva deja la aplicacion sin ninguna abierta.
+// Empezar una conversación nueva deja la aplicación sin ninguna abierta.
 await dejarAbierta("");
 check("empezar una conversación nueva no deja ninguna abierta", (await abierta()) === null);
 

@@ -5,7 +5,7 @@
  * el id de la fila ni el nombre de la columna. La grilla se repagina, se ordena
  * y se filtra, y una seleccion que guardara ids tendria que sobrevivir a todo
  * eso; lo que se hace en su lugar es soltarla cuando las filas cambian, que es
- * lo que hace cualquier hoja de calculo al reordenar.
+ * lo que hace cualquier hoja de cálculo al reordenar.
  *
  * La pareja que define el rango es `anchor` (donde empezo) y `active` (donde
  * esta el cursor). El rectangulo sale de las dos, y por eso extender con
@@ -45,7 +45,7 @@ export interface GridSelection {
   /** Donde esta el cursor. Nada: no hay seleccion. */
   readonly active: CellRef | null;
   readonly range: CellRange | null;
-  /** Se esta arrastrando el raton con el boton apretado. */
+  /** Se esta arrastrando el ratón con el botón apretado. */
   readonly dragging: boolean;
   /** Cuantas celdas cubre el rango. */
   readonly size: number;

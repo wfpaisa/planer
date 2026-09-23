@@ -21,8 +21,8 @@
 </button>
 
 <style>
-  /* La caja es `.opt` del catalogo, con su par `.opt-label` / `.opt-hint`;
-     aqui solo la pastilla del icono, que es de esta pieza y no del catalogo. */
+  /* La caja es `.opt` del catálogo, con su par `.opt-label` / `.opt-hint`;
+     aqui solo la pastilla del icono, que es de esta pieza y no del catálogo. */
   .entry-panel {
     padding: var(--sp-8) var(--sp-12);
 

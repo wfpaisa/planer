@@ -2,13 +2,13 @@
  * El puente que acompana a cada documento HTML de un bloque.
  *
  * El documento se dibuja en un marco aislado, sin origen propio: no alcanza
- * la sesion de quien mira ni el resto de la pagina. Todo lo que necesita del
+ * la sesión de quien mira ni el resto de la página. Todo lo que necesita del
  * exterior le llega por mensajes, y este guion es quien los traduce a algo
  * comodo de usar: `window.plane`.
  *
- * Los colores no se incrustan aqui. Llegan por mensaje al cargar y cada vez
+ * Los colores no se incrustan aquí. Llegan por mensaje al cargar y cada vez
  * que cambian, para que el documento guardado dependa solo de su huella y la
- * cache siga valiendo aunque la aplicacion cambie de paleta.
+ * cache siga valiendo aunque la aplicación cambie de paleta.
  */
 
 import { STYLES_PATH } from "../../shared/htmlContract.ts";
@@ -815,7 +815,7 @@ export const BRIDGE_SCRIPT = `(function () {
 /**
  * Huella de lo que se inyecta. El documento guardado no cambia, pero el
  * puente y las hojas si: sin esto, una correccion del puente --o del
- * catalogo de componentes-- se quedaria fuera de todo bloque que el
+ * catálogo de componentes-- se quedaria fuera de todo bloque que el
  * navegador ya tuviera guardado.
  */
 export const BRIDGE_TAG = new Bun.CryptoHasher("sha256")
@@ -828,8 +828,8 @@ const escapeAttr = (value: string) => value.replace(/"/g, "&quot;");
 /**
  * Lo que se inyecta al principio del documento.
  *
- * Casi todo va siempre. Las graficas no: son ciento y pico kilobytes que solo
- * hacen falta donde hay algo que dibujar, asi que esa linea solo entra si el
+ * Casi todo va siempre. Las gráficas no: son ciento y pico kilobytes que solo
+ * hacen falta donde hay algo que dibujar, así que esa línea solo entra si el
  * documento la nombra.
  */
 const head = (origin: string, content: string) =>

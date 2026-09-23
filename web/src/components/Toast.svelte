@@ -3,7 +3,7 @@
 
   Antes cada aviso se dibujaba donde estaba escrito: dentro de un panel, de un
   modal o de una columna estrecha. Empujaba el contenido al aparecer y, si el
-  sitio tenia desplazamiento, se quedaba fuera de la vista justo cuando habia
+  sitio tenia desplazamiento, se quedaba fuera de la vista justo cuando había
   algo que leer. Ahora todos van a una sola capa, arriba a la derecha de la
   ventana, montada al final del documento: nadie los recorta y siempre se ven.
 
@@ -16,9 +16,9 @@
   /**
    * Lo que se ve por cada tipo: el tono de la alerta del sistema y su icono.
    *
-   * Los cuatro son los del catalogo, los mismos que ensena `/demo`: un icono
+   * Los cuatro son los del catálogo, los mismos que enseña `/demo`: un icono
    * distinto por tono y siempre el mismo para el mismo tono, aqui y en los
-   * avisos en linea de cualquier pantalla.
+   * avisos en línea de cualquier pantalla.
    */
   const KINDS: Record<ToastKind, { className: string; icon: string }> = {
     error: { className: "danger", icon: "cancel-circle" },
@@ -34,7 +34,7 @@
 
   /**
    * La capa es una sola y se crea al vuelo la primera vez que hace falta, asi
-   * ningun sitio tiene que acordarse de montarla.
+   * ningún sitio tiene que acordarse de montarla.
    *
    * Cuelga de `body` y se queda ahi. Que salga por encima de un modal es cosa
    * del CSS y de nadie mas: los avisos son el peldano 40 y los modales el 20.
@@ -75,13 +75,13 @@
   let closed = $state(false);
   // Con el puntero encima el aviso se queda: se esta leyendo o copiando.
   let hover = $state(false);
-  // Y tambien mientras haya texto suyo seleccionado: soltar el raton fuera del
+  // Y también mientras haya texto suyo seleccionado: soltar el ratón fuera del
   // aviso es lo normal al arrastrar para seleccionar, y ahi el reloj no puede
-  // volver a correr con la seleccion todavia hecha.
+  // volver a correr con la seleccion todavía hecha.
   let picking = $state(false);
   let card = $state<HTMLDivElement | null>(null);
 
-  // Arranca vacio a proposito: leer `key` aqui capturaria solo su primer valor.
+  // Arranca vacío a propósito: leer `key` aqui capturaria solo su primer valor.
   let previous = "";
   $effect(() => {
     if (previous !== key) {
@@ -120,7 +120,7 @@
 </script>
 
 {#if !closed}
-  <!-- El puntero encima no activa nada, solo detiene la cuenta atras; la equis es lo unico interactivo. -->
+  <!-- El puntero encima no activa nada, solo detiene la cuenta atras; la equis es lo único interactivo. -->
   <div
     use:portal={toastLayer()}
     bind:this={card}
@@ -133,8 +133,8 @@
     <Icon name={look.icon} class="icon-notice-toast" />
     <!--
       `select-text` y `cursor-text`: el texto del aviso se copia arrastrando,
-      como cualquier otro texto. Es lo unico que hay que hacer con el --el
-      nombre de una columna, el numero de una fila-- y transcribirlo a mano es
+      como cualquier otro texto. Es lo único que hay que hacer con el --el
+      nombre de una columna, el número de una fila-- y transcribirlo a mano es
       justo lo que no puede pasar.
     -->
     <div class="notice-toast-body">
@@ -178,7 +178,7 @@
   .notice-toast {
     max-width: 24rem;
     padding: var(--sp-8) var(--sp-12);
-    /* Mas grande que el `.alert` del catalogo (--text-xs) a proposito: este se
+    /* Mas grande que el `.alert` del catálogo (--text-xs) a propósito: este se
        lee de reojo y desde lejos, en la esquina y sobre lo que se este
        haciendo. */
     font-size: var(--text-base);
@@ -188,7 +188,7 @@
 
     /* El alto del primer renglon del mensaje. Es la medida contra la que se
        centran el icono y la equis, y sale de la letra del aviso: si manana
-       cambia el tamano, la alineacion se recalcula sola. */
+       cambia el tamaño, la alineacion se recalcula sola. */
     --renglon: calc(var(--text-base) * var(--text-base--line-height));
 
     & .notice-toast-body {
@@ -199,11 +199,11 @@
     }
 
     /* El icono se centra en el PRIMER RENGLON, no en la caja entera: con dos
-       lineas se queda arriba, junto a la primera, que es donde lo busca la
+       líneas se queda arriba, junto a la primera, que es donde lo busca la
        vista. `.alert` lo deja arriba del todo y le da un empujon de un pixel,
        medido para su letra --text-xs--; aqui el texto es --text-base y con el
        renglon de 1.5 el icono quedaba tres pixeles alto. Dandole de alto el
-       renglon entero se centra solo, sin numero que ajustar a mano. */
+       renglon entero se centra solo, sin número que ajustar a mano. */
     & :global(.icon-notice-toast) {
       height: var(--renglon);
       align-items: center;
@@ -211,7 +211,7 @@
     }
 
     /* La equis, por lo mismo: cuadrada y del alto del renglon, asi su centro
-       cae en el de la primera linea. Antes eran 1.25rem subidos dos pixeles,
+       cae en el de la primera línea. Antes eran 1.25rem subidos dos pixeles,
        y se quedaba cuatro por encima del texto. */
     & .btn-close-toast {
       margin-right: -0.25rem;

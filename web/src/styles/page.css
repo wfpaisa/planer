@@ -1,25 +1,25 @@
 /* ==========================================================
-   PAGE — la capa que solo existe dentro de una pagina
+   PAGE — la capa que solo existe dentro de una página
    ----------------------------------------------------------
-   Una pagina recibe las mismas hojas que el panel (theme, paletas,
-   catalogo, compat y contract, servidas juntas en
-   `/plane/estilos.css`). Esto es lo unico que se le anade, y son
+   Una página recibe las mismas hojas que el panel (theme, paletas,
+   catálogo, compat y contract, servidas juntas en
+   `/plane/estilos.css`). Esto es lo único que se le añade, y son
    cuatro cosas que ahi si hacen falta y en el panel no:
 
    1. El documento es la pantalla entera, no un trozo de otra.
    2. Una etiqueta desnuda tiene que verse bien. El panel escribe
-      `class="btn"` en cada boton porque lo escribe una persona; una
-      pagina la escribe un modelo, y un <button> sin clase es lo que
+      `class="btn"` en cada botón porque lo escribe una persona; una
+      página la escribe un modelo, y un <button> sin clase es lo que
       sale cuando se despista. Con el reset de theme.css eso seria
-      un boton gris del sistema, asi que aqui las etiquetas de
-      formulario y de tabla llevan el vestido del catalogo puesto.
+      un botón gris del sistema, así que aquí las etiquetas de
+      formulario y de tabla llevan el vestido del catálogo puesto.
       Escribir la clase sigue siendo lo correcto --y lo que dice el
       contrato-- pero olvidarla ya no rompe la pantalla.
    3. `hidden` tiene que esconder. El panel esconde con logica --lo
-      que no toca no se dibuja-- y una pagina esconde con el
-      atributo, que el catalogo anula sin avisar.
-   4. Los nombres que las paginas de antes usaban (`plane-tarjeta`,
-      `plane-boton`) siguen valiendo, apuntando al catalogo.
+      que no toca no se dibuja-- y una página esconde con el
+      atributo, que el catálogo anula sin avisar.
+   4. Los nombres que las páginas de antes usaban (`plane-tarjeta`,
+      `plane-boton`) siguen valiendo, apuntando al catálogo.
    ========================================================== */
 
 /* ----------------------------------------------------------
@@ -27,7 +27,7 @@
    ---------------------------------------------------------- */
 
 /* El marco pinta su propio fondo y el documento se estira dentro:
-   una pagina corta no puede dejar ver el papel del contenedor. */
+   una página corta no puede dejar ver el papel del contenedor. */
 html {
   min-height: 100%;
   background: var(--bg-level1);
@@ -35,7 +35,7 @@ html {
 
 body {
   min-height: 100vh;
-  /* El fondo lo pone <html>: pintarlo dos veces impide que una pagina
+  /* El fondo lo pone <html>: pintarlo dos veces impide que una página
      ponga el suyo propio en el body sin pelearse con este. */
   background: transparent;
 }
@@ -48,18 +48,18 @@ body {
    El navegador lo esconde con `display: none`, pero lo declara
    con el peso de una etiqueta, y cualquier clase que traiga su
    propio `display` le gana: `.card` es `display: flex`, y con
-   ella sesenta y tantas piezas mas del catalogo. El resultado es
-   el peor que hay -- la seccion se queda a la vista y nada avisa,
+   ella sesenta y tantas piezas mas del catálogo. El resultado es
+   el peor que hay -- la sección se queda a la vista y nada avisa,
    porque el atributo esta puesto y el script hizo su trabajo.
 
-   Es justo lo que rompe una pagina que esconde una seccion por
+   Es justo lo que rompe una página que esconde una sección por
    rol: se escribe `seccion.hidden = true`, se lee bien, y la ve
-   todo el mundo. El !important no es un atajo: es lo unico que
-   gana a un catalogo entero sin tener que enumerarlo.
+   todo el mundo. El !important no es un atajo: es lo único que
+   gana a un catálogo entero sin tener que enumerarlo.
    ---------------------------------------------------------- */
 
 [hidden] {
-  /* biome-ignore lint/complexity/noImportantStyles: tiene que ganar al display del catalogo */
+  /* biome-ignore lint/complexity/noImportantStyles: tiene que ganar al display del catálogo */
   display: none !important;
 }
 
@@ -67,15 +67,15 @@ body {
    Las etiquetas desnudas
    ----------------------------------------------------------
    El filtro es `:not([class])` y no `:where()`, que fue el primer
-   intento y no valia: `:where()` no suma especificidad, asi que la
+   intento y no valia: `:where()` no suma especificidad, así que la
    regla perdia contra el propio reset de theme.css --que empareja
    `button { background: transparent }` con peso (0,0,1)-- y el
-   boton salia transparente. Con `:not([class])` el peso es (0,1,1),
+   botón salia transparente. Con `:not([class])` el peso es (0,1,1),
    gana al reset, y sigue sin poder estorbar a una clase: solo
    empareja lo que no tiene ninguna.
    ---------------------------------------------------------- */
 
-/* Un <button> sin clase es el boton de siempre. */
+/* Un <button> sin clase es el botón de siempre. */
 button:not([class]),
 .plane-boton {
   display: inline-flex;
@@ -107,7 +107,7 @@ button:not([class]),
 
 /* Un campo sin clase es el campo de siempre. Las casillas y los
    interruptores no: los dibuja `.choice` con su propio marcado, y
-   vestirlos aqui les quitaria el suyo. */
+   vestirlos aquí les quitaria el suyo. */
 input:not([class], [type="checkbox"], [type="radio"], [type="range"]),
 select:not([class]),
 textarea:not([class]) {
@@ -144,9 +144,9 @@ textarea:not([class]) {
   resize: vertical;
 }
 
-/* Una tabla suelta se lee como la del catalogo: sin rayas verticales,
+/* Una tabla suelta se lee como la del catálogo: sin rayas verticales,
    la cabecera en letra pequena y cada fila separada de la siguiente
-   por una linea fina. */
+   por una línea fina. */
 table:not([class]) {
   width: 100%;
   border-collapse: collapse;
@@ -174,8 +174,8 @@ table:not([class]) {
   }
 }
 
-/* El texto corrido de una pagina. El panel no lo necesita --ahi cada
-   parrafo vive dentro de un componente-- pero una pagina se escribe
+/* El texto corrido de una página. El panel no lo necesita --ahi cada
+   parrafo vive dentro de un componente-- pero una página se escribe
    con parrafos, titulos y listas sueltos, y el reset los dejo a cero. */
 h1,
 h2,
@@ -214,7 +214,7 @@ small {
   color: var(--text-muted);
 }
 
-/* Un enlace suelto es el `.link` del catalogo. El acento de letra, que
+/* Un enlace suelto es el `.link` del catálogo. El acento de letra, que
    es el que contrasta contra el papel: el de relleno puede ser un
    amarillo. */
 a:not([class]) {
@@ -227,7 +227,7 @@ a:not([class]) {
 }
 
 /* Las listas con vinneta vuelven a tenerla cuando son texto y no
-   estructura: el reset se la quita a todas, y en una pagina hay
+   estructura: el reset se la quita a todas, y en una página hay
    listas de verdad. */
 ul:not([class]),
 ol:not([class]) {
@@ -246,8 +246,8 @@ ol:not([class]) {
 /* ----------------------------------------------------------
    Los nombres de antes
    ----------------------------------------------------------
-   Las paginas ya publicadas los llevan escritos. Apuntan al
-   catalogo para que sigan viendose como el resto.
+   Las páginas ya publicadas los llevan escritos. Apuntan al
+   catálogo para que sigan viendose como el resto.
    ---------------------------------------------------------- */
 
 .plane-tarjeta {
@@ -260,16 +260,16 @@ ol:not([class]) {
 }
 
 /*
- * Quien pide menos movimiento no lo pide a medias, y una pagina la escribe un
- * modelo que puede animar cualquier cosa: aqui el !important no es un atajo,
- * es la unica forma de que la peticion valga tambien sobre lo que se escriba
- * despues.
+ * Quien pide menos movimiento no lo pide a medias, y una página la escribe un
+ * modelo que puede animar cualquier cosa: aquí el !important no es un atajo,
+ * es la única forma de que la petición valga también sobre lo que se escriba
+ * después.
  */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    /* biome-ignore lint/complexity/noImportantStyles: tiene que ganar a lo que escriba la pagina */
+    /* biome-ignore lint/complexity/noImportantStyles: tiene que ganar a lo que escriba la página */
     transition: none !important;
     /* biome-ignore lint/complexity/noImportantStyles: lo mismo */
     animation: none !important;

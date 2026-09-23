@@ -1,18 +1,18 @@
 /**
- * La IA escribiendo el HTML de una pagina.
+ * La IA escribiendo el HTML de una página.
  *
- * Una peticion toca una sola pagina: la que esta abierta. La IA no arma
- * configuracion, escribe el documento entero, y recibe en cada peticion el
+ * Una petición toca una sola página: la que esta abierta. La IA no arma
+ * configuración, escribe el documento entero, y recibe en cada petición el
  * contexto armado en ese momento --colores, medidas, tablas, quien esta
  * mirando y los limites-- para que nunca trabaje con una tabla que ya cambio.
  *
  * Los cambios de base de datos sin riesgo se aplican solos. Los que pueden
- * romper algo no se aplican aqui: se apuntan y vuelven al panel, que los
- * presenta todos juntos en el dialogo de impacto (ver `dataImpact.ts`).
+ * romper algo no se aplican aquí: se apuntan y vuelven al panel, que los
+ * presenta todos juntos en el diálogo de impacto (ver `dataImpact.ts`).
  *
- * Este archivo es el orquestador: arma el contexto, abre la conversacion con
+ * Este archivo es el orquestador: arma el contexto, abre la conversación con
  * el modelo y gobierna el bucle de rondas. Los prompts, el esquema de las
- * herramientas, el contexto que se les arma y su ejecucion viven en los demas
+ * herramientas, el contexto que se les arma y su ejecucion viven en los demás
  * modulos de esta carpeta.
  */
 import { buildHtmlContract } from "../../../shared/htmlContract.ts";
@@ -55,7 +55,7 @@ import { toolsFor } from "./tools.ts";
 const MAX_ROUNDS = 12;
 
 /* ------------------------------------------------------------------ */
-/* Leer y escribir la pagina                                            */
+/* Leer y escribir la página                                            */
 /* ------------------------------------------------------------------ */
 
 export const appPages = async (appId: string): Promise<PageRecord[]> =>
@@ -79,12 +79,12 @@ export const appTables = async (appId: string): Promise<TableRecord[]> =>
   ).items;
 
 /**
- * Guarda el HTML de una pagina.
+ * Guarda el HTML de una página.
  *
  * Lo que llega pasa antes por la reposicion de las dos referencias, venga de
- * la IA o del editor de codigo: una pagina sin ellas se dibujaria sin estilos
- * y sin puente. El documento anterior puede quedarse sin duenos, asi que se
- * recorta despues.
+ * la IA o del editor de código: una página sin ellas se dibujaria sin estilos
+ * y sin puente. El documento anterior puede quedarse sin duenos, así que se
+ * recorta después.
  */
 export async function writePageDoc(opts: {
   app: AppRecord;
@@ -122,13 +122,13 @@ const MAX_HISTORY_CHARS = 40_000;
 const MAX_HISTORY_MESSAGE = 6_000;
 
 /**
- * Los turnos anteriores de la conversacion, listos para mandarlos.
+ * Los turnos anteriores de la conversación, listos para mandarlos.
  *
  * Por cada turno, dos mensajes: lo que escribio quien construye y el texto con
  * el que la IA cerro. Ni el razonamiento ni las llamadas a herramientas: el
  * razonamiento de un turno cerrado no aporta al siguiente, hay servidores que
  * lo rechazan al reenviarlo, y las herramientas ya dejaron su efecto en la
- * aplicacion, que la IA vuelve a leer en el contexto de cada peticion.
+ * aplicación, que la IA vuelve a leer en el contexto de cada petición.
  *
  * Al pasarse del tope se deja fuera lo mas antiguo, nunca lo mas reciente: lo
  * que se acaba de decir es lo que explica lo que se esta pidiendo ahora.
@@ -143,7 +143,7 @@ export function priorTurns(history: AiMessage[]): { role: "user" | "assistant"; 
     turns.push({ role: message.from === "yo" ? "user" : "assistant", text });
   }
 
-  // Se cuentan turnos --peticion y respuesta-- y no mensajes sueltos.
+  // Se cuentan turnos --petición y respuesta-- y no mensajes sueltos.
   let kept = turns.slice(-MAX_HISTORY_TURNS * 2);
   let size = kept.reduce((sum, t) => sum + t.text.length, 0);
   while (kept.length && size > MAX_HISTORY_CHARS) {
@@ -153,7 +153,7 @@ export function priorTurns(history: AiMessage[]): { role: "user" | "assistant"; 
 
   /*
    * El primero tiene que ser de quien pide: los dos formatos de proveedor
-   * esperan que la conversacion empiece por ahi, y recortar por tamano puede
+   * esperan que la conversación empiece por ahi, y recortar por tamaño puede
    * dejar arriba una respuesta suelta.
    */
   while (kept.length && kept[0].role !== "user") kept = kept.slice(1);
@@ -161,7 +161,7 @@ export function priorTurns(history: AiMessage[]): { role: "user" | "assistant"; 
 }
 
 /**
- * La pregunta con la que la IA cerro el turno anterior, si lo cerro asi.
+ * La pregunta con la que la IA cerro el turno anterior, si lo cerro así.
  *
  * Es lo que le falta a la pasada para entender el turno que la contesta: "Si,
  * cambiarlo" suelto no dice de que. Solo cuenta la del ultimo mensaje de la
@@ -173,12 +173,12 @@ function lastQuestion(history: AiMessage[]): string | undefined {
 }
 
 /* ------------------------------------------------------------------ */
-/* Una peticion                                                         */
+/* Una petición                                                         */
 /* ------------------------------------------------------------------ */
 
 /**
  * Deja un punto al que volver antes de que la IA toque nada, con el texto que
- * lo pidio como nombre. Es lo que hace que una peticion entera se pueda
+ * lo pidio como nombre. Es lo que hace que una petición entera se pueda
  * deshacer de una sola vez, por mucho que la IA haya hecho dentro.
  */
 function stepBefore(app: AppRecord, label: string, authorId: string): () => Promise<void> {
@@ -214,10 +214,10 @@ interface Traced {
 }
 
 /**
- * Una peticion sobre una pagina, dejando constancia de lo que se mando.
+ * Una petición sobre una página, dejando constancia de lo que se mando.
  *
  * La constancia se escribe al cerrar el turno, termine bien o mal --el fallo
- * es el caso que justifica guardarla-- y despues de tener el resultado: un
+ * es el caso que justifica guardarla-- y después de tener el resultado: un
  * fallo al guardarla no puede cambiar lo que recibe quien construye.
  */
 export async function runPageRequest(
@@ -256,15 +256,15 @@ async function pageRequest(
     authorId: string;
     /** Lo que se senalo con el cursor, si se senalo algo. */
     picked?: PickedBlock[];
-    /** Los archivos que se adjuntaron a esta peticion, como referencias. */
+    /** Los archivos que se adjuntaron a esta petición, como referencias. */
     files?: AiChatFile[];
     /**
-     * Los turnos anteriores de la conversacion, del mas viejo al mas nuevo.
+     * Los turnos anteriores de la conversación, del mas viejo al mas nuevo.
      *
-     * Dos cosas salen de aqui: los ultimos turnos que se le ponen delante al
+     * Dos cosas salen de aquí: los ultimos turnos que se le ponen delante al
      * modelo --hasta que "ahora ponle un buscador" sepa a que pantalla se
      * refiere-- y los adjuntos de esos turnos, que siguen estando mientras la
-     * conversacion siga abierta.
+     * conversación siga abierta.
      */
     history?: AiMessage[];
     /**
@@ -274,24 +274,24 @@ async function pageRequest(
     choice?: Partial<AiChoice>;
     /**
      * Se llama con cada cosa que la IA va produciendo. Es solo para mirar: el
-     * resultado sigue siendo lo que devuelve esta funcion, una sola vez.
+     * resultado sigue siendo lo que devuelve esta función, una sola vez.
      */
     onProgress?: (event: AiProgress) => void;
     /**
-     * Pararlo detiene la peticion por el primer sitio seguro: se corta lo que el
+     * Pararlo detiene la petición por el primer sitio seguro: se corta lo que el
      * modelo este escribiendo y no se empieza otra ronda ni otra herramienta. Lo
-     * que ya se habia aplicado se queda aplicado --deshacerlo a medias dejaria la
-     * pagina peor-- y para eso esta el punto de vuelta atras de siempre.
+     * que ya se había aplicado se queda aplicado --deshacerlo a medias dejaria la
+     * página peor-- y para eso esta el punto de vuelta atras de siempre.
      */
     signal?: AbortSignal;
     /**
      * Manda ademas, en cada ronda, todo lo que se le mando al modelo --sistema,
-     * herramientas y mensajes--. Pesa, asi que solo viaja si se pidio: es para
+     * herramientas y mensajes--. Pesa, así que solo viaja si se pidio: es para
      * quien construye quiere ver por que la IA respondio lo que respondio, no
      * para el uso de cada dia.
      */
     debug?: boolean;
-    /** La intencion de modo Plan que mando el boton del composer. Ver `planModeFor`. */
+    /** La intencion de modo Plan que mando el botón del composer. Ver `planModeFor`. */
     planIntent?: AiPlanIntent;
   },
   traced: Traced,
@@ -301,7 +301,7 @@ async function pageRequest(
   const stopped = () => opts.signal?.aborted === true;
 
   /*
-   * "cortar": la orden de implementar a mitad de conversacion (D4). No manda
+   * "cortar": la orden de implementar a mitad de conversación (D4). No manda
    * texto nuevo al modelo -- cierra el plan con lo ultimo que la IA dejo dicho
    * y lo deja listo para construir de una vez, sin pasar por la tarjeta de
    * "cerrado, esperando decision".
@@ -324,10 +324,10 @@ async function pageRequest(
   }
 
   /*
-   * El resto de la peticion: el modo Plan gatea las herramientas de esta
-   * ronda solo cuando el boton mando "activar" con ella. Un plan cerrado y
+   * El resto de la petición: el modo Plan gatea las herramientas de esta
+   * ronda solo cuando el botón mando "activar" con ella. Un plan cerrado y
    * sin implementar que haya quedado en el hilo no lo bloquea: el composer
-   * solo manda "activar" cuando el boton lo muestra apagado, y volver a
+   * solo manda "activar" cuando el botón lo muestra apagado, y volver a
    * activarlo abre un plan distinto (D1 de `ia-modo-plan`).
    */
   const planActive = opts.planIntent === "activar";
@@ -336,8 +336,8 @@ async function pageRequest(
     appTables(opts.app.id),
     appPages(opts.app.id),
     // Quien esta invitado, para poder nombrarlo al contar la consecuencia de un
-    // cambio de acceso. Es la aplicacion de quien pide y son sus propios
-    // invitados: no abre ningun dato que no sea suyo.
+    // cambio de acceso. Es la aplicación de quien pide y son sus propios
+    // invitados: no abre ningún dato que no sea suyo.
     peopleOf(opts.app.id).catch(() => [] as AppPerson[]),
   ]);
 
@@ -346,7 +346,7 @@ async function pageRequest(
     page: opts.page,
     tables,
     pages,
-    // Se llenan en cuanto se sepa que adjuntos tiene delante la conversacion:
+    // Se llenan en cuanto se sepa que adjuntos tiene delante la conversación:
     // leerlos del almacen es una ida a la base, y el contexto los necesita ya
     // nombrados.
     files: [],
@@ -362,15 +362,15 @@ async function pageRequest(
     plan: null,
     reviewed: false,
     /*
-     * Probar es lo unico que necesita algo de vuelta, y de un sitio donde este
+     * Probar es lo único que necesita algo de vuelta, y de un sitio donde este
      * servidor no manda: el navegador de quien construye. Se guarda el
      * documento --por su huella, como cualquier otro-- y se manda solo esa
      * huella; el panel lo pide por el camino de siempre, con el puente puesto.
      *
-     * El documento queda suelto, sin que ninguna pagina lo apunte, y `pruneDocs`
-     * lo recoge mas adelante. La pagina no cambia por probarla.
+     * El documento queda suelto, sin que ninguna página lo apunte, y `pruneDocs`
+     * lo recoge mas adelante. La página no cambia por probarla.
      *
-     * Si nadie contesta, la espera vence y se sigue sin resultado: una peticion
+     * Si nadie contesta, la espera vence y se sigue sin resultado: una petición
      * no puede quedarse colgada porque no haya nadie mirando.
      */
     probe: async (html) => {
@@ -383,9 +383,9 @@ async function pageRequest(
   };
 
   /*
-   * Los adjuntos que la conversacion tiene delante: los de esta peticion y los
+   * Los adjuntos que la conversación tiene delante: los de esta petición y los
    * de los turnos anteriores, en el orden en que se adjuntaron. El nombre con
-   * el que se ofrece cada uno se desempata aqui, una sola vez, para que sea el
+   * el que se ofrece cada uno se desempata aquí, una sola vez, para que sea el
    * mismo en el contexto y en las ordenes.
    */
   const earlier = (opts.history ?? []).flatMap((message) => message.files ?? []);
@@ -395,7 +395,7 @@ async function pageRequest(
   for (const file of named) {
     const saved = await findAiFile(opts.app.id, file.ref);
     // Un adjunto que ya no esta guardado no se nombra: ofrecerlo seria ofrecer
-    // algo que despues falla al abrirlo.
+    // algo que después falla al abrirlo.
     if (!saved) continue;
     shown.push({
       file,
@@ -411,8 +411,8 @@ async function pageRequest(
   ctx.files = shown;
 
   /*
-   * Las imagenes viajan en la peticion, no en el contexto: no se pueden contar
-   * con palabras. Se leen del almacen --ya no llegan dentro de la peticion del
+   * Las imagenes viajan en la petición, no en el contexto: no se pueden contar
+   * con palabras. Se leen del almacen --ya no llegan dentro de la petición del
    * navegador-- y un modelo sin vista las suelta por su cuenta.
    */
   const images: { mime: string; data: string }[] = [];
@@ -442,17 +442,17 @@ async function pageRequest(
    * Cuanto contexto lleva gastado.
    *
    * Se queda el ultimo turno, no la suma: cada turno le pone delante al modelo
-   * la conversacion entera otra vez, asi que el ultimo ya cuenta todo lo que
-   * hay. Sumarlos daria un numero que no significa nada.
+   * la conversación entera otra vez, así que el ultimo ya cuenta todo lo que
+   * hay. Sumarlos daria un número que no significa nada.
    */
   let usage: AiUsage | undefined;
 
   /*
    * La revision de cierre.
    *
-   * Falta cuando la peticion dejo la pagina escrita y lo escrito todavia no
+   * Falta cuando la petición dejo la página escrita y lo escrito todavía no
    * paso por "revisar_errores" --porque el modelo no la pidio, o porque
-   * corrigio despues de la ultima--. El tope de revisiones sigue mandando: si
+   * corrigio después de la ultima--. El tope de revisiones sigue mandando: si
    * ya se gastaron, no se fuerza ninguna mas.
    */
   const reviewPending = () =>
@@ -498,7 +498,7 @@ async function pageRequest(
       .ask((ev) => {
         // Lo que el modelo va soltando se reenvia tal cual: el texto mientras
         // escribe y las ideas mientras piensa. El resultado del turno llega
-        // despues, en la respuesta.
+        // después, en la respuesta.
         opts.onProgress?.(ev);
       })
       .catch((err: unknown) => {
@@ -511,7 +511,7 @@ async function pageRequest(
     /*
      * Lo que el turno costo de mas. Va al mismo sitio que el resto de avisos
      * --ya esta hecho, solo hay que enterarse-- y no se repite: lo que se
-     * cedio se cedio en la conversacion, no en la ronda.
+     * cedio se cedio en la conversación, no en la ronda.
      */
     if (turn.notice && !ctx.notices.includes(turn.notice)) ctx.notices.push(turn.notice);
     if (turn.usage) {
@@ -534,8 +534,8 @@ async function pageRequest(
       opts.onProgress?.({ tipo: "texto", texto: turn.text });
     }
     if (!turn.calls.length) {
-      // El modelo da por terminado. Si dejo la pagina escrita sin revisarla,
-      // se revisa aqui y lo que salga vuelve a el: no cierra sin pasar por
+      // El modelo da por terminado. Si dejo la página escrita sin revisarla,
+      // se revisa aquí y lo que salga vuelve a el: no cierra sin pasar por
       // ahi, lo pida o no.
       if (!reviewPending()) break;
       const back = await forceReview();
@@ -549,7 +549,7 @@ async function pageRequest(
       // Se para entre herramienta y herramienta, nunca dentro de una: cortar a
       // media escritura dejaria el documento a medias.
       if (stopped()) break;
-      // Se cuenta cuantos pasos habia para poder mandar solo los nuevos: una
+      // Se cuenta cuantos pasos había para poder mandar solo los nuevos: una
       // herramienta puede dejar mas de uno, o ninguno.
       const before = ctx.steps.length;
       const output = await runTool(call.name, call.input, ctx).catch((err: unknown) => {
@@ -560,7 +560,7 @@ async function pageRequest(
       for (const paso of ctx.steps.slice(before)) opts.onProgress?.({ tipo: "paso", paso });
       results.push({ id: call.id, output });
     }
-    // Preguntar y cerrar el plan cierran el turno: no se abre otra ronda, asi
+    // Preguntar y cerrar el plan cierran el turno: no se abre otra ronda, así
     // que lo que el modelo llevara escrito se queda como esta y sale al panel.
     if (ctx.question || ctx.plan) break;
     chat.reply(results);
@@ -571,12 +571,12 @@ async function pageRequest(
   // el paso, a la vista de quien construye.
   if (reviewPending()) await forceReview();
 
-  // Todos los cambios con riesgo de la peticion viajan juntos: una sola
+  // Todos los cambios con riesgo de la petición viajan juntos: una sola
   // pregunta, una sola decision. Si se detuvo no se pregunta nada: quien para
-  // una peticion no quiere que le abran un dialogo para seguirla.
+  // una petición no quiere que le abran un diálogo para seguirla.
   // La pregunta se cuenta antes del `fin` para que el panel la tenga sin
   // esperar al resultado. Al detener no se pregunta nada: quien para una
-  // peticion no quiere que le abran una eleccion para seguirla.
+  // petición no quiere que le abran una eleccion para seguirla.
   const question = stopped() ? null : ctx.question;
   if (question) opts.onProgress?.({ tipo: "pregunta", pregunta: question });
 
@@ -585,13 +585,13 @@ async function pageRequest(
   const plan = stopped() ? null : ctx.plan;
   if (plan) opts.onProgress?.({ tipo: "plan", plan });
 
-  // Lo mismo que con el impacto: quien para una peticion no quiere que le
+  // Lo mismo que con el impacto: quien para una petición no quiere que le
   // abran una autorizacion para seguirla.
   const grants = stopped() ? [] : ctx.grants;
 
   let impact: DataImpact | null = null;
   if (ctx.pending.length && !stopped()) {
-    // Las paginas de ahora: la IA pudo declarar tablas nuevas en la suya.
+    // Las páginas de ahora: la IA pudo declarar tablas nuevas en la suya.
     const after = await appPages(opts.app.id);
     const affected = pagesForChanges(after, ctx.pending);
     impact = {
@@ -603,8 +603,8 @@ async function pageRequest(
   }
 
   /*
-   * Al detener se dice que se detuvo, y que pasa con lo que ya se habia hecho.
-   * Lo escrito por la IA hasta ese momento se conserva delante: es lo unico que
+   * Al detener se dice que se detuvo, y que pasa con lo que ya se había hecho.
+   * Lo escrito por la IA hasta ese momento se conserva delante: es lo único que
    * explica por donde iba.
    */
   const halted = stopped();
@@ -613,24 +613,24 @@ async function pageRequest(
     : "";
 
   // Al preguntar o cerrar el plan, ese texto es la respuesta: el modelo tiene
-  // dicho que no escriba resumen, y la conversacion guardada tiene que leerse
+  // dicho que no escriba resumen, y la conversación guardada tiene que leerse
   // igual de bien sin los botones delante.
   const closing = plan ? plan.texto : question ? question.question : "Listo.";
   const answer = [message, ending].filter(Boolean).join("\n\n") || closing;
 
   /*
-   * La memoria de la pagina se escribe aqui, con el turno ya cerrado: la
+   * La memoria de la página se escribe aquí, con el turno ya cerrado: la
    * respuesta lleva rato en la pantalla --salio por los avisos segun se
-   * escribia-- asi que esperar a la pasada no retrasa nada de lo que se ve. Lo
+   * escribia-- así que esperar a la pasada no retrasa nada de lo que se ve. Lo
    * que si espera es el `fin`, y eso es lo que se quiere: la caja de Memorias
    * se desbloquea con el texto ya escrito, no con el de antes (D8).
    *
-   * No se pasa por aqui cuando el turno cerro preguntando, cerrando un plan o
+   * No se pasa por aquí cuando el turno cerro preguntando, cerrando un plan o
    * detenido. En los tres la IA no construyo nada y el intercambio esta a
-   * medias: lo que se pidio todavia no tiene respuesta, y guardar la regla que
+   * medias: lo que se pidio todavía no tiene respuesta, y guardar la regla que
    * se estaba proponiendo seria darla por aceptada antes de que nadie la
    * acepte. Se guarda en el turno siguiente, que es el que trae la
-   * confirmacion y --por `question`-- tambien la pregunta (D5).
+   * confirmacion y --por `question`-- también la pregunta (D5).
    */
   if (!question && !plan && !halted) {
     await runMemoryPass({
@@ -671,7 +671,7 @@ async function pageRequest(
 }
 
 /* ------------------------------------------------------------------ */
-/* Para el dialogo de impacto                                           */
+/* Para el diálogo de impacto                                           */
 /* ------------------------------------------------------------------ */
 
 /** El detalle de "para que", consultado solo cuando quien construye lo pide. */
@@ -692,8 +692,8 @@ export async function explainPageUse(opts: {
 }
 
 /**
- * La IA arregla una pagina distinta de la abierta. Solo se llega aqui desde el
- * dialogo de impacto: es la unica grieta del alcance de una pagina.
+ * La IA arregla una página distinta de la abierta. Solo se llega aquí desde el
+ * diálogo de impacto: es la única grieta del alcance de una página.
  */
 export async function fixPage(opts: {
   app: AppRecord;
@@ -739,7 +739,7 @@ export async function fixPage(opts: {
   return true;
 }
 
-/** El modelo suele envolver la respuesta en un bloque de codigo. */
+/** El modelo suele envolver la respuesta en un bloque de código. */
 function unfence(text: string): string {
   const fenced = /^\s*```[\w-]*\s*\n([\s\S]*?)\n?```\s*$/.exec(text);
   return (fenced ? fenced[1] : text).trim();

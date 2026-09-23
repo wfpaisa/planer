@@ -2,18 +2,18 @@
   La disposicion de la galeria: la rejilla, sus fichas y las cajas de muestra.
 
   Es una hoja aparte y no el <style> de `DemoGallery.svelte` porque el marcado
-  que la usa ya no vive en un solo archivo: cada seccion es su propio
+  que la usa ya no vive en un solo archivo: cada sección es su propio
   componente (`DemoNavegacion`, `DemoContenido`...) y el CSS con ambito de
   Svelte solo alcanza al marcado escrito en el mismo archivo. Lo de cada
-  seccion --las figuras de las graficas, las celdas de la tabla-- si se queda
-  en su componente; aqui esta unicamente lo que comparten todas.
+  sección --las figuras de las gráficas, las celdas de la tabla-- si se queda
+  en su componente; aquí esta unicamente lo que comparten todas.
 
   Los nombres son de la galeria y de nadie mas (`.gallery-*`, `.demo-*`,
-  `.ty-*`), asi que salir del ambito no los acerca a nada del panel.
+  `.ty-*`), así que salir del ambito no los acerca a nada del panel.
 
   Lo que se ve dentro de cada ficha no lo pinta esta hoja sino
   `styles/components.css`, la misma que viste el resto del panel: eso es lo que
-  hace util la galeria.
+  hace útil la galeria.
 */
 /*
  * Galeria de componentes: solo disposicion. Las piezas que muestra se
@@ -59,7 +59,7 @@
   align-items: start;
 }
 
-/* La superficie la pone `.card`; aqui solo la disposicion interna. El aire
+/* La superficie la pone `.card`; aquí solo la disposicion interna. El aire
    interno viene de los paddings de `card-head` y `card-body`. */
 .gallery-item {
   min-width: 0;
@@ -103,8 +103,8 @@
   gap: var(--sp-16);
 }
 
-/* Una linea de por que existe la pieza, cuando el nombre no basta. Va en
-   las fichas de lo que este repo anadio al catalogo. */
+/* Una línea de por que existe la pieza, cuando el nombre no basta. Va en
+   las fichas de lo que este repo anadio al catálogo. */
 .demo-note {
   margin: 0;
   font-size: var(--text-xs);
@@ -113,7 +113,7 @@
 }
 
 /* Dentro de un `.inset.plain` el cerco ya lo pone la caja: la lista de
-   dentro solo aporta las lineas que separan una fila de la siguiente. */
+   dentro solo aporta las líneas que separan una fila de la siguiente. */
 .demo-inset-list {
   border: 0;
   border-radius: 0;
@@ -193,14 +193,14 @@
 }
 
 /* ----------------------------------------------------------
-   El boton que enseña el codigo de la ficha, y el modal donde sale.
+   El botón que enseña el código de la ficha, y el modal donde sale.
 
-   Va aqui y no en el <style> de `DemoGallery.svelte`, que es donde esta
-   escrito el boton: el snippet `head()` se dibuja dentro de cada seccion, y
-   `.card:hover` mira a la ficha, que es marcado de la seccion.
+   Va aquí y no en el <style> de `DemoGallery.svelte`, que es donde esta
+   escrito el botón: el snippet `head()` se dibuja dentro de cada sección, y
+   `.card:hover` mira a la ficha, que es marcado de la sección.
    ---------------------------------------------------------- */
 
-/* El boton no se encoge aunque los mandos de al lado pidan sitio, y se
+/* El botón no se encoge aunque los mandos de al lado pidan sitio, y se
    apaga hasta que se apunta la ficha: mira, no manda. */
 .btn-show-code {
   flex: none;

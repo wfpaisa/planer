@@ -1,8 +1,8 @@
 <!--
-  La aplicacion dibujada.
+  La aplicación dibujada.
 
-  La misma vista sirve para el enlace publico y para la previsualizacion del
-  panel. Lo unico que cambia es de donde sale el HTML de cada pagina y si se
+  La misma vista sirve para el enlace público y para la previsualizacion del
+  panel. Lo único que cambia es de donde sale el HTML de cada página y si se
   cuenta lo que el documento hace mal: un visitante nunca debe ver eso.
 -->
 <script lang="ts">
@@ -30,13 +30,13 @@
   }: {
     bundle: AppBundle;
     client: PocketBase;
-    /** De donde sale el HTML de una pagina. */
+    /** De donde sale el HTML de una página. */
     makePageLoader?: (pageId: string) => DocLoader;
     pageSlug?: string;
     onOpenPage: (page: AppBundle["pages"][number]) => void;
     showIssues?: boolean;
     banner?: Snippet;
-    /** Lo que cada quien anade al pie del sidebar: quien entro, y su salida. */
+    /** Lo que cada quien añade al pie del sidebar: quien entro, y su salida. */
     footer?: Snippet;
   } = $props();
 
@@ -51,13 +51,13 @@
   const pin = sidebarPin(() => bundle.app.id);
   /*
    * Claro u oscuro lo elige quien mira, no quien construye. Lo que si es de la
-   * aplicacion son sus dos colores, y van en este mismo elemento a proposito:
+   * aplicación son sus dos colores, y van en este mismo elemento a propósito:
    * ver `lib/appTheme.ts`.
    */
   const mode = pageMode(() => bundle.app.id);
 
   /*
-   * El cargador del documento tiene que durar lo que dure la pagina: uno nuevo
+   * El cargador del documento tiene que durar lo que dure la página: uno nuevo
    * por dibujado reiniciaria el marco sin parar. Por eso depende solo del id.
    */
   const loadDoc = $derived((makePageLoader ?? (() => async () => ""))(page?.id ?? ""));
@@ -86,9 +86,9 @@
     >
       {#snippet headerActions()}
         <!--
-          Claro u oscuro en una aplicacion publicada, junto al nombre de la
-          aplicacion arriba: es un ajuste de quien mira, no de la aplicacion.
-          Lo elegido se recuerda para esta aplicacion en este navegador;
+          Claro u oscuro en una aplicación publicada, junto al nombre de la
+          aplicación arriba: es un ajuste de quien mira, no de la aplicación.
+          Lo elegido se recuerda para esta aplicación en este navegador;
           mientras nadie elija, manda lo que pida el sistema.
         -->
         <ModeToggle
@@ -113,7 +113,7 @@
           {showIssues}
         />
       {:else}
-        <p class="app-published-empty text-center">Esta pagina esta vacia.</p>
+        <p class="app-published-empty text-center">Esta página está vacía.</p>
       {/if}
     </main>
   </div>
@@ -136,7 +136,7 @@
     }
   }
 
-  /* La pagina vacia se anuncia sobria, centrada. */
+  /* La página vacía se anuncia sobria, centrada. */
   .app-published-empty {
     padding: 4rem 0;
     font-size: var(--text-sm);

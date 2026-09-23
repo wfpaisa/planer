@@ -1,9 +1,9 @@
 /**
  * La tarjeta de publicar, para quien no la dibuja.
  *
- * La dibuja el encabezado --es donde vive el boton de publicar-- pero tambien
- * la abre el candado de la barra de direccion, que cuenta quien puede entrar y
- * esta en otra rama del arbol: la escena de la pagina. Sin nada en comun mas
+ * La dibuja el encabezado --es donde vive el botón de publicar-- pero también
+ * la abre el candado de la barra de dirección, que cuenta quien puede entrar y
+ * esta en otra rama del árbol: la escena de la página. Sin nada en comun mas
  * que el editor entero, el estado vive fuera, como el de la vista previa (ver
  * `previewPanel.svelte.ts`).
  */
@@ -26,7 +26,7 @@ export function closePublish(): void {
   open = false;
 }
 
-/** Traerla o cerrarla. Es lo que hace el boton de publicar del encabezado. */
+/** Traerla o cerrarla. Es lo que hace el botón de publicar del encabezado. */
 export function togglePublish(): void {
   open = !open;
 }

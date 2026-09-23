@@ -8,16 +8,16 @@
 
 /*
  * Peticiones ya redactadas, a un clic: mandan de una vez, sin pasar por el
- * campo de texto ni por el boton de enviar. Cada una es un atajo, y la IA
+ * campo de texto ni por el botón de enviar. Cada una es un atajo, y la IA
  * recibe el mismo pedido bien dicho cada vez.
  *
- * El rotulo es lo unico que se ve en la burbuja del turno: va en espanol. El
- * pedido en si no se ensena nunca --viaja como el texto de la peticion, pero
+ * El rotulo es lo único que se ve en la burbuja del turno: va en espanol. El
+ * pedido en si no se enseña nunca --viaja como el texto de la petición, pero
  * la burbuja muestra el rotulo en su lugar-- y va en ingles, como el resto de
  * lo que lee el modelo.
  *
- * El de la apariencia no ensena nada nuevo: el contrato entero
- * (`shared/htmlContract.ts`) viaja de sistema en cada peticion, asi que el
+ * El de la apariencia no enseña nada nuevo: el contrato entero
+ * (`shared/htmlContract.ts`) viaja de sistema en cada petición, así que el
  * modelo ya tiene delante como se ve una pantalla de la casa. Lo que hace la
  * lista es otra cosa: obligar a recorrer punto por punto lo que en un repaso
  * suelto se mira por encima. Por eso sigue el orden de las secciones del
@@ -28,7 +28,7 @@
 export const QUICK_ASK = {
   apariencia: {
     label: "Mejorar apariencia",
-    /** Nombre de Hugeicons: el rasgo que distingue a este atajo de los demas. */
+    /** Nombre de Hugeicons: el rasgo que distingue a este atajo de los demás. */
     icon: "brush-cleaning",
     prompt:
       'Leave this screen looking like the rest of the house, following the "Colours", "Spacing and type" and "What a Planer screen looks like" sections. ' +
@@ -59,10 +59,10 @@ export const QUICK_ASK_IDS = Object.keys(QUICK_ASK) as QuickAskId[];
 /*
  * Ejemplos para la portada. No se envian solos: llenan el campo de texto para
  * que se lean, se corrijan y se manden --o se borren-- como cualquier otra
- * peticion. Ensenan de que tamano es un pedido que la IA entiende bien.
+ * petición. Ensenan de que tamaño es un pedido que la IA entiende bien.
  */
 export const SAMPLES = [
   "Una pantalla con la lista de clientes y un buscador",
-  "Anade un formulario para dar de alta un pedido",
+  "Añade un formulario para registrar un pedido",
   "Pon arriba tres tarjetas con los totales del mes",
 ];

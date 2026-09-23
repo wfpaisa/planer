@@ -16,7 +16,7 @@
     fallback,
   }: {
     routes: RouteDef[];
-    /** Con que direccion se emparejan las rutas. Por defecto, donde se esta. */
+    /** Con que dirección se emparejan las rutas. Por defecto, donde se esta. */
     pathname?: string;
     /** A donde ir cuando no encaja ninguna. */
     fallback?: string;

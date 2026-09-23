@@ -1,7 +1,7 @@
 <!--
-  Las tablas de la aplicacion, la otra mitad de lo que se construye.
+  Las tablas de la aplicación, la otra mitad de lo que se construye.
 
-  Vive debajo del mismo encabezado que la aplicacion y se llega con su pestana,
+  Vive debajo del mismo encabezado que la aplicación y se llega con su pestana,
   asi que no tapa nada ni hay que cerrarla: se vuelve cambiando de pestana,
   igual que se vino.
 -->
@@ -20,7 +20,7 @@
   const table = $derived(builder.tables.find((t) => t.id === tableId) ?? builder.tables[0]);
 
   // La URL termina siempre nombrando la tabla abierta: se llego sin id, o con
-  // uno que ya no existe, y la direccion se corrige sin dejar rastro atras.
+  // uno que ya no existe, y la dirección se corrige sin dejar rastro atras.
   $effect(() => {
     if (table && table.id !== tableId) {
       navigate(`/a/${builder.app.id}/datos/${table.id}`, { replace: true });

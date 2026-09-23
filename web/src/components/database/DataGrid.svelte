@@ -6,7 +6,7 @@
   cada columna con su etiqueta; aqui una celda no cabria un selector de personas
   ni un archivo.
 
-  No virtualiza: pinta la tabla entera y pagina en el servidor. En React eso
+  No virtualiza: pinta la tabla entera y página en el servidor. En React eso
   obligaba a memoizar media pantalla; con runas cada celda se vuelve a calcular
   sola y esas memorias sobran.
 -->
@@ -23,13 +23,13 @@
    * Lo minimo que el giro se queda a la vista, aunque las filas ya esten.
    *
    * Una lectura corta vuelve en menos de lo que tarda en verse: sin este suelo,
-   * el icono cambia y vuelve en el mismo parpadeo y lo unico que se percibe es
+   * el icono cambia y vuelve en el mismo parpadeo y lo único que se percibe es
    * un tiron. Se mide desde que empezo a girar, no desde que termino de leer.
    */
   const SPIN_MIN = 400;
 
   const PAGE_SIZES = [25, 50, 100, 200, 300, 500] as const;
-  /** Cuando `meta.pageSize` no vale, la grilla usa este tamano. */
+  /** Cuando `meta.pageSize` no vale, la grilla usa este tamaño. */
   const DEFAULT_PAGE_SIZE = 50;
 </script>
 
@@ -146,7 +146,7 @@
 
   /**
    * La tabla de personas se pinta distinto en una sola cosa: dos de sus
-   * columnas no estan en su coleccion. Se marca aqui una vez y de ahi salen las
+   * columnas no estan en su colección. Se marca aqui una vez y de ahi salen las
    * tres diferencias --de donde se leen, por donde se escriben y que se puede
    * tocar de ellas--. Ver `web/src/lib/peopleGrid.ts`.
    */
@@ -158,22 +158,22 @@
   const emailColumn = $derived(table.fields.find((f) => f.system === "cuenta")?.name ?? "cuenta");
 
   let rows = $state<Row[]>([]);
-  /** Lo que se sabe de cada persona fuera de la coleccion. Vacio si no es personas. */
+  /** Lo que se sabe de cada persona fuera de la colección. Vacío si no es personas. */
   let overlay = $state<Map<string, PersonOverlay>>(new Map());
   let total = $state(0);
   let page = $state(1);
-  /** Filas marcadas con la casilla. Vacias al cambiar de pagina o filtro. */
+  /** Filas marcadas con la casilla. Vacias al cambiar de página o filtro. */
   let selected = $state<Set<string>>(new Set());
-  /** Filas por pagina; el valor "all" carga todas de una sola vez. */
+  /** Filas por página; el valor "all" carga todas de una sola vez. */
   let pageSize = $state<number | "all">(
     untrack(() =>
       table.meta?.pageSize === 0 ? "all" : (table.meta?.pageSize ?? DEFAULT_PAGE_SIZE),
     ),
   );
-  /** Lo que hay escrito en el campo "Filas por pagina": se aplica solo al dar Enter. */
+  /** Lo que hay escrito en el campo "Filas por página": se aplica solo al dar Enter. */
   let pageSizeText = $derived(String(pageSize));
   let loading = $state(true);
-  /** Mientras se vuelve a pedir todo a mano, desde el boton de refrescar. */
+  /** Mientras se vuelve a pedir todo a mano, desde el botón de refrescar. */
   let refreshing = $state(false);
   let error = $state("");
   /** Lo que hay que saber de la ultima exportacion. No es un error. */
@@ -182,7 +182,7 @@
   let deleteWarning = $state("");
 
   /**
-   * Los invitados a esta aplicacion. Son quienes ensenan una columna de
+   * Los invitados a esta aplicación. Son quienes ensenan una columna de
    * persona: la lista de cuentas no se puede leer entera desde el panel.
    */
   const people = getPeople();
@@ -191,7 +191,7 @@
 
   /** Filas de esta tabla cuyo valor no encontro a quien apuntar. */
   let orphans = $state<OrphanValue[]>([]);
-  /** La grilla ensena solo las filas cuyo valor no encontro registro. */
+  /** La grilla enseña solo las filas cuyo valor no encontro registro. */
   let onlyOrphans = $state(false);
   /** Filas de otras tablas que estaban esperando al registro recien creado. */
   let waiting = $state<Waiting[] | null>(null);
@@ -204,15 +204,15 @@
   let search = $state("");
   /** Lo que hay escrito en el buscador ahora mismo. Es lo que se ve teclear. */
   let searchText = $state("");
-  /** La tecla que todavia no se ha aplicado, si queda alguna esperando. */
+  /** La tecla que todavía no se ha aplicado, si queda alguna esperando. */
   let searchTimer: ReturnType<typeof setTimeout> | null = null;
   let sort = $state<Sort | null>(null);
   let columnModal = $state<{ field?: FieldDef } | null>(null);
   /**
    * La fila abierta en el panel lateral, o nada si esta cerrado.
    *
-   * Es el unico sitio donde se escriben datos: la grilla solo se lee. `row` a
-   * nulo es una fila que todavia no existe; con fila es la que se esta
+   * Es el único sitio donde se escriben datos: la grilla solo se lee. `row` a
+   * nulo es una fila que todavía no existe; con fila es la que se esta
    * editando.
    */
   let openRow = $state<{ row: Row | null } | null>(null);
@@ -232,14 +232,14 @@
   });
   /** Separador del CSV exportado; el punto y coma es el que mejor lee Excel. */
   let csvSeparator = $state(";");
-  /** Cuando esta abierto, el dialogo de importar de esta tabla. */
+  /** Cuando esta abierto, el diálogo de importar de esta tabla. */
   let importing = $state(false);
   /**
    * El archivo que llega ya soltado, cuando la importacion no empieza aqui.
    *
    * Un archivo de personas soltado en el constructor no se puede importar
-   * desde alli --crear las cuentas es cosa de este dialogo-- asi que viaja
-   * hasta aqui y el dialogo se abre con el dentro. Ver `lib/pendingImport`.
+   * desde alli --crear las cuentas es cosa de este diálogo-- asi que viaja
+   * hasta aqui y el diálogo se abre con el dentro. Ver `lib/pendingImport`.
    */
   let importFile = $state<File | null>(null);
   /**
@@ -253,19 +253,19 @@
   /**
    * Como le fue a la ultima importacion.
    *
-   * Se cuenta aqui y no dentro del dialogo porque el dialogo se cierra al
+   * Se cuenta aqui y no dentro del diálogo porque el diálogo se cierra al
    * terminar: un aviso dibujado dentro se iria con el en el mismo instante en
    * que habria que leerlo.
    */
   let importNote = $state<ImportNote | null>(null);
-  /** Cuando esta abierto, el dialogo que confirma el borrado masivo. */
+  /** Cuando esta abierto, el diálogo que confirma el borrado masivo. */
   let confirmDelete = $state(false);
   /**
    * Lo que se lleva por delante el borrado, para decirlo antes de confirmar.
    *
-   * Se pide al abrir el dialogo y no al marcar cada fila: marcar veinte filas
+   * Se pide al abrir el diálogo y no al marcar cada fila: marcar veinte filas
    * son veinte preguntas a la base para un aviso que quiza no se llegue a leer.
-   * `null` mientras se pide, para no ensenar un recuento en cero que despues
+   * `null` mientras se pide, para no ensenar un recuento en cero que después
    * cambia. Ver `design.md` D7.
    */
   let deleteImpact = $state<DeleteImpact | null>(null);
@@ -301,8 +301,8 @@
   });
 
   /**
-   * Las relaciones se traen resueltas: la celda ensena la columna declarada del
-   * registro enlazado, no el id. Las de persona tambien, para poder distinguir
+   * Las relaciones se traen resueltas: la celda enseña la columna declarada del
+   * registro enlazado, no el id. Las de persona también, para poder distinguir
    * un enlace roto de una celda que nunca se lleno.
    */
   const relationFields = $derived(
@@ -310,7 +310,7 @@
   );
 
   /*
-   * El recuento de filas sin enlace es de la tabla entera, no de la pagina que
+   * El recuento de filas sin enlace es de la tabla entera, no de la página que
    * se ve: por eso se pregunta aparte y no sale de las filas cargadas.
    */
   $effect(() => {
@@ -331,10 +331,10 @@
   /**
    * Las personas, juntando las dos fuentes.
    *
-   * Se traen todas y se busca, se ordena y se pagina aqui, en vez de pedirselo
+   * Se traen todas y se busca, se ordena y se página aqui, en vez de pedirselo
    * a la base como en cualquier otra tabla. No es una preferencia: el correo,
-   * el nivel y los roles no estan en la coleccion, asi que la base no puede
-   * filtrar ni ordenar por ellos. Y se puede: los invitados de una aplicacion
+   * el nivel y los roles no estan en la colección, asi que la base no puede
+   * filtrar ni ordenar por ellos. Y se puede: los invitados de una aplicación
    * son cientos, no millones.
    */
   async function loadPeople() {
@@ -373,7 +373,7 @@
 
   async function load() {
     loading = true;
-    // Cambiar de pagina o de filtro vacia la seleccion de filas.
+    // Cambiar de página o de filtro vacía la seleccion de filas.
     selected = new Set();
     try {
       if (isPeople) {
@@ -420,7 +420,7 @@
 
   /*
    * Lo que hace volver a pedir las filas se lee aqui, y no en una lista de
-   * dependencias escrita a mano: la busqueda, el orden, la pagina, su tamano y
+   * dependencias escrita a mano: la búsqueda, el orden, la página, su tamaño y
    * el filtro de lo que falta por enlazar.
    */
   $effect(() => {
@@ -436,8 +436,8 @@
     void builder.dataTouched;
     /*
      * El cursor se suelta aqui y no dentro de `load`: el rango se elige por
-     * sitio, asi que sobrevive a una relectura de la misma pagina --la de
-     * despues de pegar-- pero no a un orden, un filtro o una pagina distintos,
+     * sitio, asi que sobrevive a una relectura de la misma página --la de
+     * después de pegar-- pero no a un orden, un filtro o una página distintos,
      * donde esas mismas coordenadas serian ya otras filas.
      */
     selection.clear();
@@ -455,8 +455,8 @@
   /*
    * Enlazado lo ultimo que faltaba, el filtro se suelta solo.
    *
-   * Quien lo apaga es el boton del aviso, y el aviso se va con el ultimo valor
-   * suelto: dejarlo puesto ensenaba una tabla vacia sin ninguna salida a la
+   * Quien lo apaga es el botón del aviso, y el aviso se va con el ultimo valor
+   * suelto: dejarlo puesto ensenaba una tabla vacía sin ninguna salida a la
    * vista. Pasa al crear el registro que faltaba --las filas que lo esperaban
    * se enlazan de una vez-- que es justo cuando se esta mirando esta lista.
    */
@@ -468,13 +468,13 @@
   });
 
   /**
-   * Vuelve a pedir todo lo que esta pantalla ensena de la tabla.
+   * Vuelve a pedir todo lo que esta pantalla enseña de la tabla.
    *
-   * La grilla se pide sola cuando cambia algo de aqui --la busqueda, el orden,
-   * la pagina--, pero no se entera de lo que pasa fuera: una columna que la IA
+   * La grilla se pide sola cuando cambia algo de aqui --la búsqueda, el orden,
+   * la página--, pero no se entera de lo que pasa fuera: una columna que la IA
    * acaba de anadir, una fila que alguien escribio desde su navegador. Eso se
    * arreglaba recargando el sitio entero, que es volver a entrar en la
-   * aplicacion para leer una tabla.
+   * aplicación para leer una tabla.
    *
    * Va en este orden: primero las columnas, porque las filas se leen contra
    * ellas --una columna nueva llegaria sin sitio donde pintarse--, y al final
@@ -503,7 +503,7 @@
   /**
    * Si el icono de la tabla esta girando.
    *
-   * No es `loading` a secas: se enciende con el y se apaga un poco despues, lo
+   * No es `loading` a secas: se enciende con el y se apaga un poco después, lo
    * justo para que el relevo se vea. Entre lectura y lectura seguidas no se
    * reinicia --el suelo se cuenta desde la primera-- asi que teclear deprisa da
    * un giro continuo y no una sucesion de arranques.
@@ -594,7 +594,7 @@
    * No es un si o un no porque las dos cosas se dicen en sitios distintos: una
    * celda gira en su propio sitio, que es donde esta pasando, y un bloque no
    * tiene sitio --puede ser la tabla entera-- asi que lo dice la grilla
-   * atenuandose. Con un solo booleano, escribir una celda atenuaba tambien la
+   * atenuandose. Con un solo booleano, escribir una celda atenuaba también la
    * grilla: un parpadeo por cada dato que se escribe.
    */
   let writing = $state<"cell" | "bulk" | null>(null);
@@ -606,13 +606,13 @@
    * El inverso de la ultima escritura hecha desde aqui, mientras se pueda usar.
    *
    * Un solo paso: cada escritura reemplaza al anterior y deshacer lo gasta. Lo
-   * que lo tira esta en el efecto que vuelve a pedir las filas --otra pagina,
+   * que lo tira esta en el efecto que vuelve a pedir las filas --otra página,
    * otro orden, otro filtro, otra tabla-- y en lo que escribe por otra puerta
    * --importar, borrar filas--. Ver `dataGridUndo.ts`.
    */
   let undoable = $state<GridUndo | null>(null);
   /**
-   * Si lo recordado todavia se puede escribir: es de esta tabla y sus columnas
+   * Si lo recordado todavía se puede escribir: es de esta tabla y sus columnas
    * siguen siendo las de entonces. Cambiar una columna no hace falta vigilarlo
    * aparte, la firma ya no coincide.
    */
@@ -621,7 +621,7 @@
    * Donde se escuchan las teclas y el portapapeles.
    *
    * En la caja de la cuadricula y no en la ventana: con el cajon lateral o un
-   * dialogo abiertos, las flechas y el pegado son suyos, y un escucha global
+   * diálogo abiertos, las flechas y el pegado son suyos, y un escucha global
    * habria que apagarlo desde cada uno de ellos.
    */
   let gridBox = $state<HTMLTableElement | null>(null);
@@ -670,7 +670,7 @@
     /*
      * El ancho arrastrado se sostiene hasta que la tabla recargada ya lo trae.
      * Soltarlo aqui devolvia la columna al ancho viejo durante lo que tarda el
-     * guardado, y se veia un brinco al soltar el raton.
+     * guardado, y se veia un brinco al soltar el ratón.
      */
     dragWidth = { name, width };
     try {
@@ -690,7 +690,7 @@
   }
 
   /**
-   * La celda que se pulso estando ya elegida, a la espera de soltar el boton.
+   * La celda que se pulso estando ya elegida, a la espera de soltar el botón.
    *
    * Es lo que convierte el segundo clic en una edicion: el primero elige y el
    * segundo escribe, sin pedir un doble clic. No es una runa porque no se
@@ -711,7 +711,7 @@
     }
 
     /*
-     * Se anota, pero no se abre todavia: abrir aqui dejaria sin arrastre a la
+     * Se anota, pero no se abre todavía: abrir aqui dejaria sin arrastre a la
      * celda que tiene el cursor --el editor se comeria el gesto-- asi que la
      * decision se toma al soltar, cuando ya se sabe si hubo arrastre.
      */
@@ -726,7 +726,7 @@
   const cellOver = (row: number, col: number) => selection.dragTo({ row, col });
 
   /*
-   * Se suelta el arrastre aunque el raton se levante fuera de la cuadricula, y
+   * Se suelta el arrastre aunque el ratón se levante fuera de la cuadricula, y
    * ahi se decide si aquel clic sobre la celda ya elegida era para escribirla:
    * lo es solo si no se arrastro a ninguna otra.
    */
@@ -748,7 +748,7 @@
    * Abre una celda para escribirla.
    *
    * Una casilla de si/no no abre nada: la tecla la da la vuelta y se guarda. Un
-   * editor para elegir entre dos valores es un paso de mas en la unica columna
+   * editor para elegir entre dos valores es un paso de mas en la única columna
    * donde el valor cabe entero en la celda.
    */
   async function startEdit(at: CellRef, seed?: string) {
@@ -781,7 +781,7 @@
       undoable = undo;
       /*
        * En personas, el correo, el nivel y los roles no vuelven con la fila: no
-       * estan en la coleccion. Sin reponerlos, guardar una columna propia
+       * estan en la colección. Sin reponerlos, guardar una columna propia
        * dejaria esas tres en blanco hasta la siguiente lectura.
        */
       const next = isPeople ? (mergeOverlay([saved], overlay)[0] ?? saved) : saved;
@@ -825,14 +825,14 @@
     const field = visible[at.col];
     const row = rows[at.row];
     if (!field || !row) return;
-    // `undefined` es una relacion que no se llego a tocar: su campo arranca sin
+    // `undefined` es una relación que no se llego a tocar: su campo arranca sin
     // valor porque la llave vive en el registro enlazado, no en la celda.
     if (value === undefined) return;
     if (!isRelationField(field) && value === row[field.name]) return;
     await saveCell(row, field, value);
   }
 
-  /** Vacia las celdas del rango. */
+  /** Vacía las celdas del rango. */
   async function clearCells() {
     const range = selection.range;
     if (!range) return;
@@ -844,9 +844,9 @@
       editNote = rangeSummary(report, "vaciaron");
       await load();
       // Lo que salio por la cuenta se lee fuera de esta tabla: una columna de
-      // persona de cualquier otra ensena ese correo.
+      // persona de cualquier otra enseña ese correo.
       if (report.people) await builder.reloadPeople();
-      // Despues de recargar y no antes: la recarga no toca lo recordado, pero
+      // Después de recargar y no antes: la recarga no toca lo recordado, pero
       // el efecto que la dispara si, y el orden deja claro cual manda.
       undoable = report.undo ?? null;
     } catch (err) {
@@ -877,7 +877,7 @@
       editNote = rangeSummary(report, "pegaron");
       const undo = report.undo ?? null;
       /*
-       * Se vuelve a leer y no se remienda la grilla a mano: una relacion se
+       * Se vuelve a leer y no se remienda la grilla a mano: una relación se
        * guarda como el id del registro que encontro y una fecha como la
        * normalizo la base, asi que lo que hay que ensenar no es lo que se pego.
        */
@@ -895,9 +895,9 @@
    * Deshace la ultima escritura hecha desde la cuadricula.
    *
    * Es una escritura mas, no una vuelta atras de la base: se manda el valor que
-   * habia. Por eso se gasta al usarla --volver a mandarla escribiria otra vez
+   * había. Por eso se gasta al usarla --volver a mandarla escribiria otra vez
    * lo mismo sobre lo que ya se repuso-- y por eso se vuelve a leer la tabla al
-   * terminar, igual que despues de pegar.
+   * terminar, igual que después de pegar.
    */
   async function undoLast() {
     const undo = undoable;
@@ -974,7 +974,7 @@
      * Deshacer. Con una celda abierta no se llega hasta aqui --la salida de
      * arriba-- y ahi el atajo es el del propio campo de texto, que es lo que se
      * espera mientras se escribe. Con Mayusculas no se hace nada: eso es
-     * rehacer, y todavia no existe.
+     * rehacer, y todavía no existe.
      */
     if (meta && !e.shiftKey && e.key.toLowerCase() === "z") {
       if (!canUndo) return;
@@ -1028,7 +1028,7 @@
     e.preventDefault();
   }
 
-  /** Abre el panel lateral en blanco, para una fila que todavia no existe. */
+  /** Abre el panel lateral en blanco, para una fila que todavía no existe. */
   const addRow = () => {
     openRow = { row: null };
   };
@@ -1038,11 +1038,11 @@
     error = "";
     // El cajon lateral escribe la fila entera por su cuenta: lo que se
     // recordaba para deshacer puede ser de esa misma fila, y reponerlo borraria
-    // tambien lo que se acaba de guardar ahi.
+    // también lo que se acaba de guardar ahi.
     undoable = null;
     /*
      * En personas, el correo, el nivel y los roles no estan en la fila que
-     * vuelve: viven en la cuenta y en el enlace con la aplicacion, y de ahi los
+     * vuelve: viven en la cuenta y en el enlace con la aplicación, y de ahi los
      * saca el overlay. Sin volver a pedirlo, todo lo que lo lee --exportar, la
      * clave, el aviso de quitar el acceso-- seguiria diciendo el correo viejo.
      */
@@ -1054,7 +1054,7 @@
       void builder.reloadPeople();
     }
     if (created) {
-      // Al final y no al principio: la grilla ensena por antiguedad, y la fila
+      // Al final y no al principio: la grilla enseña por antiguedad, y la fila
       // recien nacida es la ultima.
       rows = [...rows, saved];
       total += 1;
@@ -1085,7 +1085,7 @@
    * Un archivo que se solto en el constructor y venia para esta tabla.
    *
    * Se recoge al pintarse y no al montarse: soltar un archivo de personas
-   * estando ya en la tabla de personas no vuelve a montar nada, y el dialogo
+   * estando ya en la tabla de personas no vuelve a montar nada, y el diálogo
    * tiene que abrirse igual.
    */
   $effect(() => {
@@ -1100,18 +1100,18 @@
   const GUESS_ROWS = 500;
 
   /**
-   * Lo que se hace despues de importar personas.
+   * Lo que se hace después de importar personas.
    *
-   * Cuatro cosas, en este orden: releer la aplicacion, releer la lista de
+   * Cuatro cosas, en este orden: releer la aplicación, releer la lista de
    * invitados, enlazar las filas de otras tablas que llevaban esperando su
    * valor, y mirar si alguna columna de texto resulta estar nombrando personas.
    *
-   * La aplicacion se relee porque importar personas puede cambiarla: los roles
-   * que nombra el archivo y la aplicacion no tenia nacen al importar (ver
-   * `server/peopleImport.ts`), y viven en la aplicacion y no en la tabla. Sin
+   * La aplicación se relee porque importar personas puede cambiarla: los roles
+   * que nombra el archivo y la aplicación no tenia nacen al importar (ver
+   * `server/peopleImport.ts`), y viven en la aplicación y no en la tabla. Sin
    * releerla, `reloadTables` traia las filas con sus roles puestos mientras la
-   * columna seguia sin una sola opcion y la tarjeta de roles seguia vacia: los
-   * roles parecian asignados pero no creados, y solo recargando la pagina
+   * columna seguia sin una sola opción y la tarjeta de roles seguia vacía: los
+   * roles parecian asignados pero no creados, y solo recargando la página
    * aparecian.
    *
    * El enlazado va aqui y no dentro de la importacion, y de una sola pasada:
@@ -1139,8 +1139,8 @@
       linked.set(item.table.label, (linked.get(item.table.label) ?? 0) + item.rows.length);
     }
 
-    // Lo que sigue sin enlace se cuenta despues de enlazar, no antes: lo que se
-    // dice es lo que queda por resolver, no lo que habia al empezar.
+    // Lo que sigue sin enlace se cuenta después de enlazar, no antes: lo que se
+    // dice es lo que queda por resolver, no lo que había al empezar.
     const pending = new Map<string, number>();
     for (const other of otras) {
       const orphans = await loadOrphans(other).catch(() => []);
@@ -1161,7 +1161,7 @@
 
     /*
      * Y por ultimo, las columnas de texto que resultan nombrar personas. Se
-     * miran despues de enlazar: una columna que ya es relacion no se propone, y
+     * miran después de enlazar: una columna que ya es relación no se propone, y
      * lo que se acaba de enlazar no cuenta como coincidencia pendiente.
      */
     const sample = new Map<string, Record<string, unknown>[]>();
@@ -1177,10 +1177,10 @@
   }
 
   /**
-   * Convierte en relacion las columnas de texto que se aceptaron, y enlaza.
+   * Convierte en relación las columnas de texto que se aceptaron, y enlaza.
    *
-   * Cambiar el tipo deja los valores en el corralito y la relacion vacia --el
-   * servidor que cambia el tipo no sabe contra que emparejar una cedula escrita
+   * Cambiar el tipo deja los valores en el corralito y la relación vacía --el
+   * servidor que cambia el tipo no sabe contra que emparejar una cédula escrita
    * a mano-- asi que enseguida se resuelven con la llave que ya declara la
    * columna. Ver `linkParkedValues`.
    */
@@ -1220,7 +1220,7 @@
   }
 
   /**
-   * Abre el dialogo de borrado, con lo que se lleva por delante ya contado.
+   * Abre el diálogo de borrado, con lo que se lleva por delante ya contado.
    *
    * En personas no se pregunta: quitar el acceso tiene su propio aviso, que
    * habla de la cuenta y no de las filas que la senalan.
@@ -1246,7 +1246,7 @@
       const ids = [...selected];
       let failed = 0;
       if (isPeople) {
-        // Borrar la fila de alguien es borrarle la cuenta de esta aplicacion.
+        // Borrar la fila de alguien es borrarle la cuenta de esta aplicación.
         // Lo que sepan de ella otras aplicaciones sigue en pie: alli tiene su
         // propia cuenta, que esta no toca.
         for (const id of ids) {
@@ -1261,8 +1261,8 @@
         /*
          * Por el servidor y no directo a la base: es lo que hace que la
          * conducta declarada en cada columna --conservar el valor o borrar
-         * tambien-- sea una regla y no una costumbre de esta pantalla. Los
-         * identificadores van juntos: un borrado en bloque es una peticion.
+         * también-- sea una regla y no una costumbre de esta pantalla. Los
+         * identificadores van juntos: un borrado en bloque es una petición.
          */
         const res = await post<{ borradas: number; fallidas: number }>(
           `/api/tables/${table.id}/filas/borrar`,
@@ -1283,7 +1283,7 @@
       deleteWarning = failed
         ? `No se pudieron borrar ${failed} fila${failed === 1 ? "" : "s"}.`
         : "";
-      // Si la pagina quedo vacia, se vuelve a la anterior; el cambio de pagina
+      // Si la página quedo vacía, se vuelve a la anterior; el cambio de página
       // pide las filas por su cuenta.
       if (gone > 0 && rows.length - gone <= 0 && page > 1) page -= 1;
       else void load();
@@ -1325,7 +1325,7 @@
       error = result.error;
     })();
 
-  /** Cambia cuantas filas se muestran por pagina y lo recuerda en la tabla. */
+  /** Cambia cuantas filas se muestran por página y lo recuerda en la tabla. */
   async function changePageSize(size: number | "all") {
     pageSize = size;
     page = 1;
@@ -1353,7 +1353,7 @@
   const toggleSystemVisible = (name: string) =>
     toggleColumnSystemVisible(table, name, onSchemaChange);
 
-  /** Como queda repartido el total. Con "todas" no hay paginas que contar. */
+  /** Como queda repartido el total. Con "todas" no hay páginas que contar. */
   const perPage = $derived(pageSize === "all" ? total : pageSize);
   const pageCount = $derived(perPage > 0 ? Math.ceil(total / perPage) : 1);
   const paged = $derived(pageSize !== "all" && total > pageSize);
@@ -1362,8 +1362,8 @@
    * Lo que hay que decir de las filas cuyo valor no encontro registro.
    *
    * Dos frases y ninguna mas: cuanto falta y donde, y que hacer. Se nombra la
-   * tabla que no tiene el valor porque es lo unico con lo que se puede hacer
-   * algo; antes la cinta decia "Solo las filas cuyo valor todavia no encontro
+   * tabla que no tiene el valor porque es lo único con lo que se puede hacer
+   * algo; antes la cinta decia "Solo las filas cuyo valor todavía no encontro
    * registro", que describe el filtro puesto y no el problema, y mandaba a un
    * panel aparte.
    *
@@ -1410,7 +1410,7 @@
     return `${frases.join(" ")} ${arreglar} para enlazar las filas pendientes.`;
   });
 
-  /** Por que columna se esta ordenando, dicho en el boton de la barra. */
+  /** Por que columna se esta ordenando, dicho en el botón de la barra. */
   const sortLabel = $derived.by(() => {
     const by = sort;
     if (!by) return "Ordenar";
@@ -1421,7 +1421,7 @@
     );
   });
 
-  /** Ordenar siempre devuelve a la primera pagina: lo de arriba cambio. */
+  /** Ordenar siempre devuelve a la primera página: lo de arriba cambio. */
   function applySort(next: Sort | null) {
     sort = next;
     page = 1;
@@ -1466,7 +1466,7 @@
     page = 1;
   }
 
-  /** La persona de la unica fila marcada, para el aviso de quitarle el acceso. */
+  /** Nombre de la persona seleccionada para el aviso de retirada de acceso. */
   const removingName = $derived(
     selected.size === 1
       ? (overlay.get(String(rows.find((r) => selected.has(r.id))?.[MEMBER_FIELD] ?? ""))?.cuenta ??
@@ -1485,15 +1485,15 @@
   <div id="database-grid-toolbar" class="toolbar-grid-db flex shrink-0 items-center gap-1">
     <div class="grid-db-table-id">
       <!--
-        El icono de la tabla es tambien el indicador de carga: mientras llegan
-        las filas lo releva un giro con el acento de la aplicacion, en su mismo
+        El icono de la tabla es también el indicador de carga: mientras llegan
+        las filas lo releva un giro con el acento de la aplicación, en su mismo
         hueco. Antes el indicador era un circulo que aparecia entre el contador
         y el buscador, y encenderlo empujaba la barra entera hacia la derecha a
         cada tecla. Esto no mueve nada: el hueco esta puesto y solo cambia lo
         que hay dentro.
 
         Es el mismo icono que la tabla tiene en el lateral, y por eso dice "la
-        tabla" y no "la busqueda": el giro sale igual al ordenar, al paginar o
+        tabla" y no "la búsqueda": el giro sale igual al ordenar, al paginar o
         al refrescar.
       -->
       <span class="grid-db-table-icon" aria-hidden="true">
@@ -1504,7 +1504,7 @@
         {/if}
       </span>
       <!--
-        El nombre es lo unico que cede espacio cuando la barra aprieta, pero
+        El nombre es lo único que cede espacio cuando la barra aprieta, pero
         nunca hasta desaparecer.
       -->
       <span class="grid-db-title" data-tip={table.label}>{table.label}</span>
@@ -1522,7 +1522,7 @@
           <Icon name="cancel-01" size={11} />
         </button>
       {:else}
-        <!-- El total tambien esta en el pie: cuando la barra aprieta, se cuenta una vez. -->
+        <!-- El total también esta en el pie: cuando la barra aprieta, se cuenta una vez. -->
         <span class="grid-db-total">
           {total}
           {total === 1 ? "fila" : "filas"}
@@ -1545,7 +1545,7 @@
         <button
           type="button"
           onclick={clearSearch}
-          aria-label="Quitar la busqueda"
+          aria-label="Quitar la búsqueda"
           class="btn-clear-table-search grid-db-search-clear"
         >
           <Icon name="cancel-01" size={16} />
@@ -1683,7 +1683,7 @@
     </Button>
 
     <!--
-      La puerta a los roles. Solo desde la tabla de personas: es la unica que
+      La puerta a los roles. Solo desde la tabla de personas: es la única que
       tiene algo que decir sobre los nombres, y no hay otra pantalla donde se
       creen.
     -->
@@ -1703,7 +1703,7 @@
 
     <!--
       Deshacer la ultima escritura hecha desde la cuadricula. Solo esta cuando
-      hay algo que deshacer: es la unica accion de la barra que aparece por algo
+      hay algo que deshacer: es la única accion de la barra que aparece por algo
       que se acaba de hacer, y verla salir es parte de decir que se puede.
     -->
     {#if canUndo}
@@ -1899,7 +1899,7 @@
 
   <!--
     Los avisos no se dibujan aqui: `Note` los manda a la capa de `Toast`, arriba
-    a la derecha. Lo que quedaba en su sitio era la caja vacia que los envolvia,
+    a la derecha. Lo que quedaba en su sitio era la caja vacía que los envolvia,
     con su acolchado empujando la cuadricula hacia abajo sin nada dentro.
   -->
   {#if error}
@@ -1932,14 +1932,14 @@
 
   <!--
     Lo que pasa con estas filas, dicho aqui mismo y en tono de aviso: antes era
-    una linea gris que describia el filtro puesto y un enlace a un panel donde
+    una línea gris que describia el filtro puesto y un enlace a un panel donde
     una columna que apunta a personas no ofrecia nada que hacer --no se invita a
     nadie desde ahi-- asi que lo que se leia al abrirlo era una lista de valores
     y ninguna salida. Lo que hace falta saber es que tabla no tiene el valor.
 
     Se queda a la vista mientras haya algo que enlazar, no solo con el filtro
-    puesto: antes habia que pulsar un boton de la barra para enterarse de lo que
-    pasaba, y lo que pasa no se pide, se dice. El boton se vino aqui dentro,
+    puesto: antes había que pulsar un botón de la barra para enterarse de lo que
+    pasaba, y lo que pasa no se pide, se dice. El botón se vino aqui dentro,
     que es donde se lee el motivo para pulsarlo.
   -->
   {#if orphanWarning}
@@ -1980,7 +1980,7 @@
        * Atenuada mientras trabaja, y escribir un bloque cuenta igual que leer:
        * pegar el correo o los roles de doscientas personas son doscientas
        * peticiones --cada una es una cuenta aparte-- y sin esto la grilla se
-       * queda quieta unos segundos, ensenando todavia lo de antes, como si el
+       * queda quieta unos segundos, ensenando todavía lo de antes, como si el
        * pegado no hubiera pasado.
        */
       (loading || writing === "bulk") && rows.length > 0 && "grid-db-grid-loading",
@@ -2127,19 +2127,19 @@
         >
           {#snippet icon()}<Icon name="search-x" size={20} />{/snippet}
           {#snippet action()}
-            <Button size="sm" onclick={clearSearch}>Quitar la busqueda</Button>
+            <Button size="sm" onclick={clearSearch}>Quitar la búsqueda</Button>
           {/snippet}
         </EmptyState>
       {:else if table.fields.length === 0}
         <!--
           Una tabla recien creada no tiene ni una columna, asi que lo primero no
           es una fila --seria una fila sin nada que escribir-- sino decir que
-          guarda la tabla. El mismo dialogo que abre "Añadir columna" de la
+          guarda la tabla. El mismo diálogo que abre "Añadir columna" de la
           barra, puesto donde se esta mirando.
         -->
         <EmptyState
           title="Esta tabla no tiene columnas"
-          description="Di qué guarda: crea la primera columna, o importa un archivo y se crean con él."
+          description="Crea una columna o importa un archivo para definir la estructura."
         >
           {#snippet icon()}<Icon name="table" size={20} />{/snippet}
           {#snippet action()}
@@ -2151,7 +2151,7 @@
       {:else}
         <EmptyState
           title="La tabla está vacía"
-          description="Añade la primera fila o crea las columnas que necesites."
+          description="Añade una fila para empezar a guardar datos."
         >
           {#snippet icon()}<Icon name="list-filter" size={20} />{/snippet}
           {#snippet action()}
@@ -2164,7 +2164,7 @@
     {/if}
   </div>
 
-  <!-- Pie de la grilla: paginado y filas por pagina -->
+  <!-- Pie de la grilla: paginado y filas por página -->
   {#if total > 0}
     <div id="database-grid-pagination" class="pagination-grid-db flex shrink-0 items-center gap-2">
       <!-- Que se esta viendo, a la izquierda: se lee antes de mover nada. -->
@@ -2237,7 +2237,7 @@
   <Modal
     open={!!pasteAsk}
     onClose={() => (pasteAsk = null)}
-    title="Lo pegado no cabe"
+    title="Faltan filas para pegar los datos"
     class="modal-paste-overflow"
   >
     {#if pasteAsk}
@@ -2279,7 +2279,7 @@
     <ConfirmDialog
       open
       onClose={() => (waiting = null)}
-      title="Habia filas esperando este registro"
+      title="Hay filas pendientes de enlazar"
       confirmLabel="Enlazarlas"
       onConfirm={() => {
         // La lista se copia antes de cerrar: `pendingWaiting` sale de `waiting`,
@@ -2301,7 +2301,7 @@
             en {item.field.label} sin enlazar.
           </span>
         {/each}
-        <span class="confirm-waiting-ask block">Enlazarlas a este registro ahora?</span>
+        <span class="confirm-waiting-ask block">¿Enlazar estas filas con el registro?</span>
       {/snippet}
     </ConfirmDialog>
   {/if}
@@ -2346,11 +2346,11 @@
     }}
     title={isPeople ? "Quitar el acceso" : "Borrar filas"}
     message={isPeople
-      ? // Se dice antes de confirmar y no despues: con la cuenta no pasa nada,
-        // pero lo que esta aplicacion supiera de esa persona se va y no vuelve.
+      ? // Se dice antes de confirmar y no después: con la cuenta no pasa nada,
+        // pero lo que esta aplicación supiera de esa persona se va y no vuelve.
         removeWarning(removingName, table.fields.filter((f) => f.system === undefined).length)
       : // Mientras se cuenta se dice lo minimo cierto: el recuento llega en un
-        // parpadeo, y ensenar ceros que despues cambian es peor que esperar.
+        // parpadeo, y ensenar ceros que después cambian es peor que esperar.
         deleteImpact
         ? deleteRowsWarning(selected.size, deleteImpact)
         : `Se van a borrar ${selected.size} fila${selected.size === 1 ? "" : "s"}.`}
@@ -2367,11 +2367,11 @@
     onSaved={rowSaved}
     saveRow={isPeople
       ? // En personas cada dato va por su camino: el correo a la cuenta comun,
-        // el nivel y los roles al enlace con la aplicacion, y lo demas a la
-        // coleccion de la aplicacion como en cualquier tabla.
+        // el nivel y los roles al enlace con la aplicación, y lo demas a la
+        // colección de la aplicación como en cualquier tabla.
         async (opts) => {
           const clave = newKey.trim();
-          // Antes de escribir nada: el cajon lo ensena en su aviso y no se
+          // Antes de escribir nada: el cajon lo enseña en su aviso y no se
           // llega a crear a medias una persona con una clave que no vale.
           if (clave && clave.length < MIN_PASSWORD) {
             throw new Error(`La clave necesita ${MIN_PASSWORD} caracteres o más.`);
@@ -2388,10 +2388,10 @@
       : undefined}
   >
     <!--
-      La clave no es una columna: se pone desde la fila de la persona, se ensena
+      La clave no es una columna: se pone desde la fila de la persona, se enseña
       una vez y no se puede volver a leer.
 
-      A quien ya existe se le cambia --un boton que abre el formulario, porque
+      A quien ya existe se le cambia --un botón que abre el formulario, porque
       se entra a su fila a cambiarle el area mucho mas a menudo que la clave-- y
       a quien esta naciendo se le elige ahi mismo, como un renglon mas.
     -->
@@ -2400,7 +2400,7 @@
         {@const person = overlay.get(String(openRow.row[MEMBER_FIELD] ?? ""))}
         {#if person}
           <!--
-            El correo que hay escrito ahora mismo, aunque todavia no se haya
+            El correo que hay escrito ahora mismo, aunque todavía no se haya
             guardado: es la persona a la que se le va a dar la clave.
           -->
           {@const written = String(values[emailColumn] ?? "").trim()}
@@ -2495,7 +2495,7 @@
       height: 0.875rem;
       width: 0.875rem;
       border-width: 2px;
-      /* Entero del color de la aplicacion: el aro tenue y la cabeza plena. */
+      /* Entero del color de la aplicación: el aro tenue y la cabeza plena. */
       border-color: color-mix(in srgb, var(--accent) 25%, transparent);
       border-top-color: var(--accent);
     }
@@ -2625,16 +2625,16 @@
   }
 
   /*
-    El aviso es `.alert.warn` del catalogo --color, borde y acolchado salen de
+    El aviso es `.alert.warn` del catálogo --color, borde y acolchado salen de
     ahi-- y lo de aqui es solo donde se pone: entre la barra y la cuadricula,
     con el mismo margen lateral que el resto del contenido y sin pegarse a
     ninguna de las dos.
 
-    Dentro, el texto se queda con todo el ancho que sobre y el boton se va al
-    final. Los dos van a la misma altura, que es lo unico que el `.alert` no
+    Dentro, el texto se queda con todo el ancho que sobre y el botón se va al
+    final. Los dos van a la misma altura, que es lo único que el `.alert` no
     hace por su cuenta: alinea a sus hijos arriba --pensado para un icono
     suelto al lado de un parrafo-- y ahi la frase se quedaba pegada al techo
-    mientras el boton, mas alto, se centraba solo.
+    mientras el botón, mas alto, se centraba solo.
   */
   .grid-db-orphans-banner {
     margin: 0 var(--sp-12) var(--sp-8);
@@ -2646,8 +2646,8 @@
       --el aviso-- y sueltos se separaban, el icono en un renglon y la frase en
       el siguiente. Aqui dentro si manda arriba: con la frase en dos renglones
       el icono acompana al primero, no al hueco entre los dos. La frase pide
-      doce eme de ancho antes de ceder; cuando ya no caben con el boton al
-      lado, el que se va abajo es el boton.
+      doce eme de ancho antes de ceder; cuando ya no caben con el botón al
+      lado, el que se va abajo es el botón.
     */
     & .grid-db-orphans-text {
       display: flex;
@@ -2657,10 +2657,10 @@
     }
 
     /*
-      Sin fondo: la cinta ya es una superficie, y un boton con la suya encima
+      Sin fondo: la cinta ya es una superficie, y un botón con la suya encima
       se levanta del aviso en vez de pertenecerle. Se queda con su contorno
       ambar, que es lo que lo senala. Al pasar por encima se tina --el lavado
-      del catalogo es `--warning-bg`, que es el fondo mismo de la cinta y ahi
+      del catálogo es `--warning-bg`, que es el fondo mismo de la cinta y ahi
       no se nota.
     */
     & :global(.grid-db-orphans-action) {
@@ -2775,7 +2775,7 @@
       mano lo mismo que se ve en una celda normal: el lienzo de color de fondo
       y encima, como capa de imagen, el lavado que le toca a la fila.
 
-      Va al final del bloque a proposito: estas reglas tienen que ganarle a las
+      Va al final del bloque a propósito: estas reglas tienen que ganarle a las
       del lavado generico, que se declaran mas arriba con la forma corta de
       `background` y borrarian la capa.
     */
@@ -2831,7 +2831,7 @@
   }
 
   /* -------------------------------------------------- */
-  /* el pie de pagina                                    */
+  /* el pie de página                                    */
   /* -------------------------------------------------- */
 
   .pagination-grid-db {
@@ -2909,7 +2909,7 @@
   }
 
   /* -------------------------------------------------- */
-  /* el dialogo de filas que esperaban este registro     */
+  /* el diálogo de filas que esperaban este registro     */
   /* -------------------------------------------------- */
 
   .confirm-waiting-ask {

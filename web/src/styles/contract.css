@@ -1,15 +1,15 @@
 /* ==========================================================
-   CONTRACT — los tokens que el HTML de una pagina nombra
+   CONTRACT — los tokens que el HTML de una página nombra
    ----------------------------------------------------------
    Lo que `shared/htmlContract.ts` le promete a quien escribe una
-   pagina: la paleta viva, las separaciones y la escala de texto.
-   Estan aqui, y no en global.css, porque tienen DOS consumidores
+   página: la paleta viva, las separaciones y la escala de texto.
+   Estan aquí, y no en global.css, porque tienen DOS consumidores
    que no pueden quedarse distintos -- el panel, que los hereda por
-   `global.css`, y el documento de una pagina, que recibe esta
+   `global.css`, y el documento de una página, que recibe esta
    misma hoja servida en `/plane/estilos.css`.
 
    Los selectores son los de compat.css y por la misma razon: una
-   variable se resuelve donde se declara, asi que cualquier
+   variable se resuelve donde se declara, así que cualquier
    elemento que cambie el tema o la paleta recomputa los suyos.
    ========================================================== */
 
@@ -37,7 +37,7 @@
    * oscuro-- los doce no comparten luminosidad, y por eso cinco llevan
    * tinta clara encima y siete la llevan oscura.
    *
-   * Sobre papel oscuro esos cinco profundos se perderian, asi que ahi suben
+   * Sobre papel oscuro esos cinco profundos se perderian, así que ahi suben
    * de luminosidad; entonces los doce llevan ya tinta oscura y solo esos
    * cinco necesitan el par de `light-dark()` en la tinta.
    *
@@ -73,7 +73,7 @@
   --vivid-pink-ink: light-dark(oklch(0.99 0.02 350), oklch(0.24 0.05 350));
 
   /*
-   * Medidas de la casa. Viajan al HTML de una pagina junto con los colores,
+   * Medidas de la casa. Viajan al HTML de una página junto con los colores,
    * y `shared/htmlContract.ts` las describe una por una.
    */
   --space-1: 0.25rem;

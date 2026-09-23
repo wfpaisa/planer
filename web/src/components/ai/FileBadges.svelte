@@ -1,12 +1,12 @@
 <!--
-  Los archivos adjuntos, como badges dentro de la conversacion.
+  Los archivos adjuntos, como badges dentro de la conversación.
 
   Son los mismos badges que lo senalado y que los atajos, y por lo mismo: algo
-  anadido a la peticion que se puede retirar antes de enviarla sin tocar lo que
+  anadido a la petición que se puede retirar antes de enviarla sin tocar lo que
   se llevaba escrito. Cambia el icono, que dice de que clase es cada uno.
 -->
 <script lang="ts" module>
-  /** El tamano de un archivo, dicho en la unidad que se lee de un vistazo. */
+  /** El tamaño de un archivo, dicho en la unidad que se lee de un vistazo. */
   export function weigh(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
@@ -26,8 +26,8 @@
   <div class="file-badges flex flex-wrap">
     {#each files as file (file.id)}
       <!--
-        Mientras se guarda, el badge lo dice: el archivo va en camino y todavia
-        no se puede mandar con una peticion. Quitarlo ahi corta la subida, que
+        Mientras se guarda, el badge lo dice: el archivo va en camino y todavía
+        no se puede mandar con una petición. Quitarlo ahi corta la subida, que
         es lo que hace que adjuntar algo grande no sea un compromiso.
       -->
       <Tag
@@ -43,7 +43,7 @@
         {/if}
         <span class="file-name">{file.name}</span>
         {#if file.uploading}
-          <span class="file-uploading">va en camino</span>
+          <span class="file-uploading">Subiendo</span>
         {/if}
       </Tag>
     {/each}

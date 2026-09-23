@@ -3,7 +3,7 @@
 
   Todas se ven igual --nombre arriba, lo que va a pasar debajo-- porque todas
   son lo mismo: una salida de la misma pregunta. Lo que va debajo no describe la
-  opcion, cuenta la consecuencia, que es lo unico que hace falta para elegir.
+  opción, cuenta la consecuencia, que es lo único que hace falta para elegir.
 -->
 <script lang="ts">
   import { cx } from "../lib/cx";
@@ -29,7 +29,7 @@
 </button>
 
 <style>
-  /* La caja es `.opt` del catalogo, con su par `.opt-label` / `.opt-hint`.
+  /* La caja es `.opt` del catálogo, con su par `.opt-label` / `.opt-hint`.
      Aqui solo el respiro: la salida de una pregunta se lee entera, asi que
      va mas holgada que una celda de rejilla. La consecuencia, ademas, puede
      ocupar dos renglones. */

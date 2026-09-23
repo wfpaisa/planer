@@ -1,16 +1,16 @@
 <!--
-  La conversacion con la inteligencia artificial, dentro del dock.
+  La conversación con la inteligencia artificial, dentro del dock.
 
-  Su campo de texto es la unica entrada a la IA. Se llama "Conversaciones",
-  nunca "historial": ese nombre es de los cambios de una pagina.
+  Su campo de texto es la única entrada a la IA. Se llama "Conversaciones",
+  nunca "historial": ese nombre es de los cambios de una página.
 
-  Cada peticion escribe sobre la pagina abierta y solo sobre ella, y las
-  conversaciones son de esa misma pagina: la lista ensena solo las suyas, asi
+  Cada petición escribe sobre la página abierta y solo sobre ella, y las
+  conversaciones son de esa misma página: la lista enseña solo las suyas, asi
   que ninguna necesita decir en cual se hizo.
 
   Lo escrito y lo conversado no vive aqui sino en `aiConversation`, para que
-  esconder el dock no lo borre; y la peticion en marcha, en `aiRun`, para que
-  salir de la seccion y volver la encuentre donde iba.
+  esconder el dock no lo borre; y la petición en marcha, en `aiRun`, para que
+  salir de la sección y volver la encuentre donde iba.
 -->
 <script lang="ts">
   import { aiUsable } from "@shared/aiCatalog";
@@ -103,7 +103,7 @@
     onImpact,
   }: {
     appId: string;
-    /** La pagina sobre la que escribe esta peticion. */
+    /** La página sobre la que escribe esta petición. */
     page: PageRecord;
     /** Esconder el dock. No borra lo escrito ni lo conversado. */
     onClose: () => void;
@@ -117,10 +117,10 @@
   const builder = useBuilder();
 
   /*
-   * La IA esta trabajando en otra pagina de esta aplicacion.
+   * La IA esta trabajando en otra página de esta aplicación.
    *
-   * El servidor no cambia: sigue admitiendo una peticion por pagina y varias
-   * paginas a la vez. El limite de una a la vez es esta condicion y nada mas,
+   * El servidor no cambia: sigue admitiendo una petición por página y varias
+   * páginas a la vez. El limite de una a la vez es esta condicion y nada mas,
    * asi que levantarlo el dia que se quiera trabajar en paralelo es quitarla.
    */
   const elsewhere = $derived(aiActivity.pages.find((id) => id !== page.id) ?? "");
@@ -128,11 +128,11 @@
   const blocked = $derived(!!elsewhere);
 
   // Lo conversado se lee del almacen, que es reactivo: lo que escriba el hilo
-  // de avisos --tambien el de una peticion que empezo en un panel anterior--
+  // de avisos --también el de una petición que empezo en un panel anterior--
   // se ve aqui sin copiarlo dentro.
   const chat = $derived(readConversation(key));
   /**
-   * La intencion local de activar el modo Plan para la proxima peticion.
+   * La intencion local de activar el modo Plan para la proxima petición.
    *
    * No es el estado que se muestra: cerrado e implementado se leen del ultimo
    * mensaje del hilo, que manda sobre esto (D1 de `ia-modo-plan`). Esto solo
@@ -141,7 +141,7 @@
    * antes de implementarlo.
    */
   let planWanted = $state(false);
-  /** Como se muestra el boton de Plan: activo, cerrado o apagado. */
+  /** Como se muestra el botón de Plan: activo, cerrado o apagado. */
   const planStatus = $derived.by(() => {
     const last = chat.entries[chat.entries.length - 1];
     if (last?.from === "ia" && last.plan) return last.plan.implementado ? "off" : "closed";
@@ -154,9 +154,9 @@
    */
   let choice = $state<AiChoice | null>(null);
   /**
-   * La IA quiere ver si la pagina que escribio se dibuja sin errores.
+   * La IA quiere ver si la página que escribio se dibuja sin errores.
    *
-   * Es lo unico que el servidor pide de vuelta a mitad de una peticion: aqui
+   * Es lo único que el servidor pide de vuelta a mitad de una petición: aqui
    * hay navegador y alli no. Se dibuja escondida y se contesta con lo que la
    * consola solto.
    */
@@ -169,8 +169,8 @@
   /** El selector nativo de archivos, escondido: lo abre el menu del "+". */
   let fileInput = $state<HTMLInputElement | null>(null);
   /**
-   * El hero es la portada de la conversacion vacia. Al mandar la primera
-   * peticion sale hacia arriba y se desvanece mientras el primer mensaje sube.
+   * El hero es la portada de la conversación vacía. Al mandar la primera
+   * petición sale hacia arriba y se desvanece mientras el primer mensaje sube.
    * `leaving` conserva el hero un instante para que se vea salir.
    */
   let phase = $state<"hero" | "leaving" | "gone">(
@@ -180,31 +180,31 @@
   const loadDoc = $derived(appDocLoader(appId));
 
   /*
-   * La peticion en marcha de la pagina abierta, si la hay.
+   * La petición en marcha de la página abierta, si la hay.
    *
    * Vive fuera del componente --`lib/aiRun`-- porque el panel se desmonta al
-   * salir de la seccion y la peticion no se corta con el: asi volver a la
-   * pagina la encuentra donde iba, en vez de en blanco hasta recargar.
+   * salir de la sección y la petición no se corta con el: asi volver a la
+   * página la encuentra donde iba, en vez de en blanco hasta recargar.
    */
   const run = $derived(liveRun(key));
-  /** Hay una peticion en marcha en la pagina abierta. */
+  /** Hay una petición en marcha en la página abierta. */
   const working = $derived(!!run);
-  /** Lo que la IA lleva producido en esta peticion. Solo para mirar. */
+  /** Lo que la IA lleva producido en esta petición. Solo para mirar. */
   const progress = $derived(run?.progress ?? NO_PROGRESS);
-  /** Desde cuando trabaja la peticion en marcha. Mueve el reloj de "Working". */
+  /** Desde cuando trabaja la petición en marcha. Mueve el reloj de "Working". */
   const startedAt = $derived(run?.startedAt ?? 0);
-  /** Como la llama el servidor. Vacio: salir todavia la pierde. */
+  /** Como la llama el servidor. Vacío: salir todavía la pierde. */
   const runId = $derived(run?.runId ?? "");
-  /** Se pidio detenerla y todavia no ha llegado el final. */
+  /** Se pidio detenerla y todavía no ha llegado el final. */
   const stopping = $derived(run?.stopping ?? false);
 
-  /* Lo que de verdad se puede mandar: sin texto ni nada anadido no hay peticion. */
+  /* Lo que de verdad se puede mandar: sin texto ni nada anadido no hay petición. */
   const canSend = $derived(
     !blocked && (!!chat.draft.trim() || chat.picks.length > 0 || chat.files.length > 0),
   );
 
   /*
-   * Encendida no basta: sin un servidor con clave y con algun modelo no hay a
+   * Encendida no basta: sin un servidor con clave y con algún modelo no hay a
    * quien pedirle nada, y es mejor decirlo aqui que dejar que falle al enviar.
    */
   const ready = $derived(aiUsable(config));
@@ -221,21 +221,21 @@
    * Cada cambio se guarda fuera, para que cerrar la barra no lo pierda.
    *
    * `forKey` existe para lo que llega tarde: una respuesta puede aterrizar
-   * cuando ya se cambio de pagina, y tiene que caer en la conversacion donde se
+   * cuando ya se cambio de página, y tiene que caer en la conversación donde se
    * pidio, no en la que se este mirando. Lo que hay delante sale del almacen,
-   * asi que escribir ahi es lo unico que hace falta: si lo escrito es de la
-   * pagina abierta se ve solo, y si es de otra no la toca.
+   * asi que escribir ahi es lo único que hace falta: si lo escrito es de la
+   * página abierta se ve solo, y si es de otra no la toca.
    */
   function update(next: Conversation, forKey: string = key): void {
     writeConversation(forKey, next);
   }
 
   /*
-   * Cambiar de pagina trae la conversacion de esa pagina.
+   * Cambiar de página trae la conversación de esa página.
    *
    * Lo conversado lo trae el almacen solo --la clave cambio-- pero la portada
    * y la lista de conversaciones no: son de esta pantalla, y sin esto se
-   * quedarian como estaban en la pagina de la que se viene.
+   * quedarian como estaban en la página de la que se viene.
    */
   let shown = untrack(() => key);
   $effect(() => {
@@ -245,9 +245,9 @@
     if (mine !== shown) {
       shown = mine;
       phase = untrack(() => (readConversation(mine).entries.length ? "gone" : "hero"));
-      // La lista era la de la pagina de la que se viene.
+      // La lista era la de la página de la que se viene.
       list = null;
-      // La intencion de modo Plan era de la conversacion de la que se viene.
+      // La intencion de modo Plan era de la conversación de la que se viene.
       planWanted = false;
     }
 
@@ -255,30 +255,30 @@
   });
 
   /**
-   * Al llegar a una pagina, reponer la conversacion abierta si es la suya.
+   * Al llegar a una página, reponer la conversación abierta si es la suya.
    *
-   * Abierta hay una sola en toda la aplicacion: la ultima en la que se hablo.
-   * Asi, recorrer las paginas no va dejando en cada una una conversacion de
+   * Abierta hay una sola en toda la aplicación: la ultima en la que se hablo.
+   * Asi, recorrer las páginas no va dejando en cada una una conversación de
    * cualquier dia delante, como si se acabara de hablar ahi. Las demas empiezan
    * en blanco y lo de antes sigue a un clic, en "Conversaciones anteriores".
    *
    * Cual esta abierta lo dice el servidor, no esta pestana: quien sigue desde
    * otro navegador se encuentra delante la que dejo, y solo esa.
    *
-   * Se mira una sola vez por pagina y visita: lo que pase despues --empezar una
-   * conversacion nueva, abrir otra de la lista-- manda sobre esto, y volver a
-   * la pagina no puede reponer nada encima.
+   * Se mira una sola vez por página y visita: lo que pase después --empezar una
+   * conversación nueva, abrir otra de la lista-- manda sobre esto, y volver a
+   * la página no puede reponer nada encima.
    */
   async function reopenOpen(mine: string, pageId: string): Promise<void> {
     if (wasHydrated(mine)) return;
     markHydrated(mine);
-    // Ya hay algo delante, o el hilo de avisos esta trayendo una peticion en
+    // Ya hay algo delante, o el hilo de avisos esta trayendo una petición en
     // marcha: eso es lo que se estaba viendo y no se pisa.
     if (readConversation(mine).entries.length || isListening(mine)) return;
 
     try {
       const open = await loadOpenChat(appId);
-      // La abierta es de otra pagina: aqui se empieza en blanco.
+      // La abierta es de otra página: aqui se empieza en blanco.
       if (!open || open.page !== pageId) return;
       const saved = await api<AiChat>(`/api/apps/${appId}/conversaciones/${open.chat}`);
 
@@ -294,12 +294,12 @@
   }
 
   /*
-   * Lo que habia quedado en cola antes de recargar.
+   * Lo que había quedado en cola antes de recargar.
    *
    * La cola vive en esta pestana, asi que recargar la pierde: se devuelve al
-   * campo de texto y se dice, que es la unica forma honesta de no prometer lo
-   * que no se guardo. Se hace una vez por pagina y visita, con la misma marca
-   * que repone la conversacion abierta.
+   * campo de texto y se dice, que es la única forma honesta de no prometer lo
+   * que no se guardo. Se hace una vez por página y visita, con la misma marca
+   * que repone la conversación abierta.
    */
   $effect(() => {
     const mine = key;
@@ -338,7 +338,7 @@
       });
   });
 
-  /** Cambiar de modelo o de nivel: dura mas alla de esta pagina y esta visita. */
+  /** Cambiar de modelo o de nivel: dura mas alla de esta página y esta visita. */
   function pick(patch: Partial<AiChoice>): void {
     if (!choice) return;
     const next = { ...choice, ...patch };
@@ -347,12 +347,12 @@
   }
 
   /*
-   * El cursor de seleccion. Lo senalado se queda en la conversacion de esta
-   * pagina, junto a lo que se esta escribiendo; el mismo elemento senalado dos
+   * El cursor de seleccion. Lo senalado se queda en la conversación de esta
+   * página, junto a lo que se esta escribiendo; el mismo elemento senalado dos
    * veces no deja dos badges.
    *
    * La suscripcion se hace una sola vez: la clave se lee dentro del aviso, que
-   * corre fuera del efecto, asi que cambiar de pagina no la vuelve a montar.
+   * corre fuera del efecto, asi que cambiar de página no la vuelve a montar.
    */
   $effect(() =>
     onPicked((block) => {
@@ -365,7 +365,7 @@
 
   /**
    * Cuantas veces se ha pedido llevar el foco al campo de texto. Sube uno cada
-   * vez que se pide; el numero en si no significa nada, solo que hubo peticion
+   * vez que se pide; el número en si no significa nada, solo que hubo petición
    * nueva.
    */
   let focusRequests = $state(0);
@@ -375,12 +375,12 @@
    *
    * La primera sirve para que enviar espere lo justo --lo que falte por subir,
    * no mas-- y la segunda para recoger la referencia de un archivo cuyo badge
-   * ya salio de la conversacion al enviarla.
+   * ya salio de la conversación al enviarla.
    */
   const inFlight = new Map<string, Promise<unknown>>();
   const settled = new Map<string, DraftFile>();
 
-  /** Un aviso escrito como si lo dijera la IA. No es una peticion fallida. */
+  /** Un aviso escrito como si lo dijera la IA. No es una petición fallida. */
   function say(text: string, forKey: string = key): void {
     const now = readConversation(forKey);
     update({ ...now, entries: [...now.entries, { id: nextEntryId(), from: "ia", text }] }, forKey);
@@ -389,7 +389,7 @@
 
   /*
    * Los archivos que se sueltan encima del editor y se mandan a la
-   * conversacion.
+   * conversación.
    *
    * Se suben en cuanto se sueltan, no al enviar: para cuando se termina de
    * escribir que hacer con ellos, ya estan guardados. Mientras suben, su badge
@@ -397,7 +397,7 @@
    * quitar el badge antes de que termine corta la subida.
    *
    * El que no se pueda adjuntar se cuenta como una respuesta de la IA. Es un
-   * aviso, no una peticion fallida: los demas del mismo lote entran igual.
+   * aviso, no una petición fallida: los demas del mismo lote entran igual.
    */
   $effect(() =>
     onFilesForAi((dropped) => {
@@ -436,7 +436,7 @@
             settled.set(draft.id, saved);
             const before = readConversation(mine);
             // Quitar el badge mientras subia es cancelar: si ya no esta, lo
-            // subido no vuelve a la conversacion.
+            // subido no vuelve a la conversación.
             if (!before.files.some((f) => f.id === draft.id)) return;
             update(
               { ...before, files: before.files.map((f) => (f.id === draft.id ? saved : f)) },
@@ -453,9 +453,9 @@
         })();
         inFlight.set(draft.id, climbing);
       }
-      // El foco no se lleva aqui: la pregunta que trajo el archivo todavia
+      // El foco no se lleva aqui: la pregunta que trajo el archivo todavía
       // puede estar en pantalla, y al cerrarse se lo llevaria detras. Se
-      // pide, y se cumple despues del siguiente dibujado.
+      // pide, y se cumple después del siguiente dibujado.
       focusRequests += 1;
     }),
   );
@@ -464,20 +464,20 @@
    * Llevar el cursor al campo de texto.
    *
    * Dos cosas lo piden y cuentan igual. Adjuntar: el archivo es la mitad de la
-   * peticion y la otra mitad --que hacer con el-- hay que escribirla. Y el
-   * boton del documento en blanco, que trae la columna para escribir ya; ese
+   * petición y la otra mitad --que hacer con el-- hay que escribirla. Y el
+   * botón del documento en blanco, que trae la columna para escribir ya; ese
    * llega desde fuera, y la columna puede acabar de dibujarse, asi que se lee
    * la cuenta del dock y no un evento que se habria perdido antes de montar.
    */
   const focusAsked = $derived(focusRequests + builder.dock.focusAsks);
-  /* Hasta que peticion se atendio. Sin esto no habria como distinguir "hay una
+  /* Hasta que petición se atendio. Sin esto no habria como distinguir "hay una
      nueva" de "el campo se volvio a montar y la cuenta sigue donde estaba". */
   let focusDone = 0;
 
   $effect(() => {
     const asked = focusAsked;
-    /* Se mira el campo, no se ignora: el boton del documento en blanco trae la
-       columna y pide el cursor en el mismo gesto, asi que la peticion llega
+    /* Se mira el campo, no se ignora: el botón del documento en blanco trae la
+       columna y pide el cursor en el mismo gesto, asi que la petición llega
        antes de que el campo exista y hay que volver cuando aparezca. */
     const field = box;
     if (asked > focusDone && field) {
@@ -486,7 +486,7 @@
     }
   });
 
-  /* Salir del cursor con escape tambien desde el panel: el documento solo se
+  /* Salir del cursor con escape también desde el panel: el documento solo se
      entera de la tecla cuando el foco esta dentro de su marco. */
   $effect(() => {
     if (!picker.active) return;
@@ -497,33 +497,33 @@
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  /* Esconder el dock apaga el cursor: sin el boton no habria como apagarlo. */
+  /* Esconder el dock apaga el cursor: sin el botón no habria como apagarlo. */
   $effect(() => () => setPickerActive(false));
 
   /*
-   * Seguir el final de la conversacion. Mientras la respuesta llega por partes
+   * Seguir el final de la conversación. Mientras la respuesta llega por partes
    * va al mismo ritmo que los redibujados --uno cada pocos frames-- y sin
    * suavizado: un desplazamiento suave por token pelea contra el que hace a
    * mano quien esta leyendo mas arriba.
    *
    * Y solo si la vista ya estaba al final: subir a releer algo mientras la IA
    * escribe no puede acabar en un tiron hacia abajo cada pocos frames. Cuando
-   * no lo esta aparece el boton que baja de un toque.
+   * no lo esta aparece el botón que baja de un toque.
    */
   let stuck = true;
 
   /*
    * Se mueve la columna, no un elemento dentro de ella: `scrollIntoView`
-   * arrastra tambien a los contenedores de arriba, y el dock vive dentro de la
-   * escena de la pagina.
+   * arrastra también a los contenedores de arriba, y el dock vive dentro de la
+   * escena de la página.
    */
   function jump(behavior: ScrollBehavior): void {
     if (scroller) scroller.scrollTo({ top: scroller.scrollHeight, behavior });
   }
 
   // Mientras la respuesta llega, sin suavizado; el suave es para lo que se
-  // mueve de golpe. Vale `working` y no una marca propia: con la peticion
-  // viviendo fuera del panel, volver a la pagina la encuentra en marcha.
+  // mueve de golpe. Vale `working` y no una marca propia: con la petición
+  // viviendo fuera del panel, volver a la página la encuentra en marcha.
   const scrollToEnd = frameThrottle(() => jump(working ? "auto" : "smooth"));
 
   function follow(): void {
@@ -537,7 +537,7 @@
     jump("smooth");
   }
 
-  // "Al final" con holgura: un par de lineas de margen para que redondeos y
+  // "Al final" con holgura: un par de líneas de margen para que redondeos y
   // fuentes a medio cargar no desenganchen la vista sin motivo.
   function onScroll(): void {
     const el = scroller;
@@ -553,13 +553,13 @@
 
   $effect(() => {
     if (!working) return;
-    // Sin nada llegado todavia no hay final nuevo al que ir.
+    // Sin nada llegado todavía no hay final nuevo al que ir.
     if (progress.text || progress.reasoning || progress.steps.length) follow();
   });
 
   /*
    * El campo crece con lo escrito, hasta un tope. Se mide en cada cambio: hay
-   * que devolverlo a "auto" antes de leer su alto real, o borrar una linea no
+   * que devolverlo a "auto" antes de leer su alto real, o borrar una línea no
    * lo encogeria nunca.
    */
   $effect(() => {
@@ -573,14 +573,14 @@
   // Lo pedido a los frames para desplazar la columna y el reloj del lienzo se
   // cancelan al desmontar: los dos trabajarian sobre un panel que ya no esta en
   // pantalla. El avance no: lo que agrupa vive fuera --`lib/aiRun`-- y quien
-  // vuelva a esta pagina tiene que encontrarlo donde iba.
+  // vuelva a esta página tiene que encontrarlo donde iba.
   $effect(() => () => {
     scrollToEnd.cancel();
     cancelCanvasRefresh();
   });
 
   /**
-   * Escuchar una peticion y dejar su resultado en la conversacion. Todo el
+   * Escuchar una petición y dejar su resultado en la conversación. Todo el
    * ciclo --abrir el hilo, acumular el avance, aterrizar el resultado-- vive en
    * `lib/aiListen.ts`; de aqui solo sale lo que es del panel.
    */
@@ -608,7 +608,7 @@
     });
 
   /**
-   * Manda una peticion ya resuelta: el campo de texto o un atajo, da igual.
+   * Manda una petición ya resuelta: el campo de texto o un atajo, da igual.
    *
    * `label`, si viene, es lo que se lee en la burbuja en vez del texto --un
    * atajo manda un pedido largo en ingles, y la burbuja muestra su rotulo
@@ -616,7 +616,7 @@
    * atajo se manda solo, sin tocar lo que se llevaba escrito para lo
    * siguiente.
    *
-   * Con una peticion en marcha no se descarta: se encola. El campo se vacia
+   * Con una petición en marcha no se descarta: se encola. El campo se vacía
    * igual --lo escrito ya salio de ahi-- y lo encolado se ve y se puede quitar
    * antes de que le llegue el turno.
    */
@@ -624,7 +624,7 @@
     text: string,
     opts?: { label?: string; keepDraft?: boolean; plan?: AiPlanIntent },
   ): Promise<void> {
-    // La IA trabaja en otra pagina: lo escrito se queda donde esta, esperando
+    // La IA trabaja en otra página: lo escrito se queda donde esta, esperando
     // a que aquello termine.
     if (blocked) return;
     const value = text.trim();
@@ -651,14 +651,14 @@
       return;
     }
 
-    // La primera peticion echa a la portada: sube y se desvanece.
+    // La primera petición echa a la portada: sube y se desvanece.
     if (phase === "hero") {
       phase = "leaving";
       setTimeout(() => {
         phase = "gone";
       }, 450);
     }
-    // Lo senalado y lo adjunto viajan con la peticion y se sueltan al enviarla:
+    // Lo senalado y lo adjunto viajan con la petición y se sueltan al enviarla:
     // la siguiente no arrastra lo que se preparo para esta.
     const picked = asked.picks;
     const files = asked.files;
@@ -676,7 +676,7 @@
           text: value,
           ...(opts?.label ? { label: opts.label } : {}),
           // Los adjuntos quedan nombrados en el mensaje: al releer la
-          // conversacion se entiende con que se pidio lo que se pidio.
+          // conversación se entiende con que se pidio lo que se pidio.
           ...(files.length ? { files: files.map(asChatFile) } : {}),
           ...(picked.length ? { picked: picked.map((p) => p.label) } : {}),
         },
@@ -684,9 +684,9 @@
     });
 
     /*
-     * Lo que falte por subir se espera aqui y no antes: el campo ya se vacio y
+     * Lo que falte por subir se espera aqui y no antes: el campo ya se vacío y
      * la burbuja ya esta puesta, asi que escribir nunca espero a una subida.
-     * Lo que se manda son referencias, y un archivo sin ella todavia no es una
+     * Lo que se manda son referencias, y un archivo sin ella todavía no es una
      * referencia.
      */
     const ready = await settle(files);
@@ -694,8 +694,8 @@
     // referencia: es lo que la deja abrirse.
     if (files.some((f) => !f.ref)) patchFiles(entryId, ready);
 
-    // Fuera de una accion explicita (cortar, implementar), la peticion lleva
-    // la intencion del boton mientras siga encendido: es lo unico que hace
+    // Fuera de una accion explicita (cortar, implementar), la petición lleva
+    // la intencion del botón mientras siga encendido: es lo único que hace
     // que el modo Plan siga activo turno tras turno (D1 de `ia-modo-plan`).
     const planIntent = opts?.plan ?? (planWanted ? "activar" : undefined);
 
@@ -710,7 +710,7 @@
     });
   }
 
-  /** Lo que de un adjunto queda nombrado en la conversacion. */
+  /** Lo que de un adjunto queda nombrado en la conversación. */
   const asChatFile = (file: DraftFile) => ({
     ref: file.ref,
     name: file.name,
@@ -721,7 +721,7 @@
   /**
    * Espera lo que falte por subir y devuelve los adjuntos que ya son
    * referencia. El que no llego a subirse se queda fuera: su fallo ya se conto
-   * en la conversacion cuando ocurrio.
+   * en la conversación cuando ocurrio.
    */
   async function settle(files: DraftFile[]): Promise<DraftFile[]> {
     const waiting = files.map((f) => inFlight.get(f.id)).filter(Boolean);
@@ -748,14 +748,14 @@
   /*
    * Atender lo siguiente de la cola en cuanto haya sitio.
    *
-   * Va como efecto y no dentro del cierre de la peticion porque una peticion
-   * puede terminar cuando ya se esta mirando otra pagina, y mandarla desde alli
-   * la escribiria sobre la pagina equivocada. Asi, lo encolado espera a estar
+   * Va como efecto y no dentro del cierre de la petición porque una petición
+   * puede terminar cuando ya se esta mirando otra página, y mandarla desde alli
+   * la escribiria sobre la página equivocada. Asi, lo encolado espera a estar
    * delante, que es donde se puede atender.
    *
    * `starting` cubre el hueco entre sacar algo de la cola y que el servidor
-   * reconozca la peticion: sin el, el efecto volveria a correr y sacaria
-   * tambien la siguiente.
+   * reconozca la petición: sin el, el efecto volveria a correr y sacaria
+   * también la siguiente.
    */
   let starting = false;
 
@@ -791,8 +791,8 @@
   /**
    * Contestar una pregunta de la IA.
    *
-   * Lo que se manda es lo que se eligio, y nada mas: la peticion lleva los
-   * turnos anteriores de la conversacion, asi que el modelo ya tiene delante lo
+   * Lo que se manda es lo que se eligio, y nada mas: la petición lleva los
+   * turnos anteriores de la conversación, asi que el modelo ya tiene delante lo
    * que se pidio y lo que el mismo pregunto. Repetirselo dentro del texto era
    * la forma de suplir una memoria que ahora si existe.
    */
@@ -806,8 +806,8 @@
    *
    * Va sin `label`: lo que se escribio es lo que se lee en la burbuja, porque
    * aqui no hay un rotulo corto que lo resuma --lo elegido, en las otras, era
-   * el boton-- y esconderlo detras de "Otro" dejaria la conversacion sin lo
-   * unico que dijo esa respuesta.
+   * el botón-- y esconderlo detras de "Otro" dejaria la conversación sin lo
+   * único que dijo esa respuesta.
    */
   function answerOther(text: string): void {
     void dispatch(text, { keepDraft: true });
@@ -823,14 +823,14 @@
    * Solo manda la intencion; quien decide el estado real es el servidor, a
    * partir del hilo (D1 de `ia-modo-plan`). Volver a Crear con un plan ya
    * cerrado sin implementar no lo descarta: la tarjeta se queda en el hilo
-   * como esta, y la siguiente peticion se comporta como hoy (D5).
+   * como esta, y la siguiente petición se comporta como hoy (D5).
    */
   function setPlan(on: boolean): void {
     planWanted = on;
   }
 
   /**
-   * La orden de implementar a mitad de conversacion (D4): un boton, no un
+   * La orden de implementar a mitad de conversación (D4): un botón, no un
    * texto que se manda al modelo para que lo interprete como orden de cierre.
    * Cierra el plan con lo que la IA tenia hasta ahora y lo deja listo para
    * construir.
@@ -847,12 +847,12 @@
   /**
    * Pasar a modo Implementador desde un plan ya cerrado.
    *
-   * Lo que se manda al modelo es el plan concretado: la burbuja ensena un
-   * rotulo corto, igual que al elegir la opcion de una pregunta.
+   * Lo que se manda al modelo es el plan concretado: la burbuja enseña un
+   * rotulo corto, igual que al elegir la opción de una pregunta.
    *
    * El servidor marca implementado el plan guardado, pero esta entrada ya
    * esta pintada en el navegador con lo que tenia al cerrarse: sin marcarla
-   * tambien aqui, su tarjeta seguiria ofreciendo el boton hasta recargar.
+   * también aqui, su tarjeta seguiria ofreciendo el botón hasta recargar.
    */
   function implementPlan(entryId: number, plan: { texto: string; implementado: boolean }): void {
     planWanted = false;
@@ -866,7 +866,7 @@
     void dispatch(plan.texto, { label: "Implementar", keepDraft: true, plan: "implementar" });
   }
 
-  /** Abrir el archivo elegido con el selector nativo del "+" a la conversacion. */
+  /** Abrir el archivo elegido con el selector nativo del "+" a la conversación. */
   function attachFiles(e: Event): void {
     const input = e.currentTarget as HTMLInputElement;
     if (input.files?.length) sendFilesToAi(Array.from(input.files));
@@ -876,9 +876,9 @@
   /**
    * Detener lo que la IA esta haciendo.
    *
-   * No corta el hilo de avisos: se le pide al servidor que pare, la peticion
+   * No corta el hilo de avisos: se le pide al servidor que pare, la petición
    * corta por el primer sitio seguro y el final llega por donde llegan todos.
-   * Asi lo que se alcanzo a hacer queda contado en la conversacion.
+   * Asi lo que se alcanzo a hacer queda contado en la conversación.
    */
   async function stop(): Promise<void> {
     if (!working || stopping) return;
@@ -886,14 +886,14 @@
     try {
       await post(`/api/apps/${appId}/paginas/${page.id}/ia/detener`);
     } catch {
-      // O ya habia terminado, o nunca llego a arrancar: el final llega igual.
+      // O ya había terminado, o nunca llego a arrancar: el final llega igual.
     }
   }
 
   /**
    * Abre un archivo adjuntado en una pestana nueva.
    *
-   * No es un `<a href>` a secas: esa direccion exige la sesion del panel, y un
+   * No es un `<a href>` a secas: esa dirección exige la sesión del panel, y un
    * navegador no manda esa cabecera al navegar. La pestana se abre en el mismo
    * click --si no, el bloqueador de ventanas emergentes la corta-- y se rellena
    * en cuanto llega el archivo.
@@ -917,24 +917,24 @@
   }
 
   /*
-   * Volver a una peticion que seguia en marcha.
+   * Volver a una petición que seguia en marcha.
    *
-   * La peticion vive en el servidor, no en esta ventana: recargar, cerrar el
-   * dock o volver mas tarde a esta pagina no la corta. Al abrir el panel se
+   * La petición vive en el servidor, no en esta ventana: recargar, cerrar el
+   * dock o volver mas tarde a esta página no la corta. Al abrir el panel se
    * pregunta si hay alguna y, si la hay, se retoma donde iba --con lo que se
    * pidio delante, que tras recargar ya no lo tiene nadie mas--.
    *
-   * Se retoma una sola vez por pagina: repetirlo cuando la peticion ya termino
+   * Se retoma una sola vez por página: repetirlo cuando la petición ya termino
    * volveria a recoger el mismo resultado --el servidor guarda la ultima para
    * que recargar justo al acabar no lo pierda--. La marca se pone al recibir la
    * respuesta, no al preguntar, porque el panel se monta mas de una vez y una
    * marca puesta antes de tiempo dejaria fuera al montaje que si sigue vivo.
    *
-   * La excepcion es que la senal de actividad diga que aqui hay una peticion en
+   * La excepcion es que la senal de actividad diga que aqui hay una petición en
    * marcha y esta pestana no la este escuchando: entonces se vuelve a preguntar
    * aunque ya se hubiera preguntado antes. Esa senal solo cuenta las que no han
    * terminado, asi que no puede recoger dos veces un resultado; sin esto, una
-   * peticion que empezo en otra ventana se quedaria senalada en el sidebar y en
+   * petición que empezo en otra ventana se quedaria senalada en el sidebar y en
    * blanco aqui, hasta recargar.
    */
   $effect(() => {
@@ -953,7 +953,7 @@
         if (!run) {
           // La senal decia que aqui se trabajaba y el servidor dice que no.
           // Manda el servidor: sin esto el sidebar seguiria senalando esta
-          // pagina el resto de la visita, y aqui no habria nada que ensenar.
+          // página el resto de la visita, y aqui no habria nada que ensenar.
           if (signalled) setAiWorking(pageId, false);
           return;
         }
@@ -983,7 +983,7 @@
   });
 
   /*
-   * Salir con una peticion que el servidor todavia no reconoce si la pierde:
+   * Salir con una petición que el servidor todavía no reconoce si la pierde:
    * no hay a que volver a engancharse. En cuanto la reconoce --que es lo
    * normal-- este aviso desaparece, porque salir deja de costar nada.
    */
@@ -1006,11 +1006,11 @@
   }
 
   /**
-   * Un mensaje guardado, tal como se pinta en la conversacion.
+   * Un mensaje guardado, tal como se pinta en la conversación.
    *
    * Con que se pidio --los archivos y lo senalado-- vuelve a la burbuja como
-   * estaba: es lo que hace entendible una conversacion que se relee dias
-   * despues.
+   * estaba: es lo que hace entendible una conversación que se relee dias
+   * después.
    */
   const toEntry = (m: AiChat["messages"][number]) => ({
     id: nextEntryId(),
@@ -1036,7 +1036,7 @@
         queue: now.queue,
         entries: saved.messages.map(toEntry),
       });
-      // La intencion de modo Plan era de la conversacion que se deja: la de
+      // La intencion de modo Plan era de la conversación que se deja: la de
       // la que se abre la dice su propio ultimo mensaje.
       planWanted = false;
       // Abrir una es dejarla abierta: es la que se repone al volver, aqui y
@@ -1055,7 +1055,7 @@
   }
 
   /**
-   * Se acabo de probar la pagina: se devuelve lo que solto.
+   * Se acabo de probar la página: se devuelve lo que solto.
    *
    * Si falla el envio no se reintenta. La espera del servidor vence sola y la
    * IA se entera de que no se pudo probar, que es justo lo que paso.
@@ -1072,7 +1072,7 @@
   }
 
   /**
-   * Quitar un archivo adjunto. Lo escrito no se toca, y si todavia se estaba
+   * Quitar un archivo adjunto. Lo escrito no se toca, y si todavía se estaba
    * guardando, se corta: quitarlo es decir que ya no hace falta.
    */
   function removeFile(id: string): void {
@@ -1086,7 +1086,7 @@
   function startNew(): void {
     update({ entries: [], chatId: "", draft: "", picks: [], files: [], queue: [] });
     rememberQueue(key, []);
-    // La aplicacion se queda sin ninguna abierta: volver aqui --o entrar desde
+    // La aplicación se queda sin ninguna abierta: volver aqui --o entrar desde
     // otro navegador-- empieza igual de limpio, no con la de antes repuesta.
     setOpenChat(appId, null, key);
     phase = "hero";
@@ -1096,11 +1096,11 @@
   }
 
   /**
-   * El contexto que quedo guardado de la ultima peticion de esta pagina.
+   * El contexto que quedo guardado de la ultima petición de esta página.
    *
-   * Se escribe siempre, termine bien o mal, asi que existe despues del fallo
+   * Se escribe siempre, termine bien o mal, asi que existe después del fallo
    * aunque nadie hubiera encendido nada antes. Se pide al desplegar: lleva el
-   * HTML entero de la pagina y casi nunca se mira.
+   * HTML entero de la página y casi nunca se mira.
    */
   async function loadSavedContext(): Promise<{ text: string; truncated: boolean } | null> {
     const saved = await api<AiDebugRead>(`/api/apps/${appId}/paginas/${page.id}/ia/depuracion`);
@@ -1127,7 +1127,7 @@
     opened = next;
   }
 
-  /** La ultima respuesta de la IA: la unica a la que pertenece lo guardado. */
+  /** La ultima respuesta de la IA: la única a la que pertenece lo guardado. */
   const lastAiEntry = $derived([...chat.entries].reverse().find((e) => e.from === "ia")?.id ?? 0);
 
   /** Escribir un ejemplo en el campo. Se manda cuando quien pide lo decida. */
@@ -1148,11 +1148,11 @@
 />
 
 <!--
-  Los dos caminos que antes solo existian en la portada: en cuanto habia una
-  conversacion empezada no habia forma de abrir las anteriores ni de empezar
+  Los dos caminos que antes solo existian en la portada: en cuanto había una
+  conversación empezada no había forma de abrir las anteriores ni de empezar
   otra sin salir. Aqui estan siempre.
 
-  Con una peticion en marcha los dos se cierran: cambiar de conversacion ahora
+  Con una petición en marcha los dos se cierran: cambiar de conversación ahora
   dejaria caer la respuesta en la que no es. Se espera, o se detiene.
 -->
 {#snippet actions()}
@@ -1180,12 +1180,11 @@
   {/if}
 {/snippet}
 
-<!-- Sin titulo: la cabecera de la conversacion la llenan sus propios mandos. -->
+<!-- La conversación no necesita título: sus controles ocupan la cabecera. -->
 <OmniPanel {onClose} flush={!list && ready} actions={ready && !list ? actions : undefined}>
   {#if !ready}
     <p class="chat-no-server text-center">
-      No hay ningun servidor de inteligencia artificial conectado. Se conecta en los ajustes de tu
-      cuenta.
+      No hay ningún servidor de inteligencia artificial. Conecta uno en los ajustes de tu cuenta.
     </p>
   {:else if list}
     <ChatList chats={list} onOpen={(id) => void openChat(id)} onBack={() => (list = null)} />
@@ -1201,22 +1200,14 @@
                 phase === "leaving" && "hero-leave",
               )}
             >
-              <!--
-                Aqui esta la cara, asi que lo escrito es lo que dice ella: en
-                primera persona y hablando de tu a quien lee. Contarlo desde
-                fuera --"la inteligencia artificial lo construye"-- pone a un
-                narrador entre los dos y deja al personaje de adorno.
-              -->
+              <!-- El personaje presenta la acción en primera persona. -->
               <PlanerAvatar mood="ok" size={60} icon="message-01" />
               <p class="chat-hero-title">¿Qué quieres ver en esta página?</p>
-              <p class="chat-hero-subtitle">Describe una pantalla o un cambio y lo construiré.</p>
+              <p class="chat-hero-subtitle">Describe una pantalla o el cambio que necesitas.</p>
 
               <!--
-                Dos grupos, dos gestos distintos. Los atajos son peticiones ya
-                completas: un clic las manda de una vez, sin pasar por el campo
-                ni por el boton de enviar. Los ejemplos describen una pantalla
-                nueva y hace falta leerlos y ajustarlos, asi que solo llenan el
-                campo.
+                Los autocomandos se envían al pulsarlos. Las sugerencias solo
+                completan el campo para poder ajustarlas antes de enviarlas.
               -->
               <div class="chat-hero-suggestions flex flex-col">
                 <div class="hero-quick-group flex flex-col">
@@ -1327,9 +1318,9 @@
 
                 <!--
                   Lo que se le mando al modelo, solo si esta encendido en
-                  Ajustes. El de esta visita llega con la peticion; sin el, el
+                  Ajustes. El de esta visita llega con la petición; sin el, el
                   ultimo turno ofrece el que quedo guardado en el servidor, que
-                  es lo que sobrevive a recargar despues de un fallo.
+                  es lo que sobrevive a recargar después de un fallo.
                 -->
                 {#if entry.context}
                   <div class="context-debug-wrap">
@@ -1386,7 +1377,7 @@
                 {/if}
 
                 <!--
-                  Cortar el plan a mitad de conversacion (D4). Solo al pie del
+                  Cortar el plan a mitad de conversación (D4). Solo al pie del
                   ultimo turno, con el modo activo y sin nada en marcha: si ese
                   turno ya trae plan cerrado, quien ofrece construir es su
                   tarjeta, no esto.
@@ -1439,7 +1430,7 @@
           <button
             type="button"
             onclick={goToEnd}
-            aria-label="Ir al final de la conversacion"
+            aria-label="Ir al final de la conversación"
             class="btn-jump-to-end flex items-center justify-center"
           >
             <Icon name="arrow-down-01" size={15} />
@@ -1448,7 +1439,7 @@
       </div>
 
       <!--
-        Todo lo que compone una peticion dentro de un mismo marco: lo senalado,
+        Todo lo que compone una petición dentro de un mismo marco: lo senalado,
         lo escrito y lo adjunto. Es una sola cosa --lo que se va a mandar-- y
         por eso se ve como una sola cosa.
       -->
@@ -1466,16 +1457,16 @@
         />
 
         <!--
-          La IA trabaja en otra pagina: el campo se tapa entero.
+          La IA trabaja en otra página: el campo se tapa entero.
 
           No se atenua ni se deshabilita pieza a pieza --un campo apagado sigue
           pareciendo un sitio donde escribir-- sino que se le pone encima un
-          velo opaco con la unica salida que hay: ir a la pagina que trabaja.
+          velo opaco con la única salida que hay: ir a la página que trabaja.
           Debajo, `inert` deja el campo fuera del tabulador y del puntero, para
           que el teclado no se cuele por detras del velo.
 
-          Lo escrito sin enviar no se pierde: sigue en la conversacion de esta
-          pagina y vuelve a estar delante en cuanto el bloqueo se levanta.
+          Lo escrito sin enviar no se pierde: sigue en la conversación de esta
+          página y vuelve a estar delante en cuanto el bloqueo se levanta.
         -->
         <div class="composer-shell-ai">
           <div class="chat-composer w-full" inert={blocked}>
@@ -1504,11 +1495,11 @@
                   /*
                    * Lo que se pega y no es lo que se escribe entra por donde
                    * entran los archivos: una captura, y el texto tan largo que
-                   * ya no es una peticion sino material. Lo demas cae en el
+                   * ya no es una petición sino material. Lo demas cae en el
                    * campo, que es donde se queria poner.
                    *
-                   * Los archivos primero: copiar una imagen de una pagina trae
-                   * tambien su HTML, y lo que se quiso copiar fue la imagen.
+                   * Los archivos primero: copiar una imagen de una página trae
+                   * también su HTML, y lo que se quiso copiar fue la imagen.
                    */
                   const attached = pastedFiles(e.clipboardData);
                   if (attached.length === 0) {
@@ -1531,7 +1522,7 @@
 
               <div class="chat-composer-actions flex items-center">
                 <!--
-                Lo que se anade a la peticion sin escribirla: un archivo o un
+                Lo que se añade a la petición sin escribirla: un archivo o un
                 atajo. Va primero porque es la puerta de entrada de las dos
                 cosas que no son texto.
               -->
@@ -1596,8 +1587,8 @@
 
                 <!--
                 Con que se va a pedir. Vive pegado al campo porque es parte de la
-                peticion, como lo senalado y los atajos: se mira justo antes de
-                enviar. Cambiar de modelo a media peticion no cambia la que ya
+                petición, como lo senalado y los atajos: se mira justo antes de
+                enviar. Cambiar de modelo a media petición no cambia la que ya
                 esta en marcha, asi que ahi no se deja tocar.
               -->
                 {#if config && choice}
@@ -1613,19 +1604,19 @@
 
                 <!--
                 Con que animo se pide: cambiar ya, o conversar el plan antes.
-                Vive pegado al boton de enviar porque es lo ultimo que se mira
+                Vive pegado al botón de enviar porque es lo ultimo que se mira
                 antes de mandar, y porque el rotulo dice en cual se esta.
               -->
                 <ModePicker status={planStatus} onPick={setPlan} />
 
                 <!--
-                El mismo sitio manda y para. Mientras la IA trabaja, el boton de
-                enviar es el de detener: es lo unico que se puede querer hacer
+                El mismo sitio manda y para. Mientras la IA trabaja, el botón de
+                enviar es el de detener: es lo único que se puede querer hacer
                 ahi en ese momento, y no hay que buscarlo en otro lado.
               -->
                 {#if working}
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
                     disabled={stopping}
                     tip={stopping ? "Deteniendo" : "Detener"}
@@ -1679,19 +1670,19 @@
         </div>
 
         <!--
-          Con una peticion en marcha, lo que hay que saber es si se puede salir.
+          Con una petición en marcha, lo que hay que saber es si se puede salir.
           Se puede en cuanto el servidor la reconoce: sigue sola y vuelve al
-          abrir esta pagina. Mientras no la reconozca, salir la pierde y se dice.
+          abrir esta página. Mientras no la reconozca, salir la pierde y se dice.
         -->
         <p class="chat-hint text-center">
           {#if blocked}
-            Aquí no se puede pedir hasta que esa petición termine
+            Espera a que termine la petición en curso
           {:else if !working}
             Enter envía · Shift+Enter salto de línea
           {:else if runId}
-            Puedes recargar o cerrar: la petición sigue y vuelve al abrir esta página
+            Puedes cerrar o recargar; la petición seguirá en curso
           {:else}
-            Si sales ahora se pierde lo que la IA está haciendo
+            No cierres esta página hasta que la petición comience
           {/if}
         </p>
       </div>
@@ -1712,7 +1703,7 @@
   /*
     Opaco de verdad, no traslucido: debajo hay un campo de texto, y dejarlo
     entrever invita a intentar escribir en el. Ocupa el sitio exacto del campo
-    --el resto del panel se sigue leyendo y la conversacion se sigue
+    --el resto del panel se sigue leyendo y la conversación se sigue
     desplazando-- y solo ofrece la salida que hay.
   */
   .veil-ai-elsewhere {
@@ -1774,7 +1765,7 @@
     padding: var(--chat-pad-top) var(--sp-4) var(--sp-16) var(--sp-16);
   }
 
-  /* --- La portada de la conversacion vacia --- */
+  /* --- La portada de la conversación vacía --- */
 
   .chat-hero {
     padding: 2rem 0.25rem;
@@ -1813,7 +1804,7 @@
     gap: var(--sp-6);
   }
 
-  /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+  /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
   .hero-group-label {
     margin-bottom: var(--sp-6);
     padding: 0 0.125rem;
@@ -1835,9 +1826,9 @@
     text-align: left;
   }
 
-  /* Cada sugerencia es `.opt` del catalogo; aqui solo su letra, que en el
+  /* Cada sugerencia es `.opt` del catálogo; aqui solo su letra, que en el
      panel de la IA es un punto mas chica que en una pantalla, y el cerco que
-     se tine del acento al apuntarla --lo que hay debajo es una peticion, no
+     se tine del acento al apuntarla --lo que hay debajo es una petición, no
      un ajuste--. */
   .btn-sample-prompt {
     padding: var(--sp-8) var(--sp-12);
@@ -1938,7 +1929,7 @@
     }
   }
 
-  /* --- El marco de la peticion --- */
+  /* --- El marco de la petición --- */
 
   .panel-composer-ai {
     padding: 0 var(--sp-12) var(--sp-12);
@@ -1961,7 +1952,7 @@
    * EL DESTELLO DEL CAMPO
    *
    * Al entrar el cursor, una luz recorre el contorno una sola vuelta y se
-   * apaga. Un anillo que gira sin parar --lo que habia antes-- dice "esto
+   * apaga. Un anillo que gira sin parar --lo que había antes-- dice "esto
    * esta pasando" todo el rato, y aqui no pasa nada: solo se ha entrado a
    * escribir. Una vuelta y silencio.
    *
@@ -1984,7 +1975,7 @@
     }
   }
 
-  /* La caja es `.card.card-solid` del catalogo --en oscuro la del catalogo
+  /* La caja es `.card.card-solid` del catálogo --en oscuro la del catálogo
      es translucida y esta se posa sobre el fondo del panel--; aqui la sombra
      que la despega del panel, el contorno mas marcado que el de la tarjeta
      --es el sitio donde se escribe, no una ficha que se lee-- y el borde que
@@ -1995,7 +1986,7 @@
     /* La luz del destello y la sombra, una por tema. En oscuro la luz es
        blanca; en claro el blanco no se ve contra el papel, asi que el
        reflejo es azul. Es un azul fijo y no `--accent`: el destello no lo
-       tine la paleta de la aplicacion, que cambia cada dos apps. La sombra
+       tine la paleta de la aplicación, que cambia cada dos apps. La sombra
        en claro va mas floja --el mismo negro pesa mucho mas sobre el papel
        que sobre el fondo oscuro--. Las dos se declaran aqui, en el elemento
        que las usa: `light-dark()` mira el `color-scheme` de donde se declara
@@ -2111,7 +2102,7 @@
     }
   }
 
-  /* El badge de un adjunto que se puede abrir: el boton no lo redecora. */
+  /* El badge de un adjunto que se puede abrir: el botón no lo redecora. */
   .link-user-file {
     all: unset;
     cursor: pointer;

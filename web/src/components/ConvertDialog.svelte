@@ -1,15 +1,15 @@
 <!--
-  Convertir una pagina de bloques en una pagina de HTML.
+  Convertir una página de bloques en una página de HTML.
 
   Se le pide a la IA el documento equivalente a los bloques que tenia, y se
   muestra antes de tocar nada: dibujado, para ver que hace lo mismo, y en
-  codigo, para ver que dice. La pagina no cambia hasta que se acepta.
+  código, para ver que dice. La página no cambia hasta que se acepta.
 -->
 <script lang="ts" module>
   import type { PageRecord } from "@shared/types";
 
   /**
-   * Cuantos bloques guarda una pagina de las de antes. Es lo unico que se mira
+   * Cuantos bloques guarda una página de las de antes. Es lo único que se mira
    * de ellos en el panel: dibujarlos ya no sabe nadie, solo convertirlos.
    */
   export const legacyBlockCount = (page: PageRecord): number => {
@@ -54,11 +54,11 @@
     appId: string;
     page: PageRecord;
     client: PocketBase;
-    /** Los colores de la aplicacion: la vista previa se pinta como vivira la pagina. */
+    /** Los colores de la aplicación: la vista previa se pinta como vivira la página. */
     appTheme: AppTheme | null;
     themeKey?: string;
     onClose: () => void;
-    /** La pagina ya se reemplazo: hay que volver a leerla. */
+    /** La página ya se reemplazo: hay que volver a leerla. */
     onDone: (message: string) => void;
   } = $props();
 
@@ -88,7 +88,7 @@
   });
 
   /*
-   * Lo propuesto todavia no esta guardado, asi que no tiene huella: el marco lo
+   * Lo propuesto todavía no esta guardado, asi que no tiene huella: el marco lo
    * recibe directamente. La clave cambia con el documento para que volver a
    * generar vuelva a dibujar.
    */
@@ -138,7 +138,7 @@
           class={cx("btn-tab-view", "tab", view === "vista" && "active")}
           onclick={() => (view = "vista")}
         >
-          <Icon name="eye" size={13} /> Como queda
+          <Icon name="eye" size={13} /> Vista previa
         </button>
         <button
           type="button"
@@ -158,7 +158,7 @@
     <ErrorNote message={error} />
 
     <!--
-      El recuadro lleva los colores de la aplicacion: el marco lee de su
+      El recuadro lleva los colores de la aplicación: el marco lee de su
       contenedor los que le pasa al HTML, igual que en la escena. El modo es el
       del panel, que es sobre lo que se esta revisando.
     -->
@@ -170,7 +170,7 @@
       {#if busy}
         <Loading label="Escribiendo la página" />
       {:else if !result}
-        <div class="convert-dialog-empty">Todavía no hay nada que revisar.</div>
+        <div class="convert-dialog-empty">La vista previa aparecerá al terminar.</div>
       {:else if view === "vista"}
         {#key key}
           <HtmlFrame
@@ -225,9 +225,9 @@
       }
     }
 
-    /* El marco es `.inset.plain` del catalogo --el cerco sin fondo: el que se
-       ve dentro es el de la pagina, con su propio tema--; aqui solo que
-       crezca con el dialogo. El fondo lo repone el bloque de tema, porque un
+    /* El marco es `.inset.plain` del catálogo --el cerco sin fondo: el que se
+       ve dentro es el de la página, con su propio tema--; aqui solo que
+       crezca con el diálogo. El fondo lo repone el bloque de tema, porque un
        contenedor con `data-theme` propio no hereda el de debajo. */
     & .convert-dialog-frame {
       min-height: 0;

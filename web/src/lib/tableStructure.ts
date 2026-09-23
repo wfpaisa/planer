@@ -16,7 +16,7 @@ export interface StructureColumn {
   options?: string[];
   multiple?: boolean;
   relationTableId?: string;
-  /** Que columna del destino ensena la relacion. */
+  /** Que columna del destino enseña la relación. */
   displayField?: string;
   /** Que columna del destino va entre parentesis detras. */
   detailField?: string;
@@ -30,9 +30,9 @@ export type StructureResult =
 /**
  * Serializa las columnas de una tabla para descargarlas.
  *
- * Sale lo que el constructor definio y nada mas. Una columna de relacion ocupa
- * dos columnas reales en la base --la relacion y su valor sin dueno-- pero eso
- * es cosa de como se guarda: aqui es una sola columna, que es como se penso.
+ * Sale lo que el constructor definio y nada mas. Una columna de relación ocupa
+ * dos columnas reales en la base --la relación y su valor sin dueno-- pero eso
+ * es cosa de como se guarda: aquí es una sola columna, que es como se penso.
  */
 export function structureToJson(table: TableRecord): string {
   const columnas = table.fields.map((f) => ({
@@ -119,7 +119,7 @@ function sanitizeColumn(
 /**
  * Lee un texto y lo interpreta como estructura de columnas. Acepta el
  * formato propio (envuelto en `plane-columnas`) o una lista plana de
- * columnas. Las columnas que no se pueden crear (tipo desconocido, relacion
+ * columnas. Las columnas que no se pueden crear (tipo desconocido, relación
  * sin destino) se separan en `invalid` en vez de romper el resto.
  */
 export function parseStructure(text: string, tables: TableRecord[]): StructureResult {

@@ -1,9 +1,9 @@
 <!--
-  Una aplicacion abierta por su enlace publico.
+  Una aplicación abierta por su enlace público.
 
-  No pasa por la sesion del panel: quien entra aqui es alguien invitado a esta
-  aplicacion, con su propia cuenta (ver `loginFor` en `shared/people.ts`), o
-  cualquiera si la aplicacion esta abierta.
+  No pasa por la sesión del panel: quien entra aqui es alguien invitado a esta
+  aplicación, con su propia cuenta (ver `loginFor` en `shared/people.ts`), o
+  cualquiera si la aplicación esta abierta.
 -->
 <script lang="ts">
   import { personDisplayName } from "@shared/people";
@@ -42,8 +42,8 @@
   setPeople(people);
 
   /*
-   * Quien entro a esta aplicacion (la coleccion `members`, no la sesion del
-   * panel). `cuenta` es el correo real -- `email` se deja vacio a proposito,
+   * Quien entro a esta aplicación (la colección `members`, no la sesión del
+   * panel). `cuenta` es el correo real -- `email` se deja vacío a propósito,
    * ver `server/bootstrap.ts` -- y `login` es solo lo que se compara al
    * entrar, no algo que mostrar.
    */
@@ -55,7 +55,7 @@
   /*
    * Como se llama, no como se llama su cuenta: el `name` de la cuenta es el
    * correo sin el dominio, y para quien entro con `1037660432@ss.local` eso es
-   * su cedula. El nombre esta en su fila de la tabla de personas, que llega en
+   * su cédula. El nombre esta en su fila de la tabla de personas, que llega en
    * el padron. Ver `personDisplayName`.
    */
   const memberName = $derived.by(() => {
@@ -73,9 +73,9 @@
   });
 
   /*
-   * El cargador depende solo del enlace y de la pagina. El marco vuelve a
+   * El cargador depende solo del enlace y de la página. El marco vuelve a
    * cargar el documento --y a empezar de cero-- cada vez que le cambia, asi que
-   * uno nuevo por dibujado dejaba la pagina reiniciandose sin parar: nunca
+   * uno nuevo por dibujado dejaba la página reiniciandose sin parar: nunca
    * llegaba a estar lista, y el tema que se le manda al cambiar de modo se
    * perdia por el camino.
    */
@@ -135,9 +135,9 @@
     onOpenPage={(p) => navigate(`/p/${slug}${p.isHome ? "" : `/${p.slug}`}`)}
   >
     <!--
-      El pie usa tres piezas del catalogo tal cual: `.avatar` para las
+      El pie usa tres piezas del catálogo tal cual: `.avatar` para las
       iniciales, `.identity` para el nombre y la cuenta, y `.btn-icon.sm` con
-      `.btn-danger-quiet` para cerrar sesion --que solo avisa en rojo cuando el
+      `.btn-danger-quiet` para cerrar sesión --que solo avisa en rojo cuando el
       cursor ya esta encima--. Por eso este archivo no tiene <style> propio.
     -->
     {#snippet footer()}

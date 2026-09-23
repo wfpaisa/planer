@@ -380,7 +380,7 @@ Puntero
    Lo que hay que decir y no hay que dibujar: un aviso de que
    algo esta pasando, el nombre de un control que ya se
    entiende por su icono. Se saca de la vista sin sacarlo del
-   arbol --`display: none` lo callaria tambien--.
+   árbol --`display: none` lo callaria también--.
    ========================================================== */
 .sr-only {
   position: absolute;

@@ -1,13 +1,13 @@
 /**
  * Las colecciones de datos que ya no nombra ninguna tabla.
  *
- * Cada tabla de Planer es una coleccion de PocketBase (`d_<app>_<tabla>`), y el
+ * Cada tabla de Planer es una colección de PocketBase (`d_<app>_<tabla>`), y el
  * puente entre las dos es el campo `dataCollection` del registro de la tabla.
- * Si el registro se va y la coleccion no, queda una huerfana: ocupa sitio, se
+ * Si el registro se va y la colección no, queda una huerfana: ocupa sitio, se
  * ve en el panel de PocketBase y no hay nada en Planer que la alcance.
  *
- * De donde salen: PocketBase se niega a borrar una coleccion mientras otra la
- * nombre en una relacion. Al borrar una aplicacion sus tablas se van juntas,
+ * De donde salen: PocketBase se niega a borrar una colección mientras otra la
+ * nombre en una relación. Al borrar una aplicación sus tablas se van juntas,
  * pero si la apuntada salia antes que quien la apuntaba, su borrado fallaba en
  * silencio. Eso ya no pasa --`dropDataCollections` lo hace en pasadas-- pero
  * lo que quedo de antes sigue ahi, y esto es lo que lo retira.
@@ -50,7 +50,7 @@ if (huerfanas.length === 0) {
 
 // Cuantas filas guarda cada una: es lo que se perderia, y conviene verlo antes
 // de decidir. Una huerfana con filas dentro sigue siendo basura --no hay tabla
-// que la lea-- pero el numero deja claro que no esta vacia.
+// que la lea-- pero el número deja claro que no esta vacía.
 console.log("\nHuerfanas:");
 let filas = 0;
 for (const c of huerfanas) {
@@ -82,7 +82,7 @@ console.log(`\nRetiradas: ${dropped}`);
 
 if (stuck.length > 0) {
   // Algo de fuera del grupo las sujeta: una tabla viva que las nombra en una
-  // relacion. Entonces no son basura, y el que resistan es la senal.
+  // relación. Entonces no son basura, y el que resistan es la senal.
   console.log(`Resistieron ${stuck.length}, porque algo que sigue vivo las nombra:`);
   for (const name of stuck) console.log(`  ${name}`);
   process.exit(1);

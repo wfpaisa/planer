@@ -1,23 +1,23 @@
 /**
- * La apariencia de una aplicacion, llevada al DOM.
+ * La apariencia de una aplicación, llevada al DOM.
  *
  * Lo guardado es la eleccion (`shared/brand.ts`: id de paleta, color a mano,
- * tamano de letra). Lo que se pinta son los atributos que la activan:
+ * tamaño de letra). Lo que se pinta son los atributos que la activan:
  * `palettes.css` hace el resto, derivando acento y serie de datos de los
- * cuatro colores de la paleta (los tintes no: son fijos, de theme.css). El unico punto donde el color pasa por
- * JavaScript es el personalizado, que viaja como `--palette-1` en linea.
+ * cuatro colores de la paleta (los tintes no: son fijos, de theme.css). El único punto donde el color pasa por
+ * JavaScript es el personalizado, que viaja como `--palette-1` en línea.
  *
  * El `data-palette` va **en el mismo elemento que `data-theme`**:
  * `palettes.css` deriva con `light-dark()`, que lee el `color-scheme` del
  * elemento donde se declara, y los tokens del puente (`compat.css`) se
- * calculan ahi mismo -- solo asi una app ve su paleta y no la del panel.
+ * calculan ahi mismo -- solo así una app ve su paleta y no la del panel.
  */
 import { normalizePalette } from "@shared/brand";
 import { CUSTOM_PALETTE } from "@shared/palettes";
 import type { AppTheme } from "@shared/types";
 
 /**
- * La apariencia de una aplicacion, ya desbrozada: lo guardado con los
+ * La apariencia de una aplicación, ya desbrozada: lo guardado con los
  * formatos de antes --la marca de dos colores, o el nombre de un tema de la
  * libreria vieja-- se lee sin perder el color elegido.
  */
@@ -28,8 +28,8 @@ export function appBrand(theme?: AppTheme | null) {
 /**
  * Atributo y estilo que activan la paleta de una app en un elemento.
  *
- * `fontScale: false` deja fuera el tamano de letra: lo piden las piezas del
- * panel que llevan el color de una aplicacion pero no son la aplicacion --el
+ * `fontScale: false` deja fuera el tamaño de letra: lo piden las piezas del
+ * panel que llevan el color de una aplicación pero no son la aplicación --el
  * icono en la lista, en el sidebar--, donde el texto es del panel y crecerlo
  * ahi descuadraria el cromo.
  */
@@ -46,13 +46,13 @@ export function paletteAttrs(
     decls.push(`--palette-1: ${brand.color}`);
   }
   if (fontScale && brand.fontScale !== undefined) {
-    // El rem se resuelve contra la raiz, asi que el tamano propio de la app
+    // El rem se resuelve contra la raíz, así que el tamaño propio de la app
     // no puede ir a <html>: el contenedor lo declara y lo de dentro escala
-    // por herencia. Es lo que hace la referencia con la raiz, un nivel abajo.
+    // por herencia. Es lo que hace la referencia con la raíz, un nivel abajo.
     decls.push(`--font-scale: ${brand.fontScale}`, "font-size: calc(1rem * var(--font-scale))");
   }
   // Los dos mandos son independientes: una app puede quedarse con la paleta
-  // de partida --sin data-palette, manda theme.css-- y aun asi crecer la
+  // de partida --sin data-palette, manda theme.css-- y aun así crecer la
   // letra, o al reves.
   return {
     "data-palette": brand.palette ?? undefined,

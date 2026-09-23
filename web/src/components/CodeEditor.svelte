@@ -1,14 +1,14 @@
 <!--
-  El editor de codigo del panel.
+  El editor de código del panel.
 
-  Monaco, montado a mano. El envoltorio de React que habia antes hacia tres
+  Monaco, montado a mano. El envoltorio de React que había antes hacia tres
   cosas: cargar el modulo, crear la instancia y mantenerla al dia con lo que
-  llegaba por props. Las tres caben aqui en menos de cien lineas, y a cambio
+  llegaba por props. Las tres caben aqui en menos de cien líneas, y a cambio
   desaparece una dependencia que traia su propia forma de cargar el editor
   desde una CDN.
 
   Lo que no es negociable es el orden: el tema se define antes de crear la
-  instancia, porque crearla con un tema que todavia no existe deja el editor en
+  instancia, porque crearla con un tema que todavía no existe deja el editor en
   blanco hasta el primer cambio.
 -->
 <script lang="ts">
@@ -45,7 +45,7 @@
 
   /*
    * Crear el editor depende solo del hueco donde vive. Todo lo demas se lee
-   * con `untrack` a proposito: son los valores de partida, y mantenerlos al
+   * con `untrack` a propósito: son los valores de partida, y mantenerlos al
    * dia es cosa de los dos efectos de abajo. Sin eso, escribir una letra
    * volveria a montar el editor entero.
    */
@@ -54,7 +54,7 @@
     const where = host;
     /*
      * Monaco llega por `import()`, asi que entre pedirlo y tenerlo puede pasar
-     * cualquier cosa --cerrar el panel, cambiar de pagina--. `alive` es lo que
+     * cualquier cosa --cerrar el panel, cambiar de página--. `alive` es lo que
      * evita crear un editor dentro de un hueco que ya no esta en el documento.
      */
     let alive = true;

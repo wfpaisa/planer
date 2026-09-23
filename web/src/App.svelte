@@ -1,8 +1,8 @@
 <script lang="ts">
   /*
-   * Los cuatro ajustes globales --tema, tamano de letra, sesion y router-- ya no
-   * son proveedores que envuelven el arbol: son modulos con estado propio. En
-   * React tenian que ser contexto porque no habia otra forma de que un cambio
+   * Los cuatro ajustes globales --tema, tamaño de letra, sesión y router-- ya no
+   * son proveedores que envuelven el árbol: son modulos con estado propio. En
+   * React tenian que ser contexto porque no había otra forma de que un cambio
    * repintara a quien lo lee; con runas, importar el modulo basta. El contexto
    * se reserva para lo que si tiene varias instancias, como el constructor.
    */
@@ -20,7 +20,7 @@
   import Published from "./routes/Published.svelte";
 
   const routes: RouteDef[] = [
-    // Apps publicadas: no necesitan la sesion del panel.
+    // Apps publicadas: no necesitan la sesión del panel.
     { path: "/p/:slug", component: Published },
     { path: "/p/:slug/:pageSlug", component: Published },
     { path: "/entrar", component: Login },
@@ -28,7 +28,7 @@
     { path: "/ajustes", component: AiSettings, guarded: true },
     // La demo del sistema de estilos: no es del producto, se entra desde ajustes.
     { path: "/demo", component: Demo, guarded: true },
-    // El constructor se queda con todo lo que cuelgue de la aplicacion: sus dos
+    // El constructor se queda con todo lo que cuelgue de la aplicación: sus dos
     // mitades y las capas que se abren encima. Ver `Builder.svelte`.
     { path: "/a/:appId/*", component: Builder, guarded: true },
   ];

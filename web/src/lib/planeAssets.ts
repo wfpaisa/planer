@@ -1,25 +1,25 @@
 /**
  * Los archivos de Planer, incrustados en el documento antes de entrar al marco.
  *
- * Una pagina no los lleva dentro: lleva sus referencias (`shared/
- * htmlContract.ts`), y asi el codigo que ve el constructor se lee de un
- * vistazo y una mejora del puente llega a todas las paginas sin editarlas.
+ * Una página no los lleva dentro: lleva sus referencias (`shared/
+ * htmlContract.ts`), y así el código que ve el constructor se lee de un
+ * vistazo y una mejora del puente llega a todas las páginas sin editarlas.
  *
- * Pedirlos, en cambio, no puede hacerlo la pagina. El marco es un `srcdoc`
+ * Pedirlos, en cambio, no puede hacerlo la página. El marco es un `srcdoc`
  * sin `allow-same-origin`: su origen es `null`, y desde ahi el navegador no
- * alcanza el servidor --en local lo bloquea de plano, por ser una direccion
+ * alcanza el servidor --en local lo bloquea de plano, por ser una dirección
  * de red privada pedida desde un origen opaco--. Sin puente no hay tema, ni
- * datos, ni nada: la pagina sale en Times New Roman y con los huecos vacios.
+ * datos, ni nada: la página sale en Times New Roman y con los huecos vacios.
  *
- * Asi que los pide el panel, que si tiene origen, y los pone dentro. El
+ * Así que los pide el panel, que si tiene origen, y los pone dentro. El
  * navegador guarda cada archivo una sola vez --misma ruta estable, mismo
  * ETag-- y lo que crece es solo el texto del `srcdoc`.
  *
- * Los iconos entraron aqui despues, y por lo mismo. Mientras la fuente era la
- * del CDN no hacia falta: `use.hugeicons.com` es una direccion publica que
- * responde con CORS, y una hoja asi si la alcanza un origen opaco. Al traerla
+ * Los iconos entraron aquí después, y por lo mismo. Mientras la fuente era la
+ * del CDN no hacia falta: `use.hugeicons.com` es una dirección publica que
+ * responde con CORS, y una hoja así si la alcanza un origen opaco. Al traerla
  * a casa --`/iconos/iconos.css`, misma maquina que el panel-- dejo de
- * alcanzarla, y todas las paginas ya escritas se quedaron con los iconos en
+ * alcanzarla, y todas las páginas ya escritas se quedaron con los iconos en
  * blanco. Lo que se les pega no es la fuente entera, que son 1,2 MB de texto
  * en cada marco, sino el subconjunto de `comunes.css`: ver `SUBSET_FONT_URL`
  * en `shared/icons.ts`.
@@ -27,7 +27,7 @@
 import { BRIDGE_PATH, CHARTS_PATH, STYLES_PATH } from "@shared/htmlContract";
 import { ICON_FONT_URL, SUBSET_FONT_URL } from "@shared/icons";
 
-/** Cada archivo se pide una vez por sesion del panel. */
+/** Cada archivo se pide una vez por sesión del panel. */
 const files = new Map<string, Promise<string>>();
 
 function file(path: string): Promise<string> {
@@ -37,7 +37,7 @@ function file(path: string): Promise<string> {
     if (!res.ok) throw new Error(`No se pudo cargar ${path}`);
     return res.text();
   });
-  // Un fallo no se guarda: la proxima pagina lo vuelve a intentar.
+  // Un fallo no se guarda: la proxima página lo vuelve a intentar.
   pending.catch(() => files.delete(path));
   files.set(path, pending);
   return pending;
@@ -45,8 +45,8 @@ function file(path: string): Promise<string> {
 
 /**
  * La referencia, tal como la escribio `server/page/pageAssets.ts` o la propia
- * pagina. Se reconoce por la ruta, no por la linea entera: el documento pudo
- * escribirla con la direccion absoluta, con comillas simples o con atributos
+ * página. Se reconoce por la ruta, no por la línea entera: el documento pudo
+ * escribirla con la dirección absoluta, con comillas simples o con atributos
  * de mas.
  */
 function refPattern(path: string, tag: "link" | "script"): RegExp {
@@ -57,8 +57,8 @@ function refPattern(path: string, tag: "link" | "script"): RegExp {
 }
 
 /**
- * Un `</script` dentro del codigo cerraria la etiqueta que lo envuelve. El
- * parser mira el texto crudo, asi que hay que partirlo; para el motor de
+ * Un `</script` dentro del código cerraria la etiqueta que lo envuelve. El
+ * parser mira el texto crudo, así que hay que partirlo; para el motor de
  * JavaScript la barra escapada no cambia nada.
  */
 function safeScript(code: string): string {
@@ -67,7 +67,7 @@ function safeScript(code: string): string {
 
 /**
  * El mismo documento con los archivos de Planer dentro. Lo que no tenga
- * referencia se queda igual: las graficas solo van donde se dibuja algo.
+ * referencia se queda igual: las gráficas solo van donde se dibuja algo.
  */
 export async function inlinePlaneAssets(html: string): Promise<string> {
   const styles = refPattern(STYLES_PATH, "link");
@@ -88,12 +88,12 @@ export async function inlinePlaneAssets(html: string): Promise<string> {
   charts.lastIndex = 0;
   icons.lastIndex = 0;
 
-  /* El reemplazo va como funcion a proposito: un `$&` o un `$'` sueltos en el
-     codigo del archivo cambiarian de significado dentro de un texto de
-     reemplazo, y aqui lo que entra tiene que salir tal cual. */
+  /* El reemplazo va como función a propósito: un `$&` o un `$'` sueltos en el
+     código del archivo cambiarian de significado dentro de un texto de
+     reemplazo, y aquí lo que entra tiene que salir tal cual. */
   let out = html;
   /* Los iconos, antes que los estilos: la hoja de la casa da por puesta la
-     familia de la fuente, y asi el orden del documento dice el mismo orden en
+     familia de la fuente, y así el orden del documento dice el mismo orden en
      que hacen falta. */
   if (iconCss) out = out.replace(icons, () => `<style data-plane="iconos">${iconCss}</style>`);
   if (css) out = out.replace(styles, () => `<style data-plane="estilos">${css}</style>`);

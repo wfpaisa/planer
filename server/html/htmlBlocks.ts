@@ -1,20 +1,20 @@
 /**
- * El bisturi sobre el HTML de una pagina: leer, reemplazar, insertar y quitar
+ * El bisturi sobre el HTML de una página: leer, reemplazar, insertar y quitar
  * un trozo sin tocar el resto del documento.
  *
  * Un trozo se llama bloque y se direcciona con el atributo `data-plane`, un
- * nombre legible y unico dentro del documento. El mismo nombre vale en los dos
- * lados: aqui es un selector de atributo, y en el navegador lo resuelve
+ * nombre legible y único dentro del documento. El mismo nombre vale en los dos
+ * lados: aquí es un selector de atributo, y en el navegador lo resuelve
  * `el.closest("[data-plane]")`.
  *
  * Solo se nombra lo que se toca. Un documento no se recorre estampando
- * nombres: un elemento recibe el suyo cuando se edita por primera vez, asi que
+ * nombres: un elemento recibe el suyo cuando se edita por primera vez, así que
  * un HTML traido de fuera entra sin ninguno y los va ganando con el uso.
  *
  * Todo se apoya en `HTMLRewriter`, que Bun ya trae. Comprobado sobre Bun
  * 1.3.14: un documento que pasa por `transform` sin ninguna coincidencia sale
  * **identico byte a byte** --doctype, comentarios, `<script>` con `<` dentro,
- * entidades, elementos vacios y atributos con `>` en su valor--, asi que la
+ * entidades, elementos vacios y atributos con `>` en su valor--, así que la
  * transformacion se puede aplicar sobre el documento entero sin miedo.
  *
  * Escribir es directo. Leer no lo es, y por eso esta explicado abajo en
@@ -81,7 +81,7 @@ export function blockNames(doc: string): Set<string> {
 
 /**
  * Un nombre legible a partir de un texto cualquiera. Sin tildes, sin simbolos
- * y sin longitud de sobra: lo que se lee bien en "Codigo HTML".
+ * y sin longitud de sobra: lo que se lee bien en "Código HTML".
  */
 export function slugName(text: string): string {
   const clean = text
@@ -99,7 +99,7 @@ export function slugName(text: string): string {
  * El nombre propuesto, o uno derivado si ya esta ocupado.
  *
  * La IA propone el nombre porque es quien sabe que es el bloque; la unicidad
- * la garantiza el servidor, que es quien ve el documento entero. Asi un nombre
+ * la garantiza el servidor, que es quien ve el documento entero. Así un nombre
  * repetido no rechaza la operacion ni pisa el bloque que ya lo tenia.
  */
 export function uniqueBlockName(doc: string, proposed: string, taken?: Set<string>): string {
@@ -138,9 +138,9 @@ function countMatches(doc: string, selector: string): number {
  * Traduce una referencia a un selector que senala un solo elemento.
  *
  * Una referencia es el nombre de un bloque --lo normal, y lo estable-- o el
- * selector de un elemento que todavia no tiene nombre, que es como llega lo
+ * selector de un elemento que todavía no tiene nombre, que es como llega lo
  * que se senala con el cursor. Un nombre que no esta se busca ademas como
- * selector antes de rendirse: asi "table" o "#lista" tambien valen.
+ * selector antes de rendirse: así "table" o "#lista" también valen.
  */
 export function resolveBlock(doc: string, ref: unknown): string {
   const wanted = String(ref ?? "").trim();
@@ -200,7 +200,7 @@ function openTag(el: Element, skip: string): string {
  * profundidad: al entrar en el elemento buscado se pone a uno, cada elemento
  * anidado lo sube, cada cierre lo baja, y mientras sea mayor que cero se van
  * concatenando las etiquetas de apertura con sus atributos, el texto y las de
- * cierre. Los elementos vacios no reciben cierre, asi que no cuentan.
+ * cierre. Los elementos vacios no reciben cierre, así que no cuentan.
  */
 export function readBlock(doc: string, ref: unknown): string {
   const selector = resolveBlock(doc, ref);
@@ -223,7 +223,7 @@ export function readBlock(doc: string, ref: unknown): string {
           return;
         }
 
-        // El nombre de la etiqueta se guarda aqui: dentro de `onEndTag` ya no
+        // El nombre de la etiqueta se guarda aquí: dentro de `onEndTag` ya no
         // existe.
         const tag = el.tagName;
         depth += 1;
@@ -276,8 +276,8 @@ function stampName(html: string, name: string): { html: string; name: string } {
     .transform(html);
 
   /*
-   * Un trozo sin ningun elemento --texto suelto-- no tiene donde llevar el
-   * nombre, y guardarlo asi convertiria la edicion en borrar y crear: el
+   * Un trozo sin ningún elemento --texto suelto-- no tiene donde llevar el
+   * nombre, y guardarlo así convertiria la edicion en borrar y crear: el
    * bloque perderia su identidad y las referencias que apuntaban ahi dejarian
    * de valer en silencio. Se rechaza diciendo por que, que es la otra salida
    * que el requisito admite.
@@ -295,8 +295,8 @@ function stampName(html: string, name: string): { html: string; name: string } {
  * Un nombre sacado de lo que el trozo es, para cuando nadie propuso ninguno.
  *
  * Existe porque un nombre sin significado --`bloque`, `bloque-2`-- no vale
- * para nada: no se lee en "Codigo HTML" y no dice a que se refiere. Antes de
- * caer en eso se mira lo que el propio HTML ya dice de si mismo: su titulo, su
+ * para nada: no se lee en "Código HTML" y no dice a que se refiere. Antes de
+ * caer en eso se mira lo que el propio HTML ya dice de si mismo: su título, su
  * id, su clase, y en ultimo termino su etiqueta.
  */
 function deriveName(html: string): string {
@@ -353,7 +353,7 @@ function nameOf(html: string): string {
 function keepName(opts: {
   doc: string;
   html: string;
-  /** El que ya tenia el bloque en el documento. Vacio: es la primera edicion. */
+  /** El que ya tenia el bloque en el documento. Vacío: es la primera edicion. */
   current: string;
   /** El que propone la IA. */
   proposed: unknown;
@@ -409,7 +409,7 @@ export function replaceBlock(
   return { doc: out, name: piece.name };
 }
 
-/** Mete un bloque nuevo justo antes o justo despues de uno que ya existe. */
+/** Mete un bloque nuevo justo antes o justo después de uno que ya existe. */
 export function insertBlock(
   doc: string,
   ref: unknown,

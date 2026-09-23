@@ -18,7 +18,7 @@
   import { Button, Modal, Note, Textarea } from "../../ui";
 
   /**
-   * Ejemplo que sale en el campo de pegar texto. Los saltos de linea son reales:
+   * Ejemplo que sale en el campo de pegar texto. Los saltos de línea son reales:
    * un atributo normal de Svelte no los escribe.
    */
   const EJEMPLO_CSV = `nombre,correo,ingreso
@@ -31,7 +31,7 @@ Bruno,bruno@example.com,2023-11-15`;
     onClose,
   }: {
     wizard: ImportWizard;
-    /** El nombre de la tabla que recibe la importacion, para el titulo. */
+    /** El nombre de la tabla que recibe la importacion, para el título. */
     label: string;
     onClose: () => void;
   } = $props();
@@ -76,7 +76,7 @@ Bruno,bruno@example.com,2023-11-15`;
     {#if wizard.source === "archivo"}
       <!--
         Sin estado "cargado": un archivo que entra bien ya no se queda aqui
-        --se abre la previsualizacion-- asi que lo unico que queda por
+        --se abre la previsualizacion-- asi que lo único que queda por
         ensenar es el que no se puede importar, en rojo y con su motivo
         debajo.
       -->
@@ -119,7 +119,7 @@ Bruno,bruno@example.com,2023-11-15`;
 
   <!--
     El separador se elige en la previsualizacion, que es donde se ve si era el
-    que no era: aqui todavia no hay columnas que mirar.
+    que no era: aqui todavía no hay columnas que mirar.
   -->
   {#if wizard.parsed.ok && !wizard.tooMany}
     <div class="import-field import-count-row">
@@ -135,8 +135,8 @@ Bruno,bruno@example.com,2023-11-15`;
       va antes que lo que se ve en el contenido: si el archivo no entro bien,
       lo demas es consecuencia.
 
-      Con la pantalla todavia vacia no se dice nada: "pega un texto o arrastra
-      un archivo" era un aviso en rojo por abrir el dialogo, y eso es
+      Con la pantalla todavía vacía no se dice nada: "pega un texto o arrastra
+      un archivo" era un aviso en rojo por abrir el diálogo, y eso es
       exactamente lo que la pantalla esta pidiendo ya. Pero si lo que no trae
       nada es un archivo que SI se solto, hay que decirlo: la zona de arrastre
       se queda en rojo --el archivo no pasa a la previsualizacion-- y sin este
@@ -172,7 +172,7 @@ Bruno,bruno@example.com,2023-11-15`;
 <style>
   /*
    * Medida fija, un 40% por encima de las 32rem del modal corriente: aqui se
-   * mira contenido tabular --el ejemplo con sus columnas, las lineas del CSV
+   * mira contenido tabular --el ejemplo con sus columnas, las líneas del CSV
    * pegado-- y con el ancho corto cada fila se partia en dos.
    */
   :global(.modal-import-content-width) {
@@ -181,9 +181,9 @@ Bruno,bruno@example.com,2023-11-15`;
   }
 
   /*
-   * El hueco es `.dropzone` del catalogo, con sus dos estados finales:
+   * El hueco es `.dropzone` del catálogo, con sus dos estados finales:
    * `loaded` (leido) y `rejected` (leido pero no importable). Aqui solo lo
-   * que este pide de mas: la linea de abajo, que es la instruccion mientras
+   * que este pide de mas: la línea de abajo, que es la instruccion mientras
    * no hay archivo y baja de tono en cuanto lo hay --entonces lo que se lee
    * primero es el nombre, que es `.dropzone-lead`--.
    */

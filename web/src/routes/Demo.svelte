@@ -1,19 +1,19 @@
 <!--
   La demo del sistema de estilos.
 
-  No es una pantalla del producto: es el catalogo entero de
+  No es una pantalla del producto: es el catálogo entero de
   `styles/components.css` puesto a la vez, con la misma hoja con la que se viste
   el resto del panel. Sirve para una cosa que ninguna comprobacion automatica
-  hace -- ver de un vistazo si un cambio en el catalogo rompio algo en otro
-  sitio: los cuatro tonos de aviso, los estados de un boton, un campo con error,
+  hace -- ver de un vistazo si un cambio en el catálogo rompio algo en otro
+  sitio: los cuatro tonos de aviso, los estados de un botón, un campo con error,
   un modal con medida fija.
 
   Tiene el esqueleto del panel de referencia (`/home/projects/ia/dashboard`):
   una sidebar de verdad a la izquierda y el contenido al lado. La paleta con la
   que se mira se elige desde la sidebar --el cubo de pintura abre el selector,
-  el mismo `PalettePicker` de los ajustes de una aplicacion-- y va en el mismo
-  elemento en el que se pinta el fondo de la pagina, que es lo que pide
-  `palettes.css`; el tema lo cambia el boton de siempre, en <html>. Mientras el
+  el mismo `PalettePicker` de los ajustes de una aplicación-- y va en el mismo
+  elemento en el que se pinta el fondo de la página, que es lo que pide
+  `palettes.css`; el tema lo cambia el botón de siempre, en <html>. Mientras el
   selector esta abierto el contenido cede el sitio en vez de quedar tapado: hay
   que ver como queda todo con cada paleta.
 -->
@@ -29,18 +29,18 @@
   let palette = $state<AppTheme>({ palette: null });
   let drawerOpen = $state(false);
 
-  // Sin tamano de letra: la demo es cromo del panel, no una aplicacion.
+  // Sin tamaño de letra: la demo es cromo del panel, no una aplicación.
   const attrs = $derived(paletteAttrs(palette, { fontScale: false }));
 
   /* ---- Donde se estaba mirando, al recargar ---- */
 
-  // El menu de la sidebar baja a cada seccion con `scrollIntoView` y no toca la
+  // El menu de la sidebar baja a cada sección con `scrollIntoView` y no toca la
   // URL, asi que al recargar no hay nada que diga donde se estaba. El navegador
-  // tampoco lo sabe: el alto de la pagina lo decide el masonry de la galeria
-  // midiendo, varios cuadros despues de cargar, y para cuando la demo mide lo
+  // tampoco lo sabe: el alto de la página lo decide el masonry de la galeria
+  // midiendo, varios cuadros después de cargar, y para cuando la demo mide lo
   // que tiene que medir el navegador ya la dejo arriba. Se guarda a mano --en
-  // `sessionStorage`, que es por pestaña y es lo que dura una sesion de mirar
-  // la demo-- y se vuelve a poner cuando la pagina ya da de si.
+  // `sessionStorage`, que es por pestaña y es lo que dura una sesión de mirar
+  // la demo-- y se vuelve a poner cuando la página ya da de si.
   const SCROLL_KEY = "demo:scroll";
 
   // Sin almacen --ventana privada, permisos-- la demo funciona igual, solo que
@@ -62,7 +62,7 @@
   }
 
   $effect(() => {
-    // El navegador restauraria su propia posicion sobre una pagina aun sin
+    // El navegador restauraria su propia posicion sobre una página aun sin
     // repartir --y se pelearia con esta.
     const previous = history.scrollRestoration;
     history.scrollRestoration = "manual";
@@ -81,13 +81,13 @@
     };
 
     // Guardar solo cuando ya se esta donde se estaba: los cuadros de la
-    // restauracion tambien son scroll, y guardarlos seria pisar el destino.
+    // restauracion también son scroll, y guardarlos seria pisar el destino.
     const listen = () => {
       frame = 0;
       addEventListener("scroll", onScroll, { passive: true });
     };
 
-    // Las fichas se colocan midiendo, asi que la pagina crece a trozos: hasta
+    // Las fichas se colocan midiendo, asi que la página crece a trozos: hasta
     // que no es lo bastante alta no admite bajar hasta donde se estaba. Se
     // insiste un segundo y se deja estar --una demo mas corta que antes no
     // tiene esa posicion.
@@ -145,7 +145,7 @@
     display: grid;
     grid-template-columns: 16.5rem minmax(0, 1fr);
     min-height: 100%;
-    /* El fondo se pinta aqui, que es donde va el `data-palette`: asi la pagina
+    /* El fondo se pinta aqui, que es donde va el `data-palette`: asi la página
        entera se recolorea al cambiarla y no solo lo que hay dentro. */
     background: var(--bg-level1);
     color: var(--text-primary);

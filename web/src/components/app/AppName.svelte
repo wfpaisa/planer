@@ -1,8 +1,8 @@
 <!--
-  El nombre de la aplicacion se cambia escribiendo encima, sin abrir nada.
+  El nombre de la aplicación se cambia escribiendo encima, sin abrir nada.
 
-  En reposo se lee como un titulo, no como un formulario: sin caja ni fondo. La
-  caja aparece al pasar el raton --ahi se descubre que se puede escribir-- y se
+  En reposo se lee como un título, no como un formulario: sin caja ni fondo. La
+  caja aparece al pasar el ratón --ahi se descubre que se puede escribir-- y se
   marca de verdad al escribir dentro. Al guardar, el borde se pone verde un
   momento: el cambio no se anuncia en ninguna otra parte.
 
@@ -26,8 +26,8 @@
   let typed = $state<string | null>(null);
   let saved = $state(false);
 
-  // `null` quiere decir "no se esta escribiendo": el nombre que se ensena es el
-  // de la aplicacion, asi que cambiarlo desde otro sitio --los ajustes, la IA--
+  // `null` quiere decir "no se esta escribiendo": el nombre que se enseña es el
+  // de la aplicación, asi que cambiarlo desde otro sitio --los ajustes, la IA--
   // se ve aqui sin tener que sincronizar nada.
   const value = $derived(typed ?? app.name);
 
@@ -50,7 +50,7 @@
   Un ancho minimo: por estrecha que se ponga la ventana siempre queda un trozo
   de nombre y algo que tocar; sin el, la casilla se cierra hasta cero. El
   recorte: la copia que mide no cabe por debajo de su texto, asi que cuando la
-  fila aprieta el sobrante se recorta aqui en vez de irse por encima del boton
+  fila aprieta el sobrante se recorta aqui en vez de irse por encima del botón
   de al lado.
 -->
 <span class="field-app-name app-name-field grid items-center">
@@ -59,7 +59,7 @@
     bind:this={field}
     {value}
     data-tip="Escribe encima para cambiar el nombre"
-    aria-label="Nombre de la aplicacion"
+    aria-label="Nombre de la aplicación"
     oninput={(e) => (typed = e.currentTarget.value)}
     onfocus={(e) => e.currentTarget.select()}
     onblur={(e) => void rename(e.currentTarget.value)}

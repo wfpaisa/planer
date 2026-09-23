@@ -5,8 +5,8 @@
   para un selector de personas o un archivo. Aqui cada columna tiene su
   etiqueta y su espacio, y la fila se guarda cuando se dice, no a medias.
 
-  Sirve igual para una fila que todavia no existe y para una que ya esta: lo
-  unico que cambia es de donde salen los valores iniciales y si al guardar se
+  Sirve igual para una fila que todavía no existe y para una que ya esta: lo
+  único que cambia es de donde salen los valores iniciales y si al guardar se
   crea o se actualiza.
 -->
 <script lang="ts" module>
@@ -15,7 +15,7 @@
 
   import { relationCell, type Row } from "../../lib/cellValues";
 
-  /** Vacio a efectos de "obligatoria": tambien la lista sin nada dentro. */
+  /** Vacío a efectos de "obligatoria": también la lista sin nada dentro. */
   const isEmpty = (value: unknown) =>
     value === undefined ||
     value === null ||
@@ -25,8 +25,8 @@
   /**
    * Los valores con los que abre el panel: los de la fila, o ninguno.
    *
-   * En una relacion lo que se escribe es la llave, no el id, asi que lo que
-   * abre el campo es lo que la celda ensena: la llave del registro enlazado, o
+   * En una relación lo que se escribe es la llave, no el id, asi que lo que
+   * abre el campo es lo que la celda enseña: la llave del registro enlazado, o
    * el valor que se quedo sin dueno.
    */
   function initialValues(
@@ -80,7 +80,7 @@
     /** Avisa a la grilla con la fila ya guardada y si acaba de nacer. */
     onSaved: (saved: Row, created: boolean) => void;
     /**
-     * Quien guarda, cuando no basta con escribir en la coleccion de la tabla.
+     * Quien guarda, cuando no basta con escribir en la colección de la tabla.
      *
      * Lo usa la tabla de personas, donde tres columnas viven en otras dos
      * colecciones y hay que repartir. Sin esto, escribir es lo de siempre.
@@ -88,11 +88,11 @@
     saveRow?: (opts: { row: Row | null; values: Record<string, unknown> }) => Promise<Row>;
     /**
      * Lo que esta tabla tiene y no cabe en una columna. Hoy solo la clave de
-     * una persona: se pone y se ensena una vez, y no se puede leer despues.
+     * una persona: se pone y se enseña una vez, y no se puede leer después.
      *
      * Se dibuja tanto en una fila que ya existe como en una que esta naciendo
-     * --a una persona se le elige la clave al darla de alta, no solo despues--
-     * y es quien lo pasa el que decide que ensena en cada caso.
+     * --a una persona se le elige la clave al darla de alta, no solo después--
+     * y es quien lo pasa el que decide que enseña en cada caso.
      *
      * Recibe lo que hay escrito ahora mismo, no lo que traia la fila: la clave
      * se cambia en el mismo panel donde se corrige el correo, y decir "clave
@@ -102,8 +102,8 @@
   } = $props();
 
   /**
-   * Los invitados a esta aplicacion. Van antes que los valores porque una
-   * columna de persona los necesita para saber que ensena su celda.
+   * Los invitados a esta aplicación. Van antes que los valores porque una
+   * columna de persona los necesita para saber que enseña su celda.
    */
   const people = getPeople();
 
@@ -121,7 +121,7 @@
   const hush = () => (notice = null);
 
   /*
-   * Las columnas que se han escrito en esta edicion. Una relacion que no se
+   * Las columnas que se han escrito en esta edicion. Una relación que no se
    * toca no se vuelve a emparejar: una fila cuyo enlace ya venia roto se puede
    * seguir editando por lo demas.
    */
@@ -132,7 +132,7 @@
    * sigue en pantalla un momento, y vaciarlo antes de tiempo lo dejaria en
    * blanco justo durante la animacion.
    *
-   * `people` se lee con `untrack` a proposito: llega de la red y puede
+   * `people` se lee con `untrack` a propósito: llega de la red y puede
    * aparecer con el panel ya abierto, y rehacer los valores entonces borraria
    * lo escrito. De ese hueco se encarga el efecto de abajo.
    */
@@ -150,9 +150,9 @@
    * Las columnas que apuntan a personas, cuando la lista de invitados llega
    * tarde.
    *
-   * Esa lista viene de la red: en el primer dibujado suele estar vacia, y una
+   * Esa lista viene de la red: en el primer dibujado suele estar vacía, y una
    * celda que apunta a alguien no tiene entonces con que ensenar su correo. Se
-   * rellena en cuanto llega, y solo en los campos que nadie ha tocado todavia.
+   * rellena en cuanto llega, y solo en los campos que nadie ha tocado todavía.
    */
   $effect(() => {
     const list = people.list;
@@ -197,7 +197,7 @@
     saving = true;
     hush();
     try {
-      // Lo que se escribio en una relacion es la llave: aqui se empareja con el
+      // Lo que se escribio en una relación es la llave: aqui se empareja con el
       // registro al que pertenece y se decide cual de sus dos columnas reales
       // se llena.
       const resolved = await resolveRowValues({
@@ -233,7 +233,7 @@
 <!--
   El armazon del cajon. La hoja se queda montada aunque este cerrado para que
   la animacion de salida tenga algo que animar; es `drawer-toggle` (la casilla
-  escondida de arriba) quien la ensena y la esconde, con el CSS de abajo.
+  escondida de arriba) quien la enseña y la esconde, con el CSS de abajo.
 -->
 <div use:portal class="drawer-outer-row">
   <input
@@ -248,8 +248,8 @@
     Por encima de los modales (20) y no a su misma altura.
 
     El cajon se monta con la grilla y se queda montado --escondido por
-    `drawer-toggle`-- asi que en el documento va antes que cualquier dialogo que
-    se abra despues. Con la misma capa ganaria el dialogo, y editar una fila
+    `drawer-toggle`-- asi que en el documento va antes que cualquier diálogo que
+    se abra después. Con la misma capa ganaria el diálogo, y editar una fila
     desde la cuadricula de personas dibujaria el cajon por debajo. Sigue por
     debajo de los avisos (40), que son lo ultimo que se tapa. Ver la escala en
     `styles/global.css`.
@@ -279,7 +279,7 @@
 
       <div class={cx("body-drawer-row", "body-drawer-row-scrollable flex-1", surface.body)}>
         <!--
-          Debajo del titulo y no al final: es lo que se copia para nombrar esta
+          Debajo del título y no al final: es lo que se copia para nombrar esta
           fila desde fuera --un enlace, una consulta-- y buscarlo obligaba a
           bajar por delante de todas las columnas.
         -->
@@ -292,7 +292,7 @@
 
         {#if table.fields.length === 0}
           <p class="empty-drawer-fields">
-            Esta tabla todavia no tiene columnas. Anade una para poder escribir filas.
+            Esta tabla no tiene columnas. Añade una para guardar filas.
           </p>
         {:else}
           <div class="list-drawer-fields flex flex-col gap-4">
@@ -467,7 +467,7 @@
     /*
       Quien lo pasa decide si tiene algo que poner --la clave solo sale en la
       tabla de personas-- y cuando no lo tiene aqui quedaba una raya suelta
-      cerrando el formulario por debajo. Se mira si hay algun elemento dentro y
+      cerrando el formulario por debajo. Se mira si hay algún elemento dentro y
       no `:empty`, que cuentan los espacios en blanco del propio fragmento.
     */
     &:not(:has(*)) {

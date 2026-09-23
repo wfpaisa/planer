@@ -4,7 +4,7 @@
  * Los pasos que `ImportModal.svelte` encadena al darle a Importar --crear las
  * columnas nuevas, armar los pedidos segun el modo, mandarlos por lotes y
  * contar lo que quedo fuera--. El orquestador se queda en el componente, que es
- * quien enciende el reloj y ensena el parte; aqui esta lo que hace el trabajo.
+ * quien enciende el reloj y enseña el parte; aquí esta lo que hace el trabajo.
  *
  * A donde va cada columna y como se convierte cada celda vive en
  * `importPlan.ts`; lo que comparten los pasos del asistente, en
@@ -36,7 +36,7 @@ export interface StatusContext {
   isPeople: boolean;
   /** Donde guarda el correo esta tabla de personas. */
   accountField: string;
-  /** Los correos del archivo que ya tienen cuenta aqui, segun el servidor. */
+  /** Los correos del archivo que ya tienen cuenta aquí, segun el servidor. */
   knownEmails: Set<string>;
   mode: SaveMode;
   /** Las ids que ya estan en la tabla. */
@@ -51,10 +51,10 @@ export interface StatusContext {
 export function rowStatus(conv: ConvertedRow, index: number, ctx: StatusContext): RowStatus {
   /*
    * En personas no hay modo que elegir: cada fila se reconoce por su correo.
-   * La de quien ya tiene cuenta aqui se actualiza --con lo que traiga el
+   * La de quien ya tiene cuenta aquí se actualiza --con lo que traiga el
    * archivo-- y la de quien no, nace. Cuales son unas y cuales otras lo dice
    * el servidor en `knownEmails`, que es lo mismo que cuenta el aviso de
-   * encima de la tabla: asi el color y el numero no pueden discrepar.
+   * encima de la tabla: así el color y el número no pueden discrepar.
    */
   if (ctx.isPeople) {
     const email = String(conv.values[ctx.accountField] ?? "")
@@ -75,17 +75,17 @@ export function rowStatus(conv: ConvertedRow, index: number, ctx: StatusContext)
 /**
  * La fila que se manda a guardar.
  *
- * Los planes llegan de fuera y no se leen del asistente a proposito: al
+ * Los planes llegan de fuera y no se leen del asistente a propósito: al
  * guardar, las columnas recien creadas ya existen y tienen nombre, pero los
  * planes del asistente salen de `table.fields`, que es la tabla tal como estaba
- * al abrir el dialogo. Con los planes de antes, el valor de una columna nueva
- * se guardaba bajo la clave vacia --el borrador aun no tenia nombre-- y la
- * columna quedaba creada y vacia.
+ * al abrir el diálogo. Con los planes de antes, el valor de una columna nueva
+ * se guardaba bajo la clave vacía --el borrador aun no tenia nombre-- y la
+ * columna quedaba creada y vacía.
  *
- * La celda vacia manda igual que la escrita: deja la columna vacia. El
+ * La celda vacía manda igual que la escrita: deja la columna vacía. El
  * archivo es lo que queda, y no una mezcla de lo que trae con lo que hubiera
- * antes; solo se tocan las columnas que entran --las que se recorren aqui--,
- * asi que lo que el archivo ni menciona se queda como estaba. Era una casilla
+ * antes; solo se tocan las columnas que entran --las que se recorren aquí--,
+ * así que lo que el archivo ni menciona se queda como estaba. Era una casilla
  * ("Las celdas vacias borran el valor guardado") y no lo es: al importar
  * apagada, corregir un dato quitandolo no hacia nada y no se veia por que.
  */
@@ -100,7 +100,7 @@ export function buildBody(
     if (target.kind !== "field" && target.kind !== "create") continue;
     const field = target.kind === "create" ? target.draft : target.field;
 
-    // Una relacion se guarda por el registro que encontro, no por el texto:
+    // Una relación se guarda por el registro que encontro, no por el texto:
     // el id si lo encontro, y el corralito del valor sin dueno si no. Una
     // fila sin enlace entra igual; no es un error de importacion.
     if (isRelationField(field) && field.multiple !== true) {
@@ -126,13 +126,13 @@ export function buildBody(
  * columnas ya reales. Va antes de guardar las filas: sin ellas, sus valores no
  * tendrian donde caer.
  *
- * Una columna que nace aqui nace con lo que se le exigio en la
+ * Una columna que nace aquí nace con lo que se le exigio en la
  * previsualizacion: si se pidio que no se repitiera o que no pudiera estar
- * vacia, asi queda en la tabla. Es lo mismo que ya pasaba con su tipo --el
+ * vacía, así queda en la tabla. Es lo mismo que ya pasaba con su tipo --el
  * borrador lo trae puesto-- y lo que se espera de marcarlo mientras se crea la
  * columna: antes se exigia solo durante la importacion y la columna nacia sin
- * ninguna de las dos marcas, asi que la cedula que se acababa de declarar
- * unica y obligatoria entraba como una columna de texto cualquiera.
+ * ninguna de las dos marcas, así que la cédula que se acababa de declarar
+ * única y obligatoria entraba como una columna de texto cualquiera.
  *
  * A una columna que YA existe no se le toca nada: ahi lo marcado sigue siendo
  * condicion de esta importacion y no un cambio de la tabla. Ver `ColumnRule`.
@@ -149,7 +149,7 @@ export async function createColumns(
        * Con el nombre que se leyo en la previsualizacion, no con el del
        * archivo: el borrador ya trae la mayuscula puesta y el tipo
        * adivinado, y crearla por `p.column` dejaba en la tabla una
-       * columna llamada "contacto mail" despues de haber ensenado
+       * columna llamada "contacto mail" después de haber ensenado
        * "Contacto mail" en el encabezado.
        */
       ...toCreate.map((p) => {
@@ -270,7 +270,7 @@ export function buildRequests(opts: {
  * `leftover` entra con las que ni se intentaron --traian error de conversion--
  * y sale con esas mas las que fallaron al escribir.
  *
- * `created` es opcional y se llena aqui, igual que `leftover`: por cada fila
+ * `created` es opcional y se llena aquí, igual que `leftover`: por cada fila
  * que nacio, el id que le puso la base. Solo lo pide quien tenga que volver
  * sobre ella --deshacer un pegado que creo filas es borrarlas-- y por eso la
  * importacion no lo pasa.
@@ -290,17 +290,17 @@ export async function writeBatches(
         method: "POST",
         headers: { "content-type": "application/json", authorization: pb.authStore.token },
         // `row` es solo nuestro --dice de que fila del archivo sale cada
-        // pedido-- y la API de lote rechaza lo que no conoce: se queda aqui.
+        // pedido-- y la API de lote rechaza lo que no conoce: se queda aquí.
         body: JSON.stringify({
           requests: chunk.map(({ method, url, body }) => ({ method, url, body })),
         }),
       });
 
     /*
-     * Un tramo que se paso de rapido se vuelve a intentar entero.
+     * Un tramo que se paso de rápido se vuelve a intentar entero.
      *
      * Se puede porque el lote es una transaccion: del tramo que fallo no
-     * entro ni una fila, asi que repetirlo no duplica nada. El limite lo
+     * entro ni una fila, así que repetirlo no duplica nada. El limite lo
      * pone PocketBase por ventana de segundos (ver `IMPORT_RATE_FLOOR` en
      * `shared/importBatch.ts`), de modo que esperar es todo lo que hay que
      * hacer; se espera un poco mas en cada intento y se abandona al tercero
@@ -320,12 +320,12 @@ export async function writeBatches(
       );
     }
     const data = (await res.json()) as Record<string, { status: number; body?: { id?: string } }>;
-    // La respuesta viene en el orden del tramo, asi que la posicion dice de
+    // La respuesta viene en el orden del tramo, así que la posicion dice de
     // que pedido --y de que fila del archivo-- habla cada resultado.
     for (const [key, r] of Object.entries(data)) {
       const pedido = chunk[Number(key)];
       if (r.status < 400) {
-        // El id de una fila recien nacida no esta en ningun otro sitio: el
+        // El id de una fila recien nacida no esta en ningún otro sitio: el
         // pedido lo mando sin el y la base se lo puso al guardarla.
         if (created && pedido?.method === "POST" && pedido.row >= 0 && r.body?.id) {
           created.set(pedido.row, r.body.id);
@@ -354,7 +354,7 @@ export async function writeBatches(
  * Las filas que no entraron en una importacion de personas, por su sitio en el
  * archivo: las que ya traian error, las que no tienen un correo utilizable y
  * las de quien no tiene cuenta cuando no se pidio crearlas. El servidor las
- * cuenta y dice sus correos; aqui se vuelven a encontrar en el archivo para
+ * cuenta y dice sus correos; aquí se vuelven a encontrar en el archivo para
  * poder ensenarlas y descargarlas tal como venian.
  */
 export function peopleLeftover(
@@ -380,7 +380,7 @@ export function peopleLeftover(
 /**
  * El resumen de una importacion de personas.
  *
- * Una frase por cifra, y cada una nombrando su sujeto: aqui se cuentan
+ * Una frase por cifra, y cada una nombrando su sujeto: aquí se cuentan
  * personas, y quien recoge esto cuenta ademas filas de otras tablas --las que
  * quedaron enlazadas y las que no--. Con todo en una frase no se sabria cual de
  * los tres numeros cuenta que. Ver `peopleImportNote`.

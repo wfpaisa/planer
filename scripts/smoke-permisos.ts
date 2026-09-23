@@ -1,17 +1,17 @@
 /**
- * Que quien no puede abrir una pagina no reciba sus datos, y que sin cuenta no
+ * Que quien no puede abrir una página no reciba sus datos, y que sin cuenta no
  * se escriba.
  * Uso:  bun run scripts/smoke-permisos.ts
  *
- * Esta bateria no es un extra del cambio: es lo unico que distingue "creo que
+ * Esta bateria no es un extra del cambio: es lo único que distingue "creo que
  * el permiso funciona" de "esta demostrado". El reparto de filas por rol se
- * retiro, asi que aqui ya no se comprueba que un rol no alcance la fila de otro
+ * retiro, así que aquí ya no se comprueba que un rol no alcance la fila de otro
  * --el sistema no lo promete-- sino lo que si promete: la frontera de la
- * aplicacion, la de cada pagina, y la sesion al escribir.
+ * aplicación, la de cada página, y la sesión al escribir.
  *
- * Se prueba por la puerta de verdad --la ruta de datos de una pagina, con la
- * sesion de cada persona-- y no llamando a las funciones que deciden. Una
- * comprobacion que llamara a `canOpenPage` demostraria que esa funcion hace lo
+ * Se prueba por la puerta de verdad --la ruta de datos de una página, con la
+ * sesión de cada persona-- y no llamando a las funciones que deciden. Una
+ * comprobacion que llamara a `canOpenPage` demostraria que esa función hace lo
  * que dice, no que nadie recibe lo que no le toca.
  */
 import { loginFor, PEOPLE_ACCOUNT_FIELD, PEOPLE_TABLE } from "../shared/people.ts";
@@ -59,7 +59,7 @@ token = auth.token;
 
 const app = await call<{ id: string; slug: string; roles: string[] }>("/api/apps", {
   method: "POST",
-  // Publica: la frontera de la aplicacion se prueba aparte, encendiendola.
+  // Publica: la frontera de la aplicación se prueba aparte, encendiendola.
   body: JSON.stringify({ name: `Clinica ${Date.now()}`, visibility: "public" }),
 });
 check("app creada", !!app.id);
@@ -81,7 +81,7 @@ check(
 check("y admin sigue estando, sin haberlo mandado", conRoles.roles.includes("admin"));
 
 console.log("\n3. Las personas");
-/** Invita a alguien, le da roles y devuelve su id y su sesion. */
+/** Invita a alguien, le da roles y devuelve su id y su sesión. */
 async function persona(email: string, roles: string[]) {
   const added = await call<{ access: { id: string; member: string } }>(
     `/api/apps/${app.id}/members`,
@@ -144,7 +144,7 @@ const fuente = (table: TableRecord) => ({
 });
 
 console.log("\n5. Dos paginas: una abierta a Todos y otra limitada a un rol");
-/** Crea una pagina con su HTML y su manifiesto. */
+/** Crea una página con su HTML y su manifiesto. */
 async function pagina(name: string, slug: string, roles: string[], isHome = false) {
   const page = await call<{ id: string }>(records("pages"), {
     method: "POST",
@@ -164,7 +164,7 @@ const abierta = await pagina("Panel", "panel", [], true);
 const limitada = await pagina("Agenda", "agenda", ["odontologo"]);
 check("las dos paginas existen", !!abierta.id && !!limitada.id);
 
-/** Una orden de datos, con la sesion de quien pregunta. */
+/** Una orden de datos, con la sesión de quien pregunta. */
 async function orden<T>(
   who: { token: string } | null,
   page: { id: string },
@@ -202,7 +202,7 @@ await sembrar(avisos, { texto: "Aviso general" });
 check("tres agendas y un aviso", !!deAna.id);
 
 /* ------------------------------------------------------------------ */
-/* Quien abre cada pagina                                               */
+/* Quien abre cada página                                               */
 /* ------------------------------------------------------------------ */
 
 console.log("\n7. Una pagina abierta a Todos, en una aplicacion publica");
@@ -297,10 +297,10 @@ const crearComoDueno = await orden<{ id: string }>({ token }, abierta, "crear", 
 check("y quien construye tambien, con su sesion de constructor", crearComoDueno.ok);
 
 /*
- * Una cuenta es de una sola aplicacion. La de otra trae sesion valida y no
- * esta invitada aqui: de una pagina abierta lee lo mismo que quien llega sin
- * cuenta, pero guardar no, o la sesion de cualquier invitado de cualquier
- * aplicacion de la instalacion escribiria en las tablas de esta.
+ * Una cuenta es de una sola aplicación. La de otra trae sesión valida y no
+ * esta invitada aquí: de una página abierta lee lo mismo que quien llega sin
+ * cuenta, pero guardar no, o la sesión de cualquier invitado de cualquier
+ * aplicación de la instalacion escribiria en las tablas de esta.
  */
 const otraApp = await call<{ id: string }>("/api/apps", {
   method: "POST",
@@ -326,7 +326,7 @@ const crearDesdeOtra = await orden(ajena, abierta, "crear", [
 check("pero no guarda aqui", crearDesdeOtra.status === 403);
 
 /* ------------------------------------------------------------------ */
-/* La aplicacion que exige iniciar sesion                               */
+/* La aplicación que exige iniciar sesión                               */
 /* ------------------------------------------------------------------ */
 
 console.log("\n12. La aplicacion pasa a requerir iniciar sesion");
@@ -347,7 +347,7 @@ await call(`/api/apps/${app.id}`, {
 });
 
 /* ------------------------------------------------------------------ */
-/* Ver la pagina como otro                                              */
+/* Ver la página como otro                                              */
 /* ------------------------------------------------------------------ */
 
 console.log("\n13. Mirar como un rol, como una persona, sin rol y sin sesion");
@@ -431,7 +431,7 @@ const ajenoMirandoComoOtro = await orden(beto, abierta, "listar", [agendas.name,
 check("y solo el dueno puede pedir mirar como otro", ajenoMirandoComoOtro.status === 403);
 
 /* ------------------------------------------------------------------ */
-/* Quitar un rol de la aplicacion                                       */
+/* Quitar un rol de la aplicación                                       */
 /* ------------------------------------------------------------------ */
 
 console.log("\n14. Quitar un rol lo desmarca donde estuviera");

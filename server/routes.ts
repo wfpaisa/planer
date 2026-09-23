@@ -1,6 +1,6 @@
 /**
  * API propia de la plataforma.
- * Solo vive aqui lo que el navegador no puede hacer directo contra PocketBase:
+ * Solo vive aquí lo que el navegador no puede hacer directo contra PocketBase:
  * crear o modificar tablas, y servir las apps publicadas.
  */
 
@@ -155,7 +155,7 @@ async function body<T>(req: Request): Promise<T> {
 async function ownedApp(appId: string, me: Identity): Promise<AppRecord> {
   const app = await firstRecord<AppRecord>(INTERNAL.apps, `id = "${quote(appId)}"`);
   if (!app) throw new HttpError(404, "La aplicación no existe");
-  if (app.owner !== me.id) throw new HttpError(403, "Esta aplicación no es tuya");
+  if (app.owner !== me.id) throw new HttpError(403, "No tienes permiso para esta aplicación");
   return app;
 }
 
@@ -170,12 +170,12 @@ async function ownedTable(
 }
 
 /**
- * El enlace publico de una aplicacion, sacado de su nombre.
+ * El enlace público de una aplicación, sacado de su nombre.
  *
- * Nadie lo escribe: se genera aqui al crearla y se vuelve a generar cuando le
- * cambian el nombre. Si ya lo tiene otra, se le anade un numero hasta que este
- * libre. `skipId` es la propia aplicacion al renombrarse: sin el, una que ya
- * ocupa "tienda" se encontraria a si misma y saldria de aqui como "tienda-2".
+ * Nadie lo escribe: se genera aquí al crearla y se vuelve a generar cuando le
+ * cambian el nombre. Si ya lo tiene otra, se le añade un número hasta que este
+ * libre. `skipId` es la propia aplicación al renombrarse: sin el, una que ya
+ * ocupa "tienda" se encontraria a si misma y saldria de aquí como "tienda-2".
  */
 async function uniqueSlug(base: string, skipId?: string): Promise<string> {
   const root = slugify(base, "app");
@@ -193,9 +193,9 @@ async function uniqueSlug(base: string, skipId?: string): Promise<string> {
 /* ------------------------------------------------------------------ */
 
 /**
- * Solo se admite un id del catalogo de paletas (o `custom` con su
- * hexadecimal) y un tamano de letra dentro del rango. La validacion entera
- * vive en `normalizePalette`, que tambien sabe leer lo guardado con los
+ * Solo se admite un id del catálogo de paletas (o `custom` con su
+ * hexadecimal) y un tamaño de letra dentro del rango. La validacion entera
+ * vive en `normalizePalette`, que también sabe leer lo guardado con los
  * formatos de antes.
  */
 function sanitizeTheme(input: unknown): AppTheme | null {
@@ -205,9 +205,9 @@ function sanitizeTheme(input: unknown): AppTheme | null {
 
 /**
  * Deja una lista de roles limpia: normalizada, sin vacios, sin repetidos y con
- * tope. Con `allowed`, ademas descarta los que la aplicacion ya no define.
+ * tope. Con `allowed`, ademas descarta los que la aplicación ya no define.
  *
- * La normalizacion se aplica aqui y no solo en la pantalla: el campo la aplica
+ * La normalizacion se aplica aquí y no solo en la pantalla: el campo la aplica
  * en cada pulsacion para que se vea el nombre tal como va a quedar, pero quien
  * llama a la ruta no tiene por que ser la pantalla. Dos nombres que se
  * normalicen al mismo son el mismo rol y se funden en uno. Ver `design.md` D6.
@@ -227,11 +227,11 @@ function sanitizeRoles(input: unknown, allowed?: string[]): string[] {
 }
 
 /**
- * Los roles de una aplicacion, con `admin` siempre dentro.
+ * Los roles de una aplicación, con `admin` siempre dentro.
  *
  * Va primero para que se lea antes que los que puso el constructor, y no se
  * puede quitar: la vista previa arranca en el, y quitarlo dejaria a
- * `pruneRoles` borrandolo de las paginas que lo tuvieran marcado. Ver
+ * `pruneRoles` borrandolo de las páginas que lo tuvieran marcado. Ver
  * `design.md` D7.
  */
 function withAdminRole(roles: string[]): string[] {
@@ -239,8 +239,8 @@ function withAdminRole(roles: string[]): string[] {
 }
 
 /**
- * Al quitar un rol de la aplicacion deja de nombrarse en ningun lado: ni en
- * las personas ni en las paginas. Una pagina que se queda sin roles vuelve a
+ * Al quitar un rol de la aplicación deja de nombrarse en ningún lado: ni en
+ * las personas ni en las páginas. Una página que se queda sin roles vuelve a
  * verla cualquiera.
  */
 async function pruneRoles(appId: string, roles: string[]) {
@@ -283,17 +283,17 @@ export async function createApp(req: Request) {
     name,
     slug: await uniqueSlug(name),
     icon: input.icon || "DashboardCircleIcon",
-    // La paleta se elige al crearla: de ella sale tambien el color del icono.
+    // La paleta se elige al crearla: de ella sale también el color del icono.
     theme: sanitizeTheme(input.theme),
     visibility: input.visibility === "public" ? "public" : "private",
     published: false,
     owner: me.id,
-    // Toda aplicacion define `admin` desde que nace, sin que nadie lo escriba.
+    // Toda aplicación define `admin` desde que nace, sin que nadie lo escriba.
     roles: [ADMIN_ROLE],
   });
 
-  // La navegacion nace ya agrupada: un separador arriba y la pagina de inicio
-  // debajo, para que anadir la segunda pagina no obligue a inventar el grupo.
+  // La navegacion nace ya agrupada: un separador arriba y la página de inicio
+  // debajo, para que anadir la segunda página no obligue a inventar el grupo.
   await createRecord(INTERNAL.pages, {
     app: app.id,
     name: "GENERAL",
@@ -312,7 +312,7 @@ export async function createApp(req: Request) {
     isHome: true,
   });
 
-  // Una aplicacion siempre tiene su tabla de personas, desde el primer momento.
+  // Una aplicación siempre tiene su tabla de personas, desde el primer momento.
   await ensurePeopleTable(app);
 
   return json(app, 201);
@@ -332,8 +332,8 @@ export async function updateApp(req: Request, id: string) {
   if (input.theme !== undefined) patch.theme = sanitizeTheme(input.theme);
   if (input.roles !== undefined) patch.roles = withAdminRole(sanitizeRoles(input.roles));
   // El enlace acompana al nombre y no se escribe aparte: quien renombra la
-  // aplicacion no tiene que acordarse de nada, y un `slug` que llegue en el
-  // cuerpo se ignora a proposito. Lo que ya se publico con el enlace de antes
+  // aplicación no tiene que acordarse de nada, y un `slug` que llegue en el
+  // cuerpo se ignora a propósito. Lo que ya se publicó con el enlace de antes
   // deja de responder, que es lo que pasaba igual cuando se escribia a mano.
   if (typeof patch.name === "string" && patch.name !== app.name) {
     const next = await uniqueSlug(patch.name, app.id);
@@ -345,8 +345,8 @@ export async function updateApp(req: Request, id: string) {
   if (patch.roles) await pruneRoles(app.id, updated.roles ?? []);
 
   // Encender el interruptor de publicada sin haber publicado nunca deja la
-  // app sin version que servir. Se crea la primera aqui, para que el enlace
-  // publico funcione igual que antes de que existiera el historial.
+  // app sin versión que servir. Se crea la primera aquí, para que el enlace
+  // público funcione igual que antes de que existiera el historial.
   if (patch.published === true && !app.liveVersion) {
     const { pages, tables } = await draftOf(app.id);
     const { version } = await saveVersion({
@@ -371,7 +371,7 @@ export async function deleteApp(req: Request, id: string) {
     perPage: 200,
     skipTotal: 1,
   });
-  // Juntas y no una a una: entre ellas hay relaciones, y una coleccion no se
+  // Juntas y no una a una: entre ellas hay relaciones, y una colección no se
   // deja borrar mientras otra la nombre. Ver `dropDataCollections`.
   await dropDataCollections(tables.items.map((t) => t.dataCollection));
 
@@ -380,7 +380,7 @@ export async function deleteApp(req: Request, id: string) {
 }
 
 /**
- * Limpieza: se van las aplicaciones que se pidan --con sus tablas, paginas,
+ * Limpieza: se van las aplicaciones que se pidan --con sus tablas, páginas,
  * accesos, versiones, documentos y conversaciones-- y los datos que guardaban.
  *
  * Lo que NO se toca son los ajustes: el servidor de IA con sus claves y la
@@ -400,21 +400,21 @@ export async function wipeApps(req: Request) {
 
   let dropped = 0;
   for (const app of apps) {
-    // Los datos no cuelgan de la aplicacion: cada tabla es una coleccion de
+    // Los datos no cuelgan de la aplicación: cada tabla es una colección de
     // PocketBase y hay que tirarla a mano antes de perderle la pista.
     const tables = await listRecords<TableRecord>(INTERNAL.tables, {
       filter: `app = "${quote(app.id)}"`,
       perPage: 500,
       skipTotal: 1,
     });
-    // Se cuenta lo que de verdad se fue, no lo que se intento: una coleccion
-    // que otra sujeta por una relacion no cae, y decir que si seria mentir.
+    // Se cuenta lo que de verdad se fue, no lo que se intento: una colección
+    // que otra sujeta por una relación no cae, y decir que si seria mentir.
     const { dropped: gone } = await dropDataCollections(tables.items.map((t) => t.dataCollection));
     dropped += gone;
 
-    // Las cuentas de quienes usan la app publicada son de la aplicacion
+    // Las cuentas de quienes usan la app publicada son de la aplicación
     // (`<appId>:<correo>`): al irse la app no les queda nada que abrir. La
-    // cascada solo se lleva el acceso, asi que la cuenta se borra aparte.
+    // cascada solo se lleva el acceso, así que la cuenta se borra aparte.
     const access = await listRecords<{ member: string }>(INTERNAL.access, {
       filter: `app = "${quote(app.id)}"`,
       perPage: 500,
@@ -444,7 +444,7 @@ export async function wipeApps(req: Request) {
  * importacion entera (ver `findRequiredGaps` en `web/src/lib/importPlan.ts`).
  *
  * Sin columnas no hay callejon sin salida: "Añadir columna" vive en la barra de
- * la cuadricula, la tabla vacia manda ahi, e importar un archivo crea las
+ * la cuadricula, la tabla vacía manda ahi, e importar un archivo crea las
  * columnas que el archivo traiga. Quien si necesita columnas el primer dia es
  * la tabla de personas, y las suyas las pone `PEOPLE_DEFAULT_FIELDS`.
  */
@@ -470,8 +470,8 @@ export async function createTable(req: Request, appId: string) {
   });
 
   try {
-    // Una tabla nueva no pregunta nada: quien puede abrir una pagina alcanza
-    // todas las filas de las tablas que esa pagina declara.
+    // Una tabla nueva no pregunta nada: quien puede abrir una página alcanza
+    // todas las filas de las tablas que esa página declara.
     const table = await createRecord<TableRecord>(INTERNAL.tables, {
       app: app.id,
       name,
@@ -490,12 +490,12 @@ export async function createTable(req: Request, appId: string) {
 }
 
 /**
- * Vuelve a enganchar las paginas que se quedaron colgando de una tabla
+ * Vuelve a enganchar las páginas que se quedaron colgando de una tabla
  * borrada, cuando la que acaba de nacer se llama igual.
  *
- * Una pagina declara sus fuentes por id interno, no por nombre: eso deja
+ * Una página declara sus fuentes por id interno, no por nombre: eso deja
  * renombrar una tabla sin romper nada, pero no sobrevive a un borrar y volver
- * a crear, porque la tabla nueva es otra coleccion con otro id. Aqui se cubre
+ * a crear, porque la tabla nueva es otra colección con otro id. Aquí se cubre
  * ese hueco, y solo ese: se toca una fuente unicamente si su tabla ya no
  * existe. Una fuente que apunta a una tabla viva no se roba nunca.
  *
@@ -550,7 +550,7 @@ export async function updateTable(req: Request, id: string) {
   const input = await body<Partial<TableRecord>>(req);
 
   // Las columnas del sistema van por delante y tal como son: lo que llegue de
-  // ellas se compara y se rechaza si difiere, aqui y no solo en la pantalla.
+  // ellas se compara y se rechaza si difiere, aquí y no solo en la pantalla.
   if (Array.isArray(input.fields)) input.fields = guardSystemFields(table, input.fields);
 
   const patch: Record<string, unknown> = {};
@@ -561,8 +561,8 @@ export async function updateTable(req: Request, id: string) {
   // el recuento de filas sin enlace y siguen viendose en su celda.
   if (input.acceptedOrphans) patch.acceptedOrphans = input.acceptedOrphans;
 
-  // Marcar una columna como unica sobre datos que ya se repiten no se puede
-  // aplicar. PocketBase rechaza el indice sin decir cual es el choque, y sin
+  // Marcar una columna como única sobre datos que ya se repiten no se puede
+  // aplicar. PocketBase rechaza el índice sin decir cual es el choque, y sin
   // saberlo el constructor no tiene como arreglarlo: se mira antes y se nombra.
   if (Array.isArray(input.fields)) {
     const before = new Set(table.fields.filter((f) => f.unique === true).map((f) => f.name));
@@ -576,8 +576,8 @@ export async function updateTable(req: Request, id: string) {
   /*
    * Las columnas se cambian sin soltar las reglas antes. Antes hacia falta:
    * la regla nombraba la columna dueno de la fila, y PocketBase rechaza tocar
-   * una columna que una regla todavia nombra. La regla de hoy no nombra
-   * ninguna columna --solo dice quien es el dueno de la aplicacion-- asi que
+   * una columna que una regla todavía nombra. La regla de hoy no nombra
+   * ninguna columna --solo dice quien es el dueno de la aplicación-- así que
    * no hay nada que soltar. Ver `accessRules`.
    */
   if (Array.isArray(input.fields)) {
@@ -588,7 +588,7 @@ export async function updateTable(req: Request, id: string) {
     patch.fields = fields;
   }
 
-  // Renombrar una columna no obliga a tocar ninguna pagina: las paginas
+  // Renombrar una columna no obliga a tocar ninguna página: las páginas
   // declaran sus columnas por su id interno, que no cambia al renombrar.
   return json(await updateRecord<TableRecord>(INTERNAL.tables, id, patch));
 }
@@ -596,8 +596,8 @@ export async function updateTable(req: Request, id: string) {
 /**
  * Los identificadores que llegan en el cuerpo, sin colarse nada mas.
  *
- * El cuerpo lo escribe el navegador, asi que se filtra a mano: lo que no sea
- * una cadena no llega a componer ningun filtro.
+ * El cuerpo lo escribe el navegador, así que se filtra a mano: lo que no sea
+ * una cadena no llega a componer ningún filtro.
  */
 function readIds(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -606,7 +606,7 @@ function readIds(value: unknown): string[] {
 
 /**
  * Solo la tabla de personas no borra filas por el camino comun: quitarle el
- * acceso a alguien es borrarle la cuenta de esta aplicacion, y eso pasa por
+ * acceso a alguien es borrarle la cuenta de esta aplicación, y eso pasa por
  * `removeMember`, que ademas conserva lo que sus filas ensenaban.
  */
 function guardPeopleRows(table: TableRecord) {
@@ -635,7 +635,7 @@ export async function rowsDeleteImpact(req: Request, id: string) {
  * La cuadricula llamaba directa a la base y se saltaba cualquier regla: lo que
  * las filas de otras tablas ensenaban de la que se iba se perdia sin que nada
  * lo dijera. Por eso da esta vuelta. Los identificadores van juntos: un borrado
- * en bloque es una peticion y no cuarenta.
+ * en bloque es una petición y no cuarenta.
  */
 export async function deleteRows(req: Request, id: string) {
   const me = await requireBuilder(req);
@@ -657,8 +657,8 @@ export async function deleteTable(req: Request, id: string) {
 /**
  * Hace una copia de la tabla: nuevas columnas (con ids frescos) y todas las
  * filas con sus valores. Las celdas de archivo no se copian porque los
- * archivos viven en el almacenamiento de la coleccion de origen, no en el de
- * la copia. Las relaciones conservan los ids de siempre, asi no se rompen.
+ * archivos viven en el almacenamiento de la colección de origen, no en el de
+ * la copia. Las relaciones conservan los ids de siempre, así no se rompen.
  */
 export async function duplicateTable(req: Request, id: string) {
   const me = await requireBuilder(req);
@@ -759,8 +759,8 @@ export async function addMember(req: Request, appId: string) {
   }>(req);
 
   const email = (input.email ?? "").trim().toLowerCase();
-  if (!email.includes("@")) throw new HttpError(400, "Correo no valido");
-  // La misma exigencia que al cambiarla despues: sin esto lo unico que para
+  if (!email.includes("@")) throw new HttpError(400, "Correo no válido");
+  // La misma exigencia que al cambiarla después: sin esto lo único que para
   // una clave corta es PocketBase, y lo dice sin nombrarla.
   const chosen = (input.password ?? "").trim();
   if (chosen && chosen.length < MIN_PASSWORD) {
@@ -768,7 +768,7 @@ export async function addMember(req: Request, appId: string) {
   }
   const roles = sanitizeRoles(input.roles, app.roles ?? []);
 
-  // La cuenta se busca dentro de esta aplicacion y en ninguna otra: el mismo
+  // La cuenta se busca dentro de esta aplicación y en ninguna otra: el mismo
   // correo puede tener cuenta en otra, y no es esta. Ver `ensureScopedAccounts`
   // en `server/bootstrap.ts`.
   let member = await firstRecord<{ id: string }>(
@@ -798,8 +798,8 @@ export async function addMember(req: Request, appId: string) {
     ? await updateRecord(INTERNAL.access, (existing as { id: string }).id, { roles })
     : await createRecord(INTERNAL.access, { app: app.id, member: member.id, roles });
 
-  // Su fila en la tabla de personas de esta aplicacion. Nace con lo que se haya
-  // escrito de ella: una columna obligatoria de la tabla no deja crearla vacia.
+  // Su fila en la tabla de personas de esta aplicación. Nace con lo que se haya
+  // escrito de ella: una columna obligatoria de la tabla no deja crearla vacía.
   await ensurePersonRow(app.id, member.id, input.campos ?? {});
 
   return json({ access, email, password: generatedPassword }, 201);
@@ -810,7 +810,7 @@ export async function addMember(req: Request, appId: string) {
  *
  * Con `soloContar` no se escribe nada: responde cuantas personas ya estan y
  * cuantas cuentas se crearian, que es lo que hay que saber antes de decidir.
- * Crear cuentas exige `crearCuentas` en cada peticion; no hay forma de que se
+ * Crear cuentas exige `crearCuentas` en cada petición; no hay forma de que se
  * quede encendido de una importacion para la siguiente.
  */
 export async function importPeopleRows(req: Request, appId: string) {
@@ -822,7 +822,7 @@ export async function importPeopleRows(req: Request, appId: string) {
     soloContar?: boolean;
   }>(req);
 
-  if (!Array.isArray(input.rows)) throw new HttpError(400, "Faltan las filas");
+  if (!Array.isArray(input.rows)) throw new HttpError(400, "No se recibieron filas");
 
   return json(
     await importPeople({
@@ -839,10 +839,10 @@ export async function importPeopleRows(req: Request, appId: string) {
  * Cambia una de las dos columnas del sistema de una persona.
  *
  * Cada una escribe donde vive: el correo y el nombre en la cuenta --que es de
- * esta aplicacion-- y los roles en el enlace con ella. El reparto se hace aqui
- * y no en la pantalla: es lo unico que hace cierto que cada dato tenga un solo
+ * esta aplicación-- y los roles en el enlace con ella. El reparto se hace aquí
+ * y no en la pantalla: es lo único que hace cierto que cada dato tenga un solo
  * dueno. Las columnas propias no pasan por esta ruta; esas se escriben en la
- * coleccion de la aplicacion como en cualquier tabla.
+ * colección de la aplicación como en cualquier tabla.
  */
 export async function updateMember(req: Request, accessId: string) {
   const me = await requireBuilder(req);
@@ -855,12 +855,12 @@ export async function updateMember(req: Request, accessId: string) {
 
   const input = await body<{ roles?: string[]; email?: string; name?: string }>(req);
 
-  // --- La cuenta de esta aplicacion ---
+  // --- La cuenta de esta aplicación ---
   const account: Record<string, unknown> = {};
   if (typeof input.email === "string") {
     const email = input.email.trim().toLowerCase();
-    if (!email.includes("@")) throw new HttpError(400, "Correo no valido");
-    // Repetido solo cuenta dentro de esta aplicacion: que el correo tenga
+    if (!email.includes("@")) throw new HttpError(400, "Correo no válido");
+    // Repetido solo cuenta dentro de esta aplicación: que el correo tenga
     // cuenta en otra no dice nada de esta.
     const taken = await firstRecord<{ id: string }>(
       INTERNAL.members,
@@ -868,13 +868,13 @@ export async function updateMember(req: Request, accessId: string) {
     );
     if (taken) throw new HttpError(400, "Ya hay una cuenta con ese correo en esta aplicación");
     account.cuenta = email;
-    // Lo que se compara al entrar lleva el correo dentro, asi que cambia con el.
+    // Lo que se compara al entrar lleva el correo dentro, así que cambia con el.
     account.login = loginFor(access.app, email);
   }
   if (typeof input.name === "string") account.name = input.name.trim();
   if (Object.keys(account).length) await updateRecord(INTERNAL.members, access.member, account);
 
-  // --- El enlace con esta aplicacion ---
+  // --- El enlace con esta aplicación ---
   // Los roles se escriben donde se leen (`server/access.ts`), que es el mismo
   // sitio por el que pasa la IA: un solo dueno para el mismo dato.
   if (input.roles !== undefined) {
@@ -893,7 +893,7 @@ export async function updateMember(req: Request, accessId: string) {
  * Le pone otra clave a una persona invitada.
  *
  * Es para lo de siempre: alguien la perdio y quien construye la app tiene que
- * darle uno nuevo a mano. La clave se devuelve una sola vez --aqui no se
+ * darle uno nuevo a mano. La clave se devuelve una sola vez --aquí no se
  * guarda en ninguna parte de donde se pueda volver a leer-- y al cambiarla
  * PocketBase invalida las sesiones que hubiera abiertas con la anterior.
  */
@@ -931,12 +931,12 @@ export async function removeMember(req: Request, accessId: string) {
   );
   if (!access) throw new HttpError(404, "El acceso no existe");
   await ownedApp(access.app, me);
-  // La cuenta es de esta aplicacion, asi que se va con el acceso: dejarla viva
+  // La cuenta es de esta aplicación, así que se va con el acceso: dejarla viva
   // seria dejar una entrada que ya no abre nada, que es lo que llenaba la lista
-  // de cuentas sin dueno antes de que las cuentas fueran por aplicacion. Si
+  // de cuentas sin dueno antes de que las cuentas fueran por aplicación. Si
   // esta persona esta invitada en otra, alli tiene la suya y no se toca.
   // Antes de borrar nada: lo que sus filas de otras tablas ensenaban --su
-  // cedula-- pasa al corralito de esas columnas. Si no, quedan cuarenta filas
+  // cédula-- pasa al corralito de esas columnas. Si no, quedan cuarenta filas
   // diciendo "enlace roto" y el dato que traian no se ve en ninguna parte.
   await parkPersonReferences(access.app, access.member);
   await dropPersonData(access.app, access.member);
@@ -949,7 +949,7 @@ export async function removeMember(req: Request, accessId: string) {
 /* Servidor de inteligencia artificial                                  */
 /* ------------------------------------------------------------------ */
 
-/** Lo guardado sin ninguna clave: es lo unico que puede salir hacia el panel. */
+/** Lo guardado sin ninguna clave: es lo único que puede salir hacia el panel. */
 const aiView = (cfg: StoredConfig): AiConfigView => ({
   ...cfg,
   providers: cfg.providers.map(({ apiKey, ...rest }) => ({ ...rest, hasKey: !!apiKey })),
@@ -968,7 +968,7 @@ export async function putAiConfig(req: Request) {
 
 export async function checkAiConfig(req: Request) {
   await requireBuilder(req);
-  // Se prueba lo que hay en el formulario, aunque todavia no se haya guardado.
+  // Se prueba lo que hay en el formulario, aunque todavía no se haya guardado.
   const input = await body<{ provider?: Partial<StoredProvider>; model?: string }>(req).catch(
     () => ({}),
   );
@@ -976,7 +976,7 @@ export async function checkAiConfig(req: Request) {
 }
 
 /**
- * El catalogo de un servidor que sabe contar lo que ofrece.
+ * El catálogo de un servidor que sabe contar lo que ofrece.
  *
  * Va contra el servidor que se esta escribiendo, no contra el guardado: sirve
  * para elegir modelos mientras se conecta uno nuevo. Sin `id` devuelve la lista
@@ -985,7 +985,7 @@ export async function checkAiConfig(req: Request) {
 export async function aiCatalog(req: Request) {
   await requireBuilder(req);
   const input = await body<{ provider?: Partial<StoredProvider>; id?: string }>(req);
-  // El catalogo es publico: se puede mirar antes de tener la clave, que es
+  // El catálogo es público: se puede mirar antes de tener la clave, que es
   // justo cuando hace falta --mientras se conecta el servidor--.
   const { provider, base } = await providerFromInput(input.provider, false);
 
@@ -996,7 +996,7 @@ export async function aiCatalog(req: Request) {
     );
   }
 
-  // llama.cpp no busca por nombre: solo sirve el modelo que tiene cargado, asi
+  // llama.cpp no busca por nombre: solo sirve el modelo que tiene cargado, así
   // que el nombre escrito no cambia nada de lo que se le pregunta.
   if (provider.provider === "llamacpp") {
     const wanted = (input.id ?? "").trim();
@@ -1012,10 +1012,10 @@ export async function aiCatalog(req: Request) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Pedirle algo a la IA sobre una pagina                                */
+/* Pedirle algo a la IA sobre una página                                */
 /* ------------------------------------------------------------------ */
 
-/** Elementos senalados que se aceptan en una peticion. */
+/** Elementos senalados que se aceptan en una petición. */
 const MAX_PICKED = 8;
 
 /** Lo que se acepta del HTML de un elemento senalado. */
@@ -1024,10 +1024,10 @@ const MAX_PICKED_HTML = 12_000;
 /**
  * Lo senalado con el cursor, tal como puede usarse.
  *
- * Llega del navegador, asi que llega sin garantias: se recorta a lo que cabe
+ * Llega del navegador, así que llega sin garantias: se recorta a lo que cabe
  * en un contexto y se queda solo con lo que tiene forma. Lo que venga mal se
- * descarta en silencio --señalar mal no puede tumbar una peticion-- y si no
- * queda nada, la peticion sigue sin elementos senalados.
+ * descarta en silencio --señalar mal no puede tumbar una petición-- y si no
+ * queda nada, la petición sigue sin elementos senalados.
  */
 function pickedBlocks(raw: unknown): PickedBlock[] {
   if (!Array.isArray(raw)) return [];
@@ -1058,14 +1058,14 @@ function pickedBlocks(raw: unknown): PickedBlock[] {
       ).slice(0, 40),
       path: path.slice(0, 300),
       html: long ? html.slice(0, MAX_PICKED_HTML) : html,
-      // Recortado aqui, o ya recortado por el puente antes de mandarlo.
+      // Recortado aquí, o ya recortado por el puente antes de mandarlo.
       truncated: long || pick.truncated === true,
     });
   }
   return out;
 }
 
-/** Cuantos archivos se aceptan adjuntos a una peticion. */
+/** Cuantos archivos se aceptan adjuntos a una petición. */
 const MAX_AI_FILES = 8;
 
 const AI_FILE_KINDS: AiFileKind[] = ["html", "css", "js", "json", "csv", "sheet", "text", "image"];
@@ -1074,15 +1074,15 @@ const isAiFileKind = (value: unknown): value is AiFileKind =>
   AI_FILE_KINDS.includes(String(value) as AiFileKind);
 
 /**
- * Los adjuntos que nombra una peticion.
+ * Los adjuntos que nombra una petición.
  *
  * Ya no llegan con el contenido dentro: llegan como referencias a lo que el
- * navegador subio al soltarlo. Aqui solo se comprueba que tengan forma y que la
- * referencia sea de esta aplicacion; lo que se le ensena al modelo de cada uno
+ * navegador subio al soltarlo. Aquí solo se comprueba que tengan forma y que la
+ * referencia sea de esta aplicación; lo que se le enseña al modelo de cada uno
  * lo decide el contexto (`server/ai/aiPage/context.ts`).
  *
  * Una referencia que no existe se descarta en silencio: adjuntar mal no puede
- * tumbar una peticion, y la peticion sigue sin ese adjunto.
+ * tumbar una petición, y la petición sigue sin ese adjunto.
  */
 async function aiFiles(appId: string, raw: unknown): Promise<AiChatFile[]> {
   if (!Array.isArray(raw)) return [];
@@ -1101,7 +1101,7 @@ async function aiFiles(appId: string, raw: unknown): Promise<AiChatFile[]> {
     out.push({
       ref: saved.id,
       // El nombre lo pone lo guardado, no lo que mande el navegador: es el
-      // mismo que la conversacion recuerda y el que la IA va a nombrar.
+      // mismo que la conversación recuerda y el que la IA va a nombrar.
       name: saved.name,
       kind: isAiFileKind(saved.kind) ? saved.kind : "text",
       size: saved.bytes,
@@ -1113,11 +1113,11 @@ async function aiFiles(appId: string, raw: unknown): Promise<AiChatFile[]> {
 /**
  * Guarda un archivo adjunto y devuelve su referencia.
  *
- * La subida arranca al soltar el archivo, no al enviar la peticion: para cuando
+ * La subida arranca al soltar el archivo, no al enviar la petición: para cuando
  * se termina de escribir que hacer con el, el archivo ya esta guardado. Llega
- * como formulario porque puede ser binario --una imagen, una hoja de calculo--
- * y la clase la dice el navegador: una hoja de calculo sube ya convertida a
- * filas y columnas, asi que su nombre sigue diciendo `.xlsx` y su contenido ya
+ * como formulario porque puede ser binario --una imagen, una hoja de cálculo--
+ * y la clase la dice el navegador: una hoja de cálculo sube ya convertida a
+ * filas y columnas, así que su nombre sigue diciendo `.xlsx` y su contenido ya
  * no lo es.
  */
 export async function uploadAiFile(req: Request, appId: string) {
@@ -1177,12 +1177,12 @@ export async function getAiFile(req: Request, appId: string, fileId: string) {
 }
 
 /**
- * Lo que ve una conexion enganchada a una peticion.
+ * Lo que ve una conexion enganchada a una petición.
  *
- * Empieza contando a que peticion se engancho y repitiendo de golpe todo lo que
- * ya habia pasado --que es lo que hace util volver tras recargar-- y a partir de
- * ahi va soltando lo que llegue. Cerrar esta conexion no toca la peticion: la
- * peticion vive en el registro, no aqui.
+ * Empieza contando a que petición se engancho y repitiendo de golpe todo lo que
+ * ya había pasado --que es lo que hace útil volver tras recargar-- y a partir de
+ * ahi va soltando lo que llegue. Cerrar esta conexion no toca la petición: la
+ * petición vive en el registro, no aquí.
  */
 function runStream(run: AiRun): Response {
   const enc = new TextEncoder();
@@ -1207,8 +1207,8 @@ function runStream(run: AiRun): Response {
         try {
           controller.enqueue(enc.encode(`data: ${JSON.stringify(event)}\n\n`));
         } catch {
-          // El navegador se fue. Se deja de escribir y la peticion sigue sola
-          // hasta terminar: cortarla a mitad dejaria la pagina peor. Quien
+          // El navegador se fue. Se deja de escribir y la petición sigue sola
+          // hasta terminar: cortarla a mitad dejaria la página peor. Quien
           // vuelva se engancha otra vez y recibe lo que se perdio.
           alive = false;
           unwatch();
@@ -1229,7 +1229,7 @@ function runStream(run: AiRun): Response {
       });
     },
     cancel() {
-      // Se fue quien miraba, no la peticion.
+      // Se fue quien miraba, no la petición.
       alive = false;
       unwatch();
     },
@@ -1245,7 +1245,7 @@ function runStream(run: AiRun): Response {
 }
 
 /**
- * Hace la peticion de verdad y la va contando al registro.
+ * Hace la petición de verdad y la va contando al registro.
  *
  * No se espera a que termine para responder: quien la pidio recibe el hilo de
  * avisos, y esto sigue por su cuenta aunque ese hilo se corte.
@@ -1261,12 +1261,12 @@ async function executeRun(
     chatId?: string;
     choice?: Partial<AiChoice>;
     debug?: boolean;
-    /** La intencion de modo Plan que mando el boton del composer. */
+    /** La intencion de modo Plan que mando el botón del composer. */
     planIntent?: AiPlanIntent;
   },
 ): Promise<void> {
   /*
-   * Corte de seguridad: si la peticion se queda mucho mas de la cuenta --el
+   * Corte de seguridad: si la petición se queda mucho mas de la cuenta --el
    * proveedor colgado, una ronda que no vuelve-- se para sola, igual que si
    * quien la pidio hubiera apretado "detener". El tiempo es global, se
    * configura en los ajustes, y 0 lo apaga.
@@ -1283,10 +1283,10 @@ async function executeRun(
 
   try {
     /*
-     * Lo que ya se hablo en esta conversacion. De aqui salen dos cosas: los
+     * Lo que ya se hablo en esta conversación. De aquí salen dos cosas: los
      * ultimos turnos que se le ponen delante al modelo, y los adjuntos de esos
-     * turnos, que siguen estando mientras la conversacion siga abierta. Sin
-     * conversacion todavia --la primera peticion-- no hay nada que traer.
+     * turnos, que siguen estando mientras la conversación siga abierta. Sin
+     * conversación todavía --la primera petición-- no hay nada que traer.
      */
     const before = opts.chatId ? await getChat(opts.app.id, opts.chatId).catch(() => null) : null;
 
@@ -1307,7 +1307,7 @@ async function executeRun(
     if (timer) clearTimeout(timer);
 
     // El corte por tiempo se distingue de un "detener" del usuario: quien lo
-    // pidio no aprieto nada, asi que hay que decirle por que quedo a medias.
+    // pidio no aprieto nada, así que hay que decirle por que quedo a medias.
     if (timedOut) {
       result.notices = [
         ...result.notices,
@@ -1315,15 +1315,15 @@ async function executeRun(
       ];
     }
 
-    // Se guarda tambien lo que se detuvo a medias: es lo que paso, y quien
-    // vuelva a la conversacion tiene que poder leerlo.
+    // Se guarda también lo que se detuvo a medias: es lo que paso, y quien
+    // vuelva a la conversación tiene que poder leerlo.
     const chat = await appendToChat({
       appId: opts.app.id,
       chatId: opts.chatId,
       page: opts.page,
       authorId: opts.authorId,
       // Pasar a modo Implementador: el plan cerrado que dejo esta misma
-      // conversacion queda marcado antes de anadir esta peticion (D1, D2).
+      // conversación queda marcado antes de anadir esta petición (D1, D2).
       implementPlan: opts.planIntent === "implementar",
       messages: [
         {
@@ -1340,8 +1340,8 @@ async function executeRun(
           from: "ia",
           text: result.message,
           steps: result.steps,
-          // La pregunta se guarda con el mensaje: al volver a la conversacion
-          // se lee que se pregunto, no solo lo que se construyo despues.
+          // La pregunta se guarda con el mensaje: al volver a la conversación
+          // se lee que se pregunto, no solo lo que se construyo después.
           ...(result.question ? { question: result.question } : {}),
           // Lo mismo, con el plan que cerro el modo Plan.
           ...(result.plan ? { plan: result.plan } : {}),
@@ -1368,11 +1368,11 @@ async function executeRun(
 }
 
 /**
- * Una peticion sobre la pagina abierta.
+ * Una petición sobre la página abierta.
  *
- * Es la unica entrada a la IA: lo que se escribe en la barra llega aqui. La
- * peticion y la respuesta quedan en una conversacion de la aplicacion, que
- * recuerda desde que pagina se hizo.
+ * Es la única entrada a la IA: lo que se escribe en la barra llega aquí. La
+ * petición y la respuesta quedan en una conversación de la aplicación, que
+ * recuerda desde que página se hizo.
  *
  * Se entrega a medida que se produce, en vez de esperar a tenerlo todo. Lo que
  * llega antes del final es para mirar: el texto segun se escribe y los pasos
@@ -1392,7 +1392,7 @@ export async function askPage(req: Request, appId: string, pageId: string) {
     choice?: Partial<AiChoice>;
     /** Quiere ver el contexto que se le manda al modelo en cada ronda. */
     debug?: boolean;
-    /** La intencion de modo Plan que manda el boton del composer. */
+    /** La intencion de modo Plan que manda el botón del composer. */
     plan?: unknown;
   }>(req);
 
@@ -1434,8 +1434,8 @@ function readPlanIntent(raw: unknown): AiPlanIntent | undefined {
 }
 
 /**
- * Si esta pagina tiene una peticion esperando. Es lo primero que pregunta el
- * panel al abrirse: asi recargar no pierde lo que la IA estaba haciendo.
+ * Si esta página tiene una petición esperando. Es lo primero que pregunta el
+ * panel al abrirse: así recargar no pierde lo que la IA estaba haciendo.
  */
 export async function getPageRun(req: Request, appId: string, pageId: string) {
   const me = await requireBuilder(req);
@@ -1445,11 +1445,11 @@ export async function getPageRun(req: Request, appId: string, pageId: string) {
 }
 
 /**
- * En que paginas de la aplicacion esta trabajando la IA ahora mismo.
+ * En que páginas de la aplicación esta trabajando la IA ahora mismo.
  *
- * Es la fuente de verdad de la senal: se pregunta al entrar en la aplicacion,
- * y de ahi en adelante la mantiene al dia el hilo de avisos de cada peticion.
- * Tambien es lo que apaga la senal cuando el servidor se reinicia: si no hay
+ * Es la fuente de verdad de la senal: se pregunta al entrar en la aplicación,
+ * y de ahi en adelante la mantiene al dia el hilo de avisos de cada petición.
+ * También es lo que apaga la senal cuando el servidor se reinicia: si no hay
  * peticiones, no hay nada que decir.
  */
 export async function listAppRuns(req: Request, appId: string) {
@@ -1458,7 +1458,7 @@ export async function listAppRuns(req: Request, appId: string) {
   return json<AiActiveRun[]>(activeRuns(app.id));
 }
 
-/** Volver a engancharse a la peticion de esta pagina, con todo lo que ya paso. */
+/** Volver a engancharse a la petición de esta página, con todo lo que ya paso. */
 export async function followPageRun(req: Request, appId: string, pageId: string) {
   const me = await requireBuilder(req);
   const app = await ownedApp(appId, me);
@@ -1468,9 +1468,9 @@ export async function followPageRun(req: Request, appId: string, pageId: string)
 }
 
 /**
- * Detener la peticion de esta pagina.
+ * Detener la petición de esta página.
  *
- * No responde con el resultado: la peticion corta por el primer sitio seguro y
+ * No responde con el resultado: la petición corta por el primer sitio seguro y
  * el final llega por donde llegan todos, el hilo de avisos.
  */
 export async function stopPageRun(req: Request, appId: string, pageId: string) {
@@ -1483,11 +1483,11 @@ export async function stopPageRun(req: Request, appId: string, pageId: string) {
 }
 
 /**
- * El panel termino de probar una pagina y trae lo que solto la consola.
+ * El panel termino de probar una página y trae lo que solto la consola.
  *
- * Es la respuesta al aviso `probar`, y el unico sitio donde algo entra desde el
- * navegador a mitad de una peticion de la IA. Se comprueba que quien contesta
- * sea el dueno de la aplicacion: los fallos de una pagina cuentan por dentro
+ * Es la respuesta al aviso `probar`, y el único sitio donde algo entra desde el
+ * navegador a mitad de una petición de la IA. Se comprueba que quien contesta
+ * sea el dueno de la aplicación: los fallos de una página cuentan por dentro
  * como esta escrita.
  *
  * Una respuesta que llega tarde --la espera ya vencio-- se acepta sin hacer
@@ -1500,7 +1500,7 @@ export async function reportPageProbe(req: Request, appId: string, pageId: strin
   const input = await body<{ probeId?: string; issues?: unknown; warnings?: unknown }>(req);
 
   const probeId = String(input.probeId ?? "");
-  if (!probeId) throw new HttpError(400, "Falta decir que prueba se contesta.");
+  if (!probeId) throw new HttpError(400, "Falta indicar qué prueba se responde.");
 
   const taken = closeProbe({
     probeId,
@@ -1536,30 +1536,30 @@ function pageIssues(raw: unknown): PageIssue[] {
 }
 
 /**
- * Las conversaciones de una pagina. La pagina no es opcional: una conversacion
- * es de la pagina donde se hizo, asi que no hay lista "de la aplicacion".
+ * Las conversaciones de una página. La página no es opcional: una conversación
+ * es de la página donde se hizo, así que no hay lista "de la aplicación".
  */
 /**
- * La constancia de la ultima peticion de una pagina.
+ * La constancia de la ultima petición de una página.
  *
- * Se lee donde ya se leia el contexto --el despliegue de la conversacion-- asi
- * que recargar deja de perderlo. Solo la ve quien construye la aplicacion.
+ * Se lee donde ya se leia el contexto --el despliegue de la conversación-- así
+ * que recargar deja de perderlo. Solo la ve quien construye la aplicación.
  */
 export async function getAiDebug(req: Request, appId: string, pageId: string) {
   const me = await requireBuilder(req);
   const app = await ownedApp(appId, me);
-  // No se comprueba que la pagina siga existiendo: la constancia se busca por
-  // aplicacion y pagina a la vez, asi que una pagina de otra aplicacion no
+  // No se comprueba que la página siga existiendo: la constancia se busca por
+  // aplicación y página a la vez, así que una página de otra aplicación no
   // devuelve nada, y una que ya se borro tampoco --se fue con ella--. Poder
-  // preguntar por una pagina borrada es lo que deja comprobar esa cascada.
+  // preguntar por una página borrada es lo que deja comprobar esa cascada.
   return json<AiDebugRead>(await readAiDebug(app.id, pageId));
 }
 
 /**
  * Borra todas las constancias de la instalacion.
  *
- * Es de instalacion y no de una aplicacion, por eso vive en los ajustes
- * generales. No toca conversaciones ni paginas.
+ * Es de instalacion y no de una aplicación, por eso vive en los ajustes
+ * generales. No toca conversaciones ni páginas.
  */
 export async function clearAiDebugAll(req: Request) {
   await requireBuilder(req);
@@ -1582,10 +1582,10 @@ export async function getAiChat(req: Request, appId: string, chatId: string) {
 }
 
 /**
- * La conversacion que quedo abierta en la aplicacion, sea de la pagina que sea.
+ * La conversación que quedo abierta en la aplicación, sea de la página que sea.
  *
- * Hay una sola: es lo que el panel repone al llegar a su pagina, y lo que hace
- * que las demas paginas empiecen en blanco en vez de desenterrar cada una la
+ * Hay una sola: es lo que el panel repone al llegar a su página, y lo que hace
+ * que las demás páginas empiecen en blanco en vez de desenterrar cada una la
  * suya. Nada si ya no hay ninguna.
  */
 export async function getOpenAiChat(req: Request, appId: string) {
@@ -1598,29 +1598,29 @@ export async function getOpenAiChat(req: Request, appId: string) {
  * Decir cual queda abierta. Sin `chatId`, ninguna.
  *
  * Lo escribe el panel cuando quien construye lo decide --empezar una
- * conversacion nueva, abrir una de la lista--. Pedirle algo a la IA no pasa por
- * aqui: eso lo apunta el servidor al guardar la conversacion.
+ * conversación nueva, abrir una de la lista--. Pedirle algo a la IA no pasa por
+ * aquí: eso lo apunta el servidor al guardar la conversación.
  */
 export async function putOpenAiChat(req: Request, appId: string) {
   const me = await requireBuilder(req);
   const app = await ownedApp(appId, me);
   const { chatId = "" } = await body<{ chatId?: string }>(req);
-  // Solo una conversacion de esta aplicacion puede quedar abierta en ella.
+  // Solo una conversación de esta aplicación puede quedar abierta en ella.
   if (chatId) await getChat(app.id, chatId);
   await setOpenChat(app.id, chatId);
   return json({ ok: true });
 }
 
 /* ------------------------------------------------------------------ */
-/* El dialogo de impacto                                                */
+/* El diálogo de impacto                                                */
 /* ------------------------------------------------------------------ */
 
 /**
- * Lo que se decidio en el dialogo.
+ * Lo que se decidio en el diálogo.
  *
- * Todos los cambios de una peticion se aplican aqui, juntos, despues de una
+ * Todos los cambios de una petición se aplican aquí, juntos, después de una
  * sola decision. Antes de tocar nada se deja un punto en los cambios: la
- * tabla y las paginas que se toquen vuelven a la vez.
+ * tabla y las páginas que se toquen vuelven a la vez.
  */
 export async function resolveImpact(req: Request, appId: string) {
   const me = await requireBuilder(req);
@@ -1629,12 +1629,12 @@ export async function resolveImpact(req: Request, appId: string) {
 
   const before = await draftOf(app.id);
   const changes = readChanges(input.changes, before.tables);
-  if (!changes.length) throw new HttpError(400, "No quedó ningún cambio que aplicar");
+  if (!changes.length) throw new HttpError(400, "No hay cambios para aplicar");
   const choice = readChoice(input.choice);
 
   if (choice === "no_tocar") {
     return json<ImpactResult>({
-      message: "La base de datos se quedó como estaba.",
+      message: "No se cambió la base de datos.",
       steps: [],
       fixed: [],
     });
@@ -1642,7 +1642,7 @@ export async function resolveImpact(req: Request, appId: string) {
 
   const affected = pagesForChanges(before.pages, changes);
 
-  // Un solo paso para todo lo que se acepto en este dialogo.
+  // Un solo paso para todo lo que se acepto en este diálogo.
   await saveVersion({
     app,
     pages: before.pages,
@@ -1686,7 +1686,7 @@ export async function resolveImpact(req: Request, appId: string) {
     }
   }
 
-  // Solo se anade lo que los pasos no cuentan ya: que las paginas afectadas se
+  // Solo se añade lo que los pasos no cuentan ya: que las páginas afectadas se
   // quedaron sin tocar, que es justo lo que esa salida decidio.
   const tail =
     choice === "aplicar" && affected.length
@@ -1708,13 +1708,13 @@ export async function resolveImpact(req: Request, appId: string) {
  * Aplica un cambio de acceso que la IA dejo apuntado y quien construye
  * autorizo.
  *
- * Va por su lado y no por `resolveImpact`: no hay tabla que tocar, ni paginas
- * que arreglar, ni cuatro salidas entre las que elegir. Lo unico que se
+ * Va por su lado y no por `resolveImpact`: no hay tabla que tocar, ni páginas
+ * que arreglar, ni cuatro salidas entre las que elegir. Lo único que se
  * comparte es el punto al que volver, que se deja antes de escribir nada.
  *
- * Solo llegan aqui los que dan acceso: los que lo quitan ya se aplicaron
+ * Solo llegan aquí los que dan acceso: los que lo quitan ya se aplicaron
  * cuando se pidieron. Se comprueba igual, porque lo que decide es el servidor
- * y no lo que venga en la peticion.
+ * y no lo que venga en la petición.
  */
 export async function resolveAccess(req: Request, appId: string) {
   const me = await requireBuilder(req);
@@ -1735,7 +1735,7 @@ export async function resolveAccess(req: Request, appId: string) {
   if (!person) throw new HttpError(404, "Esa persona no está invitada a esta aplicación");
 
   // Un punto al que volver antes de tocar el enlace, como en cualquier otro
-  // cambio autorizado. Lo que se guarda son las paginas y las tablas: el
+  // cambio autorizado. Lo que se guarda son las páginas y las tablas: el
   // acceso se restaura desde la pantalla de personas.
   const before = await draftOf(app.id);
   await saveVersion({
@@ -1765,8 +1765,8 @@ export async function resolveAccess(req: Request, appId: string) {
 }
 
 /**
- * Para que usa una pagina lo que se va a cambiar. Se consulta solo cuando
- * quien construye lo pide: el dialogo tiene que abrirse sin espera.
+ * Para que usa una página lo que se va a cambiar. Se consulta solo cuando
+ * quien construye lo pide: el diálogo tiene que abrirse sin espera.
  */
 export async function impactDetail(req: Request, appId: string) {
   const me = await requireBuilder(req);
@@ -1782,7 +1782,7 @@ export async function impactDetail(req: Request, appId: string) {
 /* Historial de versiones                                               */
 /* ------------------------------------------------------------------ */
 
-/** El diseno tal como esta ahora mismo en el editor. */
+/** El diseño tal como esta ahora mismo en el editor. */
 async function draftOf(appId: string): Promise<{ pages: PageRecord[]; tables: TableRecord[] }> {
   const [pages, tables] = await Promise.all([
     listRecords<PageRecord>(INTERNAL.pages, {
@@ -1877,7 +1877,7 @@ export async function publishApp(req: Request, appId: string) {
   return json({ app: updated, version: toSummary(version, names, version.id) });
 }
 
-/** Punto de guardado manual: entra al historial pero no sale al publico. */
+/** Punto de guardado manual: entra al historial pero no sale al público. */
 export async function createAppVersion(req: Request, appId: string) {
   const me = await requireBuilder(req);
   const app = await ownedApp(appId, me);
@@ -1893,9 +1893,9 @@ export async function createAppVersion(req: Request, appId: string) {
     authorId: me.id,
   });
   await pruneVersions(app.id, app.liveVersion ?? version.id);
-  // Aqui no se recortan documentos a proposito. Un punto de guardado se crea
+  // Aquí no se recortan documentos a propósito. Un punto de guardado se crea
   // en mitad del trabajo (la varita magica crea uno antes de empezar), y en
-  // ese momento el documento recien importado todavia no lo nombra nadie:
+  // ese momento el documento recien importado todavía no lo nombra nadie:
   // recortarlo se llevaria por delante justo lo que se esta editando.
 
   const names = await authorNames([version.author]);
@@ -1926,7 +1926,7 @@ export async function deleteAppVersion(req: Request, appId: string, versionId: s
   await getVersion(app.id, versionId);
   await deleteRecord(INTERNAL.versions, versionId);
 
-  // Esa version podia ser la ultima que nombraba algun documento HTML.
+  // Esa versión podia ser la ultima que nombraba algún documento HTML.
   const { pages } = await draftOf(app.id);
   await pruneDocs(app.id, pages);
   return json({ ok: true });
@@ -1934,7 +1934,7 @@ export async function deleteAppVersion(req: Request, appId: string, versionId: s
 
 /**
  * Restaura al borrador. No publica nada: antes de tocar el borrador guarda
- * un punto con lo que habia, para que la vuelta atras tambien sea reversible.
+ * un punto con lo que había, para que la vuelta atras también sea reversible.
  */
 export async function restoreAppVersion(req: Request, appId: string, versionId: string) {
   const me = await requireBuilder(req);
@@ -1946,7 +1946,7 @@ export async function restoreAppVersion(req: Request, appId: string, versionId: 
 
   const before = await draftOf(app.id);
 
-  // Guarda paginas de bloques: se puede mirar, no volcar sobre el borrador.
+  // Guarda páginas de bloques: se puede mirar, no volcar sobre el borrador.
   if (isLegacySnapshot(version.snapshot)) {
     throw new HttpError(
       400,
@@ -1983,7 +1983,7 @@ export async function restoreAppVersion(req: Request, appId: string, versionId: 
   return json({ ok: true });
 }
 
-/** Vista previa: `borrador` o el id de una version. Solo para el dueno. */
+/** Vista previa: `borrador` o el id de una versión. Solo para el dueno. */
 export async function previewBundle(req: Request, appId: string, source: string) {
   const me = await requireBuilder(req);
   const app = await ownedApp(appId, me);
@@ -2004,8 +2004,8 @@ export async function previewBundle(req: Request, appId: string, source: string)
     },
     pages: design.pages,
     tables: design.tables,
-    // El constructor lo ve todo, asi que en la vista previa el HTML de una
-    // pagina recibe todos los roles de la app.
+    // El constructor lo ve todo, así que en la vista previa el HTML de una
+    // página recibe todos los roles de la app.
     roles: app.roles ?? [],
   };
   return json(bundle);
@@ -2018,9 +2018,9 @@ export async function previewBundle(req: Request, appId: string, source: string)
 /**
  * Sirve un documento envuelto con el puente.
  *
- * Lo que se guarda no cambia nunca, pero lo que se sirve tambien lleva el
+ * Lo que se guarda no cambia nunca, pero lo que se sirve también lleva el
  * puente, y ese si cambia. Por eso la marca junta las dos huellas y se
- * revalida en vez de guardarse para siempre: asi una correccion del puente
+ * revalida en vez de guardarse para siempre: así una correccion del puente
  * llega a todos los documentos, y el cuerpo solo viaja cuando de verdad cambio.
  */
 function htmlResponse(req: Request, content: string, hash: string): Response {
@@ -2066,10 +2066,10 @@ export async function htmlContract(req: Request, appId: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/* El HTML de una pagina                                                */
+/* El HTML de una página                                                */
 /* ------------------------------------------------------------------ */
 
-/** Una pagina de una aplicacion, comprobando que sea de esa aplicacion. */
+/** Una página de una aplicación, comprobando que sea de esa aplicación. */
 async function pageOf(appId: string, pageId: string): Promise<PageRecord> {
   const page = await firstRecord<PageRecord>(
     INTERNAL.pages,
@@ -2079,7 +2079,7 @@ async function pageOf(appId: string, pageId: string): Promise<PageRecord> {
   return page;
 }
 
-/** Se queda con la forma buena de cada fuente y descarta lo demas. */
+/** Se queda con la forma buena de cada fuente y descarta lo demás. */
 function sanitizeSources(value: unknown): HtmlSource[] {
   if (!Array.isArray(value)) return [];
   const out: HtmlSource[] = [];
@@ -2097,15 +2097,15 @@ function sanitizeSources(value: unknown): HtmlSource[] {
 }
 
 /* ------------------------------------------------------------------ */
-/* La memoria de una pagina                                             */
+/* La memoria de una página                                             */
 /* ------------------------------------------------------------------ */
 
 /**
- * Las reglas funcionales que la pagina tiene guardadas.
+ * Las reglas funcionales que la página tiene guardadas.
  *
- * Se pide por aqui y no directamente a la base porque la caja del panel tiene
+ * Se pide por aquí y no directamente a la base porque la caja del panel tiene
  * que poder releerla en el momento en que la IA termina un turno, sin esperar
- * a que el constructor recargue sus paginas. Ver `page-memory`.
+ * a que el constructor recargue sus páginas. Ver `page-memory`.
  */
 export async function getPageMemory(req: Request, appId: string, pageId: string) {
   const me = await requireBuilder(req);
@@ -2117,9 +2117,9 @@ export async function getPageMemory(req: Request, appId: string, pageId: string)
 /**
  * Guarda lo que quien construye escribio en la caja.
  *
- * Mismo control de acceso que el resto de los campos de la pagina --es suya y
- * de nadie mas-- y sin tope: nada de lo que llega se recorta por tamano, solo
- * se deja en texto plano conservando los saltos de linea que separan las
+ * Mismo control de acceso que el resto de los campos de la página --es suya y
+ * de nadie mas-- y sin tope: nada de lo que llega se recorta por tamaño, solo
+ * se deja en texto plano conservando los saltos de línea que separan las
  * vinetas. Ver `design.md` D6.
  */
 export async function savePageMemory(req: Request, appId: string, pageId: string) {
@@ -2133,10 +2133,10 @@ export async function savePageMemory(req: Request, appId: string, pageId: string
   return json({ memoria: memory });
 }
 
-/** El documento de una pagina que todavia no tiene HTML. */
+/** El documento de una página que todavía no tiene HTML. */
 const NO_DOC = () => new HttpError(404, "Esta página todavía no tiene HTML");
 
-/** Una pagina servida tal como se dibuja, con sus dos referencias dentro. */
+/** Una página servida tal como se dibuja, con sus dos referencias dentro. */
 function pageResponse(req: Request, content: string, hash: string): Response {
   const tag = `"${hash}-${ASSETS_TAG}"`;
   const headers = {
@@ -2150,7 +2150,7 @@ function pageResponse(req: Request, content: string, hash: string): Response {
   return new Response(wrapPage(content, new URL(req.url).origin), { headers });
 }
 
-/** El HTML de una pagina, listo para dibujarse. */
+/** El HTML de una página, listo para dibujarse. */
 export async function getPageHtml(req: Request, appId: string, pageId: string) {
   const me = await requireBuilder(req);
   const app = await ownedApp(appId, me);
@@ -2161,12 +2161,12 @@ export async function getPageHtml(req: Request, appId: string, pageId: string) {
 }
 
 /**
- * El HTML que una pagina tenia cuando se guardo esa huella.
+ * El HTML que una página tenia cuando se guardo esa huella.
  *
- * La vista previa de una version no puede pedir por pagina: lo que la pagina
- * tiene ahora es el borrador, y mirar una version es mirar lo de entonces. La
- * fotografia guarda la huella, asi que se pide por ella y se sirve igual que
- * la pagina --con las dos referencias dentro--, no como un documento suelto.
+ * La vista previa de una versión no puede pedir por página: lo que la página
+ * tiene ahora es el borrador, y mirar una versión es mirar lo de entonces. La
+ * fotografia guarda la huella, así que se pide por ella y se sirve igual que
+ * la página --con las dos referencias dentro--, no como un documento suelto.
  */
 export async function getPageHtmlAt(req: Request, appId: string, pageId: string, hash: string) {
   const me = await requireBuilder(req);
@@ -2191,12 +2191,12 @@ export async function getRawPageHtml(req: Request, appId: string, pageId: string
 }
 
 /**
- * Guarda el HTML de una pagina y, si vienen, las tablas que declara.
+ * Guarda el HTML de una página y, si vienen, las tablas que declara.
  *
  * Lo que llega pasa antes por la reposicion de las dos referencias: si al
  * documento le falta alguna se le pone, y se devuelve constancia de cuales
  * para que el panel lo avise en vez de cambiarlo a escondidas. El tope de
- * tamano es el mismo que el de cualquier otro documento.
+ * tamaño es el mismo que el de cualquier otro documento.
  */
 export async function savePageHtml(req: Request, appId: string, pageId: string) {
   const me = await requireBuilder(req);
@@ -2205,7 +2205,7 @@ export async function savePageHtml(req: Request, appId: string, pageId: string) 
   const input = await body<{ content?: string; sources?: unknown }>(req);
 
   const raw = typeof input.content === "string" ? input.content : "";
-  if (!raw.trim()) throw new HttpError(400, "No llego ningun contenido");
+  if (!raw.trim()) throw new HttpError(400, "No se recibió contenido");
 
   const { doc, restored, sources } = await writePageDoc({
     app,
@@ -2227,10 +2227,10 @@ export async function savePageHtml(req: Request, appId: string, pageId: string) 
 }
 
 /**
- * El HTML equivalente a los bloques de una pagina, propuesto por la IA.
+ * El HTML equivalente a los bloques de una página, propuesto por la IA.
  *
  * No guarda nada: devuelve el documento y las tablas que declararia, mas una
- * version envuelta para poder verla dibujada. Reemplazar la pagina es guardar
+ * versión envuelta para poder verla dibujada. Reemplazar la página es guardar
  * ese HTML por la ruta de siempre, y eso lo decide quien construye.
  */
 export async function convertPage(req: Request, appId: string, pageId: string) {
@@ -2244,8 +2244,8 @@ export async function convertPage(req: Request, appId: string, pageId: string) {
 }
 
 /**
- * El HTML de una pagina de una app publicada, con el nivel de acceso de la
- * pagina aplicado aqui: a quien no le corresponde no le llega el contenido,
+ * El HTML de una página de una app publicada, con el nivel de acceso de la
+ * página aplicado aquí: a quien no le corresponde no le llega el contenido,
  * aunque pida la ruta a mano.
  */
 export async function getPublicPageHtml(req: Request, slug: string, pageId: string) {
@@ -2273,7 +2273,7 @@ export async function getPublicPageHtml(req: Request, slug: string, pageId: stri
 /* App publicada                                                        */
 /* ------------------------------------------------------------------ */
 
-/** La app de un enlace publico, comprobando que este publicada. */
+/** La app de un enlace público, comprobando que este publicada. */
 async function publishedApp(slug: string): Promise<AppRecord> {
   const app = await firstRecord<AppRecord>(INTERNAL.apps, `slug = "${quote(slug)}"`);
   if (!app) throw new HttpError(404, "Esta aplicación no existe");
@@ -2283,7 +2283,7 @@ async function publishedApp(slug: string): Promise<AppRecord> {
 
 /**
  * Quien esta pidiendo una app publicada y que roles trae.
- * En una app privada sin sesion no lanza: devuelve `requiresAuth` para que
+ * En una app privada sin sesión no lanza: devuelve `requiresAuth` para que
  * cada ruta decida como contarlo.
  */
 async function publicAccess(
@@ -2311,11 +2311,11 @@ async function publicAccess(
 }
 
 /**
- * El diseno que sale al publico: la version publicada, no lo que se esta
+ * El diseño que sale al público: la versión publicada, no lo que se esta
  * editando. Una app publicada antes de que existiera el historial no tiene
  * ninguna, y hasta su primera publicacion sigue sirviendo el estado vivo.
  *
- * Las tablas siempre son las de verdad: la version solo manda sobre como se
+ * Las tablas siempre son las de verdad: la versión solo manda sobre como se
  * presentan, nunca sobre que columnas existen.
  */
 async function publishedDesign(
@@ -2330,14 +2330,14 @@ async function publishedDesign(
 }
 
 /**
- * Una pagina sin su memoria.
+ * Una página sin su memoria.
  *
  * La memoria es del constructor y no tiene nada que hacer en el navegador de
- * quien usa la aplicacion publicada. Una fotografia de version nunca la
+ * quien usa la aplicación publicada. Una fotografia de versión nunca la
  * guardo --`buildSnapshot` elige campo por campo-- pero el borrador se sirve
- * entero mientras la app no tenga ninguna version publicada, y por ahi si
- * saldria. Se quita aqui, en el unico sitio por el que las paginas salen al
- * publico. Ver `page-memory`: "La memoria es del constructor".
+ * entero mientras la app no tenga ninguna versión publicada, y por ahi si
+ * saldria. Se quita aquí, en el único sitio por el que las páginas salen al
+ * público. Ver `page-memory`: "La memoria es del constructor".
  */
 function withoutMemory(page: PageRecord): PageRecord {
   if (!page.memory) return page;
@@ -2370,9 +2370,9 @@ export async function publicBundle(req: Request, slug: string) {
 
   const design = await publishedDesign(app);
 
-  // El filtro se hace aqui: al navegador nunca le llega una pagina que esa
+  // El filtro se hace aquí: al navegador nunca le llega una página que esa
   // persona no pueda abrir. El contenido tampoco: el HTML se pide por su
-  // pagina, y esa ruta vuelve a comprobar el permiso.
+  // página, y esa ruta vuelve a comprobar el permiso.
   const visiblePages = design.pages.filter((page) => canOpenPage(page, viewer)).map(withoutMemory);
 
   const bundle: AppBundle = {
@@ -2386,11 +2386,11 @@ export async function publicBundle(req: Request, slug: string) {
 
 /**
  * Para la app publicada: nombres de las personas invitadas, para poder
- * mostrar las columnas de tipo persona. De los demas no sale nada mas que
+ * mostrar las columnas de tipo persona. De los demás no sale nada mas que
  * nombre, correo, nivel y roles: sus columnas propias de la tabla de personas
- * no viajan por aqui aunque `peopleOf` las traiga, porque este punto no sabe
- * que pagina pregunta y por tanto no sabe que declaro. Solo las ordenes de una
- * pagina --que si lo saben-- las entregan. Ver `shared/htmlSources.ts` y el
+ * no viajan por aquí aunque `peopleOf` las traiga, porque este punto no sabe
+ * que página pregunta y por tanto no sabe que declaro. Solo las ordenes de una
+ * página --que si lo saben-- las entregan. Ver `shared/htmlSources.ts` y el
  * "open question" resuelto en `openspec/changes/personas-como-tabla/design.md`.
  *
  * La excepcion es la fila de quien pregunta, que se entrega entera: no es dato
@@ -2411,9 +2411,9 @@ export async function publicPeople(req: Request, slug: string) {
     INTERNAL.access,
     `app = "${quote(app.id)}" && member = "${quote(member.id)}"`,
   );
-  // En una app abierta, traer una sesion de otra aplicacion no puede dejar a
-  // nadie peor que entrar sin ninguna: si sin sesion se responde la lista
-  // vacia, con una sesion ajena tambien. Solo la app privada exige invitacion.
+  // En una app abierta, traer una sesión de otra aplicación no puede dejar a
+  // nadie peor que entrar sin ninguna: si sin sesión se responde la lista
+  // vacía, con una sesión ajena también. Solo la app privada exige invitacion.
   if (!access) {
     if (app.visibility === "private")
       throw new HttpError(403, "Tu cuenta no tiene acceso a esta aplicación");
@@ -2421,9 +2421,9 @@ export async function publicPeople(req: Request, slug: string) {
   }
 
   /*
-   * Las columnas propias de los demas no viajan. Las de quien pregunta si: son
+   * Las columnas propias de los demás no viajan. Las de quien pregunta si: son
    * suyas, y son las que dicen como se llama --la cuenta solo guarda el correo
-   * sin el dominio--. Sin ellas una pagina publicada no puede saludar a nadie
+   * sin el dominio--. Sin ellas una página publicada no puede saludar a nadie
    * por su nombre. Ver `personDisplayName` y `viewer` en `HtmlFrame.svelte`.
    */
   const people = await peopleOf(app.id);
@@ -2433,7 +2433,7 @@ export async function publicPeople(req: Request, slug: string) {
 }
 
 /**
- * Las cinco ordenes de datos de una pagina. Vale igual para la pagina publicada
+ * Las cinco ordenes de datos de una página. Vale igual para la página publicada
  * y para la vista previa del constructor: el mismo camino, para que lo que se
  * prueba sea lo que ocurre.
  */

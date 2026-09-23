@@ -1,9 +1,9 @@
 <!--
   Anadir un modelo.
 
-  Con catalogo se busca por nombre y llega con sus medidas puestas; sin el, se
+  Con catálogo se busca por nombre y llega con sus medidas puestas; sin el, se
   ofrecen los conocidos y queda escribirlo a mano. En los dos casos se puede
-  escribir uno que no salga en ninguna lista: el catalogo va por detras de lo
+  escribir uno que no salga en ninguna lista: el catálogo va por detras de lo
   que los servidores publican, y un modelo recien salido no espera.
 -->
 <script lang="ts">
@@ -91,7 +91,7 @@
 
   /*
    * Escribir el nombre y anadirlo no es "a mano" cuando el servidor tiene
-   * catalogo: se le pregunta por ese nombre igual que si se hubiera elegido de
+   * catálogo: se le pregunta por ese nombre igual que si se hubiera elegido de
    * la lista. Solo se cae en los valores genericos si el servidor no sabe
    * contar los suyos o si pregunto y no lo conoce.
    */
@@ -124,8 +124,8 @@
         spellcheck={false}
       />
       <!--
-        Si la direccion del servidor quedo mal puesta --por ejemplo tras cambiar
-        la clase sin tocarla-- la busqueda falla sin ninguna pista de por que.
+        Si la dirección del servidor quedo mal puesta --por ejemplo tras cambiar
+        la clase sin tocarla-- la búsqueda falla sin ninguna pista de por que.
         Verla aqui delata el error al instante.
       -->
       <p class="search-model-url">
@@ -215,7 +215,7 @@
   .add-model {
     margin-top: var(--sp-8);
 
-    /* La caja es `.inset.plain` del catalogo --el cerco sin fondo, que ya lo
+    /* La caja es `.inset.plain` del catálogo --el cerco sin fondo, que ya lo
        pone la ficha del servidor--; aqui solo el reparto de dentro. */
     & .search-model-box {
       display: flex;
@@ -248,14 +248,14 @@
         flex-direction: column;
         gap: 0.125rem;
 
-        /* La ventana de contexto del catalogo, en cifras alineadas. */
+        /* La ventana de contexto del catálogo, en cifras alineadas. */
         /* La pastilla la dibuja `Tag`: su clase sale del ambito de aqui. */
         & :global(.badge-model-window) {
           font-variant-numeric: tabular-nums;
         }
 
-        /* Cada modelo del catalogo es una fila que se elige: `.opt` del
-           catalogo, sin borde --van una debajo de otra y un cerco por fila
+        /* Cada modelo del catálogo es una fila que se elige: `.opt` del
+           catálogo, sin borde --van una debajo de otra y un cerco por fila
            haria de la lista una reja-- y apretada, que pueden ser veinte. */
         & .btn-add-catalog-model {
           gap: var(--sp-8);
@@ -310,7 +310,7 @@
       align-items: center;
       gap: var(--sp-6);
 
-      /* La etiqueta-boton la dibuja `Tag`: su clase sale del ambito de aqui. */
+      /* La etiqueta-botón la dibuja `Tag`: su clase sale del ambito de aqui. */
       & :global(.btn-add-known-model) {
         cursor: pointer;
         gap: var(--sp-4);

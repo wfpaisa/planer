@@ -1,11 +1,11 @@
 /**
- * Las personas invitadas a una aplicacion.
+ * Las personas invitadas a una aplicación.
  *
- * Cada aplicacion tiene sus propias cuentas; aqui viajan las suyas, para poder
+ * Cada aplicación tiene sus propias cuentas; aquí viajan las suyas, para poder
  * pintar las columnas que apuntan a la tabla de personas.
  *
  * Es de las pocas cosas que siguen siendo contexto y no un modulo con estado:
- * hay una lista por aplicacion, no una sola para todo el panel.
+ * hay una lista por aplicación, no una sola para todo el panel.
  */
 import type { AppPerson } from "@shared/types";
 import { getContext, setContext } from "svelte";
@@ -27,7 +27,7 @@ export function setPeople(source: PeopleSource): void {
  * Quien esta invitado, para quien lo necesite mas abajo.
  *
  * Devuelve la fuente, no la lista: `personas.list` se lee cuando se dibuja, y
- * asi el cambio llega. Sacar el array aqui lo congelaria en el valor que
+ * así el cambio llega. Sacar el array aquí lo congelaria en el valor que
  * tuviera al montar.
  */
 export function getPeople(): PeopleSource {
@@ -37,9 +37,9 @@ export function getPeople(): PeopleSource {
 /**
  * Lista para el panel: quien construye ve a los invitados de su app.
  *
- * Devuelve tambien como volver a pedirla. Hace falta: invitar a alguien no pasa
- * por aqui --pasa por la tabla de personas-- y sin releer, las celdas que
- * acaban de enlazarse con esa persona la buscarian en una lista donde todavia
+ * Devuelve también como volver a pedirla. Hace falta: invitar a alguien no pasa
+ * por aquí --pasa por la tabla de personas-- y sin releer, las celdas que
+ * acaban de enlazarse con esa persona la buscarian en una lista donde todavía
  * no esta y se pintarian como enlaces rotos.
  */
 export function appPeople(appId: () => string | undefined): PeopleSource & {
@@ -48,15 +48,15 @@ export function appPeople(appId: () => string | undefined): PeopleSource & {
   let list = $state<AppPerson[]>([]);
 
   /**
-   * Trae la lista. `keep` dice que hacer si la peticion falla.
+   * Trae la lista. `keep` dice que hacer si la petición falla.
    *
    * Refrescando se queda la que ya estaba: de esta lista sale el aviso de a
    * cuantas personas afecta quitar un rol, y el rol que no usa nadie se quita
-   * sin preguntar (ver `RolesModal`), asi que una lista vaciada por un corte de
+   * sin preguntar (ver `RolesModal`), así que una lista vaciada por un corte de
    * red diria que no lo usa nadie y se lo llevaria en silencio. Vieja avisa de
    * mas, que es el lado bueno por el que equivocarse.
    *
-   * Al cambiar de aplicacion no: los invitados de la de antes no son los de
+   * Al cambiar de aplicación no: los invitados de la de antes no son los de
    * esta, y ensenarlos seria peor que no ensenar a nadie.
    */
   async function load(keep = false) {
@@ -82,7 +82,7 @@ export function appPeople(appId: () => string | undefined): PeopleSource & {
   };
 }
 
-/** Lista para la app publicada: solo llega con una sesion valida. */
+/** Lista para la app publicada: solo llega con una sesión valida. */
 export function publishedPeople(slug: () => string, signedIn: () => boolean): PeopleSource {
   let list = $state<AppPerson[]>([]);
 

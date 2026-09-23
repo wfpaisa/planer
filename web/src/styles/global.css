@@ -2,11 +2,11 @@
  * El punto de entrada del CSS del panel.
  *
  * theme.css trae los tokens y el reset; palettes.css las 46 paletas;
- * components.css el catalogo de piezas; layout.css las utilidades;
+ * components.css el catálogo de piezas; layout.css las utilidades;
  * compat.css declara los nombres que usaban la libreria de antes,
  * derivados de los tokens nuevos; contract.css los que el HTML de
- * una pagina nombra, y que por eso se sirven tambien ahi.
- * Lo que sigue es la casa: piezas que no son de catalogo.
+ * una página nombra, y que por eso se sirven también ahi.
+ * Lo que sigue es la casa: piezas que no son de catálogo.
  */
 
 @import "./theme.css";
@@ -20,11 +20,11 @@
  * LA ESCALA DE CAPAS
  *
  * Cinco peldanos, de diez en diez, y ninguno mas. Antes cada sitio se
- * inventaba el suyo --50, 60, 70, 75, 80, 200-- y el numero solo decia "por
- * encima de lo ultimo que probe": no habia forma de saber, leyendo uno, que
+ * inventaba el suyo --50, 60, 70, 75, 80, 200-- y el número solo decia "por
+ * encima de lo ultimo que probe": no había forma de saber, leyendo uno, que
  * tenia delante ni que tenia detras.
  *
- *   10  Cromo de la pagina: encabezados pegajosos, barra lateral, celdas
+ *   10  Cromo de la página: encabezados pegajosos, barra lateral, celdas
  *       fijas de una cuadricula, menus desplegables.
  *   20  Modales: la vista previa, los paneles y los velos que tapan la
  *       ventana entera.
@@ -35,23 +35,23 @@
  *
  * Un peldano es un tramo, no un valor suelto: quien necesite ordenar varias
  * piezas dentro de uno --la cuadricula, por ejemplo, que apila celda, fila y
- * cabecera-- se aisla con `isolation: isolate` y ordena por su cuenta. Asi
+ * cabecera-- se aisla con `isolation: isolate` y ordena por su cuenta. Así
  * sus numeros no compiten con los de fuera y el tramo sigue valiendo lo que
  * dice la tabla de arriba.
  *
- * Los `<dialog>` nativos y la capa de avisos no juegan aqui: el navegador los
+ * Los `<dialog>` nativos y la capa de avisos no juegan aquí: el navegador los
  * dibuja en la capa superior del documento, por encima de cualquier z-index.
  * Ver `components/Toast.svelte`.
  */
 
 /*
- * El ritmo de las entradas del panel: lo que aparece en la conversacion y
- * la portada que la abre. Vive aqui --y no en contract.css-- porque no
- * viaja a ninguna pagina: es del panel y de nadie mas.
+ * El ritmo de las entradas del panel: lo que aparece en la conversación y
+ * la portada que la abre. Vive aquí --y no en contract.css-- porque no
+ * viaja a ninguna página: es del panel y de nadie mas.
  */
 :root {
   --travel-ms: 380ms;
-  /* La curva del movimiento: sale rapido y llega con un rebote pequeno, el
+  /* La curva del movimiento: sale rápido y llega con un rebote pequeno, el
    * gesto de una burbuja que se posa. */
   --travel-curve: cubic-bezier(0.32, 1.12, 0.5, 1);
   /* La curva de los fundidos, sin rebote: lo que aparece no rebota. */
@@ -66,7 +66,7 @@ body,
 
 /*
  * El globo de ayuda (ver `components/TooltipLayer.svelte`). Lo dibuja una capa
- * al final del documento, en coordenadas de ventana, asi que ningun
+ * al final del documento, en coordenadas de ventana, así que ningún
  * contenedor con desplazamiento lo puede recortar.
  *
  * El color sale del tema por mezcla --tinta casi pura sobre el papel-- para
@@ -113,9 +113,9 @@ body,
 
 /*
  * El vestido de lo que flota encima del panel (ver `components/ui/surface.ts`):
- * un dialogo, un panel del encabezado y el cajon de una fila son cosas distintas
+ * un diálogo, un panel del encabezado y el cajon de una fila son cosas distintas
  * por dentro, pero por fuera tienen que ser la misma tarjeta. Las clases viven
- * aqui, en CSS plano, para que los cuatro que se lo ponen no se desincronicen.
+ * aquí, en CSS plano, para que los cuatro que se lo ponen no se desincronicen.
  */
 .plane-card {
   border: 1px solid var(--line);
@@ -172,7 +172,7 @@ body,
 }
 
 /*
- * La conversacion con la inteligencia artificial entra escalonada: primero el
+ * La conversación con la inteligencia artificial entra escalonada: primero el
  * mensaje de quien pide, luego la pillora de "Generando" y por ultimo la
  * respuesta. Cada pieza sube un poco y se asoma (fade + slide up).
  */
@@ -230,7 +230,7 @@ body,
 
 /*
  * El velo de soltar un archivo. Tapa la ventana entera y se asoma con un fade:
- * asi el cartel se lee sobre cualquier documento, por cargado de color que
+ * así el cartel se lee sobre cualquier documento, por cargado de color que
  * este, y no se pierde entre lo que hay debajo.
  */
 .drop-veil {
@@ -293,9 +293,9 @@ body,
 }
 
 /*
- * El angulo del destello que recorre el campo de la conversacion (`AiPanel`)
- * al entrar el cursor. Es una propiedad registrada porque solo asi se puede
- * animar: sin registro el degradado se quedaria quieto. Va aqui y no en el
+ * El angulo del destello que recorre el campo de la conversación (`AiPanel`)
+ * al entrar el cursor. Es una propiedad registrada porque solo así se puede
+ * animar: sin registro el degradado se quedaria quieto. Va aquí y no en el
  * componente porque `@property` es global de todas formas.
  */
 @property --sweep-angle {
@@ -306,7 +306,7 @@ body,
 
 /*
  * Mientras se arrastra el borde de una columna de la cuadricula, el cursor es
- * el mismo pase por donde pase el raton y no se selecciona texto por el camino.
+ * el mismo pase por donde pase el ratón y no se selecciona texto por el camino.
  * Lo pone y lo quita `ColumnHead`.
  */
 body.is-resizing-column {

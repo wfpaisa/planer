@@ -1,10 +1,10 @@
 <!--
-  El tamano de letra de la aplicacion: quien la construye lo elige y lo ven
-  todos, tambien los visitantes. Es el segundo mando de la apariencia, junto
+  El tamaño de letra de la aplicación: quien la construye lo elige y lo ven
+  todos, también los visitantes. Es el segundo mando de la apariencia, junto
   a la paleta.
 
   Va en porcentaje, como el del panel (`settings/FontSizeSection.svelte`),
-  pero escribe en el tema de la aplicacion, no en este navegador.
+  pero escribe en el tema de la aplicación, no en este navegador.
 -->
 <script lang="ts">
   import {
@@ -23,7 +23,7 @@
     const fontScale = next / 100;
     onChange({
       ...value,
-      // En el tamano normal no se guarda: manda el de partida.
+      // En el tamaño normal no se guarda: manda el de partida.
       fontScale: fontScale === FONT_SCALE_DEFAULT ? undefined : fontScale,
     });
   }
@@ -45,7 +45,7 @@
     class="slider-app-font-size"
   />
   <span class="field-hint">
-    Cuanto crece el texto de la aplicación publicada, en porcentaje sobre el normal.
+    Escala del texto de la aplicación publicada respecto al tamaño normal.
   </span>
 </label>
 

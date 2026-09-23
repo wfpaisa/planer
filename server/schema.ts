@@ -56,12 +56,12 @@ export function dataCollectionName(appSlug: string, tableName: string): string {
 }
 
 /**
- * Un nombre tecnico que no lo tenga ya otra tabla de la aplicacion.
+ * Un nombre tecnico que no lo tenga ya otra tabla de la aplicación.
  *
- * El nombre es con lo que el HTML de una pagina y la IA nombran una tabla
- * (`findTable`, `sourcesFor`), asi que dos tablas llamadas igual son una tabla
- * inalcanzable: siempre contesta la primera. Vive aqui, y no en la ruta que
- * crea tablas, porque tambien crea tablas la IA.
+ * El nombre es con lo que el HTML de una página y la IA nombran una tabla
+ * (`findTable`, `sourcesFor`), así que dos tablas llamadas igual son una tabla
+ * inalcanzable: siempre contesta la primera. Vive aquí, y no en la ruta que
+ * crea tablas, porque también crea tablas la IA.
  */
 export async function uniqueTableName(appId: string, base: string): Promise<string> {
   const root = identifier(base, "tabla");
@@ -96,12 +96,12 @@ async function relationTarget(tableId: string): Promise<string> {
 /**
  * Las columnas reales que ocupa una columna definida.
  *
- * Casi siempre es una. Una columna de relacion son dos: la relacion (el id, o
- * vacio) y el valor sin dueno (texto, o vacio), que nunca estan llenas a la vez.
+ * Casi siempre es una. Una columna de relación son dos: la relación (el id, o
+ * vacío) y el valor sin dueno (texto, o vacío), que nunca estan llenas a la vez.
  * Ver `ORPHAN_SUFFIX` en `shared/types.ts` para el porque.
  *
  * `orphanIds` trae el id que ya tenia la columna del valor sin dueno, para que
- * renombrar la columna definida no la borre y la vuelva a crear vacia.
+ * renombrar la columna definida no la borre y la vuelva a crear vacía.
  */
 async function toPbFields(def: FieldDef, orphanIds?: Map<string, string>): Promise<PbField[]> {
   const main = await toPbField(def);
@@ -112,10 +112,10 @@ async function toPbFields(def: FieldDef, orphanIds?: Map<string, string>): Promi
     /*
      * La mitad del id nunca es obligatoria en la base, aunque la columna lo
      * sea. Lo obligatorio es la celda, y la celda son las dos columnas: un
-     * valor que todavia no corresponde a nadie llena la otra, y con la relacion
+     * valor que todavía no corresponde a nadie llena la otra, y con la relación
      * marcada como obligatoria ese guardado lo rechaza la base. Eso dejaba una
-     * columna obligatoria sin poder importar una cedula nueva, y sin poder
-     * conservar la cedula de quien deja de estar invitado. Quien exige que la
+     * columna obligatoria sin poder importar una cédula nueva, y sin poder
+     * conservar la cédula de quien deja de estar invitado. Quien exige que la
      * celda tenga algo es el panel, antes de guardar. Ver `missing` en
      * `web/src/components/database/RowDrawer.svelte`.
      */
@@ -127,7 +127,7 @@ async function toPbFields(def: FieldDef, orphanIds?: Map<string, string>): Promi
       max: 500,
       required: false,
       // No es del usuario: no se ofrece como columna, no se ordena por ella y
-      // no aparece en la grilla. Se lee junto a la relacion que la nombra.
+      // no aparece en la grilla. Se lee junto a la relación que la nombra.
       hidden: false,
       presentable: false,
     },
@@ -158,8 +158,8 @@ async function toPbField(def: FieldDef): Promise<PbField> {
     case "select": {
       const values = (def.options ?? []).map((o) => o.trim()).filter(Boolean);
       // PocketBase rechaza `maxSelect` mayor que la cantidad de valores del
-      // campo select, asi que el maximo multiple queda acotado a las opciones
-      // disponibles. Si la lista esta vacia se cae a 1 para no enviar un
+      // campo select, así que el maximo multiple queda acotado a las opciones
+      // disponibles. Si la lista esta vacía se cae a 1 para no enviar un
       // `select` sin valores.
       const max = def.multiple ? Math.max(values.length, 1) : 1;
       return {
@@ -177,7 +177,7 @@ async function toPbField(def: FieldDef): Promise<PbField> {
         maxSize: 10_000_000,
       };
     case "relation": {
-      // Toda relacion apunta a la coleccion de datos de su tabla destino, la de
+      // Toda relación apunta a la colección de datos de su tabla destino, la de
       // personas incluida: el enlace es el id de la fila y nunca el de la
       // cuenta. Ver `design.md` D1.
       if (!def.relationTableId) throw new SchemaError("Falta la tabla relacionada");
@@ -186,7 +186,7 @@ async function toPbField(def: FieldDef): Promise<PbField> {
         type: "relation",
         collectionId: await relationTarget(def.relationTableId),
         maxSelect: def.multiple ? 50 : 1,
-        // La cascada es lo unico que PocketBase puede hacer solo. Conservar el
+        // La cascada es lo único que PocketBase puede hacer solo. Conservar el
         // valor corre antes del borrado, en `server/rowDelete.ts`, porque la
         // base solo sabe anular o arrastrar.
         cascadeDelete: onDeleteOf(def) === "cascade",
@@ -200,7 +200,7 @@ async function toPbField(def: FieldDef): Promise<PbField> {
 /**
  * Deja los nombres tecnicos unicos dentro de la tabla.
  *
- * Una columna de relacion se lleva ademas el nombre acabado en `ORPHAN_SUFFIX`,
+ * Una columna de relación se lleva ademas el nombre acabado en `ORPHAN_SUFFIX`,
  * porque ahi vive su valor sin dueno: si el usuario creara una columna con ese
  * nombre, las dos escribirian en la misma columna real.
  */
@@ -225,20 +225,20 @@ export function normalizeFields(fields: FieldDef[]): FieldDef[] {
 /* Columnas unicas                                                      */
 /* ------------------------------------------------------------------ */
 
-/** Prefijo de los indices que gestiona el panel. Los demas no se tocan. */
+/** Prefijo de los indices que gestiona el panel. Los demás no se tocan. */
 const UNIQUE_PREFIX = "idx_unico_";
 
 /**
- * El indice de una columna unica, que no cuenta las celdas vacias.
+ * El índice de una columna única, que no cuenta las celdas vacias.
  *
  * El `WHERE` no es un detalle: sin el, "no se repite" pasaria a significar
- * tambien "no puede estar vacia en mas de una fila", que no es lo que dice la
+ * también "no puede estar vacía en mas de una fila", que no es lo que dice la
  * casilla ni lo que nadie espera. Y con eso una columna nueva no se podria
  * marcar nunca sobre una tabla con filas --nacen todas vacias, y veintidos
- * vacios son veintidos repetidos--, que es justo cuando hace falta: la cedula
+ * vacios son veintidos repetidos--, que es justo cuando hace falta: la cédula
  * se marca como llave sobre las personas que ya estan.
  *
- * Vacio y sin dato son la misma cosa aqui, y dos filas sin dato no se
+ * Vacío y sin dato son la misma cosa aquí, y dos filas sin dato no se
  * contradicen entre si.
  */
 function uniqueIndexSql(collectionName: string, fieldName: string): string {
@@ -246,10 +246,10 @@ function uniqueIndexSql(collectionName: string, fieldName: string): string {
 }
 
 /**
- * Traduce las marcas de columna unica a indices unicos de PocketBase.
+ * Traduce las marcas de columna única a indices unicos de PocketBase.
  *
  * Solo gobierna los indices con nuestro prefijo: desmarcar una columna quita el
- * suyo, y un indice creado por fuera sigue donde estaba.
+ * suyo, y un índice creado por fuera sigue donde estaba.
  */
 export function uniqueIndexes(
   collectionName: string,
@@ -264,23 +264,23 @@ export function uniqueIndexes(
 }
 
 /**
- * Una persona, una fila: el indice unico del enlace con la cuenta.
+ * Una persona, una fila: el índice único del enlace con la cuenta.
  *
- * Es el mismo que crea `ensurePeopleTable` con la coleccion, letra por letra,
+ * Es el mismo que crea `ensurePeopleTable` con la colección, letra por letra,
  * para que reponerlo no sea crear otro distinto.
  *
  * Hay que reponerlo porque `member` no es una columna del constructor: no viene
- * en la lista de columnas, asi que `uniqueIndexes` --que se lleva por delante
+ * en la lista de columnas, así que `uniqueIndexes` --que se lleva por delante
  * todos los indices con nuestro prefijo para poder desmarcar una columna-- lo
  * borraba en la primera edicion de columnas de la tabla de personas. Sin el, dos
  * filas pueden nombrar a la misma persona y cada una decir cosas distintas de
- * ella, que es justo lo que el indice existia para impedir.
+ * ella, que es justo lo que el índice existia para impedir.
  */
 function memberIndex(collectionName: string): string {
   return `CREATE UNIQUE INDEX \`${UNIQUE_PREFIX}${collectionName}_${MEMBER_FIELD}\` ON \`${collectionName}\` (\`${MEMBER_FIELD}\`)`;
 }
 
-/** Una fila que repite el valor de una columna unica, con quien mas lo tiene. */
+/** Una fila que repite el valor de una columna única, con quien mas lo tiene. */
 export interface UniqueConflict {
   field: string;
   fieldLabel: string;
@@ -290,10 +290,10 @@ export interface UniqueConflict {
 }
 
 /**
- * Busca valores repetidos antes de aplicar la marca de unica.
+ * Busca valores repetidos antes de aplicar la marca de única.
  *
- * PocketBase rechaza el indice sin decir cual es el choque, y sin saber cual es
- * el usuario no tiene como arreglarlo. Se mira aqui para poder nombrarlo.
+ * PocketBase rechaza el índice sin decir cual es el choque, y sin saber cual es
+ * el usuario no tiene como arreglarlo. Se mira aquí para poder nombrarlo.
  */
 export async function uniqueConflicts(
   dataCollection: string,
@@ -303,10 +303,10 @@ export async function uniqueConflicts(
   if (wanted.length === 0) return [];
 
   /*
-   * La tabla entera, por paginas. Antes se miraban las primeras 2000 filas y
-   * ya: con una tabla mas grande, dos repetidos mas abajo no se veian aqui,
+   * La tabla entera, por páginas. Antes se miraban las primeras 2000 filas y
+   * ya: con una tabla mas grande, dos repetidos mas abajo no se veian aquí,
    * se decia que la marca se podia aplicar y era PocketBase quien la rechazaba
-   * despues, sin decir cual era el choque --que es justo lo que esta funcion
+   * después, sin decir cual era el choque --que es justo lo que esta función
    * existe para nombrar--.
    */
   const items: Record<string, unknown>[] = [];
@@ -356,26 +356,26 @@ export function uniqueConflictMessage(conflicts: UniqueConflict[]): string {
 /* ------------------------------------------------------------------ */
 
 /**
- * Las reglas de una tabla de datos: solo su constructor la alcanza por aqui.
+ * Las reglas de una tabla de datos: solo su constructor la alcanza por aquí.
  *
  * Las reglas dejaron de expresar la logica de roles. Con cuatro roles que
  * alcanzan cosas distintas, una regla es una sola cadena por tabla y por
  * operacion, y expresar eso obliga a encadenar condiciones sobre `app_access`
  * que se contaminan entre si de forma dificil de ver e imposible de probar. Con
- * datos como llamados de atencion o nomina, una regla floja no es un fallo
+ * datos como llamados de atencion o nómina, una regla floja no es un fallo
  * tecnico: es un incidente de la empresa.
  *
- * Asi que quien decide es el servidor, en `server/page/pageData.ts`, y estas reglas
- * pasan a ser una sola cosa: cerrar la coleccion a los invitados. Un invitado
- * que consulte la base por su cuenta no recibe nada, tenga la sesion que tenga.
+ * Así que quien decide es el servidor, en `server/page/pageData.ts`, y estas reglas
+ * pasan a ser una sola cosa: cerrar la colección a los invitados. Un invitado
+ * que consulte la base por su cuenta no recibe nada, tenga la sesión que tenga.
  *
  * El constructor si sigue entrando: el panel --la grilla, el panel lateral, la
- * importacion, la exportacion-- habla directo con la base con su sesion, y esa
- * puerta no da acceso a nada que el dueno de la aplicacion no alcance ya.
+ * importacion, la exportacion-- habla directo con la base con su sesión, y esa
+ * puerta no da acceso a nada que el dueno de la aplicación no alcance ya.
  *
- * Por eso no toma nada mas que la aplicacion: ni si es publica ni que columna
+ * Por eso no toma nada mas que la aplicación: ni si es publica ni que columna
  * decide quien ve cada fila --esa columna se retiro-- cambian una sola letra de
- * lo que se escribe aqui.
+ * lo que se escribe aquí.
  */
 export function accessRules(appId: string) {
   const builder = `(@collection.apps.id ?= "${appId}" && @collection.apps.owner ?= @request.auth.id)`;
@@ -394,9 +394,9 @@ export async function applyTableRules(opts: { dataCollection: string; appId: str
 }
 
 /**
- * Reescribe las reglas de todas las tablas de una aplicacion.
+ * Reescribe las reglas de todas las tablas de una aplicación.
  *
- * Las reglas ya no dependen de nada que cambie --solo de quien es el dueno-- asi
+ * Las reglas ya no dependen de nada que cambie --solo de quien es el dueno-- así
  * que esto es una reparacion, no una consecuencia de un ajuste: repone la regla
  * en una tabla que se hubiera quedado con la de antes.
  */
@@ -423,7 +423,7 @@ export async function createDataCollection(opts: {
 }): Promise<{ collection: PbCollection; fields: FieldDef[] }> {
   const normalized = normalizeFields(opts.fields);
   const pbFields: PbField[] = [];
-  // Las columnas del sistema no se traducen: su valor vive en otra coleccion y
+  // Las columnas del sistema no se traducen: su valor vive en otra colección y
   // se superpone al pintar. Ver `shared/people.ts`.
   for (const def of storedFields(normalized)) {
     pbFields.push(...(await toPbFields({ ...def, id: undefined })));
@@ -458,7 +458,7 @@ export async function updateDataCollection(opts: {
   for (const def of storedFields(normalized)) pbFields.push(...(await toPbFields(def, orphanIds)));
 
   // Los campos del sistema y las fechas automaticas siempre se conservan. El
-  // enlace con la cuenta tambien: no viene en la lista de columnas --no es del
+  // enlace con la cuenta también: no viene en la lista de columnas --no es del
   // constructor-- y sin el la fila de una persona perderia a quien nombra.
   const preserved = current.fields.filter(
     (f) => f.system || f.type === "autodate" || f.name === MEMBER_FIELD,
@@ -466,13 +466,13 @@ export async function updateDataCollection(opts: {
 
   const indexes = uniqueIndexes(opts.dataCollection, normalized, current.indexes ?? []);
   // Solo la tabla de personas tiene esta columna: `member` es un nombre
-  // reservado, asi que ninguna otra puede llamar asi a una suya.
+  // reservado, así que ninguna otra puede llamar así a una suya.
   if (current.fields.some((f) => f.name === MEMBER_FIELD)) {
     indexes.push(memberIndex(opts.dataCollection));
   }
 
   const collection = await updateCollection(opts.dataCollection, {
-    // Lo que no viene en la lista desaparece: borrar una columna de relacion se
+    // Lo que no viene en la lista desaparece: borrar una columna de relación se
     // lleva por delante su valor sin dueno, que es lo que se quiere.
     fields: [...preserved, ...recreateChanged(current, pbFields)],
     indexes,
@@ -485,16 +485,16 @@ export async function updateDataCollection(opts: {
  * Suelta el id de las columnas que PocketBase no deja modificar en sitio.
  *
  * Hay dos cambios que PocketBase rechaza sobre una columna que ya existe: el
- * tipo ("Field type cannot be changed") y la coleccion a la que apunta una
- * relacion ("The relation collection cannot be changed"). Con el id puesto no
- * falla esa columna sola: se cae la peticion entera, y el constructor ve un
+ * tipo ("Field type cannot be changed") y la colección a la que apunta una
+ * relación ("The relation collection cannot be changed"). Con el id puesto no
+ * falla esa columna sola: se cae la petición entera, y el constructor ve un
  * "Failed to update collection" que no le dice nada.
  *
  * Sin id, PocketBase borra la columna y crea otra con el mismo nombre. Eso
- * vacia sus celdas, que es lo que pasa siempre que una columna cambia de tipo
- * --una cedula escrita a mano no es el id de una fila de personas, ni un numero
+ * vacía sus celdas, que es lo que pasa siempre que una columna cambia de tipo
+ * --una cédula escrita a mano no es el id de una fila de personas, ni un número
  * es una fecha-- y por eso `cambiar_tipo` es un cambio con riesgo en
- * `dataImpact.ts`, con su aviso antes de llegar aqui.
+ * `dataImpact.ts`, con su aviso antes de llegar aquí.
  *
  * El id se suelta solo en ese caso. Renombrar sigue conservandolo, que es lo
  * que hace que un cambio de nombre no pierda datos.
@@ -504,29 +504,29 @@ function recreateChanged(current: PbCollection, fields: PbField[]): PbField[] {
     if (!field.id) return field;
     const before = current.fields.find((f) => f.id === field.id);
     if (!before) return field;
-    // `collectionId` es undefined en todo lo que no es relacion, asi que la
-    // comparacion vale igual para las demas columnas.
+    // `collectionId` es undefined en todo lo que no es relación, así que la
+    // comparacion vale igual para las demás columnas.
     if (before.type === field.type && before.collectionId === field.collectionId) return field;
     return { ...field, id: undefined };
   });
 }
 
 /**
- * El id que ya tiene en la base la columna del valor sin dueno de cada relacion.
+ * El id que ya tiene en la base la columna del valor sin dueno de cada relación.
  *
  * Se busca por el nombre que la columna tenia antes, no por el que trae ahora:
  * al renombrar "conductor" a "chofer" hay que reconocer `conductor_sin_enlace`
- * como la misma columna, o PocketBase la borraria y crearia otra vacia.
+ * como la misma columna, o PocketBase la borraria y crearia otra vacía.
  *
- * Una columna de texto que pasa a ser relacion no tiene corralito todavia, y le
+ * Una columna de texto que pasa a ser relación no tiene corralito todavía, y le
  * cede el suyo: el corralito se queda con su id --y con sus celdas-- y la
- * relacion nace al lado, vacia y sin id. Es lo que hace util la conversion. Una
- * cedula escrita a mano no es el id de una fila de personas, asi que la relacion
- * no puede heredarla; pero es exactamente un valor que todavia no encontro
+ * relación nace al lado, vacía y sin id. Es lo que hace útil la conversion. Una
+ * cédula escrita a mano no es el id de una fila de personas, así que la relación
+ * no puede heredarla; pero es exactamente un valor que todavía no encontro
  * dueno, que es lo que el corralito guarda. De ahi salen enlazadas o aceptadas
  * una por una desde el panel de valores sin dueno, en vez de perderse.
  *
- * Solo se cede desde una columna que PocketBase guarda como texto. Un numero o
+ * Solo se cede desde una columna que PocketBase guarda como texto. Un número o
  * una fecha no se pueden renombrar a un corralito de texto --seria cambiarle el
  * tipo, que es justo lo que no se puede-- y sus celdas se pierden.
  */
@@ -553,16 +553,16 @@ export async function dropDataCollection(dataCollection: string) {
 /**
  * Retira un grupo de colecciones de datos de una vez.
  *
- * En pasadas y no de un tiron a proposito: PocketBase se niega a borrar una
- * coleccion mientras otra la nombre en una relacion --"existing reference in
- * ..."--, asi que el orden importa. Al borrar una aplicacion entera las dos
- * puntas de la relacion se van juntas, pero si la apuntada sale primero su
+ * En pasadas y no de un tiron a propósito: PocketBase se niega a borrar una
+ * colección mientras otra la nombre en una relación --"existing reference in
+ * ..."--, así que el orden importa. Al borrar una aplicación entera las dos
+ * puntas de la relación se van juntas, pero si la apuntada sale primero su
  * borrado falla; con `dropDataCollection` a secas ese fallo se traga en
- * silencio y la coleccion se queda para siempre, con sus filas dentro y sin
+ * silencio y la colección se queda para siempre, con sus filas dentro y sin
  * ninguna tabla que la nombre.
  *
  * Cada vuelta intenta las que quedan. Mientras alguna caiga, se vuelve a
- * probar: la que resistia por una relacion ya tiene libre a quien la sujetaba.
+ * probar: la que resistia por una relación ya tiene libre a quien la sujetaba.
  * Se para cuando una vuelta entera no consigue nada, que es cuando lo que
  * queda lo retiene algo de fuera del grupo.
  *

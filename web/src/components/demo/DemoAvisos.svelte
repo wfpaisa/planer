@@ -454,12 +454,12 @@
       </div>
     </article>
     <!--
-        Tooltip: aqui SI se cambia el marcado del original, y a proposito.
+        Tooltip: aqui SI se cambia el marcado del original, y a propósito.
 
-        El globo del catalogo es `.tip`, un ::after del propio boton. El panel
+        El globo del catálogo es `.tip`, un ::after del propio botón. El panel
         no lo usa: cualquier antepasado con desplazamiento lo cortaba, asi que
         lo dibuja `components/TooltipLayer.svelte` en una capa suya al final del
-        documento. Las dos formas leen el mismo `data-tip`, asi que un boton con
+        documento. Las dos formas leen el mismo `data-tip`, asi que un botón con
         las dos cosas sacaria dos globos a la vez. Se queda el del panel, que es
         el que se ve en el resto de la pantalla.
       -->

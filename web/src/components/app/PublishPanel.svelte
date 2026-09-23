@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { AppRecord, AppVersionSummary, VersionsView } from "@shared/types";
+  import { untrack } from "svelte";
 
   import { useBuilder } from "../../lib/builderContext";
   import { cx } from "../../lib/cx";
@@ -22,10 +23,9 @@
   let error = $state("");
   let copied = $state(false);
 
-  // La tarjeta trabaja sobre un borrador suyo: el interruptor y las opciones de
-  // acceso no salen hacia el servidor hasta que se pulsa el boton de abajo, asi
-  // cerrar sin mas equivale a no haber tocado nada.
-  let draft = $state({ published: app.published, visibility: app.visibility });
+  // El formulario necesita una copia inicial; las actualizaciones se envían al guardar.
+  const initialApp = untrack(() => builder.app);
+  let draft = $state({ published: initialApp.published, visibility: initialApp.visibility });
   const dirty = $derived(draft.published !== app.published || draft.visibility !== app.visibility);
 
   const versions = useAsync(() => {
@@ -49,17 +49,17 @@
         );
       }
       // Con el interruptor apagado solo queda el ajuste guardado: el enlace
-      // sigue sin funcionar y no hay nada que sacar al publico.
+      // sigue sin funcionar y no hay nada que sacar al público.
       if (draft.published) {
         const done = await post<{ app: AppRecord; version: AppVersionSummary }>(
           `/api/apps/${app.id}/publicar`,
           {},
         );
-        // Guardar la aplicacion sube `touched`: asi el aviso del boton de arriba
-        // tambien vuelve a preguntar y deja de decir que hay cambios pendientes.
+        // Guardar la aplicación sube `touched`: asi el aviso del botón de arriba
+        // también vuelve a preguntar y deja de decir que hay cambios pendientes.
         builder.setApp(done.app);
       }
-      // Aplicar el borrador era lo unico que quedaba por hacer aqui: la tarjeta
+      // Aplicar el borrador era lo único que quedaba por hacer aqui: la tarjeta
       // se cierra sola y el encabezado ya cuenta como quedo.
       onClose();
     } catch (err) {
@@ -76,8 +76,8 @@
   }
 
   /*
-   * La aplicacion decide una sola cosa. Quien abre cada pagina se decide en la
-   * pagina, con sus roles, y las dos no se pisan: esto es la frontera de
+   * La aplicación decide una sola cosa. Quien abre cada página se decide en la
+   * página, con sus roles, y las dos no se pisan: esto es la frontera de
    * fuera, aquello el reparto de dentro. Ver `design.md` D3.
    */
   const VISIBILITIES = [
@@ -131,7 +131,7 @@
       <Switch checked={draft.published} onchange={(v) => (draft.published = v)} />
     </div>
 
-    <!-- Con el interruptor apagado no hay enlace ni publico al que dejar entrar:
+    <!-- Con el interruptor apagado no hay enlace ni público al que dejar entrar:
          quien puede ver y por donde solo tienen sentido si esto sale fuera. -->
     {#if draft.published}
       <div class="grid-publish-visibility grid gap-2">
@@ -185,11 +185,11 @@
 
 <style>
   .body-publish-panel {
-    /* La fila del interruptor es `.opt-row` del catalogo, con su par
+    /* La fila del interruptor es `.opt-row` del catálogo, con su par
        `.opt-label` / `.opt-hint`: aqui no queda nada propio que decir. */
 
     /*
-     * Las dos salidas son `.opt` del catalogo: la elegida se tine con el
+     * Las dos salidas son `.opt` del catálogo: la elegida se tine con el
      * acento suave, igual que el tipo de columna o la salida de un impacto.
      * Antes eran dos `.btn` pegados con `.join` y la elegida iba con el
      * acento pleno: el mismo gesto --elegir una de dos-- se veia de dos

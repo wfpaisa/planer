@@ -2,7 +2,7 @@
   La columna de servidores.
 
   Cada uno lleva un punto que dice si esta listo --encendido, con clave y con
-  algun modelo-- porque es lo unico que hay que saber de un vistazo: si va a
+  algún modelo-- porque es lo único que hay que saber de un vistazo: si va a
   atender o no.
 -->
 <script lang="ts">
@@ -87,14 +87,14 @@
       width: 14rem;
     }
 
-    /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+    /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
     & .rail-ai-providers-label {
       display: block;
       margin-bottom: var(--sp-6);
     }
 
     /*
-     * El item del menu ya viene vestido por `.menu button` del catalogo
+     * El item del menu ya viene vestido por `.menu button` del catálogo
      * --acolchado, radio y el fondo al apuntarlo--: aqui solo lo que este
      * menu tiene de distinto, que es llevar dos renglones en vez de uno.
      */

@@ -1,10 +1,10 @@
 <!--
   Una funcionalidad de los ajustes, encerrada en su propia tarjeta: arriba el
-  titulo con lo que hace, en medio los controles y abajo el pie con lo que se
+  título con lo que hace, en medio los controles y abajo el pie con lo que se
   puede hacer con todo ello.
 
-  El pie es el `card-foot` del catalogo (`styles/components.css`): empuja sus
-  acciones al extremo derecho, que es donde se busca el boton de guardar. Lo
+  El pie es el `card-foot` del catálogo (`styles/components.css`): empuja sus
+  acciones al extremo derecho, que es donde se busca el botón de guardar. Lo
   que sea explicacion y no accion se marca con `foot-settings-note` y se queda
   a la izquierda.
 -->
@@ -26,7 +26,7 @@
     icon: Snippet;
     title: string;
     description: string;
-    /** Clase raiz que identifica a la seccion en la UI. */
+    /** Clase raíz que identifica a la sección en la UI. */
     class?: string;
     children: Snippet;
     footer?: Snippet;
@@ -56,9 +56,9 @@
     min-width: 0;
   }
 
-  /* La caja, el titulo y el subtitulo son `.card`, `.card-title` y
-     `.card-sub` del catalogo; aqui solo lo que esta seccion pide
-     distinto: el titulo un escalon mas grande que el de una card
+  /* La caja, el título y el subtitulo son `.card`, `.card-title` y
+     `.card-sub` del catálogo; aqui solo lo que esta sección pide
+     distinto: el título un escalon mas grande que el de una card
      corriente --es la cabecera de una pantalla, no de una ficha-- y el
      subtitulo un escalon mas chico, que es una nota y no un resumen. */
   .title-settings-section {
@@ -82,7 +82,7 @@
     line-height: var(--text-xs--line-height);
     color: var(--text-muted);
 
-    /* Lo escribe quien usa la seccion, asi que va con `:global`. El auto lo
+    /* Lo escribe quien usa la sección, asi que va con `:global`. El auto lo
        separa de las acciones, que `.card-foot` mantiene a la derecha. */
     & :global(.foot-settings-note) {
       margin-right: auto;

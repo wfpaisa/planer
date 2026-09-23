@@ -1,7 +1,5 @@
 <!--
-  La seccion de limpieza de los ajustes: un boton que abre el modal donde se
-  elige que aplicaciones se van. Lo que se borro se cuenta aqui despues, para
-  que quede claro que paso.
+  Permite elegir y borrar aplicaciones. El resultado queda visible en esta sección.
 -->
 <script lang="ts">
   import Icon from "../Icon.svelte";
@@ -33,12 +31,11 @@
   {icon}
   {footer}
   title="Limpiar aplicaciones"
-  description="Vacía el panel: elige qué aplicaciones se van y se borran con sus tablas, sus páginas y todos sus datos."
+  description="Borra aplicaciones con sus tablas, páginas y datos."
   class="section-clean-apps"
 >
   <p class="text-clean-section">
-    Sirve para volver a empezar sin reinstalar nada. Hay que marcar una por una las que sobran y
-    escribir la autorización: no se puede deshacer.
+    Selecciona las aplicaciones y escribe la confirmación. Esta acción no se puede deshacer.
   </p>
   <SuccessNote message={done} />
 </SettingsSection>

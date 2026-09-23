@@ -1,5 +1,5 @@
 /**
- * Que columnas ensena la grilla: las del sistema (id, created, updated) y las
+ * Que columnas enseña la grilla: las del sistema (id, created, updated) y las
  * que el constructor decidio ocultar.
  */
 import type { FieldDef, TableRecord } from "@shared/types";

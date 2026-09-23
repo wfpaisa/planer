@@ -1,10 +1,6 @@
 <!--
-  La limpieza del registro de depuracion de la IA.
-
-  Cada peticion deja guardado lo que se le mando al modelo --el contexto lleva
-  el HTML entero de la pagina-- y eso se conserva hasta que alguien lo borre.
-  Una fila por pagina, sobrescrita, asi que no crece con el uso; lo que se
-  borra aqui es todo lo de la instalacion, no lo de una aplicacion.
+  Cada página conserva el contexto de su última petición. La limpieza elimina
+  estos registros de toda la instalación, no las páginas ni los chats.
 -->
 <script lang="ts">
   import { del, errorMessage } from "../../lib/pb";
@@ -40,9 +36,7 @@
 {/snippet}
 
 {#snippet footer()}
-  <p class="foot-settings-note">
-    Las conversaciones y las páginas no se tocan: solo se va lo guardado para depurar.
-  </p>
+  <p class="foot-settings-note">Las conversaciones y las páginas se conservan.</p>
   <Button variant="danger" buttonClass="btn-clear-ai-debug" onclick={() => (asking = true)}>
     <Icon name="trash" size={14} /> Borrar registros
   </Button>
@@ -53,12 +47,12 @@
   {icon}
   {footer}
   title="Registros de depuración"
-  description="Cada petición a la inteligencia artificial deja guardado lo que se le mandó al modelo, para poder entender después una que salió mal."
+  description="Guarda el contexto de la última petición de cada página para diagnosticar errores."
   class="section-ai-debug"
 >
   <p class="text-ai-debug-section">
-    Se guarda uno por página —el de su última petición— y cada petición nueva reemplaza al anterior.
-    Borrarlos alcanza a toda la instalación, no a una sola aplicación.
+    Cada petición reemplaza el registro anterior de esa página. La limpieza afecta a toda la
+    instalación.
   </p>
   <SuccessNote message={done} />
   <ErrorNote message={failed} />
@@ -68,7 +62,7 @@
   open={asking}
   onClose={() => (asking = false)}
   title="Borrar los registros de depuración"
-  message="Se borran los registros de depuración de todas las aplicaciones de esta instalación. Las conversaciones con la inteligencia artificial y las páginas se quedan como están."
+  message="Se borrarán los registros de depuración de todas las aplicaciones. Las conversaciones y las páginas se conservarán."
   confirmLabel="Borrar registros"
   {busy}
   onConfirm={() => void clear()}

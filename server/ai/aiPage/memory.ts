@@ -1,5 +1,5 @@
 /**
- * La pasada que escribe la memoria de una pagina.
+ * La pasada que escribe la memoria de una página.
  *
  * Al cerrar un turno se hace una llamada corta y aparte, con su propio texto de
  * sistema, que recibe tres cosas --el intercambio entero, la memoria de ahora y
@@ -10,16 +10,16 @@
  * Es una llamada aparte y no una instruccion mas dentro del turno principal
  * porque alli competiria con veinte herramientas y toda la guia de
  * construccion: el modelo prioriza construir y la escritura sale irregular, que
- * es justo lo que hay que evitar. Aqui el texto de sistema se puede apretar sin
+ * es justo lo que hay que evitar. Aquí el texto de sistema se puede apretar sin
  * efectos colaterales. Ver `design.md` D3.
  *
- * Lo unico que no puede hacer es devolver la memoria entera reescrita: en la
- * reescritura numero quince el modelo resume de mas y borra en silencio una
+ * Lo único que no puede hacer es devolver la memoria entera reescrita: en la
+ * reescritura número quince el modelo resume de mas y borra en silencio una
  * regla que nadie miraba. Cada operacion nombra la vineta que toca, y lo que
- * ninguna nombra queda intacto. Por lo demas escribe lo que juzgue: cuantas
+ * ninguna nombra queda intacto. Por lo demás escribe lo que juzgue: cuantas
  * reglas toca, y cuanto lleva cada una, lo decide ella. Ver `design.md` D4.
  *
- * La unica cosa que manda sobre su criterio es una orden directa: si quien
+ * La única cosa que manda sobre su criterio es una orden directa: si quien
  * construye pidio que algo se recuerde, se guarda aunque la pasada no lo
  * habria considerado una regla. La lista de lo que no se guarda existe para
  * que el sistema no adivine solo, no para desautorizar al dueno de la app.
@@ -36,8 +36,8 @@ import { askAi, loadAiConfig } from "../ai.ts";
 /**
  * Lo que le cabe escribir.
  *
- * Holgado a proposito: no se le pone limite a cuantas reglas toca en un turno,
- * asi que el tope no puede ser lo que se lo ponga por la puerta de atras
+ * Holgado a propósito: no se le pone limite a cuantas reglas toca en un turno,
+ * así que el tope no puede ser lo que se lo ponga por la puerta de atras
  * cortando la lista por la mitad. Es lo que ocupa la respuesta, no lo que
  * tarda en pensarla: al modelo que piensa le suma su sitio `askAi`. Sin eso el
  * razonamiento se come el tope y la pasada vuelve con las manos vacias.
@@ -179,7 +179,7 @@ function exchangeText(exchange: MemoryExchange, memory: string): string {
   return parts.join("\n\n");
 }
 
-/** El modelo suele envolver el JSON en un bloque de codigo. */
+/** El modelo suele envolver el JSON en un bloque de código. */
 function unfence(text: string): string {
   const fenced = /^\s*```[\w-]*\s*\n([\s\S]*?)\n?```\s*$/.exec(text.trim());
   return (fenced ? fenced[1] : text).trim();
@@ -189,7 +189,7 @@ function unfence(text: string): string {
  * Una entrada de la lista, si se entiende.
  *
  * Lo que no es una de las tres formas se descarta --`null`-- en vez de
- * detener a las demas: de una lista de ocho, la que vino mal se pierde sola.
+ * detener a las demás: de una lista de ocho, la que vino mal se pierde sola.
  */
 function readOne(entry: unknown): MemoryOp | null {
   const value = (entry ?? {}) as Record<string, unknown>;
@@ -235,7 +235,7 @@ function readJson(text: string): unknown {
  * Lo que contesto, en la forma que se puede aplicar.
  *
  * Una respuesta que no se entiende no es motivo para tocar la memoria: se
- * devuelve la lista vacia, que es lo mismo que no tener nada que guardar.
+ * devuelve la lista vacía, que es lo mismo que no tener nada que guardar.
  */
 export function readMemoryOps(answer: string): MemoryOp[] {
   const raw = readJson(unfence(answer));
@@ -256,7 +256,7 @@ export function readMemoryOps(answer: string): MemoryOp[] {
  * Con que modelo se atiende la pasada.
  *
  * Por defecto el mismo del turno que la disparo: no se introduce una segunda
- * configuracion que nadie mantiene. El ajuste existe por si mas adelante
+ * configuración que nadie mantiene. El ajuste existe por si mas adelante
  * conviene uno mas barato para esta tarea. Ver `design.md` D7.
  */
 async function memoryChoice(turn: Partial<AiChoice> | undefined): Promise<Partial<AiChoice>> {
@@ -269,7 +269,7 @@ async function memoryChoice(turn: Partial<AiChoice> | undefined): Promise<Partia
  * La pasada entera: preguntar, aplicar y guardar.
  *
  * Devuelve la memoria que quedo escrita, o `null` si no cambio nada --tanto
- * porque no habia nada que guardar como porque lo que contesto nombraba una
+ * porque no había nada que guardar como porque lo que contesto nombraba una
  * vineta que ya no esta--.
  */
 export async function runMemoryPass(opts: {
@@ -288,7 +288,7 @@ export async function runMemoryPass(opts: {
   );
 
   /*
-   * Una respuesta vacia se leeria como "no hay nada que guardar" y la memoria
+   * Una respuesta vacía se leeria como "no hay nada que guardar" y la memoria
    * se quedaria igual sin que nadie se entere. Se dice, porque por fuera no
    * se distingue de un turno que de verdad no traia ninguna regla.
    */

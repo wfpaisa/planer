@@ -1,12 +1,12 @@
 <!--
   El plan con el que la IA cerro el modo Plan.
 
-  Mismo patron que Question.svelte: se lee dentro de la conversacion, en el
+  Mismo patron que Question.svelte: se lee dentro de la conversación, en el
   turno donde se cerro, con icono y estilo propios para distinguirlo de una
   respuesta normal (ver `design.md` D2 de `ia-modo-plan`).
 
   Pasar a modo Implementador es de un solo sentido: en cuanto `implementado`
-  es verdadero, la tarjeta se queda sin el boton -- no se edita ni se reabre--
+  es verdadero, la tarjeta se queda sin el botón -- no se edita ni se reabre--
   y planear otra cosa exige activar el modo Plan de nuevo.
 -->
 <script lang="ts">
@@ -49,7 +49,7 @@
 </div>
 
 <style>
-  /* La caja es `.card.card-solid` del catalogo, igual que `Question.svelte`;
+  /* La caja es `.card.card-solid` del catálogo, igual que `Question.svelte`;
      aqui solo el hueco que la separa del turno de arriba y su acolchado. */
   .plan-ai {
     margin-top: var(--sp-8);

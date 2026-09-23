@@ -4,7 +4,7 @@
  *
  * Vive aparte del componente que dibuja el bloque porque es donde se decide
  * que puede pedir un HTML y que no: sin fuente declarada no hay consulta.
- * Aqui no se toca la base, solo se arma lo que despues se le pedira.
+ * Aquí no se toca la base, solo se arma lo que después se le pedira.
  */
 import { isOverlayField, isPeopleTable, MEMBER_FIELD, PEOPLE_ACCOUNT_FIELD } from "./people.ts";
 import {
@@ -20,34 +20,34 @@ import {
 /**
  * Cuantas filas trae como mucho una sola llamada a `plane.listar`.
  *
- * Vive aqui porque tiene dos lados y los dos tienen que decir lo mismo: el
+ * Vive aquí porque tiene dos lados y los dos tienen que decir lo mismo: el
  * servidor lo aplica (`runPageData` en `server/page/pageData.ts`) y el contrato se lo
  * cuenta al modelo (`shared/htmlContract.ts`). Cuando los dos numeros no
- * cuadran, una pagina cuenta el techo creyendo que cuenta la tabla y el numero
+ * cuadran, una página cuenta el techo creyendo que cuenta la tabla y el número
  * corto parece el bueno.
  */
 export const MAX_LIST_ROWS = 200;
 
-/** Y cuantas trae cuando nadie pidio un tamano. */
+/** Y cuantas trae cuando nadie pidio un tamaño. */
 export const DEFAULT_LIST_ROWS = 30;
 
 /** Un fallo por culpa de lo que pidio el HTML, no de la base. */
 export class SourceError extends Error {}
 
 /**
- * Lo que se sabe de una columna de relacion al servir una fila.
+ * Lo que se sabe de una columna de relación al servir una fila.
  *
- * `display` es la columna del destino que se ensena; `declared` son las columnas
- * de ese destino que alguna fuente de la pagina declaro, que son las unicas que
+ * `display` es la columna del destino que se enseña; `declared` son las columnas
+ * de ese destino que alguna fuente de la página declaro, que son las unicas que
  * pueden salir del registro enlazado.
  */
 export interface ResolvedRelation {
   field: FieldDef;
-  /** La tabla a la que apunta. Vacia si ya no existe. */
+  /** La tabla a la que apunta. Vacía si ya no existe. */
   target: TableRecord | null;
-  /** Columna del destino que se ensena en lugar del id. */
+  /** Columna del destino que se enseña en lugar del id. */
   display: string;
-  /** Nombre real de la columna del destino -> nombre con el que lo pide la pagina. */
+  /** Nombre real de la columna del destino -> nombre con el que lo pide la página. */
   declared: Map<string, string>;
 }
 
@@ -55,34 +55,34 @@ export interface Resolved {
   table: TableRecord;
   /** Nombre logico -> columna de verdad. */
   byLogical: Map<string, FieldDef>;
-  /** Nombre logico -> lo que hace falta para resolver esa relacion. */
+  /** Nombre logico -> lo que hace falta para resolver esa relación. */
   relations: Map<string, ResolvedRelation>;
 }
 
-/** Sufijo con el que una fila entrega el enlace de una celda de relacion. */
+/** Sufijo con el que una fila entrega el enlace de una celda de relación. */
 export const LINK_SUFFIX = "_enlace";
 
 /**
- * La forma vieja de una celda de relacion, mientras dure la transicion.
+ * La forma vieja de una celda de relación, mientras dure la transicion.
  *
- * Antes de este cambio una pagina recibia el id crudo en el nombre a secas.
- * Ahora ahi llega el valor que se ve, asi que el id sale ademas por aqui para
- * que una pagina ya escrita que lo necesitara siga teniendolo.
+ * Antes de este cambio una página recibia el id crudo en el nombre a secas.
+ * Ahora ahi llega el valor que se ve, así que el id sale ademas por aquí para
+ * que una página ya escrita que lo necesitara siga teniendolo.
  *
  * **Como se sabe que ya no la pide nadie.** El id de un registro no se escribe
- * a mano en ninguna parte, asi que una pagina solo puede nombrarlo por este
- * sufijo. Se retira cuando ningun documento de ninguna aplicacion lo mencione:
+ * a mano en ninguna parte, así que una página solo puede nombrarlo por este
+ * sufijo. Se retira cuando ningún documento de ninguna aplicación lo mencione:
  *
- *     grep -o '[a-zA-Z_][a-zA-Z0-9_]*_id' <documentos de las paginas>
+ *     grep -o '[a-zA-Z_][a-zA-Z0-9_]*_id' <documentos de las páginas>
  *
- * Hasta entonces se entrega siempre. Cuesta un campo por celda y es la unica
- * pieza de este cambio que puede romper una pagina que ya funcionaba.
+ * Hasta entonces se entrega siempre. Cuesta un campo por celda y es la única
+ * pieza de este cambio que puede romper una página que ya funcionaba.
  */
 export const OLD_ID_SUFFIX = "_id";
 
 /**
  * Busca la fuente en el manifiesto del bloque.
- * Una fuente que no este declarada se rechaza aqui, antes de mirar nada.
+ * Una fuente que no este declarada se rechaza aquí, antes de mirar nada.
  */
 export function resolveSource(
   sources: HtmlSource[],
@@ -118,14 +118,14 @@ export function resolveSource(
 }
 
 /**
- * Lo que la pagina declaro de la tabla a la que apunta una relacion.
+ * Lo que la página declaro de la tabla a la que apunta una relación.
  *
  * De un registro enlazado solo puede salir lo que este declarado, igual que
- * ocurre con las columnas de la tabla que se pide. Si no, la relacion seria un
+ * ocurre con las columnas de la tabla que se pide. Si no, la relación seria un
  * agujero por el que salen columnas que nadie declaro.
  *
- * Se mira en todas las fuentes de la pagina que apunten a esa tabla: declararla
- * una vez basta. La columna que ensena entra siempre, porque es lo que la propia
+ * Se mira en todas las fuentes de la página que apunten a esa tabla: declararla
+ * una vez basta. La columna que enseña entra siempre, porque es lo que la propia
  * definicion de la columna dice que se ve.
  */
 function declaredOf(
@@ -138,7 +138,7 @@ function declaredOf(
 
   // Las dos columnas del sistema de la tabla de personas no estan en ninguna
   // fuente --no se piden, se tienen-- y son las que dicen quien es alguien.
-  // Entran siempre, como entra la columna que se ensena.
+  // Entran siempre, como entra la columna que se enseña.
   if (isPeopleTable(target)) {
     out.set(PEOPLE_ACCOUNT_FIELD, PEOPLE_ACCOUNT_FIELD);
     out.set("email", "email");
@@ -159,9 +159,9 @@ function declaredOf(
 }
 
 /**
- * El respaldo de las columnas de relacion de antes de este cambio, que no
+ * El respaldo de las columnas de relación de antes de este cambio, que no
  * declaran que ensenan: la primera columna de texto del destino, que es lo que
- * la grilla venia adivinando. La migracion lo deja escrito y esto deja de usarse.
+ * la grilla venia adivinando. La migración lo deja escrito y esto deja de usarse.
  */
 export function firstTextField(target: TableRecord | null): string {
   if (!target) return "";
@@ -180,8 +180,8 @@ export function expandOf(resolved: Resolved): string {
 /**
  * Las columnas de una persona que no estan en su fila.
  *
- * El correo vive en la cuenta y los roles en el enlace con la aplicacion, asi
- * que el expand de la base trae la fila sin ellos. Se superponen aqui, encima
+ * El correo vive en la cuenta y los roles en el enlace con la aplicación, así
+ * que el expand de la base trae la fila sin ellos. Se superponen aquí, encima
  * de lo que la fila si trae. Ver `isOverlayField` en `shared/people.ts`.
  */
 function personOverlay(person: AppPerson): Record<string, unknown> {
@@ -194,23 +194,23 @@ function personOverlay(person: AppPerson): Record<string, unknown> {
 }
 
 /**
- * Una celda de relacion tal como llega al documento.
+ * Una celda de relación tal como llega al documento.
  *
- * `valor` esta siempre: con enlace es lo que ensena el registro, y sin enlace es
+ * `valor` esta siempre: con enlace es lo que enseña el registro, y sin enlace es
  * lo que se escribio y no encontro dueno. Por eso agrupar y contar se hace por
  * `valor` y nunca por `id`: agrupando por id las filas sin enlace se caerian de
- * las graficas en silencio y el total no cuadraria con la tabla.
+ * las gráficas en silencio y el total no cuadraria con la tabla.
  */
 export interface LinkCell {
-  /** Id del registro enlazado. Vacio: no hay enlace. */
+  /** Id del registro enlazado. Vacío: no hay enlace. */
   id: string;
   /** Hay id guardado pero el registro ya no existe o no esta al alcance. */
   roto: boolean;
-  /** Las columnas declaradas del registro enlazado. Vacio si no hay enlace. */
+  /** Las columnas declaradas del registro enlazado. Vacío si no hay enlace. */
   registro: Record<string, unknown> | null;
 }
 
-/** La celda de relacion resuelta: el valor que se ve y el enlace que hay detras. */
+/** La celda de relación resuelta: el valor que se ve y el enlace que hay detras. */
 function relationCell(
   rel: ResolvedRelation,
   record: Record<string, unknown>,
@@ -231,7 +231,7 @@ function relationCell(
     Record<string, unknown> | undefined;
 
   // La fila de una persona llega sin su correo ni sus roles: no estan en su
-  // coleccion. Se le superponen los de la lista de invitados, que el llamador
+  // colección. Se le superponen los de la lista de invitados, que el llamador
   // ya resolvio. Sin fila --porque quien mira no la alcanza-- la lista sola
   // basta para saber de quien se trata.
   const person = isPeopleTable(rel.target)
@@ -244,7 +244,7 @@ function relationCell(
 
   if (!linked) {
     // Hay id pero el registro no vino: se borro, ya no esta invitada o quedo
-    // fuera del alcance de quien mira. No se vacia en silencio; se dice que
+    // fuera del alcance de quien mira. No se vacía en silencio; se dice que
     // esta roto.
     return { valor: "", enlace: { id: String(id), roto: true, registro: null } };
   }
@@ -268,7 +268,7 @@ export function columnOf(resolved: Resolved, logical: string): FieldDef {
 /**
  * Una fila con los nombres que espera el HTML, no con los de la tabla.
  *
- * Una columna de relacion llega como dos cosas: el nombre a secas es el valor
+ * Una columna de relación llega como dos cosas: el nombre a secas es el valor
  * que se ve --texto, siempre presente, con enlace o sin el-- y el nombre con
  * `LINK_SUFFIX` es el enlace que hay detras. Que debajo viva un id no aparece
  * en ninguna pantalla.
@@ -297,8 +297,8 @@ export function toLogicalRow(
 /**
  * Los valores que llegan del HTML, pasados a las columnas de verdad.
  *
- * En una relacion lo que llega es la llave, no el id: el id nunca se escribe a
- * mano. Aqui solo se deja en el corralito del valor sin dueno; quien guarda la
+ * En una relación lo que llega es la llave, no el id: el id nunca se escribe a
+ * mano. Aquí solo se deja en el corralito del valor sin dueno; quien guarda la
  * fila lo resuelve contra la tabla destino y decide cual de las dos columnas
  * reales se llena.
  */
@@ -329,18 +329,18 @@ export function toRealValues(resolved: Resolved, values: unknown): Record<string
 const SEARCHABLE = ["text", "longtext", "email", "url", "select"];
 
 /**
- * Por donde se alcanza, desde la fila que apunta, la columna que se ensena.
+ * Por donde se alcanza, desde la fila que apunta, la columna que se enseña.
  *
- * Casi siempre es un salto: la relacion y la columna del destino. El correo de
+ * Casi siempre es un salto: la relación y la columna del destino. El correo de
  * una persona son dos --la fila de personas no lo guarda, lo guarda su cuenta--
- * y los roles no son ninguno: viven en el enlace con la aplicacion, que no
+ * y los roles no son ninguno: viven en el enlace con la aplicación, que no
  * cuelga de la fila. Por esa ultima solo queda comparar contra el valor sin
  * dueno. Ver `isOverlayField` en `shared/people.ts`.
  */
 const ACCOUNT_PATH: Record<string, string> = {
   [PEOPLE_ACCOUNT_FIELD]: PEOPLE_ACCOUNT_FIELD,
   // La forma vieja de nombrar el correo, que columnas de antes de este cambio
-  // todavia guardan como lo que ensenan.
+  // todavía guardan como lo que ensenan.
   email: PEOPLE_ACCOUNT_FIELD,
   name: "name",
 };
@@ -348,7 +348,7 @@ const ACCOUNT_PATH: Record<string, string> = {
 function displayPath(rel: ResolvedRelation): string {
   const plain = `${rel.field.name}.${rel.display}`;
   // En cualquier otra tabla "nombre" o "correo" son columnas suyas y viven en
-  // su coleccion: el salto de siempre.
+  // su colección: el salto de siempre.
   if (!isPeopleTable(rel.target)) return plain;
   if (!isOverlayField(rel.target, rel.display) && !(rel.display in ACCOUNT_PATH)) return plain;
   const column = ACCOUNT_PATH[rel.display];
@@ -356,9 +356,9 @@ function displayPath(rel: ResolvedRelation): string {
 }
 
 /**
- * Comparar una relacion por el valor que ensena, en sus dos columnas reales.
+ * Comparar una relación por el valor que enseña, en sus dos columnas reales.
  *
- * Mirar solo la relacion dejaria fuera las filas sin enlace, que son filas
+ * Mirar solo la relación dejaria fuera las filas sin enlace, que son filas
  * validas con un valor a la vista: buscar "CC123" tiene que encontrarlas.
  */
 function relationMatch(rel: ResolvedRelation, op: string, literal: string): string {
@@ -371,7 +371,7 @@ function relationMatch(rel: ResolvedRelation, op: string, literal: string): stri
 
 /**
  * El filtro, armado a partir de lo que pidio el HTML.
- * El HTML nunca escribe el filtro: da columnas y valores, y se compone aqui.
+ * El HTML nunca escribe el filtro: da columnas y valores, y se compone aquí.
  */
 export function buildFilter(resolved: Resolved, opts: Record<string, unknown>): string {
   const clauses: string[] = [];
@@ -413,7 +413,7 @@ const AUTO = new Set(["id", "created", "updated"]);
 /**
  * El orden con el que se piden las filas de una tabla.
  *
- * Sin orden dicho se ensena por antiguedad: la primera fila creada es la
+ * Sin orden dicho se enseña por antiguedad: la primera fila creada es la
  * primera que se ve, igual que en el editor de datos y en lo que se exporta.
  * La id desempata a las que nacieron en el mismo lote y comparten el instante.
  */
@@ -428,9 +428,9 @@ export function buildSort(resolved: Resolved, orden: unknown): string {
       if (AUTO.has(logical)) return `${sign}${logical}`;
       const field = columnOf(resolved, logical);
       const rel = resolved.relations.get(logical);
-      // Ordenar por una relacion ordena por el id, que no significa nada para
-      // quien mira. Se ordena por el valor sin dueno, que es lo unico que la
-      // base sabe comparar aqui; el orden fino se hace en la pagina, que ya
+      // Ordenar por una relación ordena por el id, que no significa nada para
+      // quien mira. Se ordena por el valor sin dueno, que es lo único que la
+      // base sabe comparar aquí; el orden fino se hace en la página, que ya
       // tiene el valor de cada fila.
       if (rel && field.multiple !== true) return `${sign}${orphanFieldName(field.name)}`;
       return `${sign}${field.name}`;

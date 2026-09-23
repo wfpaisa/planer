@@ -1,21 +1,21 @@
 <!--
-  Los ajustes de una pagina, pedidos desde los punticos de su linea en el
+  Los ajustes de una página, pedidos desde los punticos de su línea en el
   sidebar.
 
   Es el mismo panel de siempre --nombre, icono, quien la ve y el borrado--,
-  pedido desde la lista de paginas.
+  pedido desde la lista de páginas.
 
-  Lo del HTML --su codigo y sus cambios-- ya no cuelga de aqui: se pide desde
-  la barra de direccion, que esta encima de la pagina que tocan. Esta tarjeta
+  Lo del HTML --su código y sus cambios-- ya no cuelga de aqui: se pide desde
+  la barra de dirección, que esta encima de la página que tocan. Esta tarjeta
   les sigue poniendo el marco, y por eso se puede abrir directamente en
   cualquiera de ellos; cuando se entra asi, cerrar sale del todo en vez de caer
   en unos ajustes que nadie pidio.
 -->
 <script lang="ts" module>
-  /** Lo que se esta ajustando de la pagina. */
+  /** Lo que se esta ajustando de la página. */
   export type Panel = "page" | "code" | "changes";
 
-  /** Hasta donde crece cada cosa. El codigo pide casi toda la ventana. */
+  /** Hasta donde crece cada cosa. El código pide casi toda la ventana. */
   const SIZE: Record<Panel, { width: string; height: string }> = {
     page: { width: "42rem", height: "34rem" },
     changes: { width: "52rem", height: "34rem" },
@@ -55,7 +55,7 @@
   } = $props();
 
   // Con lo que se pidio; `untrack` porque es el valor de partida y lo que venga
-  // despues lo recoge el efecto de abajo, solo al abrirse.
+  // después lo recoge el efecto de abajo, solo al abrirse.
   let panel = $state<Panel>(untrack(() => initial));
 
   // Cada vez que se abre, se empieza por lo que se pidio.

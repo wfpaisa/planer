@@ -1,28 +1,28 @@
 /**
  * Escribir desde la propia grilla: una celda, un rango vaciado, un rango pegado.
  *
- * La grilla dejo de ser solo de lectura, pero el cajon lateral no sobra: aqui
- * se escribe lo que cabe en una celda --un texto, un numero, una fecha, una
+ * La grilla dejo de ser solo de lectura, pero el cajon lateral no sobra: aquí
+ * se escribe lo que cabe en una celda --un texto, un número, una fecha, una
  * llave-- y alli lo que no --un archivo, varias relaciones, una fila entera que
- * todavia no existe--. `inlineEditable` es la frontera, y esta escrita una sola
+ * todavía no existe--. `inlineEditable` es la frontera, y esta escrita una sola
  * vez para que la celda, el teclado y el pegado no puedan discrepar.
  *
  * Lo que se pega no se guarda como texto: pasa por la misma conversion que la
  * importacion (`convertValue`) y por el mismo emparejado de llaves
- * (`matchRelationColumns`), asi que una columna de fecha recibe una fecha y una
- * de relacion queda enlazada al registro que le toca --o con su valor a la
- * vista, sin enlace, que tambien es un estado valido--. Sin eso, pegar una
+ * (`matchRelationColumns`), así que una columna de fecha recibe una fecha y una
+ * de relación queda enlazada al registro que le toca --o con su valor a la
+ * vista, sin enlace, que también es un estado válido--. Sin eso, pegar una
  * columna desde Excel llenaria la tabla de texto en columnas que no lo son.
  *
  * Dos columnas de la tabla de personas no viajan en el lote: el correo y los
- * roles no estan en la coleccion --viven en la cuenta y en el enlace con la
- * aplicacion-- y salen por la API de miembros, una peticion por persona. La
+ * roles no estan en la colección --viven en la cuenta y en el enlace con la
+ * aplicación-- y salen por la API de miembros, una petición por persona. La
  * frontera de que se escribe es una sola (`inlineEditable`); lo que cambia es
  * por donde sale, y eso lo resuelve `savePeopleColumns` en `peopleGrid.ts`.
  *
  * Cada escritura devuelve ademas su inverso: los mismos campos que mando, con
- * el valor que la fila tenia antes. Se arma aqui y no en la cuadricula porque
- * solo aqui se sabe que campos viajan --una relacion son dos-- y se tiene la
+ * el valor que la fila tenia antes. Se arma aquí y no en la cuadricula porque
+ * solo aquí se sabe que campos viajan --una relación son dos-- y se tiene la
  * fila de antes a mano, sin volver a pedirla. Ver `dataGridUndo.ts`.
  */
 import { isOverlayField, isPeopleTable, MEMBER_FIELD } from "@shared/people";
@@ -50,7 +50,7 @@ import { panelLookup, resolveRowValues } from "./relations";
  *
  * Quedan fuera tres cosas, cada una por su motivo: las del sistema (id y las dos
  * fechas) las pone la base; los archivos necesitan un selector y una subida; y
- * una relacion multiple no cabe en una linea. La columna que enlaza con la
+ * una relación multiple no cabe en una línea. La columna que enlaza con la
  * cuenta tampoco: no es un dato, es de quien es la fila.
  */
 export function inlineEditable(table: TableRecord, field: FieldDef): boolean {
@@ -74,9 +74,9 @@ function columnsOf(fields: FieldDef[], range: CellRange): { index: number; field
 /**
  * Lo que la fila tenia en los campos que se van a escribir.
  *
- * Se recorre el cuerpo del pedido y no las columnas del rango: una relacion
+ * Se recorre el cuerpo del pedido y no las columnas del rango: una relación
  * escribe dos campos por una sola celda, y solo el cuerpo sabe cuales. Un campo
- * que la fila no trae vuelve como vacio, que es lo que era.
+ * que la fila no trae vuelve como vacío, que es lo que era.
  */
 function previousValues(row: Row, body: Record<string, unknown>): Record<string, unknown> {
   const before: Record<string, unknown> = {};
@@ -87,9 +87,9 @@ function previousValues(row: Row, body: Record<string, unknown>): Record<string,
 /**
  * Lo pegado en una celda de roles, como lista.
  *
- * `convertValue` ya parte por comas lo de una columna de varias opciones; aqui
+ * `convertValue` ya parte por comas lo de una columna de varias opciones; aquí
  * solo se le da forma de lista siempre, que es lo que el enlace guarda. Una
- * celda vacia es una lista vacia, o sea quitarle los roles a esa persona.
+ * celda vacía es una lista vacía, o sea quitarle los roles a esa persona.
  */
 function rolesOf(converted: ConvertResult): string[] {
   if (!converted.ok || converted.value === null || converted.value === undefined) return [];
@@ -104,13 +104,13 @@ function rolesOf(converted: ConvertResult): string[] {
  * Guarda lo que se escribio en una celda y devuelve la fila como quedo, con el
  * inverso de lo que acaba de escribir.
  *
- * Por el mismo camino que el cajon lateral: lo que se escribe en una relacion
+ * Por el mismo camino que el cajon lateral: lo que se escribe en una relación
  * es la llave, y `resolveRowValues` decide cual de sus dos columnas reales se
- * llena. La fila vuelve con los enlaces expandidos porque la celda ensena la
+ * llena. La fila vuelve con los enlaces expandidos porque la celda enseña la
  * llave del registro, no su id.
  *
  * El correo, el nivel y los roles de una persona vuelven sin inverso: no se
- * escriben en la coleccion sino por la API de miembros, y esa puerta no tiene
+ * escriben en la colección sino por la API de miembros, y esa puerta no tiene
  * vuelta atras en bloque.
  */
 export async function writeCell(opts: {
@@ -120,18 +120,18 @@ export async function writeCell(opts: {
   row: Row;
   field: FieldDef;
   value: unknown;
-  /** Lo que se sabe de cada persona fuera de su coleccion. Solo en personas. */
+  /** Lo que se sabe de cada persona fuera de su colección. Solo en personas. */
   overlay?: Map<string, PersonOverlay>;
 }): Promise<{ row: Row; undo: GridUndo | null }> {
   const { table, tables, people, row, field, value } = opts;
 
   /*
-   * El correo y los roles no viven en la coleccion de la tabla: viven en la
-   * cuenta y en el enlace con la aplicacion. Se escriben por la API de
+   * El correo y los roles no viven en la colección de la tabla: viven en la
+   * cuenta y en el enlace con la aplicación. Se escriben por la API de
    * miembros, que es la misma puerta que usa el cajon lateral.
    */
   if (isOverlayField(table, field.name)) {
-    // Sin clave: por aqui se corrige el correo o los roles de alguien que ya
+    // Sin clave: por aquí se corrige el correo o los roles de alguien que ya
     // esta, nunca se da de alta. La clave solo se elige al crear la fila.
     const saved = await savePersonRow({
       appId: table.app,
@@ -150,7 +150,7 @@ export async function writeCell(opts: {
     touched: new Set([field.name]),
     people,
   });
-  // `resolveRowValues` recorre la tabla entera y trae las demas columnas como
+  // `resolveRowValues` recorre la tabla entera y trae las demás columnas como
   // `undefined`; solo viaja la que se toco.
   const body: Record<string, unknown> = {};
   for (const [key, v] of Object.entries(resolved)) {
@@ -200,10 +200,10 @@ export interface RangeReport {
    */
   undo?: GridUndo;
   /**
-   * Celdas que salieron por la cuenta y no por la coleccion: el correo y los
-   * roles de la tabla de personas. Van contadas tambien en `cells`, y aparte
+   * Celdas que salieron por la cuenta y no por la colección: el correo y los
+   * roles de la tabla de personas. Van contadas también en `cells`, y aparte
    * porque lo que cambian se lee fuera de esta tabla --una columna de persona
-   * de cualquier otra ensena ese correo-- y hay que volver a pedirlo.
+   * de cualquier otra enseña ese correo-- y hay que volver a pedirlo.
    */
   people?: number;
 }
@@ -213,13 +213,13 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 /**
  * Lo que hay que decir cuando una escritura salio por las dos puertas.
  *
- * Deshacer manda el inverso a la coleccion, y el correo y los roles no estan
+ * Deshacer manda el inverso a la colección, y el correo y los roles no estan
  * ahi: repondria la mitad de lo que se acaba de escribir sin avisar. Solo se
  * dice cuando hay de verdad algo que deshacer; con un pegado de solo esas dos
  * columnas no se ofrece deshacer nada.
  */
 const UNDO_PARTIAL =
-  "Deshacer repone solo las columnas de la tabla; el correo y los roles pasan por la cuenta y se quedan como quedaron.";
+  "Solo se deshicieron los cambios en las columnas. El correo y los roles no cambiaron.";
 
 /**
  * Manda por la API de miembros lo que no cabe en el lote, si hay algo.
@@ -247,9 +247,9 @@ async function sendByAccount(
 /**
  * Manda los pedidos ya armados y cuenta como fue.
  *
- * `bornIds` entra vacio y sale con el id de cada fila que nacio, por el sitio
+ * `bornIds` entra vacío y sale con el id de cada fila que nacio, por el sitio
  * que ocupaba en el pedido: sin el no se puede deshacer un pegado que creo
- * filas, porque ese id no esta en ningun otro sitio.
+ * filas, porque ese id no esta en ningún otro sitio.
  */
 async function send(
   requests: ImportRequest[],
@@ -268,9 +268,9 @@ async function send(
 }
 
 /**
- * Vacia las celdas del rango.
+ * Vacía las celdas del rango.
  *
- * Una columna obligatoria no se vacia: la base rechazaria la fila entera y lo
+ * Una columna obligatoria no se vacía: la base rechazaria la fila entera y lo
  * que se perderia es el resto del rango, no esa celda. Se dice cual fue.
  */
 export async function clearRange(opts: {
@@ -278,7 +278,7 @@ export async function clearRange(opts: {
   rows: Row[];
   fields: FieldDef[];
   range: CellRange;
-  /** Lo que se sabe de cada persona fuera de su coleccion. Solo en personas. */
+  /** Lo que se sabe de cada persona fuera de su colección. Solo en personas. */
   overlay?: Map<string, PersonOverlay>;
 }): Promise<RangeReport> {
   const { table, rows, fields, range } = opts;
@@ -309,14 +309,14 @@ export async function clearRange(opts: {
     const patch: PersonPatch = { row };
     for (const { field } of columns) {
       /*
-       * Los roles se vacian por la cuenta. El correo no llega aqui: es
+       * Los roles se vacian por la cuenta. El correo no llega aquí: es
        * obligatorio, y el filtro de arriba ya lo dejo fuera con su aviso.
        */
       if (isOverlayField(table, field.name)) {
         if (field.system === "roles") patch.roles = [];
         continue;
       }
-      // Una relacion se vacia por partida doble: el enlace y el valor que
+      // Una relación se vacía por partida doble: el enlace y el valor que
       // quedo a la vista cuando no encontro dueno.
       if (isRelationField(field))
         Object.assign(body, relationCellValues(field, { id: "", value: "" }));
@@ -372,8 +372,8 @@ export interface PasteFit {
    * Si las filas que sobran pueden nacer.
    *
    * En la tabla de personas no: una fila de ahi es una cuenta invitada a la
-   * aplicacion, y eso lo hace el servidor al invitar, no un POST a la
-   * coleccion. Ver `savePersonRow`.
+   * aplicación, y eso lo hace el servidor al invitar, no un POST a la
+   * colección. Ver `savePersonRow`.
    */
   canCreate: boolean;
 }
@@ -415,7 +415,7 @@ export async function pasteRange(opts: {
   matrix: string[][];
   /** Las filas que sobran nacen en vez de quedarse fuera. */
   createMissing: boolean;
-  /** Lo que se sabe de cada persona fuera de su coleccion. Solo en personas. */
+  /** Lo que se sabe de cada persona fuera de su colección. Solo en personas. */
   overlay?: Map<string, PersonOverlay>;
 }): Promise<RangeReport> {
   const { table, tables, people, rows, fields, start, matrix, createMissing } = opts;
@@ -431,7 +431,7 @@ export async function pasteRange(opts: {
     notes.push(
       `${plural(fit.extra - create, "fila no cabía", "filas no cabían")} y quedaron fuera.`,
     );
-    // Aqui no es que sobren filas: es que una fila de personas no se crea
+    // Aquí no es que sobren filas: es que una fila de personas no se crea
     // pegandola. Se dice por donde si, que es la pregunta que viene detras.
     if (!fit.canCreate) {
       notes.push(
@@ -450,7 +450,7 @@ export async function pasteRange(opts: {
   /*
    * Que columna recibe cada columna de lo pegado. Una que no se escribe desde
    * la celda entra como hueco --se dice y se salta-- en vez de correr las
-   * demas: lo pegado tiene que caer bajo la columna donde se solto.
+   * demás: lo pegado tiene que caer bajo la columna donde se solto.
    */
   const targets: (FieldDef | null)[] = [];
   for (let c = 0; c < width; c++) {
@@ -462,7 +462,7 @@ export async function pasteRange(opts: {
     if (!inlineEditable(table, field)) {
       const dicho = notEditableReason(table, field);
       // El motivo es el mismo que dice el globo de la celda, con la primera
-      // letra en minuscula: aqui va detras de dos puntos y no abre la frase.
+      // letra en minuscula: aquí va detras de dos puntos y no abre la frase.
       const porque = dicho ? `: ${dicho[0].toLowerCase()}${dicho.slice(1)}` : "";
       notes.push(`"${field.label}" no se escribe desde la celda${porque}.`);
       targets.push(null);
@@ -473,8 +473,8 @@ export async function pasteRange(opts: {
   if (targets.every((f) => f === null)) return { cells: 0, created: 0, failed: 0, notes };
 
   /*
-   * Las llaves de las columnas de relacion se emparejan de una vez para toda el
-   * area, no celda por celda: cincuenta filas con la misma cedula son una
+   * Las llaves de las columnas de relación se emparejan de una vez para toda el
+   * area, no celda por celda: cincuenta filas con la misma cédula son una
    * consulta y no cincuenta. Es el mismo emparejado de la importacion, con su
    * respaldo de llave incluido.
    */
@@ -521,13 +521,13 @@ export async function pasteRange(opts: {
         continue;
       }
 
-      // Sobre una fila que ya existe, una celda vacia no vacia una columna
+      // Sobre una fila que ya existe, una celda vacía no vacía una columna
       // obligatoria: se deja como estaba y el resto de lo pegado entra igual.
       if (row && field.required && raw.trim() === "") continue;
 
       /*
        * El correo y los roles no van en el cuerpo del pedido: no son columnas
-       * de la coleccion. Se apartan para su propia puerta --una peticion por
+       * de la colección. Se apartan para su propia puerta --una petición por
        * persona-- y quien los comprueba es `savePeopleColumns`.
        */
       if (isOverlayField(table, field.name)) {
@@ -542,7 +542,7 @@ export async function pasteRange(opts: {
         bad.set(field.label, (bad.get(field.label) ?? 0) + 1);
         continue;
       }
-      // Una opcion que la columna no tiene la rechazaria la base con la fila
+      // Una opción que la columna no tiene la rechazaria la base con la fila
       // entera: se cuenta como celda que no era de su tipo.
       if (field.type === "select" && field.options?.length) {
         const values = Array.isArray(converted.value)
@@ -561,7 +561,7 @@ export async function pasteRange(opts: {
     }
     if (patch && (patch.cuenta !== undefined || patch.roles !== undefined)) patches.push(patch);
     if (Object.keys(body).length === 0) continue;
-    // Una fila que todavia no existe no tiene nada que reponer: deshacerla es
+    // Una fila que todavía no existe no tiene nada que reponer: deshacerla es
     // borrarla, y su id solo se sabe cuando la base se lo pone.
     if (row) undoRows.push({ id: row.id, body: previousValues(row, body), cells: rowCells });
     requests.push(
@@ -579,7 +579,7 @@ export async function pasteRange(opts: {
 
   const bornIds = new Map<number, string>();
   const report = await send(requests, cells, notes, create, bornIds);
-  // Y despues lo que sale por la cuenta, que es lo que no cabia en el lote.
+  // Y después lo que sale por la cuenta, que es lo que no cabia en el lote.
   const account = await sendByAccount(table, opts.overlay, rows, patches);
   if (account) notes.push(...account.notes);
   if (account?.cells && undoRows.length) notes.push(UNDO_PARTIAL);
@@ -610,7 +610,7 @@ export async function pasteRange(opts: {
 /* ------------------------------------------------------------------ */
 
 /**
- * Lo que se dice despues de escribir un bloque.
+ * Lo que se dice después de escribir un bloque.
  *
  * Se cuenta en celdas y no en filas porque es lo que se acaba de hacer: pegar
  * una columna sobre veinte filas son veinte celdas, y decir "20 filas" haria

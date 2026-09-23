@@ -1,15 +1,15 @@
 /**
- * El ciclo de vida de una peticion a la IA: abrir el hilo de avisos, ir
- * acumulando lo que llega y dejar el resultado en la conversacion.
+ * El ciclo de vida de una petición a la IA: abrir el hilo de avisos, ir
+ * acumulando lo que llega y dejar el resultado en la conversación.
  *
  * Da igual si es la que se acaba de mandar o una que ya venia en marcha desde
  * antes de recargar: lo que llega se mira en vivo, y lo que quede al final
- * entra en la conversacion por el mismo sitio.
+ * entra en la conversación por el mismo sitio.
  *
  * No es un modulo de estado como `aiRun.svelte.ts` o `aiConversation.svelte.ts`
- * --no declara ni un `$state`--: lo que se ve vive en esos dos, y aqui esta
- * quien los va escribiendo. Lo unico que se guarda es el avance de la peticion
- * en curso, a proposito fuera del estado: el trozo entra en cada aviso del
+ * --no declara ni un `$state`--: lo que se ve vive en esos dos, y aquí esta
+ * quien los va escribiendo. Lo único que se guarda es el avance de la petición
+ * en curso, a propósito fuera del estado: el trozo entra en cada aviso del
  * servidor y el redibujado se pide agrupado, con lo ultimo que haya.
  *
  * De `AiPanel.svelte` solo necesita lo que es suyo --a donde mira la columna,
@@ -39,19 +39,19 @@ import { frameThrottle } from "./frameThrottle";
 import { errorMessage, stream } from "./pb";
 
 /*
- * Lo que se vio llegar, fuera del estado: el trozo entra aqui en cada aviso
+ * Lo que se vio llegar, fuera del estado: el trozo entra aquí en cada aviso
  * del servidor y el redibujado se pide agrupado, con lo ultimo que haya.
  */
 let seen: Progress = NO_PROGRESS;
-/** De que peticion es lo visto: lo agrupado se sirve a la que sigue en marcha. */
+/** De que petición es lo visto: lo agrupado se sirve a la que sigue en marcha. */
 let seenKey = "";
 const showProgress = frameThrottle(() => {
   markRun(seenKey, { progress: seen });
 });
 
 /*
- * Cada paso que la IA da ya quedo escrito en la base --la pagina se guarda
- * al momento, no al final--, asi que lo unico que falta es que el lienzo
+ * Cada paso que la IA da ya quedo escrito en la base --la página se guarda
+ * al momento, no al final--, así que lo único que falta es que el lienzo
  * vuelva a leerla. Sin esto, lo que se ve mientras trabaja es siempre lo de
  * antes de empezar, aunque el paso ya este hecho.
  *
@@ -84,7 +84,7 @@ function refreshCanvas(onChanged: () => Promise<void> | void): void {
  * una pantalla que ya no esta.
  *
  * El avance no se toca: lo que agrupa vive en `aiRun` y quien vuelva a esta
- * pagina tiene que encontrarlo donde iba.
+ * página tiene que encontrarlo donde iba.
  */
 export function cancelCanvasRefresh(): void {
   if (refresh.timer) clearTimeout(refresh.timer);
@@ -94,33 +94,33 @@ export function cancelCanvasRefresh(): void {
 
 /** Lo que el panel pone de su parte: lo que solo el sabe o solo el puede hacer. */
 export interface ListenHooks {
-  /** La conversacion a la que pertenece lo que llegue. */
+  /** La conversación a la que pertenece lo que llegue. */
   key: string;
-  /** La pagina sobre la que escribe esta peticion. */
+  /** La página sobre la que escribe esta petición. */
   pageId: string;
   appId: string;
   /** Escuchar es querer ver: la vista vuelve al final aunque se estuviera leyendo mas arriba. */
   onListening: () => void;
-  /** Lo unico que se contesta hacia atras: se monta el marco escondido y se sigue. */
+  /** Lo único que se contesta hacia atras: se monta el marco escondido y se sigue. */
   onProbe: (probe: { probeId: string; hash: string }) => void;
   /**
    * Lo que se desplego mientras trabajaba sigue desplegado: es la misma fila en
    * otro estado, no una nueva. Llega el id que le toco a la entrada aterrizada.
    */
   onLanded: (entryId: number) => void;
-  /** El lienzo tiene que volver a leer la pagina. */
+  /** El lienzo tiene que volver a leer la página. */
   onChanged: () => Promise<void> | void;
   /** Hay cambios con riesgo esperando decision. */
   onImpact: (impact: DataImpact) => void;
 }
 
 /**
- * Escuchar una peticion y dejar su resultado en la conversacion.
+ * Escuchar una petición y dejar su resultado en la conversación.
  *
- * `since` es ahora mismo al mandar una peticion nueva, y cuando de verdad
+ * `since` es ahora mismo al mandar una petición nueva, y cuando de verdad
  * empezo al volver a una que ya venia en marcha --si no, el reloj se
  * reiniciaria en cada recarga aunque la IA llevara rato trabajando--. Quien se
- * engancha tarde recibe primero, de golpe, todo lo que ya habia pasado.
+ * engancha tarde recibe primero, de golpe, todo lo que ya había pasado.
  */
 export async function listen(
   path: string,
@@ -132,8 +132,8 @@ export async function listen(
   const mine = key;
   const minePage = pageId;
   markListening(mine, true);
-  // La senal de que la IA trabaja aqui: la escribe quien escucha el hilo de
-  // avisos, que es el unico que sabe cuando empieza y cuando termina.
+  // La senal de que la IA trabaja aquí: la escribe quien escucha el hilo de
+  // avisos, que es el único que sabe cuando empieza y cuando termina.
   setAiWorking(minePage, true);
   openRun(mine, since ?? Date.now());
   onListening();
@@ -143,7 +143,7 @@ export async function listen(
   let result: AiPageResult | null = null;
   let failure = "";
   /*
-   * La pregunta llega antes del final, en su propio aviso. Se guarda aqui
+   * La pregunta llega antes del final, en su propio aviso. Se guarda aquí
    * para que siga pintandose aunque el hilo se corte entre esa pregunta y el
    * resultado: lo que la IA quiso preguntar no se pierde por eso.
    */
@@ -185,8 +185,8 @@ export async function listen(
       ],
     });
     onLanded(id);
-    // El servidor ya la dejo abierta al guardarla: apuntarlo aqui es lo que
-    // hace que ir a otra pagina la encuentre en blanco en vez de reponer la
+    // El servidor ya la dejo abierta al guardarla: apuntarlo aquí es lo que
+    // hace que ir a otra página la encuentre en blanco en vez de reponer la
     // que tuvo alli alguna vez.
     if (result) markOpenChat(appId, { chat: result.chatId, page: minePage }, key);
   };
@@ -194,7 +194,7 @@ export async function listen(
   try {
     await stream<AiProgress>(path, payload, (part) => {
       if (part.tipo === "inicio") {
-        // El servidor la tiene apuntada: a partir de aqui recargar o cerrar
+        // El servidor la tiene apuntada: a partir de aquí recargar o cerrar
         // ya no la pierde.
         markRun(mine, { runId: part.runId });
         return;
@@ -241,7 +241,7 @@ export async function listen(
         seen = { ...now, context: part.texto };
       } else if (part.tipo === "uso") {
         // El contexto gastado se ve subir mientras trabaja, y se queda
-        // apuntado en la conversacion cuando termina.
+        // apuntado en la conversación cuando termina.
         writeConversation(mine, { ...readConversation(mine), usage: part.uso });
         return;
       } else if (part.tipo === "fin") {
@@ -256,8 +256,8 @@ export async function listen(
       const done: AiPageResult = result;
       grants = done.access ?? [];
       // "cortar" cierra el plan sin pasar por el aviso de progreso -- no le
-      // manda texto nuevo al modelo, asi que no hay ronda que lo suelte
-      // antes de tiempo-- y el resultado es lo unico que lo trae.
+      // manda texto nuevo al modelo, así que no hay ronda que lo suelte
+      // antes de tiempo-- y el resultado es lo único que lo trae.
       if (!closedPlan && done.plan) closedPlan = done.plan;
       land(
         done.message,
@@ -265,14 +265,14 @@ export async function listen(
         done.notices,
         done.reasoning,
         seen.context || undefined,
-        // Detenida a mitad: no hay respuesta que dejar encima, asi que lo
+        // Detenida a mitad: no hay respuesta que dejar encima, así que lo
         // que se alcanzo a hacer se queda a la vista.
         done.stopped,
       );
       if (done.changed || done.notices.length) await onChanged();
       if (done.impact) onImpact(done.impact);
     } else {
-      // Se corto antes del final. Lo escrito hasta aqui no se tira.
+      // Se corto antes del final. Lo escrito hasta aquí no se tira.
       land(
         failure || "La petición no llegó a terminar.",
         taken(seen),
@@ -283,7 +283,7 @@ export async function listen(
       );
     }
   } catch (err) {
-    // Lo escrito hasta el fallo se queda en la conversacion, con el porque.
+    // Lo escrito hasta el fallo se queda en la conversación, con el porque.
     const written = seen.text;
     land(
       written ? `${written}\n\n${errorMessage(err)}` : errorMessage(err),

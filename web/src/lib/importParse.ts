@@ -2,14 +2,14 @@
  * Lectura e interpretacion de un archivo o texto pegado para importar a una
  * tabla.
  *
- * El parseo y la conversion de celdas ya no viven aqui: se mudaron a `shared/`
- * para que el servidor los use tambien --la muestra que la IA recibe de un
- * adjunto y `llenar_tabla` leen el archivo con este mismo codigo--. Se
- * reexportan desde aqui para que la importacion manual y `dropFiles.ts` sigan
+ * El parseo y la conversion de celdas ya no viven aquí: se mudaron a `shared/`
+ * para que el servidor los use también --la muestra que la IA recibe de un
+ * adjunto y `llenar_tabla` leen el archivo con este mismo código--. Se
+ * reexportan desde aquí para que la importacion manual y `dropFiles.ts` sigan
  * escribiendo un solo import.
  *
- * Lo que si es de este lado es emparejar las columnas de relacion: consulta la
- * tabla destino con la sesion de quien importa, y eso solo existe en el
+ * Lo que si es de este lado es emparejar las columnas de relación: consulta la
+ * tabla destino con la sesión de quien importa, y eso solo existe en el
  * navegador.
  */
 import { MAX_IMPORT_ROWS } from "@shared/importBatch";
@@ -47,10 +47,10 @@ export {
 export type { ConvertResult, ParsedTable, ParseResult };
 
 /* ------------------------------------------------------------------ */
-/* Emparejar las columnas de relacion                                   */
+/* Emparejar las columnas de relación                                   */
 /* ------------------------------------------------------------------ */
 
-/** Como le fue a una columna de relacion en el archivo que se va a importar. */
+/** Como le fue a una columna de relación en el archivo que se va a importar. */
 export interface ColumnMatchReport {
   field: FieldDef;
   /** Columna del destino con la que se emparejo este archivo. */
@@ -74,15 +74,15 @@ export function missingRowCount(report: ColumnMatchReport): number {
 }
 
 /**
- * Empareja de golpe todas las columnas de relacion de un archivo.
+ * Empareja de golpe todas las columnas de relación de un archivo.
  *
  * De golpe y no fila a fila: un archivo de mil filas con tres columnas de
- * relacion serian tres mil consultas, y casi todas repetidas --veinte filas
+ * relación serian tres mil consultas, y casi todas repetidas --veinte filas
  * suelen ser tres cedulas--.
  *
  * Un valor que no encuentra registro no es un error de la fila: la fila entra
  * completa y el valor se conserva a la vista. El exceso de velocidad ocurrio
- * aunque esa cedula no este en la lista.
+ * aunque esa cédula no este en la lista.
  */
 export async function matchRelationColumns(opts: {
   /** Columna de la tabla destino por cada columna del archivo, o nada. */
@@ -117,10 +117,10 @@ export async function matchRelationColumns(opts: {
     let found = await matchValues(target, values, opts.lookup);
 
     /*
-     * Si la llave propuesta --la que ensena la columna-- no casa con nada, se
+     * Si la llave propuesta --la que enseña la columna-- no casa con nada, se
      * prueban las otras columnas unicas del destino y gana la que mas encuentre.
      *
-     * Es el caso corriente: la columna ensena el nombre y el archivo trae
+     * Es el caso corriente: la columna enseña el nombre y el archivo trae
      * cedulas. Sin esto habria que adivinar cual elegir a mano, sabiendo de
      * antemano que hay dentro del archivo.
      */

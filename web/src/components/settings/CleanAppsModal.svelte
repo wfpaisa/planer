@@ -1,13 +1,13 @@
 <!--
   Limpieza: se eligen las aplicaciones que sobran y se borran con todo lo que
-  guardan --tablas, paginas, accesos, versiones y conversaciones--.
+  guardan --tablas, páginas, accesos, versiones y conversaciones--.
 
   Se pide escribir la autorizacion a mano porque no hay vuelta atras y porque
-  aqui no se borra una aplicacion, sino varias de una vez: marcar sin querer
-  una casilla de mas es demasiado facil.
+  aqui no se borra una aplicación, sino varias de una vez: marcar sin querer
+  una casilla de mas es demasiado fácil.
 
   Lo que no se toca son los ajustes de esta pantalla: el servidor de IA con
-  sus claves y el tamano de letra siguen igual despues de limpiar.
+  sus claves y el tamaño de letra siguen igual después de limpiar.
 -->
 <script lang="ts" module>
   /** Lo que hay que escribir para poder confirmar. */
@@ -90,14 +90,14 @@
   width="modal-clean-apps-width"
 >
   <div class="body-clean-apps flex flex-col gap-4">
-    <!-- En linea y no en la capa de avisos: es la advertencia de lo que se va
+    <!-- En línea y no en la capa de avisos: es la advertencia de lo que se va
          a hacer, y tiene que seguir a la vista mientras se marca la lista. -->
     <p class="alert danger warn-clean-apps">
       <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
       <span>
         <strong>Esto no se puede deshacer.</strong>
-        Las aplicaciones marcadas se borran con sus tablas, sus páginas, sus accesos y todos sus datos.
-        Los ajustes se conservan: el servidor de IA, sus claves y el tamaño de letra siguen igual.
+        Se borrarán las aplicaciones seleccionadas con sus tablas, páginas, accesos y datos. Los ajustes
+        de la cuenta se conservarán.
       </span>
     </p>
 

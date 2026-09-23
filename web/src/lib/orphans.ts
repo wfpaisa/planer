@@ -2,8 +2,8 @@
  * Los valores que no encontraron a quien apuntar.
  *
  * Una fila cuya llave no existe en la tabla destino se guarda igual: el valor
- * se queda a la vista en su columna de reserva y la celda lo ensena sin enlace.
- * Aqui se cuenta cuantas hay --la grilla lo dice en su barra y avisa de que
+ * se queda a la vista en su columna de reserva y la celda lo enseña sin enlace.
+ * Aquí se cuenta cuantas hay --la grilla lo dice en su barra y avisa de que
  * tabla no tiene esos valores-- y se recogen las que estaban esperando cuando
  * el registro que les faltaba acaba naciendo.
  *
@@ -36,8 +36,8 @@ export interface OrphanValue {
 /**
  * Cuenta las filas sin enlace de una tabla, agrupadas por valor.
  *
- * Se pregunta a la base y no a lo que hay en pantalla: la grilla ensena una
- * pagina, y el recuento es de la tabla entera.
+ * Se pregunta a la base y no a lo que hay en pantalla: la grilla enseña una
+ * página, y el recuento es de la tabla entera.
  */
 export async function loadOrphans(table: TableRecord): Promise<OrphanValue[]> {
   const relations = (table.fields ?? []).filter((f) => isRelationField(f) && f.multiple !== true);
@@ -55,7 +55,7 @@ export async function loadOrphans(table: TableRecord): Promise<OrphanValue[]> {
       const raw = row[orphanFieldName(field.name)];
       const value = raw == null ? "" : String(raw);
       // Con enlace no cuenta: las dos columnas nunca estan llenas a la vez,
-      // pero una fila recien enlazada puede traer el texto todavia.
+      // pero una fila recien enlazada puede traer el texto todavía.
       if (!value || row[field.name]) continue;
       counts.set(value, (counts.get(value) ?? 0) + 1);
     }
@@ -82,9 +82,9 @@ export interface Waiting {
  * El valor de la fila recien creada por el nombre de una de sus columnas.
  *
  * La fila de personas que vuelve de guardar lleva el correo bajo `cuenta` --que
- * es donde vive, en la cuenta y no en la coleccion-- y las columnas propias con
+ * es donde vive, en la cuenta y no en la colección-- y las columnas propias con
  * su nombre. `email` se acepta porque columnas de antes de este cambio guardan
- * asi la llave. Es el mismo reparto que `personKeyValue`, visto desde la fila.
+ * así la llave. Es el mismo reparto que `personKeyValue`, visto desde la fila.
  */
 function createdValue(created: Record<string, unknown>, key: string): string {
   if (key === "email") return String(created.cuenta ?? "");
@@ -109,7 +109,7 @@ const FILTER_CHUNK = 50;
 /**
  * Filas de otras tablas que estaban esperando a un registro que acaba de nacer.
  *
- * Se mira despues de crear una fila: si su llave coincide con un valor que
+ * Se mira después de crear una fila: si su llave coincide con un valor que
  * quedo sin dueno y nadie lo acepto, esas filas se pueden enlazar de una vez.
  * Sin esto, alguien invita a la persona que faltaba y sus veinte filas siguen
  * sin enlace sin que nada lo diga.
@@ -121,7 +121,7 @@ const FILTER_CHUNK = 50;
  * `design.md` D8.
  *
  * Las que apuntan a la tabla de personas entran por la misma puerta que las
- * demas: lo que guardan es el id de la fila del destino. Lo unico suyo es que
+ * demás: lo que guardan es el id de la fila del destino. Lo único suyo es que
  * un valor que tienen dos personas no enlaza a ninguna, que se comprueba
  * contra la lista de invitados.
  */
@@ -129,11 +129,11 @@ export async function waitingFor(opts: {
   /** La tabla donde acaban de nacer los registros. */
   target: TableRecord;
   created: Record<string, unknown> | Record<string, unknown>[];
-  /** Todas las tablas de la aplicacion. */
+  /** Todas las tablas de la aplicación. */
   tables: TableRecord[];
   /**
-   * Los invitados a la aplicacion, para no enlazar una cedula que tengan dos.
-   * Puede venir sin el recien creado: aqui solo se mira quien mas la lleva.
+   * Los invitados a la aplicación, para no enlazar una cédula que tengan dos.
+   * Puede venir sin el recien creado: aquí solo se mira quien mas la lleva.
    */
   people?: AppPerson[];
 }): Promise<Waiting[]> {
@@ -154,7 +154,7 @@ export async function waitingFor(opts: {
       /*
        * De cada valor, a que registro enlaza. Un valor que dos de los recien
        * nacidos comparten no enlaza a ninguno: es la misma regla que al
-       * emparejar, y aqui aparece cuando el archivo trae la cedula repetida.
+       * emparejar, y aquí aparece cuando el archivo trae la cédula repetida.
        */
       const porValor = new Map<string, string>();
       const repetidos = new Set<string>();
@@ -171,7 +171,7 @@ export async function waitingFor(opts: {
       if (porValor.size === 0) continue;
 
       /*
-       * Una peticion por tramo y no una por valor: doscientas personas son
+       * Una petición por tramo y no una por valor: doscientas personas son
        * doscientas consultas a la misma tabla, y lo que se busca es un valor de
        * una lista.
        */
@@ -221,7 +221,7 @@ export async function linkWaiting(waiting: Waiting): Promise<void> {
   }
 }
 
-/** Cuantas filas cuentan todavia: las aceptadas ya no. */
+/** Cuantas filas cuentan todavía: las aceptadas ya no. */
 export function pendingRows(orphans: OrphanValue[]): number {
   return orphans.filter((o) => !o.accepted).reduce((sum, o) => sum + o.rows, 0);
 }

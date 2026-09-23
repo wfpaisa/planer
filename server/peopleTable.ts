@@ -1,13 +1,13 @@
 /**
- * Crea y repara la tabla de personas de una aplicacion.
+ * Crea y repara la tabla de personas de una aplicación.
  *
  * Es idempotente y se llama en dos momentos: al arrancar --para las
- * aplicaciones que ya existian, que la estrenan vacia-- y al crear una
- * aplicacion nueva. Llamarla dos veces no cambia nada.
+ * aplicaciones que ya existian, que la estrenan vacía-- y al crear una
+ * aplicación nueva. Llamarla dos veces no cambia nada.
  *
- * La coleccion que crea guarda una sola columna suya, el enlace con la cuenta.
+ * La colección que crea guarda una sola columna suya, el enlace con la cuenta.
  * El correo, el nivel y los roles no estan ahi: viven en la cuenta --que es de
- * esta aplicacion-- y en `app_access`, y se superponen al pintar. Ver
+ * esta aplicación-- y en `app_access`, y se superponen al pintar. Ver
  * `shared/people.ts`.
  */
 import {
@@ -38,7 +38,7 @@ import {
 import { parkReferences } from "./rowDelete.ts";
 import { accessRules, dataCollectionName, SchemaError, updateDataCollection } from "./schema.ts";
 
-/** Lo justo que hace falta de una aplicacion para darle su tabla de personas. */
+/** Lo justo que hace falta de una aplicación para darle su tabla de personas. */
 export interface AppForPeople {
   id: string;
   slug: string;
@@ -46,10 +46,10 @@ export interface AppForPeople {
 }
 
 /**
- * Deja lista la tabla de personas de una aplicacion y devuelve su registro.
+ * Deja lista la tabla de personas de una aplicación y devuelve su registro.
  *
- * Devuelve `null` si la lista de cuentas todavia no existe, que solo pasa
- * mientras el arranque va por la mitad. No se lanza: dejar una aplicacion sin
+ * Devuelve `null` si la lista de cuentas todavía no existe, que solo pasa
+ * mientras el arranque va por la mitad. No se lanza: dejar una aplicación sin
  * su tabla de personas es reparable en el siguiente arranque, y tumbar el
  * arranque entero no lo es.
  */
@@ -62,10 +62,10 @@ export async function ensurePeopleTable(app: AppForPeople): Promise<TableRecord 
     `app = "${quote(app.id)}" && name = "${quote(PEOPLE_TABLE)}"`,
   );
 
-  // El enlace sale del nombre y cambia cuando la aplicacion se renombra, asi
-  // que el nombre de la coleccion solo vale para bautizarla: la que ya existe
+  // El enlace sale del nombre y cambia cuando la aplicación se renombra, así
+  // que el nombre de la colección solo vale para bautizarla: la que ya existe
   // se busca por la tabla, que se lo guardo. Derivandolo del enlace de ahora,
-  // el primer arranque tras un renombrado creaba una coleccion vacia al lado
+  // el primer arranque tras un renombrado creaba una colección vacía al lado
   // de la que tiene las personas.
   const dataCollection = existing?.dataCollection ?? dataCollectionName(app.slug, PEOPLE_TABLE);
 
@@ -120,9 +120,9 @@ export async function ensurePeopleTable(app: AppForPeople): Promise<TableRecord 
     system: true,
   });
   console.log(`  + tabla de personas en la aplicacion ${app.id}`);
-  // La coleccion nacio solo con el enlace a la cuenta: aqui se le abren las
+  // La colección nacio solo con el enlace a la cuenta: aquí se le abren las
   // columnas propias con las que nace la tabla, que es el mismo camino por el
-  // que se anade cualquier otra despues.
+  // que se añade cualquier otra después.
   await updateDataCollection({ dataCollection, fields });
   await syncPersonRows(app.id, dataCollection);
   return table;
@@ -131,11 +131,11 @@ export async function ensurePeopleTable(app: AppForPeople): Promise<TableRecord 
 /**
  * Una fila por persona invitada, ni una mas.
  *
- * La cuadricula lee la coleccion de la aplicacion como la de cualquier tabla,
- * asi que quien no tenga fila no aparece. Las personas invitadas antes de este
- * cambio no la tienen: se les crea aqui, vacia. Y al reves, una fila cuya
+ * La cuadricula lee la colección de la aplicación como la de cualquier tabla,
+ * así que quien no tenga fila no aparece. Las personas invitadas antes de este
+ * cambio no la tienen: se les crea aquí, vacía. Y al reves, una fila cuya
  * persona ya no esta invitada sobra --se la habria llevado `dropPersonData`--
- * asi que tambien se recoge, para que la cuadricula no ensene a nadie que no
+ * así que también se recoge, para que la cuadricula no ensene a nadie que no
  * tenga acceso.
  */
 export async function syncPersonRows(appId: string, dataCollection: string): Promise<void> {
@@ -170,12 +170,12 @@ export async function syncPersonRows(appId: string, dataCollection: string): Pro
  *
  * `campos` son sus columnas propias, tal como se escribieron en el mismo
  * formulario que la invito. Nacen con la fila y no en un segundo viaje: una
- * tabla de personas con una columna obligatoria --una cedula, un legajo--
- * rechaza la fila vacia, y entonces la persona se quedaba con cuenta y sin
+ * tabla de personas con una columna obligatoria --una cédula, un legajo--
+ * rechaza la fila vacía, y entonces la persona se quedaba con cuenta y sin
  * fila, invisible en su propia tabla.
  *
- * Y si aun asi no se puede crear, se dice. Antes el fallo se tragaba aqui y lo
- * unico que llegaba a la pantalla era el 404 de mas adelante, al ir a buscar
+ * Y si aun así no se puede crear, se dice. Antes el fallo se tragaba aquí y lo
+ * único que llegaba a la pantalla era el 404 de mas adelante, al ir a buscar
  * una fila que nunca existio.
  *
  * Lo que no sea una columna suya de verdad se ignora: el correo y los roles
@@ -201,7 +201,7 @@ export async function ensurePersonRow(
   await createRecord(table.dataCollection, { [MEMBER_FIELD]: memberId, ...own });
 }
 
-/** La tabla de personas de una aplicacion, si ya la tiene. */
+/** La tabla de personas de una aplicación, si ya la tiene. */
 export async function peopleTableFor(appId: string): Promise<TableRecord | null> {
   return await firstRecord<TableRecord>(
     INTERNAL.tables,
@@ -210,10 +210,10 @@ export async function peopleTableFor(appId: string): Promise<TableRecord | null>
 }
 
 /**
- * Anade a cada persona sus columnas propias en esta aplicacion.
+ * Añade a cada persona sus columnas propias en esta aplicación.
  *
  * Es lo que permite que una columna de persona de otra tabla enseñe y
- * empareje por una columna unica de personas --un documento, no solo el
+ * empareje por una columna única de personas --un documento, no solo el
  * correo--: el emparejado busca en esta lista y no en la cuenta comun, que
  * nunca tuvo esas columnas.
  */
@@ -235,7 +235,7 @@ export async function withOwnColumns(appId: string, people: AppPerson[]): Promis
     if (!row) return p;
     const campos: Record<string, unknown> = {};
     for (const f of own) campos[f.name] = row[f.name];
-    // El id de su fila viaja aunque la aplicacion no le haya puesto ninguna
+    // El id de su fila viaja aunque la aplicación no le haya puesto ninguna
     // columna propia: es el ancla de toda columna que apunte a personas, y sin
     // el no habria con que enlazar. Ver `AppPerson.fila`.
     return { ...p, fila: String(row.id ?? ""), campos };
@@ -248,7 +248,7 @@ export async function withOwnColumns(appId: string, people: AppPerson[]): Promis
  *
  * Es la regla general de `server/rowDelete.ts` aplicada a un caso: quitarle el
  * acceso a una persona borra su fila de la tabla de personas, y borrar una fila
- * es lo mismo se borre por donde se borre. Lo unico propio de aqui es llegar a
+ * es lo mismo se borre por donde se borre. Lo único propio de aquí es llegar a
  * esa fila desde la cuenta, que es lo que se sabe al quitar el acceso.
  *
  * Se llama antes de `dropPersonData`: el valor que se guarda sale justamente de
@@ -262,18 +262,18 @@ export async function parkPersonReferences(appId: string, memberId: string): Pro
     table.dataCollection,
     `${MEMBER_FIELD} = "${quote(memberId)}"`,
   ).catch(() => null);
-  // Sin fila no hay a que apuntar, asi que no hay nada que conservar.
+  // Sin fila no hay a que apuntar, así que no hay nada que conservar.
   if (!row?.id) return;
 
   await parkReferences(appId, table, [row.id]);
 }
 
 /**
- * Borra lo que una aplicacion sabia de una persona, y solo esa aplicacion.
+ * Borra lo que una aplicación sabia de una persona, y solo esa aplicación.
  *
  * Se llama al quitarle el acceso, justo antes de borrarle la cuenta de esta
- * aplicacion. Lo que sepan de ella otras aplicaciones vive en sus propias
- * colecciones, que aqui no se miran siquiera. Es el borrado y a la vez la
+ * aplicación. Lo que sepan de ella otras aplicaciones vive en sus propias
+ * colecciones, que aquí no se miran siquiera. Es el borrado y a la vez la
  * prueba de que la separacion es de modelo: no hay nada que filtrar porque no
  * hay nada junto.
  */
@@ -290,8 +290,8 @@ export async function dropPersonData(appId: string, memberId: string): Promise<v
 /**
  * La tabla de personas no se borra ni se duplica.
  *
- * Se comprueba aqui y no solo en la pantalla: la pantalla es una cortesia, y
- * quien llame a la API por su cuenta se encuentra lo mismo. Una aplicacion sin
+ * Se comprueba aquí y no solo en la pantalla: la pantalla es una cortesia, y
+ * quien llame a la API por su cuenta se encuentra lo mismo. Una aplicación sin
  * su tabla de personas no tiene por donde invitar a nadie, y una copia de ella
  * seria una tabla con tres columnas que no sostiene nada.
  */
@@ -343,8 +343,8 @@ export function guardSystemFields(table: TableRecord, incoming: FieldDef[]): Fie
         `La columna "${def.label}" no puede cambiar de tipo: es una de las que sostienen el acceso a la aplicación.`,
       );
     }
-    // Se guarda la definicion de siempre y no la que llego: asi lo demas que
-    // venga colado --unica, obligatoria, opciones-- tampoco cuela.
+    // Se guarda la definicion de siempre y no la que llego: así lo demás que
+    // venga colado --única, obligatoria, opciones-- tampoco cuela.
     kept.push(structuredClone(def));
   }
 
@@ -355,9 +355,9 @@ export function guardSystemFields(table: TableRecord, incoming: FieldDef[]): Fie
   }
 
   /*
-   * Ninguna columna propia puede llamarse como un dato que la sesion ya manda:
-   * una pagina publicada los recibe en un solo nivel, y la columna lo taparia.
-   * Se compara el nombre tecnico, que es en lo que se convierte el titulo al
+   * Ninguna columna propia puede llamarse como un dato que la sesión ya manda:
+   * una página publicada los recibe en un solo nivel, y la columna lo taparia.
+   * Se compara el nombre tecnico, que es en lo que se convierte el título al
    * guardar. Ver `PEOPLE_RESERVED_NAMES`.
    */
   for (const f of own) {
@@ -369,9 +369,9 @@ export function guardSystemFields(table: TableRecord, incoming: FieldDef[]): Fie
     }
   }
 
-  // La del nombre se mira por su nombre tecnico, que es lo unico que el panel
-  // nunca cambia de una columna que ya existe: renombrar cambia el titulo y
-  // deja el nombre y el id quietos. Asi, lo que llega sin ella es que se la
+  // La del nombre se mira por su nombre tecnico, que es lo único que el panel
+  // nunca cambia de una columna que ya existe: renombrar cambia el título y
+  // deja el nombre y el id quietos. Así, lo que llega sin ella es que se la
   // quitaron.
   if (!own.some((f) => f.name === PEOPLE_NAME_FIELD)) {
     throw new SchemaError(
@@ -387,10 +387,10 @@ export function guardSystemFields(table: TableRecord, incoming: FieldDef[]): Fie
  *
  * Las columnas propias no se tocan: solo se asegura que las dos del sistema
  * esten, con su marca y en cabeza. Si alguien las borro llamando a la API por
- * su cuenta, aqui vuelven. Con ellas vuelve la del nombre, que dejo de poder
- * borrarse despues de que algunas aplicaciones ya la hubieran perdido: vuelve
- * vacia, porque lo que tuviera dentro se fue con la columna. El nombre de la
- * tabla tambien se repone: las aplicaciones de antes la llamaban "Personas", y
+ * su cuenta, aquí vuelven. Con ellas vuelve la del nombre, que dejo de poder
+ * borrarse después de que algunas aplicaciones ya la hubieran perdido: vuelve
+ * vacía, porque lo que tuviera dentro se fue con la columna. El nombre de la
+ * tabla también se repone: las aplicaciones de antes la llamaban "Personas", y
  * los roles se gestionan ahora desde ella. Ver `PEOPLE_TABLE_LABEL`.
  */
 async function repair(table: TableRecord): Promise<TableRecord> {

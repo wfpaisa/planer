@@ -27,9 +27,9 @@
 </label>
 
 <style>
-  /* El estirado de la perilla al pulsar vive en el catalogo (`.switch input`),
-     no aqui: lo llevan todos los interruptores, tambien los que se escriben a
-     mano y los de las paginas publicadas. */
+  /* El estirado de la perilla al pulsar vive en el catálogo (`.switch input`),
+     no aqui: lo llevan todos los interruptores, también los que se escriben a
+     mano y los de las páginas publicadas. */
   .switch-control {
     cursor: pointer;
   }

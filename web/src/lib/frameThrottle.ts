@@ -2,16 +2,16 @@
  * Agrupar trabajo visual por intervalos de dibujado.
  *
  * La respuesta de la IA llega por trozos: el servidor manda uno por token y
- * `stream()` llama de vuelta con cada uno. Redibujar la conversacion --que
+ * `stream()` llama de vuelta con cada uno. Redibujar la conversación --que
  * puede llevar decenas de mensajes con formato-- en cada trozo la deja sin
  * responder al desplazamiento ni a los clics.
  *
- * Aqui se pide el trabajo tantas veces como haga falta y se hace una sola vez
+ * Aquí se pide el trabajo tantas veces como haga falta y se hace una sola vez
  * cada pocos frames, siempre con el ultimo valor. Se cuenta en frames y no en
- * milisegundos a proposito: un intervalo en milisegundos no esta alineado con
+ * milisegundos a propósito: un intervalo en milisegundos no esta alineado con
  * el dibujado del navegador y produce saltos.
  *
- * Se traduce tal cual desde la version de React. Con reactividad granular
+ * Se traduce tal cual desde la versión de React. Con reactividad granular
  * puede que ya no haga falta; eso se mide en la Fase 7, con el panel de IA
  * funcionando. Ver `docs/MIGRACION-SVELTE.md`.
  */

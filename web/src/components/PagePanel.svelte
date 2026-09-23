@@ -1,11 +1,11 @@
 <!--
-  Los ajustes de una pagina: como se llama, quien puede verla y si es el inicio.
+  Los ajustes de una página: como se llama, quien puede verla y si es el inicio.
 
-  Un separador --el texto que agrupa a las paginas de alrededor-- pasa por aqui
-  con menos campos, pero no con menos permiso: tambien dice quien lo ve. Es lo
+  Un separador --el texto que agrupa a las páginas de alrededor-- pasa por aqui
+  con menos campos, pero no con menos permiso: también dice quien lo ve. Es lo
   que hace que un grupo entero se pueda esconder sin tener que esconder a mano
-  cada pagina de dentro, y lo que evita que a quien no le toca le quede el
-  titulo de un grupo vacio.
+  cada página de dentro, y lo que evita que a quien no le toca le quede el
+  título de un grupo vacío.
 -->
 <script lang="ts">
   import { withPageAdmin } from "@shared/pages";
@@ -38,14 +38,14 @@
   } = $props();
 
   /*
-   * Los campos son estado propio: se escriben antes de guardar. De la pagina
+   * Los campos son estado propio: se escriben antes de guardar. De la página
    * sale el valor de partida --por eso `untrack`, es lo que se quiere leer una
-   * sola vez-- y cambiar de pagina los repone en el efecto de abajo.
+   * sola vez-- y cambiar de página los repone en el efecto de abajo.
    */
   let name = $state(untrack(() => page.name));
   let icon = $state(untrack(() => page.icon));
   /*
-   * Los roles se reponen al leerlos: una pagina limitada lleva `admin` aunque
+   * Los roles se reponen al leerlos: una página limitada lleva `admin` aunque
    * se guardara sin el --la escribio la inteligencia artificial, o es de antes
    * de que la pantalla lo pusiera siempre--. Se repone aqui y no al guardar
    * para que lo que se ve marcado sea exactamente lo que se va a guardar.
@@ -57,22 +57,22 @@
   let deleting = $state(false);
 
   /*
-   * La memoria no viene con la pagina que trae el constructor: se pide aparte.
+   * La memoria no viene con la página que trae el constructor: se pide aparte.
    * Es lo que hace que la caja ensene lo que la pasada acaba de escribir en
    * cuanto la IA termina, sin esperar a que nadie recargue nada.
    */
   let memory = $state("");
-  /** Todavia no llego: la caja no se toca hasta saber que dice. */
+  /** Todavía no llego: la caja no se toca hasta saber que dice. */
   let memoryLoading = $state(true);
 
-  /** La IA esta trabajando en esta pagina: la caja se mira pero no se escribe. */
+  /** La IA esta trabajando en esta página: la caja se mira pero no se escribe. */
   const aiWorking = $derived(aiActivity.has(page.id));
 
   async function loadMemory(pageId: string) {
     memoryLoading = true;
     try {
       const res = await api<{ memoria: string }>(`/api/apps/${app.id}/paginas/${pageId}/memoria`);
-      // Cambiar de pagina mientras esta iba de camino: lo que llega es de la
+      // Cambiar de página mientras esta iba de camino: lo que llega es de la
       // anterior y no tiene nada que hacer en la caja de esta.
       if (pageId !== page.id) return;
       memory = res.memoria;
@@ -98,8 +98,8 @@
   });
 
   /*
-   * La memoria se lee al abrir, al cambiar de pagina y cada vez que la senal de
-   * la IA cambia sobre esta --al empezar una peticion y al terminarla--.
+   * La memoria se lee al abrir, al cambiar de página y cada vez que la senal de
+   * la IA cambia sobre esta --al empezar una petición y al terminarla--.
    *
    * Lo que importa es la vuelta: la pasada escribe la memoria al cerrar el
    * turno, asi que el texto que se leyo al abrir la caja ya no es el que hay
@@ -108,10 +108,10 @@
    */
   $effect(() => {
     const id = page.id;
-    // Un separador no es una pagina: no tiene reglas que cumplir ni caja donde
+    // Un separador no es una página: no tiene reglas que cumplir ni caja donde
     // leerlas, asi que no se pide nada.
     if (page.separator) return;
-    // Se lee tambien la senal: es la mitad de lo que dispara la relectura.
+    // Se lee también la senal: es la mitad de lo que dispara la relectura.
     void aiActivity.has(id);
     void loadMemory(id);
   });
@@ -142,8 +142,8 @@
         ...(isHome && !page.isHome ? { isHome: true } : {}),
       });
       /*
-       * La memoria va por su ruta y no con los demas campos: es lo unico de la
-       * pagina que se normaliza en el servidor antes de guardarse. Con la IA
+       * La memoria va por su ruta y no con los demas campos: es lo único de la
+       * página que se normaliza en el servidor antes de guardarse. Con la IA
        * trabajando no se manda nada --la caja esta bloqueada y lo que hubiera
        * escrito pisaria a la pasada-- y lo que se guarda vuelve ya limpio.
        */
@@ -181,7 +181,7 @@
 </script>
 
 <!--
-  Quien puede abrirlo. Es la misma pregunta para una pagina y para un
+  Quien puede abrirlo. Es la misma pregunta para una página y para un
   separador, asi que la hace el mismo campo; solo cambia la palabra.
 -->
 {#snippet access()}
@@ -194,17 +194,17 @@
 {/snippet}
 
 <!--
-  Las reglas funcionales de la pagina, una por renglon.
+  Las reglas funcionales de la página, una por renglon.
 
   Se escriben solas: al cerrar cada turno, una pasada aparte mira lo que se
   pidio y guarda la regla que quedo, si quedo alguna. Esta caja es donde se
   leen y donde se corrigen a mano, que es lo que hace recuperable que la pasada
   se equivoque o se deje algo.
 
-  Vacia se ensena vacia: una pagina a la que todavia no se le ha pedido nada no
+  Vacía se enseña vacía: una página a la que todavía no se le ha pedido nada no
   tiene reglas, y eso no es un error que avisar.
 
-  Mientras la IA trabaja en esta pagina la caja se mira pero no se escribe: la
+  Mientras la IA trabaja en esta página la caja se mira pero no se escribe: la
   pasada esta a punto de escribir ahi y guardar lo que se cargo antes borraria
   lo que acaba de anadir. Ver `design.md` D8.
 -->
@@ -230,12 +230,12 @@
 {/snippet}
 
 <!--
-  La zona de borrar: su propia tarjeta, con el titulo diciendo que se va a
-  borrar y que no vuelve, y el boton en el renglon de abajo. Es la misma pieza
-  con la que se borra la aplicacion --misma tarjeta, mismo sitio del boton-- y
+  La zona de borrar: su propia tarjeta, con el título diciendo que se va a
+  borrar y que no vuelve, y el botón en el renglon de abajo. Es la misma pieza
+  con la que se borra la aplicación --misma tarjeta, mismo sitio del botón-- y
   se lee igual porque es lo mismo que se hace; lo que no comparte es la
-  confirmacion, que alli obliga a escribir el nombre. Borrar una pagina se
-  deshace rehaciendola; borrar la aplicacion no se deshace de ninguna manera.
+  confirmacion, que alli obliga a escribir el nombre. Borrar una página se
+  deshace rehaciendola; borrar la aplicación no se deshace de ninguna manera.
 
   Lo destructivo no es lo mas grande del panel ni lo primero que se encuentra
   la mano: va al final y no ocupa el ancho entero.
@@ -247,11 +247,11 @@
         <h3 class="title-page-panel-delete card-title">Borrar {thing}</h3>
         <p class="description-page-panel-delete card-sub">
           {#if page.separator}
-            Se borra el título del grupo. Las páginas que agrupa se quedan donde están. Esta acción
-            no se puede deshacer.
+            Se borrará el separador. Las páginas del grupo conservarán su posición. Esta acción no
+            se puede deshacer.
           {:else}
-            Se borran la página, lo que tenga escrito y las conversaciones con la inteligencia
-            artificial que se hicieron en ella. Esta acción no se puede deshacer.
+            Se borrarán la página, su contenido y sus conversaciones con la inteligencia artificial.
+            Esta acción no se puede deshacer.
           {/if}
         </p>
       </div>
@@ -307,18 +307,18 @@
 
       <!--
         El inicio se marca pegado al nombre y no en una fila propia: es otra
-        cosa que decir de esta pagina, no un ajuste con su parrafo. Pegado
-        --`join` del catalogo-- porque lo que hace se lee del nombre que tiene
-        al lado: esta es la que abre la aplicacion.
+        cosa que decir de esta página, no un ajuste con su parrafo. Pegado
+        --`join` del catálogo-- porque lo que hace se lee del nombre que tiene
+        al lado: esta es la que abre la aplicación.
 
-        La de inicio no se puede desmarcar: la aplicacion siempre necesita una,
+        La de inicio no se puede desmarcar: la aplicación siempre necesita una,
         y se cambia marcando otra. Mientras el cambio no se guarda si se puede
         deshacer, que es volver a dejar de inicio a la que ya lo era.
 
-        En la que ya es el inicio el boton se queda marcado y el clic no hace
-        nada, pero no va `disabled`: un boton apagado no recibe al raton, y con
+        En la que ya es el inicio el botón se queda marcado y el clic no hace
+        nada, pero no va `disabled`: un botón apagado no recibe al ratón, y con
         el se iria el globo que explica justo por que no se puede apagar. Lo
-        dice `aria-disabled`, que se lee sin dejar de oir al raton.
+        dice `aria-disabled`, que se lee sin dejar de oir al ratón.
       -->
       <div class="row-page-panel-name">
         <IconPicker value={icon} onChange={(next) => (icon = next)} />
@@ -357,7 +357,7 @@
   {/snippet}
 </OmniPanel>
 
-<!-- Borrar es la unica pregunta que sigue interrumpiendo, a proposito. -->
+<!-- Borrar es la única pregunta que sigue interrumpiendo, a propósito. -->
 <ConfirmDialog
   open={deleting}
   onClose={() => (deleting = false)}
@@ -382,7 +382,7 @@
       }
     }
 
-    /* El nombre cede el ancho y el boton se queda con el suyo: la costura
+    /* El nombre cede el ancho y el botón se queda con el suyo: la costura
        solo se ve recta si el nombre es lo que encoge. */
     & .join-page-panel-name :global(.btn-home-page-panel) {
       flex: none;
@@ -400,10 +400,10 @@
       white-space: pre-wrap;
     }
 
-    /* La caja, el titulo y el subtitulo son `.card`, `.card-title` y
-       `.card-sub` del catalogo, como en los ajustes de la aplicacion. Aqui
-       solo el tamano: dentro de un panel que ya tiene su titulo, el de la
-       seccion va un escalon por debajo. */
+    /* La caja, el título y el subtitulo son `.card`, `.card-title` y
+       `.card-sub` del catálogo, como en los ajustes de la aplicación. Aqui
+       solo el tamaño: dentro de un panel que ya tiene su título, el de la
+       sección va un escalon por debajo. */
     & .section-page-panel-delete {
       & .head-page-panel-delete {
         min-width: 0;
@@ -419,8 +419,8 @@
         line-height: var(--text-xs--line-height);
       }
 
-      /* El texto cede el ancho y el boton se queda con el suyo: sin esto la
-         explicacion lo empuja y "Borrar" sale partido en dos lineas. */
+      /* El texto cede el ancho y el botón se queda con el suyo: sin esto la
+         explicacion lo empuja y "Borrar" sale partido en dos líneas. */
       & .row-page-panel-delete {
         display: flex;
         align-items: center;

@@ -1,7 +1,7 @@
 <!--
   La grilla de la previsualizacion: el archivo tal como entraria.
 
-  Es tambien donde se emparejan las columnas --cada encabezado es un
+  Es también donde se emparejan las columnas --cada encabezado es un
   `ImportColumnHead` con su destino, su llave y su regla-- porque lo que se
   elige ahi se ve en la misma columna, fila por fila, sin salir a otra lista.
 
@@ -39,14 +39,14 @@
     table: TableRecord;
     tables: TableRecord[];
     isPeople: boolean;
-    /** Por que llave se empareja cada columna de relacion. */
+    /** Por que llave se empareja cada columna de relación. */
     keys: Record<string, string>;
     reports: ColumnMatchReport[];
     onKey: (field: string, key: string) => void;
     /** Ya se importo: no hay nada mas que elegir, los mandos se apagan. */
     frozen: boolean;
     nothingMapped: boolean;
-    /** Si se ensena la columna de que le pasa a cada fila. */
+    /** Si se enseña la columna de que le pasa a cada fila. */
     showStatus: boolean;
     overwriteByOrder: boolean;
     /** Que filas del archivo se ensenan, por su sitio en el (desde 0). */
@@ -63,9 +63,9 @@
 </script>
 
 <!--
-  La tabla del catalogo (`table-card` + `table-wrap` + `table`) dentro de su
-  tarjeta. Lo unico que se le cambia desde aqui es lo que pide una
-  previsualizacion y no una tabla de pagina: la cabeza fija al desplazar, el
+  La tabla del catálogo (`table-card` + `table-wrap` + `table`) dentro de su
+  tarjeta. Lo único que se le cambia desde aqui es lo que pide una
+  previsualizacion y no una tabla de página: la cabeza fija al desplazar, el
   encabezado con mandos dentro --sin versalitas-- y las celdas mas apretadas
   para que quepan mas filas a la vista.
 -->
@@ -75,10 +75,10 @@
       <thead>
         <tr>
           {#if showStatus}
-            <th class="import-grid-status-header">Qué le pasa a la fila</th>
+            <th class="import-grid-status-header">Estado</th>
           {/if}
           <!--
-            Todas las columnas del archivo, tambien las que no entran:
+            Todas las columnas del archivo, también las que no entran:
             una columna apagada que desaparecia de la tabla no se podia
             volver a encender sin buscarla en otra lista.
           -->
@@ -118,16 +118,15 @@
               {#if frozen}
                 No quedó ninguna fila fuera: entró todo el archivo.
               {:else if nothingMapped}
-                Ninguna columna está encendida: no hay nada que guardar. Enciende con el ojo del
-                encabezado las que quieras traer.
+                No hay columnas seleccionadas. Activa desde el encabezado las que quieras importar.
               {:else}
-                Ninguna persona del archivo tiene cuenta aquí, así que no hay nada que actualizar.
-                Quita "Solo modificar" para darlas de alta.
+                Ninguna persona del archivo tiene cuenta. Desactiva "Solo modificar" para crear las
+                cuentas.
               {/if}
             </td>
           </tr>
         {/if}
-        <!-- Filas sin id propio en la previsualizacion: el indice es su identidad. -->
+        <!-- Filas sin id propio en la previsualizacion: el índice es su identidad. -->
         {#each rows as r (r)}
           {@const raw = wizard.parsedTable?.rows[r] ?? []}
           {@const conv = wizard.conversion.converted[r]}
@@ -180,7 +179,7 @@
                 data-tip-tone={why ? "error" : undefined}
               >
                 <!--
-                  La columna apagada se queda vacia: su contenido no va
+                  La columna apagada se queda vacía: su contenido no va
                   a ninguna parte, y dejarlo a la vista --aunque fuera
                   palido-- era seguir leyendo datos que no se guardan.
                 -->
@@ -198,8 +197,8 @@
 
 <style>
   /*
-   * La tabla es la del catalogo; aqui solo va lo que la previsualizacion
-   * necesita y una tabla de pagina no: crecer hasta el alto que sobre,
+   * La tabla es la del catálogo; aqui solo va lo que la previsualizacion
+   * necesita y una tabla de página no: crecer hasta el alto que sobre,
    * desplazarse por dentro con la cabeza fija, encabezados que llevan
    * mandos --y por eso ni versalitas ni mayusculas-- y celdas apretadas
    * para ver mas filas de una vez.
@@ -267,7 +266,7 @@
     }
 
     /*
-     * La columna apagada se queda: su hueco, vacio y hundido, es lo que dice
+     * La columna apagada se queda: su hueco, vacío y hundido, es lo que dice
      * que sigue ahi para encenderla desde el encabezado --que se queda
      * entero-- sin ensenar ni un dato que no se va a guardar.
      */

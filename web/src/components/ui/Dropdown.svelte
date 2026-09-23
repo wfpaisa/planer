@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  // Contador compartido entre instancias: cada Dropdown de la sesion saca un
+  // Contador compartido entre instancias: cada Dropdown de la sesión saca un
   // anchor-name distinto, sin depender de un id externo.
   let anchorSeq = 0;
 </script>
@@ -26,9 +26,9 @@
      * Clases del contenedor, no del menu.
      *
      * El contenedor se encoge hasta lo que mide el disparador (ancla el
-     * menu contra el), asi que un boton que quiera ocupar todo su hueco
+     * menu contra el), asi que un botón que quiera ocupar todo su hueco
      * necesita que el contenedor lo ocupe primero: con `w-full` solo en el
-     * boton se queda del ancho del texto.
+     * botón se queda del ancho del texto.
      */
     wrapClass?: string;
     closeOnLeave?: boolean;
@@ -53,7 +53,7 @@
     `${up ? "top" : "bottom"} ${align === "right" ? "span-left" : "span-right"}`,
   );
   /*
-   * El area de `span-left` no acaba en el boton: llega hasta el borde
+   * El area de `span-left` no acaba en el botón: llega hasta el borde
    * izquierdo de la pantalla. Con el `justify-self: start` que `.menu` trae
    * de serie, el menu se pega a ESE borde en vez de al disparador, y un
    * desplegable alineado a la derecha se va a la otra punta. Cada lado se

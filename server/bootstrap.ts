@@ -52,7 +52,7 @@ let scaffolds: Record<string, PbCollection> | null = null;
 async function scaffold(type: "base" | "auth"): Promise<PbCollection> {
   scaffolds ??= await pb<Record<string, PbCollection>>("/api/collections/meta/scaffolds");
   const tpl = scaffolds[type];
-  if (!tpl) throw new Error(`PocketBase no devolvio la plantilla "${type}"`);
+  if (!tpl) throw new Error(`PocketBase no devolvió la plantilla "${type}"`);
   return structuredClone(tpl);
 }
 
@@ -63,7 +63,7 @@ const timestamps: PbField[] = [
 
 /**
  * Las plantillas de PocketBase traen indices con nombre fijo y sin tabla.
- * Si se usan tal cual, la segunda coleccion choca con la primera.
+ * Si se usan tal cual, la segunda colección choca con la primera.
  */
 function fixIndexes(indexes: string[] | undefined, collection: string): string[] {
   return (indexes ?? []).map((sql) =>
@@ -73,7 +73,7 @@ function fixIndexes(indexes: string[] | undefined, collection: string): string[]
   );
 }
 
-/** Las reglas de acceso de una coleccion, todas escritas en este archivo. */
+/** Las reglas de acceso de una colección, todas escritas en este archivo. */
 const RULES = ["listRule", "viewRule", "createRule", "updateRule", "deleteRule"] as const;
 
 async function ensure(
@@ -85,9 +85,9 @@ async function ensure(
   const spec = build(base);
   const existing = await getCollection(name);
 
-  // Si la coleccion ya existe, le sumamos las columnas nuevas y le ponemos al
-  // dia las reglas de acceso. Asi una version posterior no obliga a empezar de
-  // cero, y una regla que cambia aqui llega tambien a las instalaciones que ya
+  // Si la colección ya existe, le sumamos las columnas nuevas y le ponemos al
+  // dia las reglas de acceso. Así una versión posterior no obliga a empezar de
+  // cero, y una regla que cambia aquí llega también a las instalaciones que ya
   // estaban andando.
   if (existing) {
     const patch: Partial<PbCollection> = {};
@@ -123,9 +123,9 @@ async function ensure(
 }
 
 /**
- * Le pone al dia a una coleccion de cuentas el minimo de la clave.
+ * Le pone al dia a una colección de cuentas el minimo de la clave.
  *
- * PocketBase lo guarda en la propia columna --y su plantilla trae ocho-- asi
+ * PocketBase lo guarda en la propia columna --y su plantilla trae ocho-- así
  * que decirlo solo en `shared/people.ts` no bastaria: la base rechazaria por su
  * cuenta una clave mas corta, con un mensaje en ingles y sin que nadie mas se
  * entere. `ensure` no sirve para esto: suma columnas que faltan, no cambia las
@@ -141,31 +141,31 @@ async function ensurePasswordMin(collection: PbCollection): Promise<void> {
 }
 
 /**
- * Le da a cada cuenta la aplicacion de la que es, y solo esa.
+ * Le da a cada cuenta la aplicación de la que es, y solo esa.
  *
  * Antes de este cambio la lista de cuentas era una sola para toda la
- * plataforma: quien entraba en una aplicacion lo hacia con el mismo correo y la
+ * plataforma: quien entraba en una aplicación lo hacia con el mismo correo y la
  * misma clave en cualquier otra donde le hubieran invitado, ponerle clave nueva
  * desde una se la cambiaba en todas, y una cuenta seguia viva aunque ya no
- * tuviera aplicacion ninguna. Ahora cada aplicacion tiene las suyas: el mismo
+ * tuviera aplicación ninguna. Ahora cada aplicación tiene las suyas: el mismo
  * correo puede estar invitado en dos, y en cada una es otra cuenta con otra
  * clave.
  *
- * PocketBase no deja repetir el correo dentro de una coleccion de cuentas --su
- * indice unico lo repone aunque se le quite-- asi que el correo se guarda en
- * `cuenta` y la columna `email` se deja vacia, que es donde ese indice no
+ * PocketBase no deja repetir el correo dentro de una colección de cuentas --su
+ * índice único lo repone aunque se le quite-- así que el correo se guarda en
+ * `cuenta` y la columna `email` se deja vacía, que es donde ese índice no
  * estorba. Lo que PocketBase compara al entrar es `login`, que lleva delante la
- * aplicacion. Ver `loginFor` en `shared/people.ts`.
+ * aplicación. Ver `loginFor` en `shared/people.ts`.
  */
 async function ensureScopedAccounts(collection: PbCollection, appsId: string): Promise<void> {
   const nuevos: PbField[] = [
-    // Sin aplicacion no hay cuenta: borrar la aplicacion se lleva las suyas.
+    // Sin aplicación no hay cuenta: borrar la aplicación se lleva las suyas.
     // No es obligatoria porque las que quedaron sin ninguna al migrar se
-    // aparcan asi, sin poder entrar en ningun sitio.
+    // aparcan así, sin poder entrar en ningún sitio.
     { name: "app", type: "relation", collectionId: appsId, cascadeDelete: true, maxSelect: 1 },
-    // El correo de verdad. Vive aqui y no en `email` por el indice de arriba.
+    // El correo de verdad. Vive aquí y no en `email` por el índice de arriba.
     { name: "cuenta", type: "text", max: 160 },
-    // Lo que se compara al entrar. Vacio: esta cuenta ya no abre nada.
+    // Lo que se compara al entrar. Vacío: esta cuenta ya no abre nada.
     { name: "login", type: "text", max: 220 },
   ];
 
@@ -183,7 +183,7 @@ async function ensureScopedAccounts(collection: PbCollection, appsId: string): P
   if (faltan.length || indices.some((i) => !actuales.includes(i)) || identity?.[0] !== "login") {
     await updateCollection(collection.name, {
       fields: [
-        // La columna `email` se queda vacia de aqui en adelante, asi que deja
+        // La columna `email` se queda vacía de aquí en adelante, así que deja
         // de ser obligatoria. Si siguiera siendolo no se podria guardar
         // ninguna cuenta.
         ...collection.fields.map((f) => (f === emailField ? { ...f, required: false } : f)),
@@ -201,17 +201,17 @@ async function ensureScopedAccounts(collection: PbCollection, appsId: string): P
 /**
  * Reparte las cuentas de antes entre las aplicaciones donde estaban invitadas.
  *
- * Una cuenta con el correo todavia en `email` es una que no ha pasado por aqui.
+ * Una cuenta con el correo todavía en `email` es una que no ha pasado por aquí.
  * Segun a cuantas aplicaciones alcanzaba:
  *
  * - a ninguna: se aparca. Conserva su correo y su clave pero se queda sin
  *   `login`, que es tanto como decir que no abre nada. No se borra: borrar
  *   cuentas es cosa de quien construye, no del arranque.
  * - a una: es suya, y ya esta.
- * - a varias: la primera se queda con la cuenta y para cada una de las demas se
- *   abre una cuenta nueva en su aplicacion, con clave nueva --la anterior no se
- *   puede copiar, y es mejor asi-- que se escribe en la consola para que quien
- *   construye la reparta. Es la unica parte que no se puede hacer sola.
+ * - a varias: la primera se queda con la cuenta y para cada una de las demás se
+ *   abre una cuenta nueva en su aplicación, con clave nueva --la anterior no se
+ *   puede copiar, y es mejor así-- que se escribe en la consola para que quien
+ *   construye la reparta. Es la única parte que no se puede hacer sola.
  */
 async function moveAccountsIntoApps(): Promise<void> {
   const pendientes = await listRecords<{ id: string; email?: string; name?: string }>(
@@ -267,7 +267,7 @@ async function moveAccountsIntoApps(): Promise<void> {
   }
 }
 
-/** Le pasa la fila de personas de una aplicacion a la cuenta que la sustituye. */
+/** Le pasa la fila de personas de una aplicación a la cuenta que la sustituye. */
 async function repointPersonRow(appId: string, from: string, to: string): Promise<void> {
   const table = await peopleTableFor(appId);
   if (!table) return;
@@ -319,28 +319,28 @@ export async function bootstrap() {
      * Una cuenta no se escribe a si misma.
      *
      * Las reglas de PocketBase son por registro y no por columna: una que
-     * dijera "soy yo" dejaria reescribir tambien `cuenta`, `login`, `app` y
+     * dijera "soy yo" dejaria reescribir también `cuenta`, `login`, `app` y
      * `verified`, que son las que dicen quien es esta persona y en que
-     * aplicacion. No abre ninguna puerta --el acceso lo decide `app_access`--
+     * aplicación. No abre ninguna puerta --el acceso lo decide `app_access`--
      * pero deja a alguien poner el correo de otro en su cuenta y a la tabla de
      * personas diciendo lo que ya no es.
      *
-     * Cerrarla no quita nada: nada en el panel ni en una aplicacion publicada
-     * escribe aqui desde la sesion de quien entro. Lo que si cambia --el
+     * Cerrarla no quita nada: nada en el panel ni en una aplicación publicada
+     * escribe aquí desde la sesión de quien entro. Lo que si cambia --el
      * correo, el nombre, la clave-- pasa por la API de la plataforma, que
-     * comprueba que la aplicacion es de quien la pide y escribe con el token
+     * comprueba que la aplicación es de quien la pide y escribe con el token
      * de administrador, al que las reglas no se le aplican. Ver `updateMember`
      * y `resetMemberPassword` en `server/routes.ts`.
      *
      * El precio es que no hay "cambiar mi clave" para quien usa una
-     * aplicacion: hoy tampoco lo habia. Cuando lo haya, es una ruta mas de la
+     * aplicación: hoy tampoco lo había. Cuando lo haya, es una ruta mas de la
      * plataforma --que exigira la clave anterior-- y no esta regla abierta.
      */
     updateRule: null,
     deleteRule: null,
   }));
 
-  // La clave de quien usa una aplicacion publicada la pone quien la construye,
+  // La clave de quien usa una aplicación publicada la pone quien la construye,
   // y a mano: seis caracteres. Ver `MIN_PASSWORD`.
   await ensurePasswordMin(members);
 
@@ -368,14 +368,14 @@ export async function bootstrap() {
         maxSelect: 1,
       },
       { name: "theme", type: "json", maxSize: 50_000 },
-      // Roles con nombre propio: deciden que paginas ve cada persona.
+      // Roles con nombre propio: deciden que páginas ve cada persona.
       { name: "roles", type: "json", maxSize: 20_000 },
-      // Id de la version que ve el publico. Es texto y no una relacion porque
-      // "apps" se crea antes que "app_versions" y no puede apuntarle todavia.
+      // Id de la versión que ve el público. Es texto y no una relación porque
+      // "apps" se crea antes que "app_versions" y no puede apuntarle todavía.
       { name: "liveVersion", type: "text", max: 40 },
-      // La conversacion con la IA que quedo abierta, en la pagina que sea: hay
-      // una sola en toda la aplicacion. Es texto y no una relacion por lo mismo
-      // que la version: "apps" se crea antes que "ai_chats". Una conversacion
+      // La conversación con la IA que quedo abierta, en la página que sea: hay
+      // una sola en toda la aplicación. Es texto y no una relación por lo mismo
+      // que la versión: "apps" se crea antes que "ai_chats". Una conversación
       // que ya no existe se lee como ninguna.
       { name: "openChat", type: "text", max: 40 },
       // Avisos informativos: arreglos que el sistema hizo solo.
@@ -426,7 +426,7 @@ export async function bootstrap() {
     deleteRule: ownedByMe,
   }));
 
-  // --- Paginas -----------------------------------------------------------
+  // --- Páginas -----------------------------------------------------------
   const pages = await ensure(INTERNAL.pages, "base", (base) => ({
     fields: [
       ...base.fields,
@@ -443,21 +443,21 @@ export async function bootstrap() {
       { name: "icon", type: "text", max: 40 },
       { name: "order", type: "number" },
       { name: "isHome", type: "bool" },
-      // No es una pagina: agrupa a las de alrededor en el sidebar con un texto.
+      // No es una página: agrupa a las de alrededor en el sidebar con un texto.
       { name: "separator", type: "bool" },
-      // Bloques de las paginas de antes de que una pagina fuera un documento.
+      // Bloques de las páginas de antes de que una página fuera un documento.
       // No se escribe nunca: se conserva para poder convertirlas.
       { name: "blocks", type: "json", maxSize: 2_000_000 },
-      // Huella del documento HTML de la pagina. El contenido vive en html_docs.
+      // Huella del documento HTML de la página. El contenido vive en html_docs.
       { name: "doc", type: "text", max: 64 },
       // Tablas que puede pedir ese HTML, con la traduccion de sus columnas.
       { name: "sources", type: "json", maxSize: 200_000 },
-      // Roles que pueden abrir la pagina. Vacio: la abre cualquiera. No hay un
-      // segundo campo que diga el nivel: la lista vacia es `Todos`.
+      // Roles que pueden abrir la página. Vacío: la abre cualquiera. No hay un
+      // segundo campo que diga el nivel: la lista vacía es `Todos`.
       { name: "roles", type: "json", maxSize: 20_000 },
-      // Las reglas funcionales de la pagina, una por vineta: lo que seguiria
+      // Las reglas funcionales de la página, una por vineta: lo que seguiria
       // siendo cierto si se reconstruyera desde cero. Es del constructor y no
-      // viaja a la aplicacion publicada. El tope es holgado a proposito: nada
+      // viaja a la aplicación publicada. El tope es holgado a propósito: nada
       // recorta la memoria, lo que la mantiene corta es como escribe la pasada
       // que la guarda. Ver `openspec/changes/memoria-de-pagina/design.md` D2.
       { name: "memory", type: "text", max: 200_000 },
@@ -468,7 +468,7 @@ export async function bootstrap() {
     viewRule: ownedByMe,
     createRule: ownedByMe,
     updateRule: ownedByMe,
-    // La pagina de inicio no se borra: una aplicacion siempre tiene una. La
+    // La página de inicio no se borra: una aplicación siempre tiene una. La
     // regla lo impide en la base, no solo en el panel.
     deleteRule: `${ownedByMe} && isHome != true`,
   }));
@@ -508,8 +508,8 @@ export async function bootstrap() {
     deleteRule: ownedByMe,
   }));
 
-  // --- Historial de versiones del diseno ---------------------------------
-  // Cada registro es una fotografia completa del diseno de una app. Solo el
+  // --- Historial de versiones del diseño ---------------------------------
+  // Cada registro es una fotografia completa del diseño de una app. Solo el
   // servidor entra: el panel las pide por la API para poder resolver autores
   // y podar las viejas en el mismo sitio.
   await ensure(INTERNAL.versions, "base", (base) => ({
@@ -546,10 +546,10 @@ export async function bootstrap() {
     deleteRule: null,
   }));
 
-  // --- Documentos HTML de las paginas ------------------------------------
-  // El contenido no viaja dentro de la pagina: se guarda aqui una sola vez,
-  // identificado por su huella. Asi treinta versiones del mismo diseno no
-  // guardan treinta copias, y el paquete publico solo lleva la huella.
+  // --- Documentos HTML de las páginas ------------------------------------
+  // El contenido no viaja dentro de la página: se guarda aquí una sola vez,
+  // identificado por su huella. Así treinta versiones del mismo diseño no
+  // guardan treinta copias, y el paquete público solo lleva la huella.
   await ensure(INTERNAL.htmlDocs, "base", (base) => ({
     fields: [
       ...base.fields,
@@ -575,9 +575,9 @@ export async function bootstrap() {
   }));
 
   // --- Conversaciones con la inteligencia artificial ---------------------
-  // Pertenecen a la pagina donde se hicieron: la lista de una pagina ensena
-  // solo las suyas, y por eso `page` es una relacion en cascada --borrar la
-  // pagina se lleva sus conversaciones, que ya no serian alcanzables--.
+  // Pertenecen a la página donde se hicieron: la lista de una página enseña
+  // solo las suyas, y por eso `page` es una relación en cascada --borrar la
+  // página se lleva sus conversaciones, que ya no serian alcanzables--.
   await ensure(INTERNAL.chats, "base", (base) => ({
     fields: [
       ...base.fields,
@@ -617,15 +617,15 @@ export async function bootstrap() {
 
   await migrateChatsToPageRelation(pages.id);
 
-  // --- Archivos adjuntados a una peticion de la IA -----------------------
-  // El contenido no viaja dentro de la conversacion: se guarda aqui una sola
-  // vez, identificado por la huella de lo que trae dentro, y la conversacion
-  // guarda esa referencia. Asi el mismo archivo adjuntado dos veces ocupa una,
-  // y un archivo de varios megabytes no engorda ninguna peticion.
+  // --- Archivos adjuntados a una petición de la IA -----------------------
+  // El contenido no viaja dentro de la conversación: se guarda aquí una sola
+  // vez, identificado por la huella de lo que trae dentro, y la conversación
+  // guarda esa referencia. Así el mismo archivo adjuntado dos veces ocupa una,
+  // y un archivo de varios megabytes no engorda ninguna petición.
   //
   // El contenido va como archivo y no como texto porque un adjunto puede ser
-  // binario --una imagen, una hoja de calculo-- y un campo de texto obligaria a
-  // base64. Va protegido: sin eso, su direccion serviria a cualquiera que la
+  // binario --una imagen, una hoja de cálculo-- y un campo de texto obligaria a
+  // base64. Va protegido: sin eso, su dirección serviria a cualquiera que la
   // tuviera, y un adjunto es material de quien construye.
   await ensure(INTERNAL.aiFiles, "base", (base) => ({
     fields: [
@@ -655,8 +655,8 @@ export async function bootstrap() {
   }));
 
   // --- Registro de depuracion de la IA -----------------------------------
-  // Una fila por pagina, la de su ultima peticion, sobrescrita en cada una.
-  // No es historial: es lo que hace falta para entender despues un fallo que
+  // Una fila por página, la de su ultima petición, sobrescrita en cada una.
+  // No es historial: es lo que hace falta para entender después un fallo que
   // no se puede reproducir. Solo el servidor entra.
   await ensure(INTERNAL.aiDebug, "base", (base) => ({
     fields: [
@@ -679,12 +679,12 @@ export async function bootstrap() {
       },
       { name: "prompt", type: "text", max: 100_000 },
       // Lo que se le mando al modelo, tal cual. Lleva el HTML entero de la
-      // pagina, asi que es con diferencia lo mas grande que se guarda aqui.
+      // página, así que es con diferencia lo mas grande que se guarda aquí.
       { name: "context", type: "text", max: 2_000_000 },
       { name: "reasoning", type: "text", max: 500_000 },
       { name: "answer", type: "text", max: 500_000 },
       { name: "model", type: "text", max: 200 },
-      /** Cuanto tardo la peticion, en milisegundos. */
+      /** Cuanto tardo la petición, en milisegundos. */
       { name: "ms", type: "number" },
       // El contexto no cabia entero y va recortado.
       { name: "truncated", type: "bool" },
@@ -699,7 +699,7 @@ export async function bootstrap() {
   }));
 
   // --- Ajustes de la instalacion (servidor de IA) ------------------------
-  // Solo el servidor entra aqui: guarda claves que el navegador no debe ver.
+  // Solo el servidor entra aquí: guarda claves que el navegador no debe ver.
   await ensure(INTERNAL.settings, "base", (base) => ({
     fields: [
       ...base.fields,
@@ -716,7 +716,7 @@ export async function bootstrap() {
   }));
 
   // Va antes que las tablas de personas: reparte las cuentas entre sus
-  // aplicaciones, y las filas se sincronizan despues con el reparto ya hecho.
+  // aplicaciones, y las filas se sincronizan después con el reparto ya hecho.
   await ensureScopedAccounts(members, apps.id);
 
   // La tabla de personas va primero: es la tabla destino a la que apuntan las
@@ -768,7 +768,7 @@ interface PbSettingsShape {
  * Nada de esto estaba en el repo, y se notaba en las dos puntas: la API de
  * lote viene apagada de fabrica --una instalacion nueva no podia importar ni
  * una fila-- y las reglas de limite de fabrica cuentan cada fila del lote como
- * un pedido suyo, asi que una instalacion con el lote encendido a mano se caia
+ * un pedido suyo, así que una instalacion con el lote encendido a mano se caia
  * siempre en la fila 21 con un 429 ("Too Many Requests") envuelto en un 400 que
  * no decia de donde venia. Lo que necesita el importador esta dicho en
  * `shared/importBatch.ts`.
@@ -797,7 +797,7 @@ async function ensureBatchSettings(): Promise<void> {
   }
 
   /*
-   * Las reglas viajan en una lista, asi que se manda entera: lo que no se
+   * Las reglas viajan en una lista, así que se manda entera: lo que no se
    * cambia va tal como estaba. Una regla que no exista no se inventa --no
    * estar es no tener limite, que es justo lo que queremos-- y una que ya de
    * mas margen del que pedimos se queda con el suyo.
@@ -819,7 +819,7 @@ async function ensureBatchSettings(): Promise<void> {
 }
 
 /**
- * El tipo que se retiro. Ya no esta en `FieldType`, asi que aqui se compara
+ * El tipo que se retiro. Ya no esta en `FieldType`, así que aquí se compara
  * contra la cadena tal como quedo guardada en la ficha de la tabla.
  */
 const OLD_PERSON_TYPE = "person";
@@ -828,20 +828,20 @@ const OLD_PERSON_TYPE = "person";
  * Convierte las columnas de tipo persona en relaciones a la tabla de personas.
  *
  * El tipo desaparecio y con el su ancla: una columna de persona guardaba el id
- * de la cuenta y una de relacion guarda el id de la fila del destino. Cambiar
- * el tipo a secas no vale --cambiar a que coleccion apunta una relacion obliga
- * a recrear la columna, y recrearla la deja vacia-- asi que hay que leer los
+ * de la cuenta y una de relación guarda el id de la fila del destino. Cambiar
+ * el tipo a secas no vale --cambiar a que colección apunta una relación obliga
+ * a recrear la columna, y recrearla la deja vacía-- así que hay que leer los
  * enlaces antes, traducirlos y volver a escribirlos.
  *
  * Se puede sin perder nada porque la correspondencia cuenta <-> fila es uno a
- * uno: la sostiene el indice unico de `member`. Ver `design.md` D2.
+ * uno: la sostiene el índice único de `member`. Ver `design.md` D2.
  *
  * Una celda cuya cuenta ya no esta invitada no tiene fila a la que apuntar: su
  * valor pasa al corralito de la columna, que es lo que este cambio establece
- * para todo lo demas. Se ve, se busca y se vuelve a enlazar si esa persona
+ * para todo lo demás. Se ve, se busca y se vuelve a enlazar si esa persona
  * vuelve.
  *
- * Es idempotente y silenciosa: una aplicacion sin columnas de ese tipo no paga
+ * Es idempotente y silenciosa: una aplicación sin columnas de ese tipo no paga
  * ninguna consulta mas que la lista de tablas, que el arranque ya lee.
  */
 export async function convertPersonColumns(): Promise<void> {
@@ -889,8 +889,8 @@ async function convertTable(table: TableRecord, people: TableRecord): Promise<bo
   /*
    * Lo que cada fila tenia, leido entero antes de tocar nada: la columna se
    * quita y se vuelve a poner, y eso se lleva por delante tanto el enlace como
-   * el valor sin dueno que hubiera al lado. Aqui quedan los dos, para
-   * reescribirlos despues.
+   * el valor sin dueno que hubiera al lado. Aquí quedan los dos, para
+   * reescribirlos después.
    */
   const before = new Map<string, Map<string, { enlace: unknown; sinEnlace: string }>>();
   for (const field of columns) {
@@ -912,9 +912,9 @@ async function convertTable(table: TableRecord, people: TableRecord): Promise<bo
 
   /*
    * En dos pasos, y no en uno: PocketBase reconoce una columna por su nombre
-   * ademas de por su id, asi que mandarla ya apuntando a otra coleccion lo
+   * ademas de por su id, así que mandarla ya apuntando a otra colección lo
    * rechaza con "The relation collection cannot be changed" aunque se le suelte
-   * el id. Primero desaparece y despues nace apuntando a la tabla de personas.
+   * el id. Primero desaparece y después nace apuntando a la tabla de personas.
    */
   const sinColumnas = (table.fields ?? []).filter(
     (f) => String(f.type) !== OLD_PERSON_TYPE,
@@ -961,7 +961,7 @@ async function convertTable(table: TableRecord, people: TableRecord): Promise<bo
  * que la celda ensenaba-- para que la fila no quede a la vez sin enlace y sin
  * valor. Lo que ya estaba en el corralito antes de convertir vuelve tal cual.
  *
- * Una columna que admite varias no tiene corralito, asi que ahi solo se
+ * Una columna que admite varias no tiene corralito, así que ahi solo se
  * conserva lo que si traduce.
  */
 async function writeNewAnchors(
@@ -1007,7 +1007,7 @@ async function accountEmail(memberId: string): Promise<string> {
 }
 
 /**
- * Deja escrito que ensena cada columna de relacion que venia de antes.
+ * Deja escrito que enseña cada columna de relación que venia de antes.
  *
  * Hasta este cambio no se declaraba: la grilla cogia la primera columna de
  * texto del registro enlazado. Se escribe eso mismo, para que lo que ve el
@@ -1045,18 +1045,18 @@ async function fillRelationDisplayFields() {
 }
 
 /**
- * Deja que la mitad del id de una relacion pueda quedar vacia en la base.
+ * Deja que la mitad del id de una relación pueda quedar vacía en la base.
  *
- * Una columna de relacion son dos columnas reales, y marcar la columna como
- * obligatoria marcaba tambien la del id. Con eso, una celda cuyo valor no
- * corresponde a ningun registro no se podia guardar: es justo la que deja el
- * id vacio y escribe el valor en la otra. Una columna obligatoria no admitia
- * una cedula nueva al importar, y quitar a una persona invitada no podia
+ * Una columna de relación son dos columnas reales, y marcar la columna como
+ * obligatoria marcaba también la del id. Con eso, una celda cuyo valor no
+ * corresponde a ningún registro no se podia guardar: es justo la que deja el
+ * id vacío y escribe el valor en la otra. Una columna obligatoria no admitia
+ * una cédula nueva al importar, y quitar a una persona invitada no podia
  * conservar la suya.
  *
  * Lo obligatorio sigue siendo la celda, y lo exige el panel antes de guardar.
- * Aqui solo se afloja lo que la base tenia de mas en las tablas que ya
- * existian; las que se creen despues nacen bien. Ver `toPbFields` en
+ * Aquí solo se afloja lo que la base tenia de mas en las tablas que ya
+ * existian; las que se creen después nacen bien. Ver `toPbFields` en
  * `server/schema.ts`.
  */
 async function relaxRequiredRelations() {
@@ -1096,18 +1096,18 @@ async function relaxRequiredRelations() {
  * Las reglas de una tabla las escribia `accessRules`, que ahora devuelve otra
  * cosa: la logica de roles se mudo al servidor. Las tablas ya creadas conservan
  * las reglas viejas hasta que alguien las toque, y mientras tanto un invitado
- * seguiria alcanzando la base por su cuenta. Se reescriben todas aqui.
+ * seguiria alcanzando la base por su cuenta. Se reescriben todas aquí.
  *
- * Solo cambia quien puede pedir las filas; ninguna fila se toca. Es el unico
+ * Solo cambia quien puede pedir las filas; ninguna fila se toca. Es el único
  * paso de este cambio que no se deshace solo: la vuelta atras es reponer
  * `legacyAccessRules`, que se conserva en `server/schema.ts` para eso.
  */
 /**
- * Le da su tabla de personas a las aplicaciones que ya existian, vacia.
+ * Le da su tabla de personas a las aplicaciones que ya existian, vacía.
  *
  * Nadie lo nota: la tabla nace con las tres columnas del sistema, que son las
  * mismas tres cosas que la pantalla de personas y roles ya ensenaba. Lo que
- * cambia es que a partir de aqui se le pueden anadir columnas propias.
+ * cambia es que a partir de aquí se le pueden anadir columnas propias.
  */
 async function ensurePeopleTables() {
   const apps = await listRecords<{ id: string; slug: string; visibility: "private" | "public" }>(
@@ -1146,7 +1146,7 @@ async function closeDataCollections() {
  *
  * El nivel se retiro: lo que una persona puede hacer con los datos ya no se
  * declara por persona. La columna se queda donde esta --volver atras es
- * reponer codigo, no recuperar datos-- pero venia declarada como obligatoria, y
+ * reponer código, no recuperar datos-- pero venia declarada como obligatoria, y
  * una columna obligatoria que nadie escribe rechazaria cada invitacion nueva.
  *
  * `ensure` no sirve para esto: suma columnas que faltan, no cambia las que ya
@@ -1163,22 +1163,22 @@ async function relaxRetiredLevel(): Promise<void> {
 }
 
 /**
- * Ata cada conversacion a su pagina de verdad.
+ * Ata cada conversación a su página de verdad.
  *
- * `ai_chats.page` nacio como texto suelto para que borrar una pagina no se
- * llevara la conversacion por delante. Ahora la conversacion pertenece a la
- * pagina --la lista de una pagina ensena solo las suyas-- y una conversacion
- * de una pagina borrada no se alcanza desde ningun sitio.
+ * `ai_chats.page` nacio como texto suelto para que borrar una página no se
+ * llevara la conversación por delante. Ahora la conversación pertenece a la
+ * página --la lista de una página enseña solo las suyas-- y una conversación
+ * de una página borrada no se alcanza desde ningún sitio.
  *
- * Antes de tocar la columna hay que borrar esas conversaciones: una relacion
+ * Antes de tocar la columna hay que borrar esas conversaciones: una relación
  * no acepta un valor que no apunta a nada. `pageName` se va con ellas: existia
  * para nombrar justamente esas.
  *
  * PocketBase no le cambia el tipo a una columna que ya existe --lo rechaza con
- * "Field type cannot be changed"-- asi que la de texto se quita y se pone una
- * de relacion en su lugar. Quitarla se lleva sus valores, de modo que se
- * anotan antes y se reponen despues; y nace sin ser obligatoria, porque entre
- * ponerla y rellenarla las filas la tendrian vacia.
+ * "Field type cannot be changed"-- así que la de texto se quita y se pone una
+ * de relación en su lugar. Quitarla se lleva sus valores, de modo que se
+ * anotan antes y se reponen después; y nace sin ser obligatoria, porque entre
+ * ponerla y rellenarla las filas la tendrian vacía.
  *
  * `ensure` no sirve para esto: suma columnas que faltan, no cambia ni quita
  * las que ya estan. Es idempotente: la segunda vuelta no encuentra nada.
@@ -1192,7 +1192,7 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
   if (!isText && !hasPageName) return;
 
   if (!isText) {
-    // La relacion ya estaba: solo quedaba quitar el nombre de la pagina.
+    // La relación ya estaba: solo quedaba quitar el nombre de la página.
     await updateCollection(INTERNAL.chats, {
       fields: collection.fields.filter((f) => f.name !== "pageName"),
     });
@@ -1200,7 +1200,7 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
     return;
   }
 
-  // 1. Fuera las conversaciones cuya pagina ya no existe.
+  // 1. Fuera las conversaciones cuya página ya no existe.
   const alive = new Set((await allRecords(INTERNAL.pages)).map((r) => r.id));
   const chats = await allRecords<{ page?: string }>(INTERNAL.chats, "id,page");
   const orphans = chats.filter((chat) => !chat.page || !alive.has(chat.page));
@@ -1214,7 +1214,7 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
     fields: collection.fields.filter((f) => f.name !== "page" && f.name !== "pageName"),
   });
 
-  // 3. Y en su lugar la relacion, todavia sin exigir.
+  // 3. Y en su lugar la relación, todavía sin exigir.
   const bare = await getCollection(INTERNAL.chats);
   await updateCollection(INTERNAL.chats, {
     fields: [
@@ -1230,13 +1230,13 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
     ],
   });
 
-  // 4. Cada conversacion vuelve a su pagina.
+  // 4. Cada conversación vuelve a su página.
   for (const chat of chats) {
     if (!chat.page || !alive.has(chat.page)) continue;
     await updateRecord(INTERNAL.chats, chat.id, { page: chat.page }).catch(() => {});
   }
 
-  // 5. Ahora que ninguna la tiene vacia, se exige.
+  // 5. Ahora que ninguna la tiene vacía, se exige.
   const filled = await getCollection(INTERNAL.chats);
   await updateCollection(INTERNAL.chats, {
     fields: (filled?.fields ?? []).map((f) => (f.name === "page" ? { ...f, required: true } : f)),
@@ -1244,7 +1244,7 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
   console.log(`  ~ coleccion "${INTERNAL.chats}": la conversacion es de su pagina`);
 }
 
-/** Todos los registros de una coleccion, pagina a pagina. */
+/** Todos los registros de una colección, página a página. */
 async function allRecords<T = unknown>(
   collection: string,
   fields = "id",
@@ -1263,19 +1263,19 @@ async function allRecords<T = unknown>(
 }
 
 /**
- * Pasa cada aplicacion al modelo de roles nuevo.
+ * Pasa cada aplicación al modelo de roles nuevo.
  *
- * Tres cosas, en este orden y por aplicacion:
+ * Tres cosas, en este orden y por aplicación:
  *
  * 1. Normalizar los roles, fundiendo los que colisionen, y reescribir con los
- *    nombres nuevos las referencias en personas y en paginas.
- * 2. Anadir `admin`, que toda aplicacion define.
- * 3. Traducir quien abre cada pagina: `anyone` --y las que no tenian nivel
- *    guardado-- quedan con la lista vacia; `signed` queda con todos los roles
- *    de la aplicacion marcados, nunca vacia; `roles` conserva los suyos.
+ *    nombres nuevos las referencias en personas y en páginas.
+ * 2. Anadir `admin`, que toda aplicación define.
+ * 3. Traducir quien abre cada página: `anyone` --y las que no tenian nivel
+ *    guardado-- quedan con la lista vacía; `signed` queda con todos los roles
+ *    de la aplicación marcados, nunca vacía; `roles` conserva los suyos.
  *
- * Nada de esto amplia el acceso de nadie: una aplicacion privada sigue
- * exigiendo cuenta, y ninguna pagina pasa a abrirse a mas gente de la que la
+ * Nada de esto amplia el acceso de nadie: una aplicación privada sigue
+ * exigiendo cuenta, y ninguna página pasa a abrirse a mas gente de la que la
  * abria. Es idempotente: la segunda vuelta no encuentra nada que escribir.
  * Ver `design.md` -- Migration Plan.
  */
@@ -1352,10 +1352,10 @@ async function migrateApp(app: AppRecord): Promise<boolean> {
   for (const page of pages?.items ?? []) {
     const kept = follow(page.roles);
     /*
-     * `signed` no tiene equivalente exacto: exigia cuenta y ningun rol. Se
-     * traduce a todos los roles marcados y nunca a la lista vacia. Alguien sin
-     * ningun rol puede perder el acceso, y eso se arregla dandole uno; abrir la
-     * pagina a cualquiera no se arregla, porque lo que se vio ya se vio.
+     * `signed` no tiene equivalente exacto: exigia cuenta y ningún rol. Se
+     * traduce a todos los roles marcados y nunca a la lista vacía. Alguien sin
+     * ningún rol puede perder el acceso, y eso se arregla dandole uno; abrir la
+     * página a cualquiera no se arregla, porque lo que se vio ya se vio.
      */
     const next =
       page.access === "signed"
@@ -1380,11 +1380,11 @@ async function migrateApp(app: AppRecord): Promise<boolean> {
 }
 
 /**
- * Avisa de los nombres de rol escritos dentro del HTML de una pagina que hayan
+ * Avisa de los nombres de rol escritos dentro del HTML de una página que hayan
  * cambiado al normalizar.
  *
  * No toca el documento: solo el HTML sabe que pretendia ensenar, y reescribirlo
- * a ciegas puede romper mas de lo que arregla. Una pagina que compara contra
+ * a ciegas puede romper mas de lo que arregla. Una página que compara contra
  * `"Jefe de Zona"` deja de encontrar a nadie, y eso hay que decirlo.
  */
 async function warnRenamedRolesInDocs(

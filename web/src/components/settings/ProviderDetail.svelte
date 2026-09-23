@@ -61,8 +61,8 @@
       class="input-ai-provider-name"
     />
     <!--
-      De que clase es se elige al crearlo y ya no se toca: cambiarla despues
-      deja el resto de sus datos --clave, modelos, direccion-- pensados para
+      De que clase es se elige al crearlo y ya no se toca: cambiarla después
+      deja el resto de sus datos --clave, modelos, dirección-- pensados para
       otra forma de hablar, y arreglarlo a mano confunde mas de lo que ahorra.
       Quien quiera otra clase crea un servidor nuevo.
     -->
@@ -157,7 +157,7 @@
     <div class="list-ai-provider-models">
       <!--
         El nombre se escribe a mano y cambia letra a letra; la posicion es lo
-        unico estable mientras se edita.
+        único estable mientras se edita.
       -->
       {#each provider.models as model, index (index)}
         <ModelRow
@@ -191,8 +191,8 @@
 </div>
 
 <style>
-  /* La caja es `.inset.plain` del catalogo --el cerco sin fondo, porque
-     ya esta dentro de la card de la seccion--; aqui solo el acolchado. */
+  /* La caja es `.inset.plain` del catálogo --el cerco sin fondo, porque
+     ya esta dentro de la card de la sección--; aqui solo el acolchado. */
   .card-ai-provider {
     min-width: 0;
     padding: var(--sp-14);
@@ -203,7 +203,7 @@
       align-items: center;
       gap: var(--sp-8);
 
-      /* El boton de quitar vive en `Button`; no debe encogerse. */
+      /* El botón de quitar vive en `Button`; no debe encogerse. */
       & :global(.btn-remove-ai-provider) {
         flex-shrink: 0;
       }
@@ -248,7 +248,7 @@
         width: 100%;
 
         /*
-         * La caja es `.field-control` del catalogo, el vestido de un control
+         * La caja es `.field-control` del catálogo, el vestido de un control
          * suelto: la misma medida, el mismo radio y el mismo foco que los
          * campos de al lado. Lo que va dentro --el icono de la llave, lo
          * escrito y el ojo-- se reparte aqui.
@@ -267,7 +267,7 @@
         }
 
         /* Dentro de la caja, lo escrito va desnudo: la caja ya es el campo, y
-           `.field input` del catalogo le ponia un segundo borde dentro. */
+           `.field input` del catálogo le ponia un segundo borde dentro. */
         & .input-ai-api-key {
           flex-grow: 1;
           height: auto;
@@ -296,7 +296,7 @@
     & .models-ai-provider {
       margin-top: var(--sp-16);
 
-      /* El rotulo es `.eyebrow` del catalogo; aqui solo su hueco. */
+      /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
       & .models-ai-provider-label {
         display: block;
         margin-bottom: var(--sp-6);

@@ -1,8 +1,8 @@
 <!--
   El Markdown de la IA, dibujado.
 
-  Cada pieza sale como un nodo del arbol, nunca como HTML crudo: aqui no hay
-  ningun `{@html}`, y por eso un `<script>` que venga en la respuesta se ve como
+  Cada pieza sale como un nodo del árbol, nunca como HTML crudo: aqui no hay
+  ningún `{@html}`, y por eso un `<script>` que venga en la respuesta se ve como
   texto y no como una etiqueta. Lo que hay que reconocer del texto lo hace
   `lib/markdown.ts`; esto solo pone las clases.
 -->
@@ -82,7 +82,7 @@
       color: var(--text-primary);
     }
 
-    /* El bloque es `.inset` del catalogo; aqui solo su letra y que se
+    /* El bloque es `.inset` del catálogo; aqui solo su letra y que se
        desplace por dentro en vez de estirar el turno. */
     & .code-markdown-block {
       overflow-x: auto;

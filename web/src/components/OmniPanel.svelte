@@ -1,12 +1,12 @@
 <!--
   El contenido con encabezado que llena una columna o una tarjeta.
 
-  No es un dialogo: no tiene fondo, no tapa la ventana y no se coloca solo.
+  No es un diálogo: no tiene fondo, no tapa la ventana y no se coloca solo.
   Ocupa lo que le den --el dock de la IA, la tarjeta de publicar-- y solo pone
-  su titulo, su cuerpo desplazable y su pie.
+  su título, su cuerpo desplazable y su pie.
 
-  El titulo es opcional: quien llena la cabecera con sus propios mandos --la
-  conversacion, que ahi pone el modelo y la lista-- no lo pide y no sale hueco
+  El título es opcional: quien llena la cabecera con sus propios mandos --la
+  conversación, que ahi pone el modelo y la lista-- no lo pide y no sale hueco
   ninguno. Cualquier otro panel si lo pone: es lo que dice de que van los
   ajustes que se acaban de abrir.
 
@@ -39,7 +39,7 @@
     footer?: Snippet;
     /**
      * El cuerpo sin margenes ni desplazamiento propios: lo pone quien lo llena.
-     * Para contenidos que mandan sobre su propio alto, como la conversacion.
+     * Para contenidos que mandan sobre su propio alto, como la conversación.
      */
     flush?: boolean;
     children: Snippet;
@@ -91,7 +91,7 @@
       min-width: 0;
       flex: 1;
 
-      /* El titulo cede el sitio: los mandos que vengan detras se quedan con el
+      /* El título cede el sitio: los mandos que vengan detras se quedan con el
          ancho que necesiten y el nombre se corta antes de empujarlos. */
       & .titles-panel-omni {
         min-width: 0;

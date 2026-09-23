@@ -1,15 +1,15 @@
 /**
  * Emparejar un valor con el registro al que pertenece.
  *
- * Una columna de relacion guarda el id del registro, pero el id no se escribe
- * nunca a mano: lo que se escribe, se importa y se ve es la llave --una cedula,
- * una placa, un correo--. Aqui es donde una cosa se convierte en la otra.
+ * Una columna de relación guarda el id del registro, pero el id no se escribe
+ * nunca a mano: lo que se escribe, se importa y se ve es la llave --una cédula,
+ * una placa, un correo--. Aquí es donde una cosa se convierte en la otra.
  *
  * Vive en `shared/` y no en `server/` porque la escritura de filas no pasa por
  * el servidor: la grilla, el panel lateral, la importacion y el puente hablan
  * directo con la base. Resolver en el punto de escritura tiene ademas una
- * ventaja que una ruta comun no daria: la busqueda va con la sesion de quien
- * escribe, asi que nadie puede emparejar contra un registro que no alcanza.
+ * ventaja que una ruta comun no daria: la búsqueda va con la sesión de quien
+ * escribe, así que nadie puede emparejar contra un registro que no alcanza.
  */
 import { isOverlayField, isPeopleTable, personKeyFields, personKeyValue } from "./people.ts";
 import {
@@ -25,23 +25,23 @@ import {
 /** Lo justo que hace falta de la base para emparejar. */
 export interface Lookup {
   /**
-   * Busca en una coleccion las filas que casan con un filtro.
-   * Lo implementa quien llama, con su cliente y su sesion.
+   * Busca en una colección las filas que casan con un filtro.
+   * Lo implementa quien llama, con su cliente y su sesión.
    */
   find(collection: string, filter: string): Promise<Record<string, unknown>[]>;
   /**
-   * Las personas invitadas a esta aplicacion, con sus columnas propias.
+   * Las personas invitadas a esta aplicación, con sus columnas propias.
    *
-   * Es una lista aparte a proposito: la de cuentas la guarda la base con su
-   * propia regla, y solo el enlace dice quien esta invitado aqui.
+   * Es una lista aparte a propósito: la de cuentas la guarda la base con su
+   * propia regla, y solo el enlace dice quien esta invitado aquí.
    */
   people(): Promise<AppPerson[]>;
 }
 
-/** A que apunta una columna de relacion y por que llave se empareja. */
+/** A que apunta una columna de relación y por que llave se empareja. */
 export interface RelationTarget {
   field: FieldDef;
-  /** La tabla destino. Vacia si ya no existe. */
+  /** La tabla destino. Vacía si ya no existe. */
   table: TableRecord | null;
   /** Columna del destino con la que se empareja. */
   key: string;
@@ -50,8 +50,8 @@ export interface RelationTarget {
 /**
  * Donde apunta una columna y con que llave se empareja.
  *
- * `key` deja elegir una llave distinta de la que se ensena: el archivo de
- * transito trae cedulas y el de nomina, correos. Es del momento de importar y
+ * `key` deja elegir una llave distinta de la que se enseña: el archivo de
+ * transito trae cedulas y el de nómina, correos. Es del momento de importar y
  * no cambia lo que ve la grilla.
  */
 export function relationTarget(
@@ -66,7 +66,7 @@ export function relationTarget(
   return { field, table, key: key || display };
 }
 
-/** La primera columna unica de una tabla, que es la unica que sirve de llave. */
+/** La primera columna única de una tabla, que es la única que sirve de llave. */
 export function firstUnique(table: TableRecord): string {
   return (table.fields ?? []).find((f) => f.unique === true && !isRelationField(f))?.name ?? "";
 }
@@ -75,7 +75,7 @@ export function firstUnique(table: TableRecord): string {
  * Las columnas de una tabla que pueden servir de llave.
  *
  * La de personas es la excepcion, y no por ser especial: sus columnas llegan
- * importando la nomina --"cedula", "documento", "codigo"-- y nacen como texto
+ * importando la nómina --"cédula", "documento", "código"-- y nacen como texto
  * corriente, sin la marca de "sin repetidos" que nadie vuelve a poner. Exigir
  * la marca dejaba fuera justo la columna con la que se reconoce a la gente.
  * Que un valor identifique o no lo decide el dato: el que senala a dos no
@@ -91,7 +91,7 @@ export function keyCandidates(table: TableRecord | null): { name: string; label:
 
 /** Un valor emparejado, o la constancia de que no encontro dueno. */
 export interface Match {
-  /** Id del registro que casa. Vacio: ninguno casa. */
+  /** Id del registro que casa. Vacío: ninguno casa. */
   id: string;
   /** El valor tal como llego, para poder conservarlo si no casa. */
   value: string;
@@ -103,7 +103,7 @@ const literal = (value: string) => JSON.stringify(value);
  * Empareja varios valores de una vez contra la tabla destino.
  *
  * De golpe y no uno a uno: una importacion de mil filas con tres columnas de
- * relacion serian tres mil consultas.
+ * relación serian tres mil consultas.
  *
  * Un valor que ya es el id de un registro del destino se toma como el enlace
  * sin buscar por llave. Es lo que hace que exportar y volver a importar deje
@@ -111,7 +111,7 @@ const literal = (value: string) => JSON.stringify(value);
  *
  * Un valor que senala a dos registros no enlaza a ninguno. Antes ganaba el
  * primero que apareciera, que es lo mismo que elegir al azar: dos personas con
- * la misma cedula en la nomina dejaban todas sus filas colgando de una sola, y
+ * la misma cédula en la nómina dejaban todas sus filas colgando de una sola, y
  * la otra no volvia a aparecer. Sin enlace el valor se ve en la celda y se
  * puede arreglar; enlazado al que no es, no se nota nunca.
  */
@@ -129,10 +129,10 @@ export async function matchValues(
   const table = target.table;
   if (!table || !target.key) return out;
 
-  // El correo y los roles no estan en la coleccion de la tabla de personas
-  // --viven en la cuenta y en el enlace-- asi que por esa llave no hay filtro
+  // El correo y los roles no estan en la colección de la tabla de personas
+  // --viven en la cuenta y en el enlace-- así que por esa llave no hay filtro
   // que valga: quien los tiene es la lista de invitados. El resultado es el
-  // mismo, el id de la fila, y por eso sale por aqui y no por otra puerta.
+  // mismo, el id de la fila, y por eso sale por aquí y no por otra puerta.
   // Ver `isOverlayField` en `shared/people.ts`.
   if (isOverlayField(table, target.key)) {
     const people = await lookup.people();
@@ -190,9 +190,9 @@ export async function matchValues(
 }
 
 /**
- * Las dos columnas reales de una celda de relacion, ya decididas.
+ * Las dos columnas reales de una celda de relación, ya decididas.
  *
- * Si el valor encontro registro se guarda el id y el corralito se vacia; si no,
+ * Si el valor encontro registro se guarda el id y el corralito se vacía; si no,
  * al reves. Nunca las dos llenas a la vez.
  */
 export function relationCellValues(field: FieldDef, match: Match): Record<string, unknown> {
@@ -210,7 +210,7 @@ export function isAccepted(table: TableRecord, fieldName: string, value: string)
  * Lo que se dice antes de borrar unas filas, con numeros de verdad.
  *
  * "Esta accion no se puede deshacer" no dice nada de lo que va a pasar con las
- * filas de otras tablas que senalan a estas. Aqui se nombra cada tabla y se
+ * filas de otras tablas que senalan a estas. Aquí se nombra cada tabla y se
  * cuentan las suyas, separando lo que se va de lo que se queda: son dos cosas
  * distintas y solo una tiene vuelta atras.
  */

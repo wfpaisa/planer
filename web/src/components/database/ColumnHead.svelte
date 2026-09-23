@@ -1,9 +1,9 @@
 <!--
   El encabezado de una columna de la grilla.
 
-  Todo lo que se le puede hacer a una columna se pide desde su propio titulo
+  Todo lo que se le puede hacer a una columna se pide desde su propio título
   --ordenar, esconderla, cambiarla-- y no solo desde los menus de la barra: es
-  donde se esta mirando cuando se quiere. La flecha del orden vive en el titulo
+  donde se esta mirando cuando se quiere. La flecha del orden vive en el título
   de la columna ordenada, asi que se ve por que estan las filas asi.
 -->
 <script lang="ts" module>
@@ -43,7 +43,7 @@
     /**
      * Se esta arrastrando el borde. `done` distingue lo que se ve mientras se
      * arrastra de lo que hay que guardar al soltar: guardar en cada pixel serian
-     * cien peticiones por un tiron de raton.
+     * cien peticiones por un tiron de ratón.
      */
     onResize?: (width: number, done: boolean) => void;
     /** Las columnas fijas no se cambian: solo se ordenan, se muestran o se esconden. */
@@ -61,15 +61,15 @@
   let head = $state<HTMLTableCellElement | null>(null);
 
   /**
-   * Arrastrar el borde derecho del titulo.
+   * Arrastrar el borde derecho del título.
    *
    * Los escuchas van en la ventana y no en el tirador: al arrastrar deprisa el
-   * raton se sale del tirador --son seis pixeles-- y con ellos colgados de el
+   * ratón se sale del tirador --son seis pixeles-- y con ellos colgados de el
    * la columna se quedaba a medio camino.
    */
   function startResize(e: MouseEvent) {
     if (e.button !== 0 || !head || !onResize) return;
-    // No es un clic en el titulo: ni ordena, ni abre el menu.
+    // No es un clic en el título: ni ordena, ni abre el menu.
     e.preventDefault();
     e.stopPropagation();
 
@@ -93,7 +93,7 @@
     window.addEventListener("mouseup", up);
   }
 
-  /** El teclado tambien mueve el borde, de diez en diez pixeles. */
+  /** El teclado también mueve el borde, de diez en diez pixeles. */
   function resizeKeys(e: KeyboardEvent) {
     if (!head || !onResize) return;
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
@@ -110,8 +110,8 @@
   class="column-head text-left"
 >
   <!--
-    Sin relleno: quien manda dentro es el boton, que ocupa la celda entera
-    --igual que en las filas-- para que pinchar en cualquier punto del titulo
+    Sin relleno: quien manda dentro es el botón, que ocupa la celda entera
+    --igual que en las filas-- para que pinchar en cualquier punto del título
     abra su menu.
   -->
   <Dropdown class="menu-column-head" wrapClass="wrap-column-head" align="right">
@@ -135,7 +135,7 @@
         />
         <span class="column-head-label">{field.label}</span>
         <!--
-          Que la columna no pueda estar vacia se dice pegado al titulo, que es
+          Que la columna no pueda estar vacía se dice pegado al título, que es
           donde iba el asterisco que este icono sustituye: se lee con el nombre
           de la columna, como una parte suya.
         -->
@@ -244,9 +244,9 @@
 
   {#if onResize}
     <!--
-      El tirador del ancho. Es un boton de verdad y no un adorno: se le puede
-      llegar con el tabulador y moverlo con las flechas, que es la unica forma
-      de cambiar un ancho sin raton.
+      El tirador del ancho. Es un botón de verdad y no un adorno: se le puede
+      llegar con el tabulador y moverlo con las flechas, que es la única forma
+      de cambiar un ancho sin ratón.
     -->
     <button
       type="button"
@@ -348,7 +348,7 @@
         }
 
         /*
-          La de unica toma el hueco que sobra y el menu se le pega detras: asi
+          La de única toma el hueco que sobra y el menu se le pega detras: asi
           se queda en el borde derecho de toda la cabecera en vez de bailar
           detras de titulos de distinto largo.
         */
@@ -379,7 +379,7 @@
         transition: opacity 150ms;
       }
 
-      /* Con la marca de unica el hueco ya lo tomo ella: dos margenes
+      /* Con la marca de única el hueco ya lo tomo ella: dos margenes
          automaticos se repartirian lo que sobra y la dejarian a media
          cabecera. */
       &:has(.column-head-mark-unique) :global(.column-menu) {

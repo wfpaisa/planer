@@ -97,27 +97,15 @@
     margin-bottom: var(--sp-4);
   }
 
-  .login-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .login-subtitle {
-    margin-top: var(--sp-4);
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-  }
-
-  /* La caja es `.card` del catalogo; `card-solid` porque en oscuro la del
-     catalogo es translucida y esta se posa sola sobre el lienzo. Aqui solo
+  /* La caja es `.card` del catálogo; `card-solid` porque en oscuro la del
+     catálogo es translucida y esta se posa sola sobre el lienzo. Aqui solo
      el acolchado, que la card lo reparte entre cabecera, cuerpo y pie y
      este formulario no tiene ninguno de los tres. */
   .form-login {
     padding: var(--sp-20);
     box-shadow: var(--shadow-sm);
 
-    /* Los campos y el boton son componentes: su raiz no es de aqui. */
+    /* Los campos y el botón son componentes: su raíz no es de aqui. */
     & > :global(* + *) {
       margin-top: var(--sp-16);
     }

@@ -5,10 +5,10 @@
  * columnas, y su nombre. Se para en la primera que decida. Ver `design.md` D3
  * de `relacion-automatica-con-personas`.
  *
- * Vive aparte de `dropFiles.ts` porque aqui no hay ni archivo ni base: entra lo
+ * Vive aparte de `dropFiles.ts` porque aquí no hay ni archivo ni base: entra lo
  * que el archivo ya dijo --su nombre, sus columnas, sus filas-- y sale una
  * tabla o nada. Preguntarle a la base si unos identificadores existen se recibe
- * como funcion, que es lo que deja comprobar las tres capas sin navegador.
+ * como función, que es lo que deja comprobar las tres capas sin navegador.
  */
 import { slugify, type TableRecord } from "@shared/types";
 
@@ -21,7 +21,7 @@ import { slugify, type TableRecord } from "@shared/types";
  * hasta el final no hay nombre, solo cuando y cual: se corta ahi.
  *
  * Se reconoce solo lo que no puede ser otra cosa: seis digitos o mas de fecha
- * seguidos, una version con su `v` delante, o una copia entre parentesis. Un
+ * seguidos, una versión con su `v` delante, o una copia entre parentesis. Un
  * `presupuesto-2026` es el nombre de la tabla, no una fecha, y se respeta.
  */
 const NAME_TAIL =
@@ -30,7 +30,7 @@ const NAME_TAIL =
 /** El nombre del archivo sin su extension. */
 const withoutExtension = (name: string) => name.replace(/\.[^.]+$/, "").trim();
 
-/** El nombre del archivo sin extension y sin la cola de fecha o de version. */
+/** El nombre del archivo sin extension y sin la cola de fecha o de versión. */
 export function fileTitle(name: string): string {
   const base = withoutExtension(name);
   return base.replace(NAME_TAIL, "").trim() || base;
@@ -60,7 +60,7 @@ export type IdsExist = (table: TableRecord, ids: string[]) => Promise<boolean>;
  * Cuantos identificadores del archivo se le preguntan a cada tabla.
  *
  * Una muestra basta: los identificadores solo pueden venir de la tabla que los
- * emitio, asi que uno que exista ya la senala. Se piden varios y no uno para
+ * emitio, así que uno que exista ya la senala. Se piden varios y no uno para
  * que una fila anadida a mano al principio del archivo no despiste.
  */
 const ID_SAMPLE = 5;
@@ -68,7 +68,7 @@ const ID_SAMPLE = 5;
 /**
  * Capa 1: las tablas donde ya existe alguno de los identificadores del archivo.
  *
- * Es la unica capa que no se rompe al cambiar el nombre del archivo ni sus
+ * Es la única capa que no se rompe al cambiar el nombre del archivo ni sus
  * columnas. Solo corre cuando el archivo trae columna `id`, que es lo que
  * pone el exportado.
  */
@@ -139,7 +139,7 @@ export function tablesByName(tables: TableRecord[], fileName: string): TableReco
  * La tabla a la que pertenece el archivo, o nada.
  *
  * Una capa que encuentra mas de una tabla no elige: pasa a la siguiente. La
- * etiqueta de una tabla no tiene por que ser unica --solo lo es el nombre
+ * etiqueta de una tabla no tiene por que ser única --solo lo es el nombre
  * tecnico-- y escribir en una tabla elegida entre varias candidatas es meter
  * datos donde nadie dijo.
  */

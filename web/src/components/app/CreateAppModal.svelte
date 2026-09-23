@@ -20,7 +20,7 @@
   let name = $state("");
   let icon = $state(DEFAULT_ICON);
   // Sin tocar nada se crea con la paleta de partida: elegir un color a mano
-  // o del catalogo es cosa de quien construye, no una obligacion de este
+  // o del catálogo es cosa de quien construye, no una obligacion de este
   // formulario.
   let theme = $state<AppTheme>({ palette: null });
   let busy = $state(false);
@@ -33,8 +33,8 @@
       const app = await post<AppRecord>("/api/apps", {
         name,
         icon,
-        // El catalogo entero desde el principio: se puede afinar despues
-        // en los ajustes de la aplicacion, pero no hay razon para obligar
+        // El catálogo entero desde el principio: se puede afinar después
+        // en los ajustes de la aplicación, pero no hay razon para obligar
         // a un color a mano si ya se sabe con que paleta se quiere ver, ni
         // para forzar una si no se toca nada.
         theme,

@@ -23,7 +23,7 @@
     open: boolean;
     onClose: () => void;
     title: string;
-    /** Icono de la fuente, al lado del titulo, para lo que tiene marca propia. */
+    /** Icono de la fuente, al lado del título, para lo que tiene marca propia. */
     icon?: string;
     description?: string;
     width?: string;
@@ -42,7 +42,7 @@
   /*
    * Escape cierra, y el foco entra al panel. Los dos los traia gratis el
    * `<dialog>` nativo, y aun asi salia caro: `showModal()` vuelve inerte todo
-   * el documento salvo el propio dialogo, y la inercia no la levanta ningun
+   * el documento salvo el propio diálogo, y la inercia no la levanta ningún
    * CSS. La capa de avisos quedaba fuera --se veia, pero arrastrar sobre el
    * texto de un aviso pulsaba el velo y cerraba el modal--.
    */
@@ -69,7 +69,7 @@
     dentro de la cuadricula --que se aisla, ver `routes/DatabaseEditor.svelte`--
     quedaria encerrado en su capa. El velo y el centrado los pone este
     contenedor (la casa, en el <style> de abajo); la tarjeta, `plane-card`;
-    la cabeza, el cuerpo y el pie, `modal-*` de `components.css`. Lo unico
+    la cabeza, el cuerpo y el pie, `modal-*` de `components.css`. Lo único
     que cambia respecto de antes es el peldano, porque el suyo es 999. Ver la
     escala en `styles/global.css`.
   -->
@@ -129,7 +129,7 @@
 {/if}
 
 <style>
-  /* Solo cuando hay icono: el titulo pasa a renglon con el al lado. */
+  /* Solo cuando hay icono: el título pasa a renglon con el al lado. */
   .modal-head-title {
     display: flex;
     align-items: center;

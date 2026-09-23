@@ -68,7 +68,7 @@
   /*
    * La tarjeta se monta de nuevo cada vez que se abre, asi que la columna que
    * llega no cambia mientras dura. `untrack` dice eso: se lee una sola vez y a
-   * proposito, y lo que se edita a partir de ahi es el borrador de aqui.
+   * propósito, y lo que se edita a partir de ahi es el borrador de aqui.
    */
   const isNew = untrack(() => !field);
   const people = getPeople();
@@ -95,7 +95,7 @@
       await patch(`/api/tables/${table.id}`, { fields: next });
 
       /*
-       * Convertir una columna en relacion deja sus valores esperando en el
+       * Convertir una columna en relación deja sus valores esperando en el
        * corralito, y desde aqui ya se sabe contra que emparejarlos. Se hace
        * antes de refrescar para que la grilla salga con los enlaces puestos:
        * ver trece "sin enlace" que se resuelven solos al recargar seria peor
@@ -137,12 +137,12 @@
    * Por que este nombre no vale en la tabla de personas, mientras se escribe.
    *
    * El servidor lo rechaza igual (`guardSystemFields`): esto es para que el
-   * aviso llegue antes de guardar y no despues, que es cuando ya se escribio
+   * aviso llegue antes de guardar y no después, que es cuando ya se escribio
    * todo lo demas. Fuera de esa tabla no salta nunca.
    *
-   * Se mira el titulo solo en una columna nueva, que es de donde sale su nombre
+   * Se mira el título solo en una columna nueva, que es de donde sale su nombre
    * tecnico. En una que ya existe se mira el nombre que tiene: renombrarla
-   * cambia el titulo y deja el nombre quieto, asi que llamar "Correo" a una
+   * cambia el título y deja el nombre quieto, asi que llamar "Correo" a una
    * columna que se llama `departamento` no tapa nada.
    */
   const nameTaken = $derived(reservedPersonName(table, isNew ? draft.label : (field?.name ?? "")));
@@ -150,7 +150,7 @@
   /**
    * Columnas de la tabla destino que se pueden ensenar en lugar del id.
    *
-   * Las que admiten varios valores quedan fuera: una celda ensena un dato, y
+   * Las que admiten varios valores quedan fuera: una celda enseña un dato, y
    * una lista de roles no dice quien es nadie.
    */
   const targetFields = $derived<{ name: string; label: string }[]>(
@@ -160,7 +160,7 @@
       .map((f) => ({ name: f.name, label: f.label })) ?? [],
   );
 
-  /** Una columna que se ensena a si misma no tiene sentido. */
+  /** Una columna que se enseña a si misma no tiene sentido. */
   const canBeUnique = $derived(
     !isRelationField(draft) && draft.type !== "file" && draft.type !== "bool",
   );
@@ -216,7 +216,7 @@
     {#if draft.type === "select"}
       <Field label="Opciones">
         <div class="option-list flex flex-col">
-          <!-- Opciones sin id propio: el indice es su identidad. -->
+          <!-- Opciones sin id propio: el índice es su identidad. -->
           {#each options as option, index (index)}
             <div class="option-row">
               <Input
@@ -284,7 +284,7 @@
           disabled={targetFields.length === 0}
         >
           <option value="">Nada</option>
-          <!-- La misma columna dos veces no anade nada, asi que no se ofrece. -->
+          <!-- La misma columna dos veces no añade nada, asi que no se ofrece. -->
           {#each targetFields.filter((f) => f.name !== displayFieldOf(draft)) as f (f.name)}
             <option value={f.name}>{f.label}</option>
           {/each}
@@ -382,7 +382,7 @@
     }
 
     /*
-     * La celda es `.opt` del catalogo --borde, radio, tinte al elegirla y su
+     * La celda es `.opt` del catálogo --borde, radio, tinte al elegirla y su
      * par `.opt-label` / `.opt-hint`--. Aqui solo lo que esta rejilla pide
      * distinto: el icono arriba en vez de centrado, porque la celda lleva dos
      * renglones, y la letra un escalon mas chica para que quepan doce tipos.
@@ -436,7 +436,7 @@
     padding-top: var(--sp-4);
   }
 
-  /* El boton de borrar llega al Button (un componente): margin y tinta. */
+  /* El botón de borrar llega al Button (un componente): margin y tinta. */
   :global(.column-delete-btn) {
     margin-right: auto;
     color: var(--danger);

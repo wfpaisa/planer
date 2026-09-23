@@ -2,10 +2,10 @@
  * Llevarse los servidores de IA de una instalacion a otra: el archivo que sale
  * de "Exportar" en los ajustes y lo que se lee al volver a soltarlo.
  *
- * **Las claves no salen, y no porque se filtren aqui.** Lo que se escribe es lo
+ * **Las claves no salen, y no porque se filtren aquí.** Lo que se escribe es lo
  * que el panel tiene delante (`AiConfigView`), y el panel no recibe ninguna
  * clave nunca: `aiView()` (`server/routes.ts`) las quita antes de mandarle la
- * configuracion, y lo unico que llega es `hasKey`. Asi que no hay una lista de
+ * configuración, y lo único que llega es `hasKey`. Así que no hay una lista de
  * la que excluirlas ni una lista que alguien pueda olvidarse de mantener. Al
  * importar hay que volver a escribirlas --salvo las que ya estuvieran
  * guardadas para ese mismo servidor, que el servidor conserva solo--.
@@ -32,7 +32,7 @@ export const AI_CONFIG_FORMAT = "plane-servidores-ia";
 /** Como se llama el archivo que se descarga. */
 export const AI_CONFIG_FILE = "servidores-ia.json";
 
-/** Igual que en el servidor: a lo que se cae si el archivo no trae un numero valido. */
+/** Igual que en el servidor: a lo que se cae si el archivo no trae un número válido. */
 const AI_DEFAULT_RUN_TIMEOUT_MINUTES = 40;
 
 /** Lo que trae un archivo, ya leido y sin nada que no se entienda. */
@@ -53,7 +53,7 @@ export type AiConfigFileResult =
 /* ------------------------------------------------------------------ */
 
 /**
- * La configuracion de la seccion, como texto para descargar.
+ * La configuración de la sección, como texto para descargar.
  *
  * Sale lo que se esta viendo, no lo ultimo guardado: en esa pantalla lo escrito
  * vive en el formulario hasta que se guarda, y exportar otra cosa daria un
@@ -97,7 +97,7 @@ const text = (value: unknown): string => (typeof value === "string" ? value.trim
  *
  * Lo que no venga o no se entienda cae en la medida prudente de un modelo
  * recien anadido a mano: es corregible en la misma pantalla, y es mejor que
- * perder el modelo entero por un numero mal escrito.
+ * perder el modelo entero por un número mal escrito.
  */
 function readModel(raw: unknown): AiModel | null {
   if (!raw || typeof raw !== "object") return null;
@@ -133,8 +133,8 @@ function readProvider(raw: unknown): { provider?: AiProviderConfig; message?: st
   }
 
   const baseUrl = text(source.baseUrl);
-  // La misma comprobacion que hace el servidor al guardar, hecha antes: asi el
-  // fallo se lee aqui, con el servidor que lo trae al lado, y no al guardar.
+  // La misma comprobacion que hace el servidor al guardar, hecha antes: así el
+  // fallo se lee aquí, con el servidor que lo trae al lado, y no al guardar.
   if (baseUrl && !/^https?:\/\//i.test(baseUrl)) {
     return { message: `La dirección "${baseUrl}" no empieza por http:// o https://` };
   }
@@ -150,7 +150,7 @@ function readProvider(raw: unknown): { provider?: AiProviderConfig; message?: st
       provider: source.provider,
       baseUrl,
       models,
-      // Como en el servidor: lo que no dice nada viene de una version sin
+      // Como en el servidor: lo que no dice nada viene de una versión sin
       // interruptor, y apagarlo por cuenta propia seria apagarselo a alguien.
       enabled: source.enabled !== false,
     },
@@ -158,7 +158,7 @@ function readProvider(raw: unknown): { provider?: AiProviderConfig; message?: st
 }
 
 /**
- * Lee un texto y lo interpreta como una configuracion de servidores de IA.
+ * Lee un texto y lo interpreta como una configuración de servidores de IA.
  *
  * Acepta el formato propio o una lista pelada de servidores --lo que alguien
  * pegaria si recorta el archivo--. Los servidores que no se pueden traer se
@@ -166,7 +166,7 @@ function readProvider(raw: unknown): { provider?: AiProviderConfig; message?: st
  */
 export function parseAiConfigFile(input: string): AiConfigFileResult {
   const trimmed = input.trim();
-  if (!trimmed) return { ok: false, error: "Todavía no hay nada que leer" };
+  if (!trimmed) return { ok: false, error: "Pega o selecciona un archivo JSON" };
 
   let data: unknown;
   try {
@@ -182,14 +182,14 @@ export function parseAiConfigFile(input: string): AiConfigFileResult {
   } else if (data && typeof data === "object") {
     head = data as Record<string, unknown>;
     if (head.formato !== AI_CONFIG_FORMAT || !Array.isArray(head.servidores)) {
-      return { ok: false, error: "No parece un archivo de servidores de IA" };
+      return { ok: false, error: "El archivo no contiene una configuración de IA válida" };
     }
     list = head.servidores;
   } else {
-    return { ok: false, error: "No parece un archivo de servidores de IA" };
+    return { ok: false, error: "El archivo no contiene una configuración de IA válida" };
   }
 
-  if (list.length === 0) return { ok: false, error: "El archivo no trae ningún servidor" };
+  if (list.length === 0) return { ok: false, error: "El archivo no contiene servidores" };
 
   const providers: AiProviderConfig[] = [];
   const invalid: { index: number; message: string }[] = [];
@@ -217,7 +217,7 @@ export function parseAiConfigFile(input: string): AiConfigFileResult {
   };
 }
 
-/** Igual que en el servidor: 0 quita el tope, lo demas se redondea a minutos. */
+/** Igual que en el servidor: 0 quita el tope, lo demás se redondea a minutos. */
 function readRunTimeoutMinutes(value: unknown): number {
   const n = Math.round(Number(value));
   return Number.isFinite(n) && n >= 0 ? n : AI_DEFAULT_RUN_TIMEOUT_MINUTES;
@@ -230,15 +230,15 @@ function readRunTimeoutMinutes(value: unknown): number {
 /**
  * Que hacer con lo que trae el archivo.
  *
- *   add      solo entran los servidores que aqui no estan; lo demas --el
+ *   add      solo entran los servidores que aquí no estan; lo demás --el
  *            modelo por defecto, los dos interruptores y el tiempo maximo--
  *            se queda como esta.
- *   replace  se restaura la seccion entera, interruptores incluidos.
+ *   replace  se restaura la sección entera, interruptores incluidos.
  */
 export type AiImportMode = "add" | "replace";
 
 export interface AiImportPlan {
-  /** Como queda la seccion si se aplica. */
+  /** Como queda la sección si se aplica. */
   next: AiConfigView;
   /** Los del archivo que entran. */
   added: AiProviderView[];
@@ -255,8 +255,8 @@ const resolves = (providers: AiProviderConfig[], choice: AiChoice | undefined): 
   providers.some((p) => p.id === choice.provider && p.models.some((m) => m.id === choice.model));
 
 /**
- * El primero de los candidatos que todavia senale a algo; si ninguno, el
- * primer modelo que haya. Sin esto la seccion puede quedar con un modelo por
+ * El primero de los candidatos que todavía senale a algo; si ninguno, el
+ * primer modelo que haya. Sin esto la sección puede quedar con un modelo por
  * defecto que ya no existe, que es quedarse sin nada cuando nadie elige.
  */
 function pickFallback(providers: AiProviderConfig[], candidates: AiChoice[]): AiChoice {
@@ -272,13 +272,13 @@ function pickFallback(providers: AiProviderConfig[], candidates: AiChoice[]): Ai
 }
 
 /**
- * Lo que va a pasar si se importa, sin que pase todavia.
+ * Lo que va a pasar si se importa, sin que pase todavía.
  *
  * Los servidores se emparejan por su `id`, que es el que el archivo conserva:
  * uno que se reimporta sobre si mismo se reconoce, y con eso el servidor le
  * mantiene la clave guardada al escribirlo (ver `mergeConfig` en
  * `server/ai/ai.ts`). Por eso `hasKey` se lee de lo que ya hay y no del archivo,
- * que nunca lo trae: es lo unico honesto que se puede decir de una clave que
+ * que nunca lo trae: es lo único honesto que se puede decir de una clave que
  * no ha viajado.
  */
 export function planAiImport(
@@ -313,7 +313,7 @@ export function planAiImport(
     next: {
       providers: incoming,
       fallback: pickFallback(incoming, [file.fallback, current.fallback]),
-      // El archivo no lo trae --no esta en el formato-- asi que se conserva el
+      // El archivo no lo trae --no esta en el formato-- así que se conserva el
       // que hubiera. Si senalaba un modelo que ya no existe, el servidor lo
       // borra al guardar, que es donde se puede saber.
       memoryChoice: current.memoryChoice,

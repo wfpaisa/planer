@@ -4,7 +4,7 @@ const KEY = "plane-font-size";
 export const FONT_SIZE_MIN = 80;
 export const FONT_SIZE_MAX = 160;
 export const FONT_SIZE_STEP = 10;
-/** El tamano por defecto es el normal del navegador. */
+/** El tamaño por defecto es el normal del navegador. */
 export const DEFAULT_FONT_SIZE = 100;
 
 function saved(): number {
@@ -19,10 +19,10 @@ function saved(): number {
 let percent = $state(saved());
 
 /**
- * Aplica el tamano de letra a la raiz (`html`) como un porcentaje directo de
- * `font-size`: toda la hoja esta en rem, asi que mover la raiz reescala el
- * panel entero, letra y alturas de linea juntas. En el valor normal se quita
- * el estilo inline para que mande el tamano del navegador. La eleccion queda
+ * Aplica el tamaño de letra a la raíz (`html`) como un porcentaje directo de
+ * `font-size`: toda la hoja esta en rem, así que mover la raíz reescala el
+ * panel entero, letra y alturas de línea juntas. En el valor normal se quita
+ * el estilo inline para que mande el tamaño del navegador. La eleccion queda
  * guardada solo en este navegador.
  */
 $effect.root(() => {
@@ -38,7 +38,7 @@ $effect.root(() => {
 });
 
 export const fontSize = {
-  /** El porcentaje sobre el tamano normal que usa el panel ahora mismo. */
+  /** El porcentaje sobre el tamaño normal que usa el panel ahora mismo. */
   get percent(): number {
     return percent;
   },

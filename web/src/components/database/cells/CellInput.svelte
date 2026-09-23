@@ -6,7 +6,7 @@
   import type PocketBase from "pocketbase";
 
   // `toInputValue` vive en `lib/cellValues`: el portapapeles de la grilla copia
-  // con ella y no dibuja ningun control.
+  // con ella y no dibuja ningún control.
   import { type Row, toInputValue } from "../../../lib/cellValues";
   import { Input, Select, Textarea } from "../../ui";
   import KeyPicker from "./KeyPicker.svelte";
@@ -26,7 +26,7 @@
     field: FieldDef;
     value: unknown;
     /**
-     * La fila que se esta editando. Solo la necesita una relacion: lo que se
+     * La fila que se esta editando. Solo la necesita una relación: lo que se
      * escribe es la llave, y la llave de una fila ya guardada vive en el
      * registro enlazado, no en la celda.
      */

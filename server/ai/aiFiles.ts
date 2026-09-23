@@ -1,16 +1,16 @@
 /**
- * Los archivos que se adjuntan a una peticion a la IA.
+ * Los archivos que se adjuntan a una petición a la IA.
  *
- * El contenido no viaja dentro de la peticion ni se guarda en la conversacion:
- * se guarda aqui una sola vez, identificado por la huella de lo que trae
- * dentro, igual que los documentos HTML de las paginas (`htmlDocs.ts`). La
- * conversacion guarda la referencia, y con ella el adjunto sigue estando en los
- * turnos siguientes y despues de recargar.
+ * El contenido no viaja dentro de la petición ni se guarda en la conversación:
+ * se guarda aquí una sola vez, identificado por la huella de lo que trae
+ * dentro, igual que los documentos HTML de las páginas (`htmlDocs.ts`). La
+ * conversación guarda la referencia, y con ella el adjunto sigue estando en los
+ * turnos siguientes y después de recargar.
  *
- * Un adjunto pertenece a la aplicacion donde se adjunto y no se alcanza desde
- * otra: cada lectura pide la aplicacion, no solo el identificador.
+ * Un adjunto pertenece a la aplicación donde se adjunto y no se alcanza desde
+ * otra: cada lectura pide la aplicación, no solo el identificador.
  *
- * Vive mientras alguna conversacion lo nombre. Cuando ninguna lo nombra,
+ * Vive mientras alguna conversación lo nombre. Cuando ninguna lo nombra,
  * `pruneAiFiles` lo recoge, a imagen de `pruneDocs`.
  */
 import { detectSeparator, tokenizeCsv } from "../../shared/importParse.ts";
@@ -23,9 +23,9 @@ import { createRecordForm, deleteRecord, firstRecord, listRecords, readFileField
 /**
  * Lo mas grande que se guarda de un adjunto.
  *
- * Es el tope del campo de archivo de la coleccion y el de la ruta que los
- * recibe: los dos numeros son el mismo a proposito, o la subida se aceptaria
- * para caerse despues al escribirla.
+ * Es el tope del campo de archivo de la colección y el de la ruta que los
+ * recibe: los dos numeros son el mismo a propósito, o la subida se aceptaria
+ * para caerse después al escribirla.
  */
 export const MAX_AI_FILE_BYTES = 10_000_000;
 
@@ -59,7 +59,7 @@ const tooBig = (bytes: number) =>
 /**
  * Guarda un adjunto y devuelve su referencia.
  *
- * Por huella: si esa aplicacion ya tenia guardado ese mismo contenido, se
+ * Por huella: si esa aplicación ya tenia guardado ese mismo contenido, se
  * devuelve el que estaba en vez de repetirlo. El nombre que se conserva es el
  * del primero --lo que cambia entre dos subidas del mismo archivo es como se
  * llamaba en el escritorio de quien lo subio, no lo que trae dentro--.
@@ -89,9 +89,9 @@ export async function saveAiFile(
   form.set(
     "content",
     new Blob([new Uint8Array(file.content)], { type: file.mime || "application/octet-stream" }),
-    // El nombre del archivo guardado no es el que se lee en ningun sitio --eso
+    // El nombre del archivo guardado no es el que se lee en ningún sitio --eso
     // es `name`-- pero PocketBase necesita uno, y con la huella dentro dos
-    // adjuntos distintos nunca comparten direccion.
+    // adjuntos distintos nunca comparten dirección.
     `${hash.slice(0, 16)}-${safeName(file.name)}`,
   );
 
@@ -109,7 +109,7 @@ function safeName(name: string): string {
   return clean || "adjunto";
 }
 
-/** El adjunto guardado, o nada si esa referencia no es de esta aplicacion. */
+/** El adjunto guardado, o nada si esa referencia no es de esta aplicación. */
 export async function findAiFile(appId: string, id: string): Promise<AiFileRecord | null> {
   if (!id) return null;
   return firstRecord<AiFileRecord>(
@@ -143,15 +143,15 @@ export async function readAiFileBase64(file: AiFileRecord): Promise<string> {
 }
 
 /* ------------------------------------------------------------------ */
-/* Como se llama cada adjunto dentro de una conversacion                */
+/* Como se llama cada adjunto dentro de una conversación                */
 /* ------------------------------------------------------------------ */
 
 /**
- * Con que nombre se nombra cada adjunto de una conversacion.
+ * Con que nombre se nombra cada adjunto de una conversación.
  *
  * Lo que la IA escribe en una orden es `chequeo-preoperacional.csv`, no una
- * huella: el nombre del archivo es la referencia que quien construye tambien
- * lee. Dos adjuntos distintos con el mismo nombre dentro de una conversacion se
+ * huella: el nombre del archivo es la referencia que quien construye también
+ * lee. Dos adjuntos distintos con el mismo nombre dentro de una conversación se
  * desempatan --el segundo se ofrece como `chequeo-preoperacional (2).csv`-- y
  * el mismo adjunto nombrado dos veces se queda con un solo nombre.
  *
@@ -180,7 +180,7 @@ export function nameAiFiles(files: AiChatFile[]): (AiChatFile & { label: string 
 }
 
 /**
- * El adjunto que la IA nombro, buscandolo entre los de la conversacion.
+ * El adjunto que la IA nombro, buscandolo entre los de la conversación.
  *
  * Se busca por el nombre con el que se le ofrecio --el desempatado-- y, como
  * cortesia, por el nombre a secas: un modelo que escribe el nombre sin el "(2)"
@@ -203,7 +203,7 @@ export function findByName(
 /* Recorte                                                             */
 /* ------------------------------------------------------------------ */
 
-/** Las referencias que nombra una conversacion guardada. */
+/** Las referencias que nombra una conversación guardada. */
 function refsInMessages(messages: unknown): string[] {
   if (!Array.isArray(messages)) return [];
   const out: string[] = [];
@@ -219,11 +219,11 @@ function refsInMessages(messages: unknown): string[] {
 }
 
 /**
- * Borra los adjuntos que ya no nombra ninguna conversacion.
+ * Borra los adjuntos que ya no nombra ninguna conversación.
  *
- * Un adjunto se conserva mientras cualquier conversacion guardada de la
- * aplicacion lo nombre, asi que borrar una conversacion no se lleva un adjunto
- * que otra siga nombrando. Se llama despues de guardar una peticion, que es
+ * Un adjunto se conserva mientras cualquier conversación guardada de la
+ * aplicación lo nombre, así que borrar una conversación no se lleva un adjunto
+ * que otra siga nombrando. Se llama después de guardar una petición, que es
  * cuando el tope de conversaciones puede haberse llevado la ultima que lo
  * nombraba.
  */
@@ -263,7 +263,7 @@ export async function pruneAiFiles(appId: string): Promise<number> {
 /**
  * Cuanto texto de un archivo cabe en la muestra.
  *
- * Una hoja de estilos o un HTML de referencia de tamano normal entran enteros,
+ * Una hoja de estilos o un HTML de referencia de tamaño normal entran enteros,
  * que es lo que los hace utiles de adjuntar. Lo que se pase se recorta y se
  * dice: con la orden de leerlo por tramos, recortar la muestra no esconde nada.
  */
@@ -275,7 +275,7 @@ export const SAMPLE_ROWS = 20;
 /** Elementos de una lista JSON que se ensenan. */
 export const SAMPLE_ITEMS = 3;
 
-/** Con que lenguaje se escribe el bloque de codigo de cada clase de archivo. */
+/** Con que lenguaje se escribe el bloque de código de cada clase de archivo. */
 const FILE_LANGUAGE: Record<AiFileKind, string> = {
   html: "html",
   css: "css",
@@ -287,15 +287,15 @@ const FILE_LANGUAGE: Record<AiFileKind, string> = {
   image: "",
 };
 
-/** Lo que se le ensena de un archivo, y que parte de el es. */
+/** Lo que se le enseña de un archivo, y que parte de el es. */
 export interface AiFileSample {
-  /** El bloque que se le pone delante. Vacio para una imagen. */
+  /** El bloque que se le pone delante. Vacío para una imagen. */
   body: string;
-  /** El lenguaje del bloque de codigo. */
+  /** El lenguaje del bloque de código. */
   language: string;
-  /** Lo que se ensena no es todo lo que trae. */
+  /** Lo que se enseña no es todo lo que trae. */
   truncated: boolean;
-  /** Que trae, contado en una linea: filas, columnas, elementos. */
+  /** Que trae, contado en una línea: filas, columnas, elementos. */
   detail: string;
 }
 
@@ -305,19 +305,19 @@ function cut(text: string): { body: string; truncated: boolean } {
   return { body: text.slice(0, MAX_SAMPLE_CHARS), truncated: true };
 }
 
-/** Una linea de CSV, con las comillas que haga falta. */
+/** Una línea de CSV, con las comillas que haga falta. */
 const csvLine = (cells: string[]): string =>
   cells.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(",");
 
 /**
- * Lo que se le ensena de un archivo, segun lo que traiga dentro.
+ * Lo que se le enseña de un archivo, segun lo que traiga dentro.
  *
  * De un archivo de filas y columnas, sus columnas y unas pocas filas --nunca
  * las cinco mil--; de un JSON que es una lista, sus claves y sus primeros
- * elementos; de lo demas, el archivo entero mientras quepa. Una imagen no se
- * cuenta con palabras: viaja dentro de la peticion.
+ * elementos; de lo demás, el archivo entero mientras quepa. Una imagen no se
+ * cuenta con palabras: viaja dentro de la petición.
  *
- * El contenido guardado no se toca: lo que se recorta es lo que se ensena.
+ * El contenido guardado no se toca: lo que se recorta es lo que se enseña.
  */
 export async function sampleAiFile(file: AiFileRecord): Promise<AiFileSample> {
   const language = FILE_LANGUAGE[file.kind] ?? "";
@@ -380,14 +380,14 @@ export async function sampleAiFile(file: AiFileRecord): Promise<AiFileSample> {
 /* Leer un adjunto por tramos                                           */
 /* ------------------------------------------------------------------ */
 
-/** Lineas que devuelve un tramo cuando no se pide otra cosa. */
+/** Líneas que devuelve un tramo cuando no se pide otra cosa. */
 export const READ_LINES = 200;
 
-/** Y lo mas que se puede pedir de una vez, en lineas y en caracteres. */
+/** Y lo mas que se puede pedir de una vez, en líneas y en caracteres. */
 export const MAX_READ_LINES = 600;
 export const MAX_READ_CHARS = 40_000;
 
-/** Un tramo del archivo, leido por lineas. */
+/** Un tramo del archivo, leido por líneas. */
 export async function readAiFileChunk(
   file: AiFileRecord,
   opts: { from?: number; lines?: number },
@@ -400,8 +400,8 @@ export async function readAiFileChunk(
   let text = slice.join("\n");
   let lines = slice.length;
   if (text.length > MAX_READ_CHARS) {
-    // Un archivo de una sola linea larguisima --un HTML minificado-- no se
-    // corta por lineas: se corta por caracteres y se dice que hay mas.
+    // Un archivo de una sola línea larguisima --un HTML minificado-- no se
+    // corta por líneas: se corta por caracteres y se dice que hay mas.
     text = text.slice(0, MAX_READ_CHARS);
     lines = text.split("\n").length;
   }

@@ -5,7 +5,7 @@
  * tope y su ventana. Esto es solo lo que se ofrece ya escrito para no tener que
  * buscarlo, y lo que se usa al conectar un servidor por primera vez.
  *
- * Los servidores con catalogo --hoy OpenRouter-- no necesitan nada de esto:
+ * Los servidores con catálogo --hoy OpenRouter-- no necesitan nada de esto:
  * sus modelos se leen de su propia lista, con sus medidas de verdad.
  */
 import {
@@ -52,7 +52,7 @@ export const AI_PROVIDER_HINT: Record<AiProvider, { base: string; key: string }>
   },
 };
 
-/** La direccion oficial de cada clase, cuando la tiene. */
+/** La dirección oficial de cada clase, cuando la tiene. */
 export const AI_PROVIDER_BASE: Record<AiProvider, string> = {
   anthropic: "",
   openai: "https://api.openai.com/v1",
@@ -68,10 +68,10 @@ export const aiHasCatalog = (provider: AiProvider) =>
  * Como se llama en el panel cada nivel de los que se saben.
  *
  * La tabla no es la lista de niveles que existen --esa la pone cada servidor--
- * sino la traduccion de los nombres que ya se han visto. Uno que no este aqui
+ * sino la traduccion de los nombres que ya se han visto. Uno que no este aquí
  * se muestra tal cual llego, que es mejor que esconderlo.
  *
- * Se dejan en ingles a proposito: son los nombres que usan las APIs de donde
+ * Se dejan en ingles a propósito: son los nombres que usan las APIs de donde
  * vienen (OpenAI, OpenRouter, llama.cpp), y traducirlos los aleja de lo que
  * quien construye ve si mira la documentacion de su servidor.
  */
@@ -123,8 +123,8 @@ export const aiThinkingRank = (level: AiThinking) => RANK[level] ?? 3;
  * tokens en vez de con un nombre que el declare.
  *
  * Son los mismos cinco que ofrece la interfaz propia de llama.cpp --Off, Low,
- * Medium, High, Max-- y no los de ningun modelo en concreto: el tope funciona
- * igual sepa o no la plantilla que existe, asi que no hace falta preguntarle.
+ * Medium, High, Max-- y no los de ningún modelo en concreto: el tope funciona
+ * igual sepa o no la plantilla que existe, así que no hace falta preguntarle.
  */
 export const AI_THINKING_BUDGET_LEVELS: AiThinking[] = ["off", "low", "medium", "high", "max"];
 
@@ -136,7 +136,7 @@ export const AI_THINKING_BUDGET_TOKENS: Record<string, number> = {
   max: -1,
 };
 
-/** Los nombres que se pueden marcar a mano, para un servidor sin catalogo. */
+/** Los nombres que se pueden marcar a mano, para un servidor sin catálogo. */
 export const AI_THINKING_KNOWN: AiThinking[] = [
   "off",
   "minimal",
@@ -224,7 +224,7 @@ export const AI_SUGGESTED: Record<AiProvider, AiModel[]> = {
       vision: true,
     },
   ],
-  // OpenRouter y llama.cpp tienen catalogo: sus modelos se buscan, no se adivinan.
+  // OpenRouter y llama.cpp tienen catálogo: sus modelos se buscan, no se adivinan.
   openrouter: [],
   llamacpp: [],
 };
@@ -247,7 +247,7 @@ export const aiProviderName = (provider: { name?: string; provider: AiProvider }
 export const aiModelLabel = (model: { id: string; label?: string }) =>
   model.label?.trim() || model.id;
 
-/** Un tamano de contexto en corto, como se muestra en la lista: 200K, 1M. */
+/** Un tamaño de contexto en corto, como se muestra en la lista: 200K, 1M. */
 export function aiWindowLabel(tokens: number): string {
   if (!tokens) return "";
   if (tokens >= 1_000_000) {
@@ -274,7 +274,7 @@ export const aiProviderReady = (provider: {
 export const aiUsable = (cfg: AiConfigView | null | undefined): boolean =>
   !!cfg?.enabled && cfg.providers.some(aiProviderReady);
 
-/** Un servidor recien conectado, todavia sin clave. */
+/** Un servidor recien conectado, todavía sin clave. */
 export function aiNewProvider(kind: AiProvider, id: string): AiProviderConfig {
   return {
     id,
@@ -282,7 +282,7 @@ export function aiNewProvider(kind: AiProvider, id: string): AiProviderConfig {
     provider: kind,
     baseUrl: "",
     // Se conecta con los modelos que ya se conocen: lo normal es querer esos, y
-    // los que no se quieran se quitan de uno en uno. Los que tienen catalogo
+    // los que no se quieran se quitan de uno en uno. Los que tienen catálogo
     // empiezan vacios, porque ahi los modelos se buscan.
     models: AI_SUGGESTED[kind].map((m) => ({ ...m })),
     enabled: true,

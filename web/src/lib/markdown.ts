@@ -1,20 +1,20 @@
 /**
  * El formato con el que escribe la IA, interpretado.
  *
- * La IA responde en Markdown porque asi escriben los modelos, y sin
- * interpretarlo se lee un amasijo de asteriscos y guiones. Aqui se reconoce el
- * subconjunto que de verdad usa: titulos, listas, negrita, cursiva, codigo y
+ * La IA responde en Markdown porque así escriben los modelos, y sin
+ * interpretarlo se lee un amasijo de asteriscos y guiones. Aquí se reconoce el
+ * subconjunto que de verdad usa: titulos, listas, negrita, cursiva, código y
  * enlaces.
  *
  * Esto solo entiende el texto: devuelve que hay y en que orden, sin decidir
  * como se ve. Dibujarlo es cosa de `components/Markdown.svelte`, y ahi cada
- * pieza sale como un nodo del arbol, nunca como HTML crudo. Es una decision de
+ * pieza sale como un nodo del árbol, nunca como HTML crudo. Es una decision de
  * seguridad: lo que llega de la IA puede traer cualquier cosa dentro, y por
  * este camino un `<script>` es texto y nada mas. Por eso tampoco se acepta
  * HTML dentro del Markdown: se ve tal cual se escribio.
  */
 
-/** Un trozo de una linea, ya reconocido. */
+/** Un trozo de una línea, ya reconocido. */
 export type Piece =
   | { kind: "text"; text: string }
   | { kind: "code"; text: string }
@@ -22,7 +22,7 @@ export type Piece =
   | { kind: "strong"; text: string }
   | { kind: "em"; text: string };
 
-/** Un elemento de una lista. Lleva su numero para no reordenarse al crecer. */
+/** Un elemento de una lista. Lleva su número para no reordenarse al crecer. */
 export interface Item {
   id: number;
   pieces: Piece[];
@@ -36,12 +36,12 @@ export type Block =
   | { id: number; kind: "code"; text: string };
 
 /* ------------------------------------------------------------------ */
-/* Lo de dentro de una linea                                            */
+/* Lo de dentro de una línea                                            */
 /* ------------------------------------------------------------------ */
 
 /*
- * El codigo va primero a proposito: dentro de `` `...` `` no hay negrita ni
- * enlaces, solo texto. Despues los enlaces, y al final los enfasis.
+ * El código va primero a propósito: dentro de `` `...` `` no hay negrita ni
+ * enlaces, solo texto. Después los enlaces, y al final los enfasis.
  */
 const INLINE =
   /(`[^`\n]+`)|(\[[^\]\n]+\]\((?:https?:\/\/|\/)[^)\s]+\))|(\*\*[^*\n]+\*\*)|(__[^_\n]+__)|(\*[^*\n]+\*)|(_[^_\n]+_)/;
@@ -94,7 +94,7 @@ export function parseMarkdown(text: string): Block[] {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   const blocks: Block[] = [];
 
-  /** Lo que se viene juntando: un parrafo, una lista o un bloque de codigo. */
+  /** Lo que se viene juntando: un parrafo, una lista o un bloque de código. */
   let paragraph: string[] = [];
   let list: { ordered: boolean; items: Item[] } | null = null;
   let fence: string[] | null = null;
@@ -118,7 +118,7 @@ export function parseMarkdown(text: string): Block[] {
   };
 
   for (const line of lines) {
-    // Dentro de un bloque de codigo no se interpreta nada hasta que cierra.
+    // Dentro de un bloque de código no se interpreta nada hasta que cierra.
     if (fence) {
       if (line.trimStart().startsWith("```")) {
         blocks.push({ id: n++, kind: "code", text: fence.join("\n") });

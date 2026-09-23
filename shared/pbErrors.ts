@@ -2,20 +2,20 @@
  * Lo que dice PocketBase, dicho en espanol.
  *
  * La base contesta en ingles y sus frases llegaban enteras a la pantalla: un
- * "cedula: Value must be unique." con un "Batch transaction failed." debajo era
- * el unico sitio del panel donde algo no estaba en el idioma de la casa, y
+ * "cédula: Value must be unique." con un "Batch transaction failed." debajo era
+ * el único sitio del panel donde algo no estaba en el idioma de la casa, y
  * ademas el peor momento para no entenderlo --se acaba de importar un archivo y
  * hay que decidir que hacer con las filas que no entraron--.
  *
- * Aqui se traducen las frases que de verdad se ven construyendo tablas y
+ * Aquí se traducen las frases que de verdad se ven construyendo tablas y
  * llenandolas. Lo que no este traducido pasa en ingles tal cual: una frase que
  * nadie previo dice mas que esa misma frase escondida detras de un "algo salio
- * mal". El codigo (`validation_not_unique`) no se toca nunca: es el nombre
+ * mal". El código (`validation_not_unique`) no se toca nunca: es el nombre
  * tecnico del fallo, lo que sirve para buscarlo fuera, y viaja aparte en el
  * renglon de detalle.
  *
- * Nadie decide nada mirando estos textos --no hay codigo que compare mensajes--
- * asi que traducirlos no cambia el comportamiento de nada.
+ * Nadie decide nada mirando estos textos --no hay código que compare mensajes--
+ * así que traducirlos no cambia el comportamiento de nada.
  */
 
 /** Para buscar sin tropezar con la mayuscula inicial ni el punto final. */
@@ -23,11 +23,11 @@ const clave = (text: string): string =>
   text.trim().toLowerCase().replace(/\s+/g, " ").replace(/\.+$/, "");
 
 /**
- * Las frases que llevan un numero dentro: el limite viaja a la traduccion.
+ * Las frases que llevan un número dentro: el limite viaja a la traduccion.
  *
- * Van antes que todo lo demas porque el codigo solo no lo dice --dos columnas
- * con el mismo codigo se quejan de largos distintos-- y perder el numero seria
- * dejar el aviso sin lo unico que hay que corregir.
+ * Van antes que todo lo demás porque el código solo no lo dice --dos columnas
+ * con el mismo código se quejan de largos distintos-- y perder el número seria
+ * dejar el aviso sin lo único que hay que corregir.
  */
 const CON_DATO: [RegExp, string][] = [
   [/^the length must be between (\d+) and (\d+)$/, "Tiene que medir entre $1 y $2 caracteres"],
@@ -45,7 +45,7 @@ const CON_DATO: [RegExp, string][] = [
 /**
  * Por el nombre tecnico del fallo, que es lo que no cambia.
  *
- * PocketBase reescribe sus frases entre versiones; el codigo no. Cuando viene
+ * PocketBase reescribe sus frases entre versiones; el código no. Cuando viene
  * --y en lo que se objeta a una columna viene casi siempre-- manda el.
  */
 const POR_CODIGO: Record<string, string> = {
@@ -81,7 +81,7 @@ const POR_CODIGO: Record<string, string> = {
 };
 
 /**
- * Por la frase, para lo que llega sin codigo.
+ * Por la frase, para lo que llega sin código.
  *
  * Es el caso de los niveles de fuera de un lote --"Batch transaction failed",
  * "Failed to update record"--, que son mensajes de la API y no quejas contra
@@ -111,7 +111,7 @@ const POR_FRASE: Record<string, string> = {
   "failed to delete collection": "No se pudo borrar la tabla",
   "field type cannot be changed": "PocketBase no le cambia el tipo a una columna que ya existe",
   "the relation collection cannot be changed": "Una relación no cambia de tabla una vez creada",
-  // Las mismas quejas de arriba, por si alguna llega sin su codigo.
+  // Las mismas quejas de arriba, por si alguna llega sin su código.
   "value must be unique": "Ya hay otra fila con este valor y la columna no admite repetidos",
   "cannot be blank": "Hace falta un valor: esta columna no puede quedar vacía",
   "missing required value": "Hace falta un valor: esta columna no puede quedar vacía",

@@ -2,12 +2,12 @@
   Dar a alguien acceso que no tenia: se autoriza aqui, leyendo lo que va a
   poder hacer.
 
-  No es el dialogo de impacto. Aquel decide sobre una tabla y ofrece cuatro
+  No es el diálogo de impacto. Aquel decide sobre una tabla y ofrece cuatro
   salidas --conservar, aplicar, aplicar y arreglar, no tocar-- que sobre un
   permiso no significan nada. Aqui hay una frase y dos respuestas.
 
-  Y no se abre encima de la conversacion: se lee dentro de ella, donde se pidio,
-  porque lo que hay que leer es la frase. Un boton generico de "autorizar" en
+  Y no se abre encima de la conversación: se lee dentro de ella, donde se pidio,
+  porque lo que hay que leer es la frase. Un botón generico de "autorizar" en
   una ventana aparte seria justo lo contrario de lo que esto es.
 
   Quitar acceso no llega hasta aqui: eso ya se aplico al pedirlo.
@@ -58,15 +58,15 @@
       <span class="access-grant-title">Dar acceso a {change.personName}</span>
     </div>
 
-    <!-- Lo unico que hay que leer para decidir. -->
+    <!-- Resume la consecuencia antes de pedir confirmación. -->
     <p class="access-grant-consequence">{change.consequence}</p>
 
     <ErrorNote message={error} />
 
     {#if settled === "dado"}
-      <p class="access-grant-settled">Hecho. Queda un punto al que volver en «Cambios».</p>
+      <p class="access-grant-settled">Acceso concedido. Puedes deshacerlo desde «Cambios».</p>
     {:else if settled === "no"}
-      <p class="access-grant-settled">El acceso se quedó como estaba.</p>
+      <p class="access-grant-settled">No se cambió el acceso.</p>
     {:else}
       <div class="access-grant-actions flex items-center">
         <Button
@@ -93,7 +93,7 @@
 </div>
 
 <style>
-  /* La caja es `.alert.warn` del catalogo: el mismo amarillo, el mismo borde
+  /* La caja es `.alert.warn` del catálogo: el mismo amarillo, el mismo borde
      y el mismo reparto --icono a la izquierda, texto al lado-- que cualquier
      otro aviso del panel. Aqui solo el hueco que la separa del turno de
      arriba y el peso de sus dos renglones. */

@@ -1,13 +1,13 @@
 <!--
   La pregunta que sale cuando una columna del archivo esta nombrando usuarios.
 
-  Sale antes de crear nada, y por eso no pide confirmar ningun destrozo: las dos
-  salidas construyen la tabla, con la relacion o sin ella. Lo que se decide es
-  si el dato queda suelto --una cedula repetida en cada fila-- o enlazado con la
+  Sale antes de crear nada, y por eso no pide confirmar ningún destrozo: las dos
+  salidas construyen la tabla, con la relación o sin ella. Lo que se decide es
+  si el dato queda suelto --una cédula repetida en cada fila-- o enlazado con la
   persona que ya esta invitada.
 
   Las dos listas se pueden cambiar porque la coincidencia no siempre es una
-  sola: un archivo de nomina trae la cedula y el correo, y los dos casan. Viene
+  sola: un archivo de nómina trae la cédula y el correo, y los dos casan. Viene
   marcada la que mas casa, que es la que acierta casi siempre, y las demas
   quedan a un clic con su recuento al lado para poder compararlas.
 -->
@@ -35,7 +35,7 @@
     tableLabel: string;
     /** Las columnas que nombran usuarios, la mas clara primero. */
     guesses: PersonColumnGuess[];
-    /** Cerrar el dialogo: no se crea nada, como en la otra pregunta al soltar. */
+    /** Cerrar el diálogo: no se crea nada, como en la otra pregunta al soltar. */
     onCancel: () => void;
     /** Crear la tabla dejando la columna como texto. */
     onSkip: () => void;
@@ -69,8 +69,8 @@
 
   /*
    * Un valor que tienen dos usuarios no se enlaza: no hay forma de saber a
-   * cual. Se dice aqui y no despues porque lo que hay que arreglar esta en la
-   * tabla de usuarios --dos personas con la misma cedula-- y quien esta creando
+   * cual. Se dice aqui y no después porque lo que hay que arreglar esta en la
+   * tabla de usuarios --dos personas con la misma cédula-- y quien esta creando
    * esta tabla es quien puede arreglarlo.
    */
   const repetidos = $derived(
@@ -123,8 +123,7 @@
       <p class="note-person-link-count">
         <Icon name="checkmark-circle-02" size={14} class="icon-note-person-link" />
         <span>
-          {count} Los que no correspondan a nadie se guardan a la vista, sin enlace, y se pueden resolver
-          despues desde la tabla.
+          {count} Los valores sin coincidencia se guardarán sin enlace. Podrás resolverlos desde la tabla.
         </span>
       </p>
 
@@ -136,9 +135,8 @@
       {/if}
 
       <p class="alert info note-person-link-effect">
-        Cada usuario quedara relacionado con sus filas de "{tableLabel}". Con una columna asi, la
-        tabla puede mostrarle a cada quien solo lo suyo, y la celda ensena
-        {chosen.keyLabel.toLowerCase()} en vez de un dato suelto.
+        Cada usuario quedará vinculado con sus filas de "{tableLabel}". La celda mostrará
+        {chosen.keyLabel.toLowerCase()} y permitirá identificar sus datos.
       </p>
     </div>
 

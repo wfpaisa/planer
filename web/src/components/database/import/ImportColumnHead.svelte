@@ -4,7 +4,7 @@
 
   Aqui se decide todo lo de esa columna --si entra, a donde va, de que tipo se
   crea y por que llave empareja-- sin salir de la tabla: antes vivia en un panel
-  lateral, donde habia que emparejar el nombre de una lista con la columna de la
+  lateral, donde había que emparejar el nombre de una lista con la columna de la
   derecha a ojo.
 
   El orden manda: el ojo a la izquierda, el emparejamiento en medio y los demas
@@ -117,7 +117,7 @@
     </button>
 
     <!--
-    El emparejamiento, que es a la vez la etiqueta y el boton de cambiarlo: lo
+    El emparejamiento, que es a la vez la etiqueta y el botón de cambiarlo: lo
     que se lee ("Name -> Nombre") es lo mismo que se toca para corregirlo.
   -->
     <Dropdown wrapClass="import-col-target-wrap" class="menu-import-target">
@@ -232,9 +232,9 @@
         no se repite, las filas en rojo de abajo no se explican. La cruz lo
         quita, que es donde se busca para deshacerlo.
 
-        El color es el que cada exigencia lleva en el titulo de una columna de
+        El color es el que cada exigencia lleva en el título de una columna de
         la tabla --obligatoria en rojo, sin repetidos en ambar; ver
-        `ColumnHead.svelte`-- para que sea la misma marca antes y despues de
+        `ColumnHead.svelte`-- para que sea la misma marca antes y después de
         importar, y no una que hay que volver a aprender. Lo que se esta
         incumpliendo se senala con el triangulo y el borde entero y no con otro
         tinte: en su color ya estaba, y pintar las dos del mismo rojo al fallar
@@ -281,7 +281,7 @@
           <Icon name="plus-sign" /> nueva
         </Tag>
 
-        <!-- El tipo con el que nace la columna, en un boton y no en una lista. -->
+        <!-- El tipo con el que nace la columna, en un botón y no en una lista. -->
         <Dropdown align="right" class="menu-import-type">
           {#snippet trigger({ toggle })}
             <button
@@ -359,8 +359,8 @@
       flex-shrink: 0;
 
       /* Pulsado aqui no es "puesto" sino "no se importa", asi que va en rojo
-         y no en el acento que el catalogo da a `aria-pressed`. El borde se
-         nombra tambien: sin el, el del acento se colaria sobre este rojo. */
+         y no en el acento que el catálogo da a `aria-pressed`. El borde se
+         nombra también: sin el, el del acento se colaria sobre este rojo. */
       &.is-off {
         color: var(--danger);
         background: var(--danger-bg);
@@ -398,9 +398,9 @@
     }
 
     /* La exigencia que no se esta cumpliendo: su mismo color, pero con el
-       borde entero en vez del tercio que el catalogo le pone en reposo. El
+       borde entero en vez del tercio que el catálogo le pone en reposo. El
        color ya dice cual de las dos es, asi que lo que falla no puede decirse
-       tambien con color; se dice con el borde y con el triangulo del icono.
+       también con color; se dice con el borde y con el triangulo del icono.
        Va en su propia regla y no anidada como un estado porque la pastilla la
        dibuja `Tag`: desde aqui solo se alcanza con `:global`. */
     & :global(.import-col-rule.is-broken) {
@@ -419,7 +419,7 @@
 
   /*
    * Los dos botones que abren menu --el del destino y el del tipo-- son
-   * `.trigger-quiet` del catalogo: la linea solo asoma al apuntarlos, para que
+   * `.trigger-quiet` del catálogo: la línea solo asoma al apuntarlos, para que
    * el encabezado no parezca una barra de herramientas. De donde viene el dato
    * va en `.trigger-quiet-soft`, el tono accesorio del disparador: lo que
    * importa es adonde va.

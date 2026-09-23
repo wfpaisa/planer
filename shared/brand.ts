@@ -1,14 +1,14 @@
 /**
- * La apariencia de una aplicacion.
+ * La apariencia de una aplicación.
  *
- * Es la paleta y el tamano de letra, no el modo: claro u oscuro lo elige quien
- * mira la pagina (ver `web/src/lib/pageMode.svelte.ts`).
+ * Es la paleta y el tamaño de letra, no el modo: claro u oscuro lo elige quien
+ * mira la página (ver `web/src/lib/pageMode.svelte.ts`).
  *
  *   palette   el id de una de las 46 de `web/src/styles/palettes.css`,
  *             `custom` para el color a mano, o null para la paleta de
  *             partida de `theme.css` (la de Planer).
  *   color     un hexadecimal, solo cuando palette es `custom`.
- *   fontScale cuanto crece la letra de la aplicacion (1 = normal).
+ *   fontScale cuanto crece la letra de la aplicación (1 = normal).
  *
  * El hexadecimal se guarda tal cual porque es lo que una empresa tiene a mano
  * de su manual de marca; lo que se dibuja no es ese color crudo sino la
@@ -17,20 +17,20 @@
  */
 import { CUSTOM_PALETTE, isPaletteId } from "./palettes.ts";
 
-/** La apariencia elegida por quien construye una aplicacion. */
+/** La apariencia elegida por quien construye una aplicación. */
 export interface AppTheme {
   /** Id de palettes.css, `custom`, o null = la paleta de partida. */
   palette: string | null;
   /** Hexadecimal, solo cuando palette === "custom". */
   color?: string;
-  /** 0.8-1.6; 1 = el tamano normal. */
+  /** 0.8-1.6; 1 = el tamaño normal. */
   fontScale?: number;
 }
 
 /**
  * El azul de partida, en hexadecimal: el mismo `--accent` de `:root` en
- * `theme.css` (`oklch(60% 0.3 256)`). De aqui arranca quien abre el
- * color a mano sin haber elegido nada todavia -- para que la muestra de
+ * `theme.css` (`oklch(60% 0.3 256)`). De aquí arranca quien abre el
+ * color a mano sin haber elegido nada todavía -- para que la muestra de
  * "Por defecto" y el campo del hexadecimal coincidan en vez de saltar a un
  * morado que no tiene que ver con la paleta de partida.
  */
@@ -40,7 +40,7 @@ export const DEFAULT_BRAND_COLOR = "#007EFF";
 export const FONT_SCALE_MIN = 0.8;
 export const FONT_SCALE_MAX = 1.6;
 export const FONT_SCALE_STEP = 0.05;
-/** El tamano por defecto: el normal del navegador. */
+/** El tamaño por defecto: el normal del navegador. */
 export const FONT_SCALE_DEFAULT = 1;
 
 /** Un hexadecimal de seis digitos, con almohadilla. Nada mas se guarda. */
@@ -69,12 +69,12 @@ function fontScaleOf(raw: unknown): number | undefined {
 }
 
 /**
- * La apariencia de una aplicacion, ya desbrozada. Lo guardado con los
+ * La apariencia de una aplicación, ya desbrozada. Lo guardado con los
  * formatos de antes se lee sin perder nada:
  *
  *   `{ primary, secondary }` en hex  la marca de dos colores; el principal
  *                                    pasa a ser la paleta personalizada.
- *   `{ theme: "dracula" }`           un nombre del catalogo de la libreria
+ *   `{ theme: "dracula" }`           un nombre del catálogo de la libreria
  *                                    de antes; no trae color y se lee como
  *                                    la paleta de partida.
  */
@@ -82,7 +82,7 @@ export function normalizePalette(raw: unknown): AppTheme {
   if (!raw || typeof raw !== "object") return { palette: null };
   const value = raw as Record<string, unknown>;
 
-  // `custom` sin color valido no es nada: esa paleta necesita su --palette-1.
+  // `custom` sin color válido no es nada: esa paleta necesita su --palette-1.
   const customOk = value.palette === CUSTOM_PALETTE && isBrandColor(value.color);
   const theme: AppTheme = { palette: null };
 
@@ -97,8 +97,8 @@ export function normalizePalette(raw: unknown): AppTheme {
     theme.color = value.primary.toLowerCase();
   }
 
-  // El tamano de letra es el otro mando y va suelto: con la paleta de
-  // partida puesta --palette: null-- tambien se guarda.
+  // El tamaño de letra es el otro mando y va suelto: con la paleta de
+  // partida puesta --palette: null-- también se guarda.
   const fontScale = fontScaleOf(value.fontScale);
   if (fontScale !== undefined) theme.fontScale = fontScale;
 

@@ -60,9 +60,7 @@
     <div class="home-action-row flex items-end justify-between gap-4">
       <div>
         <h1 class="home-title">Tus aplicaciones</h1>
-        <p class="home-subtitle">
-          Cada aplicación tiene sus propias tablas y sus propias pantallas.
-        </p>
+        <p class="home-subtitle">Administra tus aplicaciones, tablas y páginas.</p>
       </div>
       <Button variant="secondary" onclick={() => (creating = true)} buttonClass="btn-new-app">
         <Icon name="sidebar-left" size={18} />
@@ -76,10 +74,7 @@
       <Loading />
     {:else if apps.data?.length === 0}
       <div class="home-empty inset dashed">
-        <EmptyState
-          title="Todavía no hay aplicaciones"
-          description="Crea la primera y comienza a darle forma a tu aplicación"
-        >
+        <EmptyState title="No hay aplicaciones" description="Crea una aplicación para empezar.">
           {#snippet icon()}<Icon name="sidebar-left" size={20} />{/snippet}
         </EmptyState>
       </div>
@@ -92,7 +87,7 @@
             <p class="card-app-slug">/{app.slug}</p>
 
             <div class="card-app-meta">
-              <!-- Borrador es la pastilla apagada: todavia no hay nada publicado. -->
+              <!-- Borrador es la pastilla apagada: todavía no hay nada publicado. -->
               <Tag
                 tone={app.published ? "tag-success" : "off"}
                 class={cx("card-badge", app.published ? "card-badge-on" : "card-badge-off")}
@@ -140,7 +135,7 @@
       padding: 0 var(--sp-20);
     }
 
-    /* El logotipo ya dice el nombre; por eso a su lado no va ningun texto.
+    /* El logotipo ya dice el nombre; por eso a su lado no va ningún texto.
        `Logo` se mide por alto y se estira a lo ancho lo que pida el dibujo. */
     & :global(.home-brand-logo) {
       flex: none;
@@ -181,7 +176,7 @@
     color: var(--text-secondary);
   }
 
-  /* El hueco es `.inset.dashed` del catalogo; el estado vacio de dentro lo
+  /* El hueco es `.inset.dashed` del catálogo; el estado vacío de dentro lo
      dibuja `EmptyState`, que ya trae su propio respiro. */
   .home-empty {
     padding: 0;
@@ -197,8 +192,8 @@
     }
   }
 
-  /* La caja es `.card` del catalogo; `card-solid` porque en oscuro la del
-     catalogo es translucida y la ficha se posa sobre el lienzo. Aqui solo
+  /* La caja es `.card` del catálogo; `card-solid` porque en oscuro la del
+     catálogo es translucida y la ficha se posa sobre el lienzo. Aqui solo
      lo de la ficha: el acolchado --no tiene cabecera ni cuerpo de card-- y
      el cerco, que en reposo va a media tinta y se cierra al apuntarla. */
   .card-app {
@@ -211,7 +206,7 @@
       border-color: var(--border);
     }
 
-    /* El tamano lo pone quien la dibuja: es una pastilla de otro componente. */
+    /* El tamaño lo pone quien la dibuja: es una pastilla de otro componente. */
     & :global(.card-app-icon) {
       margin-bottom: var(--sp-12);
       width: 2.25rem;
@@ -244,7 +239,7 @@
     }
 
     /* La pastilla la dibuja `Tag`, asi que su clase sale del ambito de aqui.
-       Lo unico que cambia aqui es el peso: en una tarjeta acompana al nombre
+       Lo único que cambia aqui es el peso: en una tarjeta acompana al nombre
        de la app, no lo compite. */
     & :global(.card-badge) {
       font-weight: 500;

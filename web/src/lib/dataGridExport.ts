@@ -43,12 +43,12 @@ export async function exportTable(opts: {
   format: ExportFormat;
 }): Promise<ExportOutcome> {
   const { table, items, people, csvSeparator, kind, format } = opts;
-  // Un enlace que ya no resuelve sale como celda vacia. Se dice antes, no
-  // despues de que alguien abra el archivo y eche en falta una columna.
+  // Un enlace que ya no resuelve sale como celda vacía. Se dice antes, no
+  // después de que alguien abra el archivo y eche en falta una columna.
   const warning = brokenLinkWarning(table.fields, items, people);
   try {
-    // Una hoja de calculo no se copia al portapapeles: es un archivo binario,
-    // asi que solo se ofrece descargarla y aqui solo llega ese camino.
+    // Una hoja de cálculo no se copia al portapapeles: es un archivo binario,
+    // así que solo se ofrece descargarla y aquí solo llega ese camino.
     if (format === "excel") {
       const { header, body } = rowsToMatrix(table.fields, items, people);
       const { sheetBlob } = await import("./sheet");
@@ -82,16 +82,16 @@ export async function exportAll(opts: {
 }): Promise<ExportOutcome> {
   const { table, relationFields, isPeople, overlay, people, csvSeparator, kind, format } = opts;
   try {
-    // Por antiguedad: el archivo que sale de aqui puede volver a entrar
+    // Por antiguedad: el archivo que sale de aquí puede volver a entrar
     // arrastrandolo, y alli cada fila cae sobre la que ocupa su mismo sitio.
     //
-    // Con las relaciones resueltas: una columna de relacion se exporta por el
-    // valor que ensena, y ese valor vive en el registro enlazado.
+    // Con las relaciones resueltas: una columna de relación se exporta por el
+    // valor que enseña, y ese valor vive en el registro enlazado.
     const all = await pb
       .collection(table.dataCollection)
       .getFullList<Row>({ sort: ROW_ORDER, expand: relationFields.join(",") });
     // Las filas recien pedidas vienen sin las columnas del sistema, que no
-    // estan en la coleccion. Sin esto el archivo saldria con la cuenta, el
+    // estan en la colección. Sin esto el archivo saldria con la cuenta, el
     // nivel y los roles en blanco.
     return await exportTable({
       table,

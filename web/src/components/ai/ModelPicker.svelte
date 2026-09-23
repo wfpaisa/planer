@@ -3,7 +3,7 @@
 
   Las dos cosas viven en el mismo menu porque se deciden juntas --un modelo que
   no sabe pensar no tiene nivel que elegir-- y porque las dos son lo mismo:
-  cuanto se va a gastar en esta peticion.
+  cuanto se va a gastar en esta petición.
 -->
 <script lang="ts">
   import {
@@ -39,7 +39,7 @@
 
 <!--
   El hueco del que no esta marcado mide lo mismo que el visto bueno: sin el,
-  los rotulos del menu bailarian de linea en linea.
+  los rotulos del menu bailarian de línea en línea.
 -->
 {#snippet mark(on: boolean)}
   {#if on}
@@ -103,9 +103,11 @@
     {:else}
       <div class="menu-ai-note">
         {#if model?.thinking}
-          Este modelo piensa siempre{levels[0] ? `, al nivel "${aiThinkingLabel(levels[0])}"` : ""}.
+          Este modelo siempre usa razonamiento{levels[0]
+            ? ` en nivel "${aiThinkingLabel(levels[0])}"`
+            : ""}.
         {:else}
-          Este modelo responde directo: no sabe pensar antes.
+          Este modelo responde sin razonamiento previo.
         {/if}
       </div>
     {/if}
@@ -137,24 +139,14 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
-    & .model-window {
-      flex-shrink: 0;
-      opacity: 0.6;
-      font-variant-numeric: tabular-nums;
-    }
-
-    & .model-thinking {
-      flex-shrink: 0;
-    }
   }
 
-  /* El icono de pensamiento va dentro del Icon: fuera del ambito del boton. */
+  /* El icono de pensamiento va dentro del Icon: fuera del ambito del botón. */
   :global(.model-thinking-icon) {
     flex-shrink: 0;
   }
 
-  /* El cheuron va dentro del Icon: fuera del ambito del boton. */
+  /* El cheuron va dentro del Icon: fuera del ambito del botón. */
   :global(.model-chevron) {
     flex-shrink: 0;
     opacity: 0.6;
@@ -166,7 +158,7 @@
     color: var(--accent);
   }
 
-  /* Mide lo mismo que el visto bueno para que el menu no baile de linea. */
+  /* Mide lo mismo que el visto bueno para que el menu no baile de línea. */
   .mark-hole {
     width: 13px;
   }

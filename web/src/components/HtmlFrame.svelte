@@ -1,8 +1,8 @@
 <!--
-  La caja donde vive el HTML de una pagina.
+  La caja donde vive el HTML de una página.
 
   El documento se dibuja en un marco con permiso solo para ejecutar guiones:
-  sin origen propio no alcanza la sesion de quien mira, ni sus cookies, ni el
+  sin origen propio no alcanza la sesión de quien mira, ni sus cookies, ni el
   resto del panel. Todo lo que necesita del exterior pasa por aqui.
 
   Este archivo es el otro extremo del puente. Recibe las ordenes de datos,
@@ -10,17 +10,17 @@
   verdad y responde. Una fuente que no este en el manifiesto no llega ni a
   consultarse.
 
-  Las tres reglas que no cambian con la migracion, y que son de seguridad y no
+  Las tres reglas que no cambian con la migración, y que son de seguridad y no
   de framework:
 
   1. El manifiesto manda: `runOp` viaja siempre con `fuentes`, y el servidor es
      quien decide que alcanza quien pregunta.
   2. `MAX_RESTORES` limita las vueltas de un documento que insiste en irse.
-  3. `WRITE_OPS` no pasa en ensayo: probar una pagina no deja rastro.
+  3. `WRITE_OPS` no pasa en ensayo: probar una página no deja rastro.
 
   Lo que si cambia es como se guarda lo que el oyente de mensajes necesita
   leer. En React era un `useRef` reescrito en cada dibujado, porque el oyente
-  se registraba una sola vez y una funcion vieja habria visto props viejas.
+  se registraba una sola vez y una función vieja habria visto props viejas.
   Aqui el oyente es un cierre dentro de un `$effect` que no depende de nada:
   se registra una vez igual, y lee las variables del componente, que siempre
   son las de ahora.
@@ -31,14 +31,14 @@
   import type { AppPerson, HtmlSource } from "@shared/types";
   import type PocketBase from "pocketbase";
 
-  /** Alto de partida. Pequeno a proposito: el documento crece hasta el suyo. */
+  /** Alto de partida. Pequeno a propósito: el documento crece hasta el suyo. */
   const START_HEIGHT = 160;
 
   /**
    * Vueltas seguidas que se le consienten a un documento que se va.
    *
    * Devolverlo a su sitio arregla al que se va por accidente. Al que se va
-   * siempre --un guardia de sesion que nunca encuentra su token-- no: volveria
+   * siempre --un guardia de sesión que nunca encuentra su token-- no: volveria
    * a irse en cada vuelta, y ese ciclo se lo come el navegador de quien mira.
    */
   const MAX_RESTORES = 3;
@@ -54,18 +54,18 @@
     client: PocketBase;
     appId: string;
     pageId: string;
-    /** Rol con el que mirar la pagina, para la vista previa del constructor. */
+    /** Rol con el que mirar la página, para la vista previa del constructor. */
     previewRole?: string;
     /** Persona concreta con la que mirar, de entre las que tienen ese rol. */
     previewPerson?: AppPerson | null;
-    /** Mirar la pagina como quien llega sin cuenta. */
+    /** Mirar la página como quien llega sin cuenta. */
     previewAnon?: boolean;
-    /** Mirar la pagina como quien entro y no tiene ningun rol. */
+    /** Mirar la página como quien entro y no tiene ningún rol. */
     previewNoRole?: boolean;
   }
 
   /**
-   * Un error del servidor que trae su codigo, para poder distinguirlo.
+   * Un error del servidor que trae su código, para poder distinguirlo.
    *
    * El puente ya lo cuelga del error que le entrega al documento; aqui hace
    * falta el mismo dato para poner el aviso desde la plataforma.
@@ -82,14 +82,14 @@
   /**
    * Resuelve una orden del HTML pasandola al servidor.
    *
-   * Antes se resolvia aqui mismo, contra la base y con la sesion de quien mira.
+   * Antes se resolvia aqui mismo, contra la base y con la sesión de quien mira.
    * Ya no: con varios roles alcanzando cosas distintas, lo que se filtrara en
    * este lado ya habria llegado al navegador de quien mira. El servidor sabe
    * quien pregunta, con que roles, y entrega solo lo que esa persona alcanza.
    *
-   * Lo unico que sigue viajando desde aqui es el manifiesto del documento, y
-   * solo porque el constructor prueba paginas que aun no ha guardado: al
-   * servidor le vale unicamente si quien pregunta es el dueno de la aplicacion.
+   * Lo único que sigue viajando desde aqui es el manifiesto del documento, y
+   * solo porque el constructor prueba páginas que aun no ha guardado: al
+   * servidor le vale unicamente si quien pregunta es el dueno de la aplicación.
    */
   async function runOp(op: string, args: unknown[], ctx: OpContext): Promise<unknown> {
     if (!ctx.appId || !ctx.pageId) {
@@ -123,8 +123,8 @@
 
   /**
    * El tema tal como queda resuelto aqui, listo para el documento: los colores
-   * de la aplicacion y las medidas de la casa. Van juntos a proposito, para que
-   * una pagina se dibuje con el mismo aspecto que el panel sin copiar valores.
+   * de la aplicación y las medidas de la casa. Van juntos a propósito, para que
+   * una página se dibuje con el mismo aspecto que el panel sin copiar valores.
    */
   function readTheme(element: Element): {
     vars: Record<string, string>;
@@ -140,9 +140,9 @@
     /*
      * Los que no son color ni medida, y que el documento necesita para
      * derivar por su cuenta: el color crudo de una paleta a mano --que no
-     * esta en ningun `[data-palette]` de la hoja-- y el tamano de letra que
-     * aqui resuelve el contenedor --el de la aplicacion sobre el del panel--,
-     * que alli tiene que llevarlo la raiz para que el rem valga lo mismo. Va
+     * esta en ningún `[data-palette]` de la hoja-- y el tamaño de letra que
+     * aqui resuelve el contenedor --el de la aplicación sobre el del panel--,
+     * que alli tiene que llevarlo la raíz para que el rem valga lo mismo. Va
      * en pixeles medidos, no en porcentaje: es lo que vale un rem aqui, y el
      * documento no puede adivinarlo desde dentro.
      */
@@ -150,11 +150,11 @@
     if (palette1) vars["--palette-1"] = palette1;
     vars["font-size"] = computed.fontSize;
     // El esquema de color lo fija el tema activo (el del panel o el del
-    // contenedor de la aplicacion, segun donde viva este marco).
+    // contenedor de la aplicación, segun donde viva este marco).
     return {
       vars,
       modo: computed.colorScheme === "dark" ? "dark" : "light",
-      // La paleta de la aplicacion, para que el documento la ponga en su raiz
+      // La paleta de la aplicación, para que el documento la ponga en su raíz
       // y las hojas deriven ahi dentro. Ver `server/page/pageStyles.ts`.
       paleta:
         (element as HTMLElement).closest("[data-palette]")?.getAttribute("data-palette") ?? null,
@@ -202,7 +202,7 @@
     onReady,
     dryRun = false,
   }: {
-    /** Huella del documento que hay que dibujar. Vacia: no hay nada que dibujar. */
+    /** Huella del documento que hay que dibujar. Vacía: no hay nada que dibujar. */
     doc?: string;
     /** Tablas que ese documento puede pedir. Nada mas esta permitido. */
     sources?: HtmlSource[];
@@ -210,39 +210,39 @@
     maxHeight?: number;
     /**
      * El marco ocupa todo el alto de donde vive, en vez de crecer con su
-     * contenido. Es lo que necesita una pagina entera.
+     * contenido. Es lo que necesita una página entera.
      */
     fill?: boolean;
     /**
-     * Cambia cuando cambia la paleta de la aplicacion. Sirve para volver a
+     * Cambia cuando cambia la paleta de la aplicación. Sirve para volver a
      * mandar los colores sin que el marco tenga que saber de donde salen.
      */
     themeKey?: string;
-    /** Aplicacion y pagina a las que el documento pide datos. */
+    /** Aplicación y página a las que el documento pide datos. */
     appId: string;
     pageId: string;
     /**
-     * Mirar la pagina como lo haria alguien con este rol. Solo lo atiende el
-     * servidor si quien lo pide es el dueno de la aplicacion, y nunca amplia lo
+     * Mirar la página como lo haria alguien con este rol. Solo lo atiende el
+     * servidor si quien lo pide es el dueno de la aplicación, y nunca amplia lo
      * que ese dueno ya alcanza.
      */
     previewRole?: string;
     /**
      * Persona concreta con la que mirar, de entre las que tienen ese rol. Es lo
-     * que permite probar una pantalla que ensena "lo mio".
+     * que permite probar una pantalla que enseña "lo mio".
      *
      * Viaja entera y no solo su identificador: al servidor le basta el id, pero
-     * el documento necesita tambien el nombre, el correo, sus roles de verdad y
+     * el documento necesita también el nombre, el correo, sus roles de verdad y
      * sus columnas propias para que `plane.usuario` sea esa persona y no quien
      * construye.
      */
     previewPerson?: AppPerson | null;
-    /** Mirar la pagina como la veria alguien que llega sin cuenta. */
+    /** Mirar la página como la veria alguien que llega sin cuenta. */
     previewAnon?: boolean;
     /**
-     * Mirar la pagina como la veria alguien que entro y no tiene ningun rol de
-     * la aplicacion. Hay sesion, y no hay rol: no es lo mismo que `previewAnon`
-     * ni que un rol vacio, y por eso viaja aparte hasta el servidor.
+     * Mirar la página como la veria alguien que entro y no tiene ningún rol de
+     * la aplicación. Hay sesión, y no hay rol: no es lo mismo que `previewAnon`
+     * ni que un rol vacío, y por eso viaja aparte hasta el servidor.
      */
     previewNoRole?: boolean;
     client: PocketBase;
@@ -253,12 +253,12 @@
     /** El contenido guardo algo en el almacenamiento de mentira del marco. */
     onStorage?: () => void;
     /**
-     * El contenido intento irse a otra pagina. `stuck` cuando ya agoto las
+     * El contenido intento irse a otra página. `stuck` cuando ya agoto las
      * vueltas y el marco se quedo quieto.
      */
     onNavigate?: (info: { stuck: boolean }) => void;
     /**
-     * El cursor de seleccion esta encendido: pasar el raton por dentro del
+     * El cursor de seleccion esta encendido: pasar el ratón por dentro del
      * documento ilumina lo que se seleccionaria, y el clic se consume.
      */
     picking?: boolean;
@@ -278,20 +278,20 @@
      * responden con un `ok` de mentira, sin llegar al servidor. Solo pasan las
      * de lectura.
      *
-     * Es para probar una pagina recien escrita: si su codigo guarda algo al
+     * Es para probar una página recien escrita: si su código guarda algo al
      * cargarse, la prueba no puede dejar ese rastro en los datos de verdad.
      */
     dryRun?: boolean;
   } = $props();
 
   /*
-   * El padron de la aplicacion, para poder decir el nombre de quien mira.
+   * El padron de la aplicación, para poder decir el nombre de quien mira.
    * La cuenta no lo sabe --guarda el correo sin el dominio-- y la fila de esa
    * persona en la tabla de personas si. Ver `viewer`.
    *
-   * Se coge del contexto, que lo pone la pantalla que abre la aplicacion: el
-   * panel con la lista del constructor y la aplicacion publicada con la suya.
-   * Donde no lo haya --el marco de una conversion, la sonda-- llega vacio y el
+   * Se coge del contexto, que lo pone la pantalla que abre la aplicación: el
+   * panel con la lista del constructor y la aplicación publicada con la suya.
+   * Donde no lo haya --el marco de una conversion, la sonda-- llega vacío y el
    * nombre se cae a la cuenta, que es lo que se hacia antes.
    */
   const people = getPeople();
@@ -303,10 +303,10 @@
   let ready = $state(false);
   let error = $state("");
   /**
-   * El aviso de que hace falta iniciar sesion para guardar.
+   * El aviso de que hace falta iniciar sesión para guardar.
    *
-   * Lo pone la plataforma y no el HTML de la pagina: asi no se puede saltar y
-   * no depende de que quien escribio la pagina se acordara. Ver `design.md` D4.
+   * Lo pone la plataforma y no el HTML de la página: asi no se puede saltar y
+   * no depende de que quien escribio la página se acordara. Ver `design.md` D4.
    */
   let sessionNotice = $state({ text: "", turno: 0 });
   /** Cambia para volver a montar el marco cuando el documento se va. */
@@ -350,7 +350,7 @@
 
   /**
    * Quien esta mirando, tal como lo llama el documento: los cuatro datos de la
-   * plataforma y, al mismo nivel, las columnas que la aplicacion le haya puesto
+   * plataforma y, al mismo nivel, las columnas que la aplicación le haya puesto
    * en su tabla de personas. Ver `design.md` D4 de
    * `relacion-automatica-con-personas`.
    */
@@ -367,11 +367,11 @@
    * Van planas --`plane.usuario.cedula`, no `plane.usuario.campos.cedula`--
    * porque es lo que se escribe en el filtro de una pantalla de "lo mio".
    *
-   * Se esparcen **antes** que los cuatro de la plataforma a proposito: una
-   * aplicacion de antes de que el nombre se reservara puede tener una columna
+   * Se esparcen **antes** que los cuatro de la plataforma a propósito: una
+   * aplicación de antes de que el nombre se reservara puede tener una columna
    * llamada `correo`, y taparia el correo de la cuenta. Y la columna `nombre`,
    * que toda tabla de personas trae, dice lo mismo que `nombre` pero sin su
-   * respaldo al correo cuando esta vacia.
+   * respaldo al correo cuando esta vacía.
    *
    * `$state.snapshot` deja un objeto plano: lo que llega de la lista viene
    * envuelto en el proxy de las runas y `postMessage` no sabe copiarlo.
@@ -387,19 +387,19 @@
    * Es la copia de este lado de lo que el servidor compone en `asViewer`, y
    * tiene que decir lo mismo: si no, el documento recibe filas resueltas para
    * una persona y un `plane.usuario` que es otra, y una pantalla de "lo mio"
-   * se ve vacia en la vista previa aunque publicada funcione. Ver `design.md`
+   * se ve vacía en la vista previa aunque publicada funcione. Ver `design.md`
    * D5 de `permisos-simples-por-rol`.
    *
-   * - Sin sesion: nadie, igual que quien llega sin cuenta.
-   * - Sin rol y sin persona: hay sesion y no hay ningun rol, que es como entra
-   *   quien acaba de ser invitado y todavia no le nombraron uno.
+   * - Sin sesión: nadie, igual que quien llega sin cuenta.
+   * - Sin rol y sin persona: hay sesión y no hay ningún rol, que es como entra
+   *   quien acaba de ser invitado y todavía no le nombraron uno.
    * - Con persona: esa persona, con su identificador, su nombre, su correo y
    *   sus roles de verdad --no solo el del selector, que es uno de los suyos--.
-   * - Con rol y sin persona: hay sesion y no hay identidad concreta. Quien
+   * - Con rol y sin persona: hay sesión y no hay identidad concreta. Quien
    *   construye no esta en la tabla de personas, asi que una pantalla de "lo
-   *   mio" se ve vacia; es lo que de verdad pasa, y lo que arregla elegir
+   *   mio" se ve vacía; es lo que de verdad pasa, y lo que arregla elegir
    *   persona.
-   * - Sin nada de eso --la aplicacion publicada--: quien tiene la sesion.
+   * - Sin nada de eso --la aplicación publicada--: quien tiene la sesión.
    *
    * Los arrays se copian a mano: llegan envueltos en el proxy de las runas y
    * `postMessage` no sabe copiar un proxy --revienta con `DataCloneError` y el
@@ -418,8 +418,8 @@
     }
     if (previewRole) return { id: "", nombre: "", correo: "", roles: [previewRole] };
     if (previewNoRole) return { id: "", nombre: "", correo: "", roles: [] };
-    // El correo de una cuenta de aplicacion esta en `cuenta`; el constructor
-    // probando su propia pagina lo tiene donde siempre. Ver `loginFor`.
+    // El correo de una cuenta de aplicación esta en `cuenta`; el constructor
+    // probando su propia página lo tiene donde siempre. Ver `loginFor`.
     const record = client.authStore.record as {
       id: string;
       name?: string;
@@ -430,11 +430,11 @@
     /*
      * Y su fila en la tabla de personas, que es donde esta su nombre. El
      * `name` de la cuenta no lo es: es el correo sin el dominio, asi que quien
-     * entra con `1037660432@ss.local` se veria saludado por su cedula. Ver
+     * entra con `1037660432@ss.local` se veria saludado por su cédula. Ver
      * `personDisplayName`.
      *
      * Quien construye no esta en ese padron --no esta invitado a su propia
-     * aplicacion-- y ahi el `name` de la cuenta si es un nombre: es el que se
+     * aplicación-- y ahi el `name` de la cuenta si es un nombre: es el que se
      * escribio al crearla.
      */
     const mine = people.list.find((p) => p.id === record.id) ?? null;
@@ -460,14 +460,14 @@
   }
 
   /*
-   * El tema del panel y el de la aplicacion se leen aqui a proposito, aunque
+   * El tema del panel y el de la aplicación se leen aqui a propósito, aunque
    * `sendTheme` no los use como argumentos: los saca del DOM al llamarse, asi
    * que sin leerlos el marco no se enteraria de un cambio de ninguno de los
    * dos. Es el mismo motivo por el que en React hacia falta un `biome-ignore`
    * sobre la lista de dependencias; aqui basta con leerlos.
    *
    * Y se espera al cuadro siguiente: quien activa el tema lo hace en efectos
-   * de mas arriba, que corren despues de este. Leer aqui mismo daria los
+   * de mas arriba, que corren después de este. Leer aqui mismo daria los
    * colores de antes, y el marco se quedaria siempre un cambio por detras.
    */
   $effect(() => {
@@ -475,22 +475,22 @@
     void themeKey;
     void roles;
     /*
-     * Y con quien se mira, que tambien entra en el mensaje. Cambiarlo vuelve a
+     * Y con quien se mira, que también entra en el mensaje. Cambiarlo vuelve a
      * montar el marco desde la escena, asi que hoy el tema se reenvia de todos
      * modos; leerlo aqui es lo que hace que `sendTheme` siga diciendo la verdad
-     * si algun dia deja de remontarse.
+     * si algún dia deja de remontarse.
      */
     void previewRole;
     void previewPerson;
     void previewAnon;
     void previewNoRole;
     /*
-     * El padron llega despues del primer dibujado --se pide al servidor-- y con
+     * El padron llega después del primer dibujado --se pide al servidor-- y con
      * el llega el nombre de quien mira. Sin leerlo aqui, el documento se
      * quedaria con el que se compuso antes de que existiera: el de la cuenta.
      */
     void people.list;
-    // El tamano de letra del panel tambien entra en lo que mide `sendTheme`:
+    // El tamaño de letra del panel también entra en lo que mide `sendTheme`:
     // sin leerlo aqui, cambiarlo no reenviaria el tema y el marco se quedaria
     // con el rem viejo.
     void fontSize.percent;
@@ -500,7 +500,7 @@
   });
 
   /*
-   * El modo cursor. Se manda tambien cuando el marco vuelve a estar listo: un
+   * El modo cursor. Se manda también cuando el marco vuelve a estar listo: un
    * documento recien cargado no sabe nada de lo que se pidio antes de existir.
    */
   $effect(() => {
@@ -541,7 +541,7 @@
    */
   $effect(() => {
     const onMessage = (event: MessageEvent) => {
-      // Un marco sin origen propio se anuncia como "null": la unica forma
+      // Un marco sin origen propio se anuncia como "null": la única forma
       // fiable de reconocerlo es por su ventana.
       const node = untrack(() => frame);
       if (!node || event.source !== node.contentWindow) return;
@@ -610,8 +610,8 @@
       }
 
       /*
-       * El contenido intenta salir de la pagina. Los enlaces y los formularios
-       * los para el puente; una asignacion directa de la direccion no se
+       * El contenido intenta salir de la página. Los enlaces y los formularios
+       * los para el puente; una asignacion directa de la dirección no se
        * puede parar, solo deshacer: el documento vuelve a su sitio.
        */
       if (data.plane === "nav") {
@@ -622,8 +622,8 @@
 
         /*
          * Agotadas las vueltas se quita el marco. Dejarlo seria dejar dentro
-         * la pagina a la que se fue, que es justo lo que no puede verse: la
-         * pagina de error del navegador.
+         * la página a la que se fue, que es justo lo que no puede verse: la
+         * página de error del navegador.
          */
         if (agotado) {
           stuck = true;
@@ -663,7 +663,7 @@
           try {
             /*
              * En ensayo, lo que escribe no llega a escribir. Se contesta que
-             * salio bien para que la pagina siga su curso y se pueda ver como
+             * salio bien para que la página siga su curso y se pueda ver como
              * se comporta entera, pero no se toca ni un dato.
              */
             if (untrack(() => dryRun) && WRITE_OPS.has(String(data.op))) {
@@ -686,7 +686,7 @@
           } catch (err) {
             const codigo = err instanceof OpError ? err.codigo : "";
             // El aviso lo pone la plataforma; la orden se rechaza igual, para
-            // que la pagina pueda capturarla si quiere hacer algo mejor.
+            // que la página pueda capturarla si quiere hacer algo mejor.
             // El turno hace que dos intentos seguidos vuelvan a asomar el
             // aviso aunque el mensaje sea el mismo.
             if (codigo === NEEDS_SESSION) {
@@ -707,7 +707,7 @@
 </script>
 
 <!--
-  El aviso de que hace falta iniciar sesion para guardar. Va fuera del `if` de
+  El aviso de que hace falta iniciar sesión para guardar. Va fuera del `if` de
   abajo porque la orden que lo dispara sale del marco, que solo existe en la
   otra rama, y porque el aviso vive en su propia capa. Ver `Toast`.
 -->
@@ -763,12 +763,12 @@
 
   /*
    * El contenedor es quien resuelve cuanto vale un rem dentro del documento:
-   * `readTheme` mide su `font-size` y lo manda como el de la raiz de la
-   * pagina. Sin esta linea heredaba el del panel --`body` esta en
-   * `--text-sm`-- y la pagina entera se dibujaba al 87,5%: un campo del
-   * catalogo salia a 12,25px y su etiqueta a 10,5px. Con `1rem` la medida
-   * sale de la raiz del panel, y `--font-scale` anade el tamano propio de la
-   * aplicacion cuando lo tiene (ver `lib/appTheme.ts`).
+   * `readTheme` mide su `font-size` y lo manda como el de la raíz de la
+   * página. Sin esta línea heredaba el del panel --`body` esta en
+   * `--text-sm`-- y la página entera se dibujaba al 87,5%: un campo del
+   * catálogo salia a 12,25px y su etiqueta a 10,5px. Con `1rem` la medida
+   * sale de la raíz del panel, y `--font-scale` añade el tamaño propio de la
+   * aplicación cuando lo tiene (ver `lib/appTheme.ts`).
    */
   .holder-frame-html {
     font-size: calc(1rem * var(--font-scale));

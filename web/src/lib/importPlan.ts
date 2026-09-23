@@ -1,7 +1,7 @@
 /**
  * El plan de una importacion: a donde va cada columna del archivo.
  *
- * Aparte del dialogo porque no es marcado. Leer el archivo ya vivia en
+ * Aparte del diálogo porque no es marcado. Leer el archivo ya vivia en
  * `importParse.ts`; esto es el paso siguiente --emparejar sus columnas con las
  * de la tabla y convertir cada celda-- y no necesita ver una sola etiqueta.
  */
@@ -10,9 +10,9 @@ import { type FieldDef, type FieldType, isRelationField, type TableRecord } from
 import { BOOL_FALSE, BOOL_TRUE, boolWord, convertValue, type ParsedTable } from "./importParse";
 
 /**
- * El resumen de una importacion que ya cerro su dialogo.
+ * El resumen de una importacion que ya cerro su diálogo.
  *
- * Lo cuenta quien abrio el dialogo, no el dialogo: un aviso dibujado ahi se va
+ * Lo cuenta quien abrio el diálogo, no el diálogo: un aviso dibujado ahi se va
  * con el modal en el mismo instante en que habria que leerlo.
  */
 export interface ImportNote {
@@ -27,7 +27,7 @@ export interface ImportNote {
  * Tres cosas distintas pasan en la misma operacion --entran personas, se
  * enlazan filas de otras tablas, y unas cuantas se quedan sin enlazar-- y cada
  * una cuenta sujetos distintos: personas la primera, filas las otras dos. En
- * una sola frase con tres numeros no se sabe cual cuenta que, asi que va una
+ * una sola frase con tres numeros no se sabe cual cuenta que, así que va una
  * frase por cifra, y la que sea cero no dice nada.
  */
 export function peopleImportNote(opts: {
@@ -73,12 +73,12 @@ export interface ImportError {
  * Lo que se le pide a una columna aparte de a donde va.
  *
  * Sobre una columna que ya existe son condiciones de ESTA importacion y no un
- * cambio de la tabla: el archivo de nomina trae la cedula repetida en dos filas
- * y eso hay que verlo antes de escribirlo, no despues.
+ * cambio de la tabla: el archivo de nómina trae la cédula repetida en dos filas
+ * y eso hay que verlo antes de escribirlo, no después.
  *
  * Sobre una columna que nace del archivo son las dos cosas: se exigen al
  * importar y ademas la columna nace con ellas, igual que nace con el tipo que
- * se le eligio. Marcarlas mientras se declara la columna y encontrarla despues
+ * se le eligio. Marcarlas mientras se declara la columna y encontrarla después
  * sin ninguna era el camino raro. Ver `createColumns` en `importSave.ts`.
  */
 export interface ColumnRule {
@@ -100,7 +100,7 @@ export interface RuleIssue {
 export const ruleMessage = (kind: RuleIssue["kind"]): string =>
   kind === "duplicate"
     ? "Este valor se repite en otra fila"
-    : "Esta columna es obligatoria y la celda esta vacia";
+    : "Esta columna es obligatoria y la celda está vacía";
 
 export interface ConvertedRow {
   id: string | null;
@@ -143,7 +143,7 @@ export const looksJson = (text: string) => /^[[{]/.test(text.trim());
  * exporta cualquier otro sistema dice `email`. Sin esta lista esa columna no
  * emparejaba con nada, se ofrecia crearla como columna de texto nueva, y la
  * importacion entera se iba al limbo: cada persona se reconoce por su correo,
- * asi que sin el no se actualiza a quien ya esta ni se crea a quien falta.
+ * así que sin el no se actualiza a quien ya esta ni se crea a quien falta.
  */
 const ACCOUNT_COLUMNS = ["email", "e-mail", "mail", "correo", "correo electronico", "cuenta"];
 
@@ -153,12 +153,12 @@ const ACCOUNT_COLUMNS = ["email", "e-mail", "mail", "correo", "correo electronic
  * Mayuscula en la primera letra y nada mas: "full name" se lee "Full name" y no
  * "Full Name", que es como se escribe en ingles y no en espanol. Un encabezado
  * escrito a gritos ("NOMBRE COMPLETO") se baja entero antes de levantar la
- * primera; uno con una sigla dentro ("cedula NIT") se deja como venia, que la
+ * primera; uno con una sigla dentro ("cédula NIT") se deja como venia, que la
  * sigla es suya.
  *
  * Lo que viene escrito como nombre tecnico --sin espacios, todo en minusculas y
  * con guiones o guiones bajos donde van las palabras-- se traduce de vuelta:
- * `codigo_empleado` se lee "Codigo empleado". Es lo contrario de exportar, que
+ * `codigo_empleado` se lee "Código empleado". Es lo contrario de exportar, que
  * nombra el archivo por la etiqueta de la tabla, y sin esto un archivo que sale
  * y vuelve crea una tabla llamada `chequeo-preoperacional`.
  *
@@ -189,7 +189,7 @@ export function readableLabel(text: string): string {
  * La lista es la de `convertValue`: lo que se adivina y lo que se convierte
  * tienen que ser lo mismo. Los unos y ceros se quedan fuera solo para adivinar:
  * una columna de unos y ceros es casi siempre una cantidad, y nacer como
- * casilla le borraria el numero. Escritos en una columna que ya es de si/no,
+ * casilla le borraria el número. Escritos en una columna que ya es de si/no,
  * siguen valiendo.
  */
 const BOOL_WORDS = new Set([...BOOL_TRUE, ...BOOL_FALSE].filter((w) => w !== "1" && w !== "0"));
@@ -200,12 +200,12 @@ const BOOL_WORDS = new Set([...BOOL_TRUE, ...BOOL_FALSE].filter((w) => w !== "1"
  * Lo justo para no crear de texto lo que salta a la vista que no lo es: si
  * TODAS las celdas con algo escrito son correos, es de correo; si todas dicen
  * si o no, es de casilla. A la primera duda, texto --una columna de texto se
- * cambia despues sin perder nada, y una de numero mal adivinada deja fuera las
+ * cambia después sin perder nada, y una de número mal adivinada deja fuera las
  * filas que no cuadren--.
  *
  * "1" y "0" no cuentan como si/no aunque `convertValue` los acepte: una columna
  * de unos y ceros es casi siempre una cantidad, y convertirla en casilla
- * borraria el numero.
+ * borraria el número.
  */
 export function guessType(values: string[]): FieldType {
   // Con cincuenta celdas basta para saber de que va la columna.
@@ -264,7 +264,7 @@ export function defaultMapping(
       out[column] = { kind: "field", field: account };
       continue;
     }
-    // Primero tal cual y despues sin tildes ni mayusculas: un archivo escrito a
+    // Primero tal cual y después sin tildes ni mayusculas: un archivo escrito a
     // mano trae "correo" donde la tabla dice "Correo", y son la misma columna.
     const match =
       table.fields.find((f) => f.name === column || f.label === column) ??
@@ -348,7 +348,7 @@ export function convertRows(
  * "ana" son la misma persona-- y entre las filas del archivo: lo que ya esta en
  * la tabla no se consulta.
  *
- * Una celda vacia nunca cuenta como repetida; de eso se encarga "obligatoria".
+ * Una celda vacía nunca cuenta como repetida; de eso se encarga "obligatoria".
  */
 export function findRuleIssues(
   parsed: ParsedTable,
@@ -390,10 +390,10 @@ export function findRuleIssues(
  * Las columnas obligatorias de la tabla que la base rechaza vacias.
  *
  * No son todas las que el panel marca obligatorias. Una casilla y la mitad del
- * id de una relacion nacen sin obligar --ver `toPbField` y `toPbFields` en
- * `server/schema.ts`--, asi que exigirlas aqui detendria una importacion que la
+ * id de una relación nacen sin obligar --ver `toPbField` y `toPbFields` en
+ * `server/schema.ts`--, así que exigirlas aquí detendria una importacion que la
  * base acepta sin queja. Las de sistema tampoco cuentan: su valor no vive en la
- * coleccion de la tabla y no se escribe por este camino.
+ * colección de la tabla y no se escribe por este camino.
  */
 export function enforcedRequired(fields: FieldDef[]): FieldDef[] {
   return fields.filter(
@@ -416,9 +416,9 @@ export function enforcedRequired(fields: FieldDef[]): FieldDef[] {
  *
  * `blank` son las celdas vacias de una columna obligatoria que SI esta
  * emparejada: se devuelven como condicion incumplida --`missing`, la misma que
- * pone quien importa-- para que se pinten y detengan el boton por el camino que
- * ya existe. Pasa tambien al sobrescribir: el guardado manda la columna con
- * `null` dentro, asi que vaciarla se rechaza igual que no traerla nunca.
+ * pone quien importa-- para que se pinten y detengan el botón por el camino que
+ * ya existe. Pasa también al sobrescribir: el guardado manda la columna con
+ * `null` dentro, así que vaciarla se rechaza igual que no traerla nunca.
  */
 export function findRequiredGaps(
   parsed: ParsedTable,

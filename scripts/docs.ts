@@ -1,12 +1,12 @@
 /**
  * Escribe en los archivos de documentacion las secciones que se regeneran
- * a partir del codigo:
+ * a partir del código:
  *
- *  - `README.md`, seccion "Funcionalidades" -> `shared/features.ts`.
- *  - `docs/PAGINAS-HTML.md`, seccion "Escribir el HTML de una pagina"
+ *  - `README.md`, sección "Funcionalidades" -> `shared/features.ts`.
+ *  - `docs/PAGINAS-HTML.md`, sección "Escribir el HTML de una página"
  *    -> `shared/htmlContract.ts` (la misma fuente que recibe la IA).
  *
- * Cada seccion se delimita con marcas `<!-- ... -->`; este script reemplaza
+ * Cada sección se delimita con marcas `<!-- ... -->`; este script reemplaza
  * el contenido entre marcas sin tocar el resto del archivo. Si nada cambia,
  * no escribe.
  *

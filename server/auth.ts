@@ -11,7 +11,7 @@ export interface Identity {
   name: string;
   collection: "builders" | "members";
   /**
-   * La aplicacion de la que es esta cuenta. Vacia en un constructor, que no es
+   * La aplicación de la que es esta cuenta. Vacía en un constructor, que no es
    * de ninguna. Ver `ensureScopedAccounts` en `server/bootstrap.ts`.
    */
   app: string;
@@ -55,7 +55,7 @@ async function verify(token: string, collection: "builders" | "members"): Promis
 
   const identity: Identity = {
     id: res.record.id,
-    // En una cuenta de aplicacion el correo esta en `cuenta`; el constructor
+    // En una cuenta de aplicación el correo esta en `cuenta`; el constructor
     // sigue teniendolo donde siempre.
     email: res.record.cuenta || res.record.email || "",
     name: res.record.name ?? "",
@@ -66,21 +66,21 @@ async function verify(token: string, collection: "builders" | "members"): Promis
   return identity;
 }
 
-/** Exige una sesion de constructor. */
+/** Exige una sesión de constructor. */
 export async function requireBuilder(req: Request): Promise<Identity> {
   const token = bearer(req);
   if (!token) throw new HttpError(401, "Falta la sesión");
   return verify(token, INTERNAL.builders);
 }
 
-/** Devuelve la sesion de un usuario de app publicada, o null si no hay. */
+/** Devuelve la sesión de un usuario de app publicada, o null si no hay. */
 export async function optionalMember(req: Request): Promise<Identity | null> {
   const token = bearer(req);
   if (!token) return null;
   return verify(token, INTERNAL.members).catch(() => null);
 }
 
-/** Devuelve la sesion de constructor, o null si no hay o no es valida. */
+/** Devuelve la sesión de constructor, o null si no hay o no es valida. */
 export async function optionalBuilder(req: Request): Promise<Identity | null> {
   const token = bearer(req);
   if (!token) return null;

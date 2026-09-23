@@ -3,7 +3,7 @@
    ----------------------------------------------------------
    Una paleta son CUATRO colores crudos y nada mas. Todo lo que
    el panel ve de la marca (acento, serie de datos, halo de foco)
-   se deriva de esos cuatro aqui abajo, en un unico bloque. Los
+   se deriva de esos cuatro aquí abajo, en un único bloque. Los
    tintes de las etiquetas NO: son diez colores fijos que declara
    theme.css y que ninguna paleta toca.
 
@@ -26,11 +26,11 @@
       tono REAL de 0 grados (rojo) y color-mix lo interpola: mezclar
       un verde hacia el giraria el tono por amarillo y naranja. Con
       `none` el tono queda sin potencia y la mezcla adopta el del
-      otro color, que es lo unico que se quiere mover: luminosidad
+      otro color, que es lo único que se quiere mover: luminosidad
       y croma.
 
-   Los selectores van enumerados uno a uno a proposito: un
-   [class*="theme-"] atraparia tambien a .theme-btn.
+   Los selectores van enumerados uno a uno a propósito: un
+   [class*="theme-"] atraparia también a .theme-btn.
    ========================================================== */
 
 [data-palette],
@@ -83,8 +83,8 @@
 .theme-custom {
   /* ---- Acento ----
      El principal se aparta un poco del color crudo (se oscurece en
-     claro, se aclara en oscuro) para que el boton primario no salga
-     igual de saturado que la barra de la grafica que lleva al lado. */
+     claro, se aclara en oscuro) para que el botón primario no salga
+     igual de saturado que la barra de la gráfica que lleva al lado. */
   --_accent-light: color-mix(in oklch, var(--palette-1), oklch(0 0 none) 8%);
   --_accent-dark: color-mix(in oklch, var(--palette-1), oklch(1 0 none) 28%);
   --accent: light-dark(var(--_accent-light), var(--_accent-dark));
@@ -107,16 +107,16 @@
      El clamp es un interruptor, no una interpolacion: si el acento es
      claro (l > 0.635) el numerador se va negativo y cae al minimo
      (tinta oscura); si es oscuro se dispara y cae al maximo (tinta
-     clara). El *1000 solo asegura que ningun valor intermedio
+     clara). El *1000 solo asegura que ningún valor intermedio
      sobreviva al clamp. El croma cambia con el mismo interruptor,
      invertido: la tinta clara admite menos que la oscura.
 
-     0.635 no es un numero redondo elegido a ojo: es el que reproduce
+     0.635 no es un número redondo elegido a ojo: es el que reproduce
      la decision WCAG del motor anterior en 90 de las 92 combinaciones
      de paleta y tema. Las dos que no (naranja en claro) caian en
      3.05:1, al borde del minimo, y ahora se llevan tinta oscura, que
      contrasta mas. Cuando contrast-color() tenga soporte, sustituye
-     a estas dos lineas. */
+     a estas dos líneas. */
   --accent-text: light-dark(
     oklch(
       from var(--_accent-light) clamp(0.2, (l - 0.635) * -1000, 0.97)
@@ -154,7 +154,7 @@
   );
 
   /* ---- Tintes ----
-     No estan aqui a proposito: los diez tintes son fijos y los declara
+     No estan aquí a propósito: los diez tintes son fijos y los declara
      theme.css. Son el color de una categoria, no el de la marca, y
      recolorearlos con la paleta haria que dos categorias distintas se
      vieran iguales en cuanto la app eligiera un color plano. */
@@ -587,20 +587,20 @@
 }
 
 /* ---------- Personalizado ----------
-   El unico caso con JavaScript: el selector de color escribe
-   --palette-1 en linea sobre <html>. Los tres de apoyo son los
-   neutros de las monocromas, y viven aqui. */
+   El único caso con JavaScript: el selector de color escribe
+   --palette-1 en línea sobre <html>. Los tres de apoyo son los
+   neutros de las monocromas, y viven aquí. */
 [data-palette="custom"],
 .theme-custom {
   --palette-2: oklch(0.711 0.035 256.8);
   --palette-3: oklch(0.445 0.037 257.3);
   --palette-4: oklch(0.279 0.037 260);
 
-  /* El acento de una paleta predisenada se aparta a proposito del
-     color crudo (oscurecido en claro, aclarado en oscuro), pero aqui
+  /* El acento de una paleta predisenada se aparta a propósito del
+     color crudo (oscurecido en claro, aclarado en oscuro), pero aquí
      el color LO ELIGE la persona con el selector: la muestra y los
      botones tienen que mostrar ese exacto. Se pisan las mezclas del
-     bloque comun y todo lo demas (hover, tinta, foco) sigue
+     bloque comun y todo lo demás (hover, tinta, foco) sigue
      derivando de ellas igual que en las otras paletas. */
   --_accent-light: var(--palette-1);
   --_accent-dark: var(--palette-1);

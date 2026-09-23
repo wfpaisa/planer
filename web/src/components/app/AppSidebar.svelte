@@ -1,37 +1,37 @@
 <!--
-  El sidebar de una aplicacion: la lista de sus paginas y como se va de una a
+  El sidebar de una aplicación: la lista de sus páginas y como se va de una a
   otra.
 
   Lo ve todo el mundo. Lo que cambia es quien lo mira: a quien construye se le
-  ofrecen ademas los ajustes de cada pagina --en los punticos de su linea--,
+  ofrecen ademas los ajustes de cada página --en los punticos de su línea--,
   cambiarlas de orden arrastrandolas y crear una nueva, que es el ultimo
   elemento de la lista; un visitante solo navega. La lista que llega ya viene
   filtrada por el servidor, asi que aqui no se esconde nada: lo que no se puede
   abrir no esta.
 
-  Vive fuera del marco de la pagina, para que el HTML de la pagina no pueda
+  Vive fuera del marco de la página, para que el HTML de la página no pueda
   romper la navegacion por mucho que se equivoque.
 
-  La linea es siempre la misma caja, este o no el raton encima: el hueco de los
+  La línea es siempre la misma caja, este o no el ratón encima: el hueco de los
   punticos esta reservado desde el principio, asi que nada se mueve al pasar
-  por encima. La pagina abierta se marca con el color del acento, que a un
+  por encima. La página abierta se marca con el color del acento, que a un
   golpe de vista dice donde se esta.
 
   Puede quedarse de dos maneras --del mismo ancho las dos, para que fijar no
-  cambie de sitio lo que ya se estaba leyendo--, y se recuerda por aplicacion:
+  cambie de sitio lo que ya se estaba leyendo--, y se recuerda por aplicación:
 
   - **Flotante**: es un menu. Se abre con su icono, se dibuja encima del
-    documento y se cierra solo en cuanto deja de hacer falta: al elegir pagina,
+    documento y se cierra solo en cuanto deja de hacer falta: al elegir página,
     al tocar fuera de el --el documento incluido-- o con Escape. Por eso no
-    lleva boton de cerrar: cerrarlo es lo que pasa por si solo.
+    lleva botón de cerrar: cerrarlo es lo que pasa por si solo.
   - **Fijado**: ocupa su propia columna al lado del documento y se queda ahi,
-    para saltar entre paginas sin abrirlo y cerrarlo cada vez.
+    para saltar entre páginas sin abrirlo y cerrarlo cada vez.
 
-  Las dos valen igual para quien construye y para quien visita la aplicacion
+  Las dos valen igual para quien construye y para quien visita la aplicación
   publicada: es una preferencia de quien mira, no del que la hizo. Quien la
   guarda es `lib/sidebarPin`; aqui solo llega el resultado.
 
-  Ni el nombre ni el icono de la aplicacion se repiten aqui cuando se esta
+  Ni el nombre ni el icono de la aplicación se repiten aqui cuando se esta
   construyendo: ya estan en el encabezado.
 -->
 <script lang="ts" module>
@@ -40,17 +40,17 @@
   import type { PageRecord } from "@shared/types";
 
   /**
-   * A quien se le abrio una pagina, en una linea.
+   * A quien se le abrio una página, en una línea.
    *
-   * No se lee con el raton: es el nombre del sello para quien no lo ve. En
+   * No se lee con el ratón: es el nombre del sello para quien no lo ve. En
    * pantalla el icono se explica solo, y un globo aqui no cabe --a la derecha
-   * tapa el boton de los ajustes, y arriba o abajo, las filas vecinas--.
+   * tapa el botón de los ajustes, y arriba o abajo, las filas vecinas--.
    *
-   * `admin` no entra en la cuenta: lo lleva toda pagina limitada --se lo pone
-   * `withPageAdmin`-- asi que nombrarlo no distingue una pagina de otra. Sin el
-   * no queda nadie en la pagina que solo ve quien construye, y esa se cuenta
+   * `admin` no entra en la cuenta: lo lleva toda página limitada --se lo pone
+   * `withPageAdmin`-- asi que nombrarlo no distingue una página de otra. Sin el
+   * no queda nadie en la página que solo ve quien construye, y esa se cuenta
    * con palabras: el nombre `admin` no significaria nada para quien lo lea. La
-   * pagina de todos no llega hasta aqui: no lleva sello.
+   * página de todos no llega hasta aqui: no lleva sello.
    */
   export function accessLabel(page: PageRecord): string {
     const roles = (page.roles ?? []).filter((r) => r !== ADMIN_ROLE);
@@ -60,10 +60,10 @@
 
   export interface SidebarBuilder {
     onCreate: () => void;
-    /** Crea un separador: un texto que agrupa a las paginas de alrededor. */
+    /** Crea un separador: un texto que agrupa a las páginas de alrededor. */
     onCreateSeparator?: () => void;
     onOpenPageSettings: (page: PageRecord) => void;
-    /** Los ids en el orden nuevo, despues de arrastrar una pagina a otro sitio. */
+    /** Los ids en el orden nuevo, después de arrastrar una página a otro sitio. */
     onReorder?: (ids: string[]) => void;
   }
 
@@ -110,7 +110,7 @@
     onOpen: (page: PageRecord) => void;
     /** Lo que solo se le ofrece a quien construye. Sin esto, es un visitante. */
     builder?: SidebarBuilder;
-    /** Junto al nombre de la aplicacion, arriba. Solo se ve sin `builder`. */
+    /** Junto al nombre de la aplicación, arriba. Solo se ve sin `builder`. */
     headerActions?: Snippet;
     footer?: Snippet;
     /** Fijado: ocupa su columna al lado del documento en vez de taparlo. */
@@ -118,11 +118,11 @@
     onTogglePin?: () => void;
   } = $props();
 
-  // `untrack` porque leer la aplicacion aqui es a proposito: es el valor de
-  // partida, y lo que pase despues lo recoge el efecto de abajo.
+  // `untrack` porque leer la aplicación aqui es a propósito: es el valor de
+  // partida, y lo que pase después lo recoge el efecto de abajo.
   let collapsed = $state(untrack(() => remembered(app.id)));
 
-  // Cambiar de aplicacion trae la preferencia de la nueva, no la de la vieja.
+  // Cambiar de aplicación trae la preferencia de la nueva, no la de la vieja.
   let lastApp = untrack(() => app.id);
   $effect(() => {
     if (app.id === lastApp) return;
@@ -130,7 +130,7 @@
     collapsed = remembered(app.id);
   });
 
-  // Plegado y desplegado es cosa de cada quien, y se recuerda por aplicacion.
+  // Plegado y desplegado es cosa de cada quien, y se recuerda por aplicación.
   $effect(() => {
     try {
       localStorage.setItem(storageKey(app.id), collapsed ? "1" : "0");
@@ -144,15 +144,15 @@
   /* ---------------------------------------------------------------- */
 
   /**
-   * Arrastrar una pagina a otro sitio de la lista.
+   * Arrastrar una página a otro sitio de la lista.
    *
-   * El orden es un campo de la pagina, asi que hasta ahora habia que abrir algo
+   * El orden es un campo de la página, asi que hasta ahora había que abrir algo
    * para cambiarlo; aqui se hace donde se ve. `at` es el hueco donde caeria
-   * --el indice al que iria, contando los huecos y no las lineas--, y lo decide
-   * de que mitad de la linea esta el puntero.
+   * --el índice al que iria, contando los huecos y no las líneas--, y lo decide
+   * de que mitad de la línea esta el puntero.
    *
-   * Los eventos se paran aqui a proposito: el editor entero es zona de soltar
-   * archivos HTML, y arrastrar una pagina no es traer un archivo.
+   * Los eventos se paran aqui a propósito: el editor entero es zona de soltar
+   * archivos HTML, y arrastrar una página no es traer un archivo.
    */
   let draggingId = $state<string | null>(null);
   let at = $state<number | null>(null);
@@ -160,9 +160,9 @@
   const canDrag = $derived(!!builder?.onReorder && pages.length > 1);
 
   /**
-   * El hueco donde se dibuja la linea, que no es siempre `at`: soltar en el
-   * hueco de antes o el de despues de la propia pagina la deja donde estaba.
-   * Esos dos no se marcan, para que la linea signifique siempre lo mismo --se
+   * El hueco donde se dibuja la línea, que no es siempre `at`: soltar en el
+   * hueco de antes o el de después de la propia página la deja donde estaba.
+   * Esos dos no se marcan, para que la línea signifique siempre lo mismo --se
    * va a mover ahi-- y no prometa un cambio que no va a pasar.
    */
   const dropAt = $derived.by(() => {
@@ -210,8 +210,8 @@
   };
 
   /**
-   * Elegir pagina lo pliega mientras flota: esta encima del documento y ya
-   * cumplio su unico trabajo. Fijado no se mueve, que para eso se fijo.
+   * Elegir página lo pliega mientras flota: esta encima del documento y ya
+   * cumplio su único trabajo. Fijado no se mueve, que para eso se fijo.
    */
   const open = (page: PageRecord) => {
     if (!pinned) collapsed = true;
@@ -224,7 +224,7 @@
 
   /**
    * Abierto encima del documento, se cierra en cuanto se atiende a otra cosa:
-   * tocar fuera, Escape, o llevarse el foco al marco de la pagina --que es un
+   * tocar fuera, Escape, o llevarse el foco al marco de la página --que es un
    * documento aparte y no manda su click aqui, asi que se lee por el foco--.
    *
    * Solo escucha mientras flota y esta abierto: fijado no se cierra por tocar
@@ -247,7 +247,7 @@
       collapsed = true;
     };
 
-    // El foco se fue al marco de la pagina: por dentro el click no se ve.
+    // El foco se fue al marco de la página: por dentro el click no se ve.
     const away = () => {
       if (document.activeElement?.tagName === "IFRAME") collapsed = true;
     };
@@ -273,23 +273,23 @@
   };
 </script>
 
-<!-- La linea que dice donde caeria la pagina que se esta arrastrando. -->
+<!-- La línea que dice donde caeria la página que se esta arrastrando. -->
 {#snippet dropLine()}
   <span aria-hidden="true" class="drop-line"></span>
 {/snippet}
 
 <!--
-  El icono con el que se resume quien abre una pagina.
+  El icono con el que se resume quien abre una página.
 
   Solo se dibuja la excepcion --tener roles marcados--, y con el icono con el
-  que los roles se reconocen en todas partes. La pagina que abre cualquiera es
+  que los roles se reconocen en todas partes. La página que abre cualquiera es
   la norma y no lleva sello: en una lista, un icono repetido en todas las
-  lineas no dice nada y le quita fuerza al que si.
+  líneas no dice nada y le quita fuerza al que si.
 
-  Sin globo: el sello se retira al pasar el raton --le deja el hueco al boton
+  Sin globo: el sello se retira al pasar el ratón --le deja el hueco al botón
   de los ajustes-- asi que ir a senalarlo es justo lo que lo hace desaparecer,
   y colgarlo de la fila entera tapa lo de al lado. Los roles se leen donde se
-  marcan, en los ajustes de la pagina.
+  marcan, en los ajustes de la página.
 -->
 {#snippet accessMark(page: PageRecord)}
   {#if pageIsLimited(page)}
@@ -320,8 +320,8 @@
     bind:this={box}
     class={cx("sidebar-app flex flex-col", pinned ? "pinned" : "floating")}
   >
-    <!-- Quien visita la aplicacion publicada no tiene encabezado arriba: aqui
-         es donde se entera de en que aplicacion esta. -->
+    <!-- Quien visita la aplicación publicada no tiene encabezado arriba: aqui
+         es donde se entera de en que aplicación esta. -->
     {#if !builder}
       <div class="sidebar-head">
         <AppIcon {app} />
@@ -335,8 +335,8 @@
     {/if}
 
     <nav aria-label="Páginas de la aplicación" class="nav-pages">
-      <!-- La lista se explica sola: el nombre de cada pagina y los separadores
-           que las agrupan dicen mas que un titulo encima. Fijar es lo unico
+      <!-- La lista se explica sola: el nombre de cada página y los separadores
+           que las agrupan dicen mas que un título encima. Fijar es lo único
            que queda en la fila, porque mientras flota se cierra solo. -->
       {#if onTogglePin}
         <div class="nav-pages-head">
@@ -358,7 +358,7 @@
       <ul id="app-sidebar-pages" class="list-pages">
         {#each pages as page, index (page.id)}
           {#if page.separator}
-            <!-- No es una pagina: solo un texto que agrupa a las de alrededor.
+            <!-- No es una página: solo un texto que agrupa a las de alrededor.
                  Se arrastra igual que cualquier fila, pero no se abre ni marca
                  "activa". -->
             <li
@@ -379,9 +379,9 @@
 
               <span class="sidebar-separator-label eyebrow">{page.name}</span>
 
-              <!-- El mismo sello que en una pagina: dice que el grupo esta
-                   limitado a unos roles, y se retira al pasar el raton para
-                   dejarle el hueco al boton de los ajustes. -->
+              <!-- El mismo sello que en una página: dice que el grupo esta
+                   limitado a unos roles, y se retira al pasar el ratón para
+                   dejarle el hueco al botón de los ajustes. -->
               {#if builder}
                 <div class="btn-right">{@render accessMark(page)}</div>
                 <Button
@@ -407,7 +407,7 @@
               ondrop={canDrag ? dropDrag : undefined}
               ondragend={canDrag ? endDrag : undefined}
             >
-              <!-- Donde caeria la pagina que se arrastra. -->
+              <!-- Donde caeria la página que se arrastra. -->
               {#if dropAt === index}
                 {@render dropLine()}
               {/if}
@@ -422,11 +422,11 @@
                 <span class="sidebar-page-name">{page.name}</span>
 
                 <div class="btn-right">
-                  <!-- La IA esta trabajando en esta pagina. Es la unica senal que
-                     queda desde otra pagina: la fila dice en cual trabaja, y
+                  <!-- La IA esta trabajando en esta página. Es la única senal que
+                     queda desde otra página: la fila dice en cual trabaja, y
                      abrirla es el clic que la fila ya hacia. Va fuera de los
                      sellos permanentes porque esos se retiran al pasar el
-                     raton, y esta no puede apagarse justo al ir a pulsarla. -->
+                     ratón, y esta no puede apagarse justo al ir a pulsarla. -->
                   {#if builder && aiActivity.has(page.id)}
                     <span
                       role="img"
@@ -465,7 +465,7 @@
           {/if}
         {/each}
 
-        <!-- La ultima posicion: soltar debajo de todo manda la pagina al final. -->
+        <!-- La ultima posicion: soltar debajo de todo manda la página al final. -->
         {#if dropAt === pages.length}
           <li aria-hidden="true" class="drop-target-end">{@render dropLine()}</li>
         {/if}
@@ -476,7 +476,7 @@
           </li>
         {/if}
 
-        <!-- Crear una pagina es el siguiente elemento de la lista, no un boton
+        <!-- Crear una página es el siguiente elemento de la lista, no un botón
              aparte: se pide donde terminan las que ya hay. El separador va al
              lado, mas chico: se crea mucho menos seguido. -->
         {#if builder}
@@ -521,7 +521,7 @@
 
   /* Absoluto dentro de la escena, no fijo en la ventana: asi cae al borde del
      documento y nunca sobre lo que haya a su izquierda, como el dock. La tira
-     baja hasta el fondo y el boton vive arriba, donde siempre se lo busco. */
+     baja hasta el fondo y el botón vive arriba, donde siempre se lo busco. */
   .sidebar-app-collapsed {
     position: absolute;
     top: var(--sp-8);
@@ -567,7 +567,7 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* Quien visita no tiene encabezado arriba: se le presenta la aplicacion. */
+    /* Quien visita no tiene encabezado arriba: se le presenta la aplicación. */
     & .sidebar-head {
       display: flex;
       align-items: center;
@@ -600,7 +600,7 @@
       flex: 1 1 0%;
       min-height: 0;
 
-      /* Sin titulo que la acompane, la fila es solo el sitio de fijar: se queda
+      /* Sin título que la acompane, la fila es solo el sitio de fijar: se queda
          al final para no cambiar de lado al soltar el sidebar. */
       & .nav-pages-head {
         display: flex;
@@ -646,7 +646,7 @@
             opacity: 0.4;
           }
 
-          /* La senal de la IA: lo unico de la fila que cambia solo, asi que
+          /* La senal de la IA: lo único de la fila que cambia solo, asi que
                late en vez de quedarse quieta. */
           & .sidebar-page-ai {
             display: flex;
@@ -665,7 +665,7 @@
             min-height: 2.5rem;
 
             /* Separador de texto */
-            /* El rotulo es `.eyebrow` del catalogo; aqui solo su sitio en la
+            /* El rotulo es `.eyebrow` del catálogo; aqui solo su sitio en la
                fila y el recorte, que el nombre lo escribe quien construye. */
             & .sidebar-separator-label {
               padding-left: var(--sp-10);
@@ -676,22 +676,22 @@
               white-space: nowrap;
             }
 
-            /* Los sellos de la derecha: `.btn-right` viste los de una pagina
-               dentro de su boton, y un separador no tiene boton. */
+            /* Los sellos de la derecha: `.btn-right` viste los de una página
+               dentro de su botón, y un separador no tiene botón. */
             & .btn-right {
               display: inline-flex;
               flex: none;
               transition: opacity 150ms;
             }
 
-            /* boton seetings */
+            /* botón seetings */
             :global(.btn-settings-separator) {
               height: 100%;
               min-height: auto;
             }
           }
 
-          /* Boton de cada pagina*/
+          /* Botón de cada página*/
           & .sidebar-page-btn {
             width: 100%;
             text-align: left;
@@ -706,7 +706,7 @@
               padding-right: var(--sp-14);
             }
 
-            /* Icono de la pagina */
+            /* Icono de la página */
             & :global(.sidebar-page-icon) {
               display: flex;
               flex: none;
@@ -719,7 +719,7 @@
               transition: color 150ms;
             }
 
-            /* Nombre de la pagina */
+            /* Nombre de la página */
             & .sidebar-page-name {
               flex: 1 1 auto;
               min-width: 0;
@@ -738,7 +738,7 @@
             }
           }
 
-          /* Boton settings pero de los speradores */
+          /* Botón settings pero de los speradores */
           & :global(.btn-page-settings) {
             display: none;
           }
@@ -754,10 +754,10 @@
           }
         }
 
-        /* El hueco donde caeria la pagina arrastrada.
+        /* El hueco donde caeria la página arrastrada.
 
            Absoluta sobre la fila --que es `position: relative`-- y no un hijo
-           mas: dentro del flujo la fila es una caja flex y la linea se quedaba
+           mas: dentro del flujo la fila es una caja flex y la línea se quedaba
            sin ancho, o sea invisible. Asi cruza la fila entera y se dibuja
            justo en el hueco de arriba, que es el sitio al que iria. */
         & .drop-line {
@@ -772,7 +772,7 @@
           background: var(--accent);
         }
 
-        /* La ultima posicion no ocupa alto: solo sostiene a la linea. */
+        /* La ultima posicion no ocupa alto: solo sostiene a la línea. */
         & .drop-target-end {
           position: relative;
           height: 0;
