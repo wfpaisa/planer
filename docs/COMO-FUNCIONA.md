@@ -34,6 +34,49 @@ El navegador habla con PocketBase por dos vías separadas que nunca se cruzan:
 
 La API propia (`/api/*`) solo existe para lo que el navegador no puede hacer directo contra PocketBase: crear o cambiar la estructura de una app o tabla, miembros, configuración de IA, generación de páginas. Los datos de una tabla — leer, crear, editar, borrar filas — nunca pasan por `/api`: van directo a PocketBase.
 
+## Una aplicación entera cabe en un archivo, y por eso duplicarla es importarla
+
+Duplicar una aplicación, exportarla a un archivo `.planer` e importar uno son
+el mismo camino (`server/appTransfer.ts`): se arma un paquete con todo lo que la
+aplicación es y después se vuelca en una aplicación nueva. Duplicar no pasa por
+el disco --el paquete se queda en memoria-- pero recorre el mismo código, así
+que una copia y un archivo importado no pueden salir distintos.
+
+Lo que hace falta deshacer es que una aplicación está llena de ids de PocketBase
+que sólo significan algo en esta instalación: la tabla a la que apunta una
+relación, las columnas que declara una página, el documento de cada página. Al
+exportar se sustituyen por nombres --el nombre técnico de la tabla, el de la
+columna, la ruta del documento dentro del comprimido-- y al importar se vuelven
+a resolver contra lo que se acaba de crear. El id de cada fila sí se conserva:
+una colección recién creada está vacía, así que no hay con quien chocar, y
+conservarlo es lo que deja en pie las relaciones entre filas sin emparejar nada
+por llaves.
+
+Dos cosas se hacen en dos vueltas, y por la misma razón. Las tablas nacen sin
+sus columnas de relación y las reciben después, porque una relación necesita que
+la colección destino ya exista y entre dos tablas que se apuntan no hay ningún
+orden en el que la primera pueda nacer completa. Las filas se crean primero
+sueltas y después reciben lo que apunta a otras, las dos vueltas sobre el
+paquete entero. Una relación obligatoria se afloja mientras tanto y se vuelve a
+apretar al final: entre una vuelta y la otra toda fila pasa por un momento con
+su relación vacía, y con la columna ya obligatoria la base rechazaría ese
+momento.
+
+Las cuentas de las personas invitadas no viajan. Una cuenta es de una aplicación
+y de ninguna otra --la identidad lleva delante el id de la app, ver `loginFor`--
+así que copiarla no daría acceso a nadie. Lo que sí se conserva es lo que las
+filas decían de cada persona: una columna que apuntaba a alguien sale con el
+valor a la vista y sin enlace, que es exactamente el hueco que el panel ya sabe
+rellenar (`relationCellValues` en `shared/relations.ts`).
+
+Las tres viven en los ajustes de la cuenta (`TransferSection`) y no en los de
+cada aplicación: las tres miran a la lista entera y no a una sola --importar
+llega sin ninguna abierta-- así que la aplicación sobre la que se trabaja se
+elige ahí mismo. Importar pregunta en dos tiempos, el archivo primero y el
+nombre después, y lo dice antes de aceptar: no reemplaza nada, levanta una
+aplicación nueva. Desde fuera «importar» se parece demasiado a «restaurar», y
+quien cree que está restaurando espera que lo de antes desaparezca.
+
 ## Cada publicación guarda una versión, y se puede volver a una anterior
 
 Cada vez que se publica una app queda guardada la versión que estaba en producción; también se puede guardar una versión manual en cualquier momento, por ejemplo antes de un cambio grande. El listado de versiones dice qué cambió en cada una y permite restaurarla para dejarla activa de nuevo — restaurar una versión es, otra vez, publicar, así que también deja su propio punto de vuelta atrás.

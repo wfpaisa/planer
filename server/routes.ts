@@ -5,7 +5,6 @@
  */
 
 import { aiHasCatalog, aiProviderName } from "../shared/aiCatalog.ts";
-import { normalizePalette } from "../shared/brand.ts";
 import { buildHtmlContract } from "../shared/htmlContract.ts";
 import { normalizeMemory } from "../shared/pageMemory.ts";
 import { canOpenPage, pageDenial } from "../shared/pages.ts";
@@ -13,11 +12,10 @@ import {
   ADMIN_ROLE,
   isPeopleTable,
   loginFor,
-  MAX_ROLES,
   MIN_PASSWORD,
   newPassword,
-  normalizeRole,
 } from "../shared/people.ts";
+import { transferFileName, type TransferResult } from "../shared/transfer.ts";
 import type {
   AccessChange,
   AiActiveRun,
@@ -38,7 +36,6 @@ import type {
   AppBundle,
   AppPerson,
   AppRecord,
-  AppTheme,
   AppVersion,
   AppVersionSummary,
   FieldDef,
@@ -81,6 +78,8 @@ import {
   startRun,
   watchRun,
 } from "./ai/aiRuns.ts";
+import { sanitizeRoles, sanitizeTheme, uniqueSlug, withAdminRole } from "./appSetup.ts";
+import { bundleToFile, exportApp, fileToBundle, importBundle } from "./appTransfer.ts";
 import { HttpError, type Identity, optionalMember, requireBuilder } from "./auth.ts";
 import { INTERNAL } from "./config.ts";
 import { applyChange, pagesForChanges, readChanges, readChoice } from "./dataImpact.ts";
@@ -115,7 +114,6 @@ import {
   dropDataCollection,
   dropDataCollections,
   SchemaError,
-  slugify,
   uniqueConflictMessage,
   uniqueConflicts,
   uniqueTableName,
@@ -169,74 +167,9 @@ async function ownedTable(
   return { table, app };
 }
 
-/**
- * El enlace público de una aplicación, sacado de su nombre.
- *
- * Nadie lo escribe: se genera aquí al crearla y se vuelve a generar cuando le
- * cambian el nombre. Si ya lo tiene otra, se le añade un número hasta que este
- * libre. `skipId` es la propia aplicación al renombrarse: sin el, una que ya
- * ocupa "tienda" se encontraria a si misma y saldria de aquí como "tienda-2".
- */
-async function uniqueSlug(base: string, skipId?: string): Promise<string> {
-  const root = slugify(base, "app");
-  const mine = skipId ? ` && id != "${quote(skipId)}"` : "";
-  for (let i = 0; i < 200; i++) {
-    const candidate = i === 0 ? root : `${root}-${i + 1}`;
-    const hit = await firstRecord(INTERNAL.apps, `slug = "${quote(candidate)}"${mine}`);
-    if (!hit) return candidate;
-  }
-  return `${root}-${Date.now()}`;
-}
-
 /* ------------------------------------------------------------------ */
 /* Aplicaciones                                                         */
 /* ------------------------------------------------------------------ */
-
-/**
- * Solo se admite un id del catálogo de paletas (o `custom` con su
- * hexadecimal) y un tamaño de letra dentro del rango. La validacion entera
- * vive en `normalizePalette`, que también sabe leer lo guardado con los
- * formatos de antes.
- */
-function sanitizeTheme(input: unknown): AppTheme | null {
-  if (!input || typeof input !== "object") return null;
-  return normalizePalette(input);
-}
-
-/**
- * Deja una lista de roles limpia: normalizada, sin vacios, sin repetidos y con
- * tope. Con `allowed`, ademas descarta los que la aplicación ya no define.
- *
- * La normalizacion se aplica aquí y no solo en la pantalla: el campo la aplica
- * en cada pulsacion para que se vea el nombre tal como va a quedar, pero quien
- * llama a la ruta no tiene por que ser la pantalla. Dos nombres que se
- * normalicen al mismo son el mismo rol y se funden en uno. Ver `design.md` D6.
- */
-function sanitizeRoles(input: unknown, allowed?: string[]): string[] {
-  if (!Array.isArray(input)) return [];
-  const out = new Set<string>();
-  for (const raw of input) {
-    if (typeof raw !== "string") continue;
-    const name = normalizeRole(raw);
-    if (!name) continue;
-    if (allowed && !allowed.includes(name)) continue;
-    out.add(name);
-    if (out.size >= MAX_ROLES) break;
-  }
-  return [...out];
-}
-
-/**
- * Los roles de una aplicación, con `admin` siempre dentro.
- *
- * Va primero para que se lea antes que los que puso el constructor, y no se
- * puede quitar: la vista previa arranca en el, y quitarlo dejaria a
- * `pruneRoles` borrandolo de las páginas que lo tuvieran marcado. Ver
- * `design.md` D7.
- */
-function withAdminRole(roles: string[]): string[] {
-  return roles.includes(ADMIN_ROLE) ? roles : [ADMIN_ROLE, ...roles].slice(0, MAX_ROLES);
-}
 
 /**
  * Al quitar un rol de la aplicación deja de nombrarse en ningún lado: ni en
@@ -428,6 +361,100 @@ export async function wipeApps(req: Request) {
   }
 
   return json({ apps: apps.length, tables: dropped });
+}
+
+/* ------------------------------------------------------------------ */
+/* Llevarse una aplicación: exportar, importar, duplicar                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Lo mas que se acepta de un archivo `.planer` subido.
+ *
+ * No es una cifra tecnica sino un limite honesto: por encima de esto la
+ * importacion tarda lo bastante como para que quien la lanzo crea que se
+ * colgo, y es mejor decirlo antes de empezar que a la mitad.
+ */
+const MAX_PLANER_BYTES = 200_000_000;
+
+/**
+ * Descarga la aplicación entera en un archivo `.planer`.
+ *
+ * `?datos=0` deja fuera las filas y los adjuntos: lo que sale entonces es una
+ * plantilla --las mismas tablas y las mismas pantallas, vacías-- que es lo que
+ * se quiere para arrancar otra aplicación parecida sin llevarse los datos de
+ * nadie.
+ */
+export async function exportAppFile(req: Request, appId: string) {
+  const me = await requireBuilder(req);
+  const app = await ownedApp(appId, me);
+  const datos = new URL(req.url).searchParams.get("datos") !== "0";
+
+  const bundle = await exportApp(app, { datos });
+  const bytes = bundleToFile(bundle);
+  const name = transferFileName(app.slug);
+
+  return new Response(new Blob([new Uint8Array(bytes)]), {
+    headers: {
+      "content-type": "application/zip",
+      // Se descarga, no se abre: dentro hay un comprimido, no algo que el
+      // navegador sepa dibujar.
+      "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
+      "cache-control": "no-store",
+    },
+  });
+}
+
+/**
+ * Levanta una aplicación nueva a partir de un archivo `.planer`.
+ *
+ * Nace siempre como borrador y con quien importa de dueno, venga de donde
+ * venga el archivo. El nombre se puede cambiar al vuelo; sin nombre se queda
+ * con el que traiga, y el enlace sale de ahi con su número detras si ya lo
+ * tiene otra.
+ */
+export async function importAppFile(req: Request) {
+  const me = await requireBuilder(req);
+
+  const form = await req.formData().catch(() => null);
+  const file = form?.get("archivo");
+  if (!form || !(file instanceof File)) {
+    throw new HttpError(400, "No llegó ningún archivo.");
+  }
+  if (file.size > MAX_PLANER_BYTES) {
+    throw new HttpError(
+      400,
+      `El archivo pesa ${Math.round(file.size / 1_000_000)} MB y el máximo son ${Math.round(
+        MAX_PLANER_BYTES / 1_000_000,
+      )} MB.`,
+    );
+  }
+
+  const bundle = fileToBundle(new Uint8Array(await file.arrayBuffer()));
+  const { result } = await importBundle(bundle, {
+    ownerId: me.id,
+    name: String(form.get("nombre") ?? "").trim(),
+  });
+  return json<TransferResult>(result, 201);
+}
+
+/**
+ * Una copia de la aplicación, con otro nombre y otro enlace.
+ *
+ * Es el mismo camino que exportar e importar, sin pasar por el disco: el
+ * paquete se arma en memoria y se vuelca en la aplicación nueva. Así una copia
+ * no puede salir distinta de lo que saldria del archivo.
+ */
+export async function duplicateApp(req: Request, appId: string) {
+  const me = await requireBuilder(req);
+  const app = await ownedApp(appId, me);
+  const input = await body<{ datos?: boolean; nombre?: string }>(req);
+
+  const bundle = await exportApp(app, { datos: input.datos !== false });
+  const { result } = await importBundle(bundle, {
+    ownerId: me.id,
+    name: (input.nombre ?? "").trim() || `${app.name} (copia)`,
+  });
+  return json<TransferResult>(result, 201);
 }
 
 /* ------------------------------------------------------------------ */

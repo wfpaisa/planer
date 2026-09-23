@@ -7,6 +7,7 @@
 - **Tablero de aplicaciones**
 
   - Crear, abrir, eliminar una aplicación
+  - Importar una aplicación desde un archivo `.planer`
 - **Aplicación — apariencia**
 
   - Nombre, icono, color principal
@@ -104,6 +105,16 @@
   - Niveles de invitado: ver, editar, administrar
   - Gestión de miembros: invitar, resetear clave, quitar
   - Página de inicio y lado del menú lateral
+- **Copias y traslados** (ajustes de la cuenta)
+
+  - Se elige la aplicación de una lista; duplicar y exportar trabajan sobre ella
+  - Duplicar la aplicación entera (tablas, columnas, páginas, filas y adjuntos), pidiendo el nombre de la copia
+  - Exportar a un archivo `.planer` (un zip con otra extensión) e importarlo en otro servidor
+  - Con datos o sólo la estructura, como plantilla vacía
+  - Al importar se elige primero el archivo y después el nombre, avisando de que se crea una aplicación nueva y no se reemplaza ninguna
+  - Importar también desde la pantalla de aplicaciones, con el mismo diálogo
+  - Las cuentas de las personas invitadas no viajan; lo que las filas decían de ellas queda como valor sin enlace
+  - Lo importado entra siempre como borrador, con enlace propio
 - **Versiones e historial**
 
   - Versión automática en cada publicación

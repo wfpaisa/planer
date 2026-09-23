@@ -5,6 +5,7 @@
   import CreateAppModal from "../components/app/CreateAppModal.svelte";
   import Icon from "../components/Icon.svelte";
   import Logo from "../components/Logo.svelte";
+  import ImportAppModal from "../components/settings/ImportAppModal.svelte";
   import ThemePicker from "../components/ThemePicker.svelte";
   import Button from "../components/ui/Button.svelte";
   import Dropdown from "../components/ui/Dropdown.svelte";
@@ -13,15 +14,57 @@
   import Loading from "../components/ui/Loading.svelte";
   import MenuItem from "../components/ui/MenuItem.svelte";
   import Tag from "../components/ui/Tag.svelte";
+  import { importApp, PLANER_ACCEPT } from "../lib/appTransfer";
   import { cx } from "../lib/cx";
-  import { pb } from "../lib/pb";
+  import { errorMessage, pb } from "../lib/pb";
   import { link, navigate } from "../lib/router.svelte";
   import { session } from "../lib/session.svelte";
   import { useAsync } from "../lib/useAsync.svelte";
 
   let creating = $state(false);
+  let importing = $state(false);
+  let importError = $state("");
+  let picker = $state<HTMLInputElement | null>(null);
+  let arriving = $state<File | null>(null);
 
   const apps = useAsync(() => pb.collection("apps").getFullList<AppRecord>({ sort: "-updated" }));
+
+  /**
+   * Trae una aplicación desde un archivo `.planer`.
+   *
+   * Importar vive también aquí y no solo en los ajustes de la cuenta porque es
+   * donde hace falta: quien recibe un archivo de otro servidor entra a ver sus
+   * aplicaciones, no a los ajustes. Lo que se pregunta después es lo mismo en
+   * los dos sitios --el mismo modal-- para que importar no sea una cosa
+   * distinta según por dónde se entre.
+   */
+  function pick(event: Event) {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    // El valor se suelta siempre: sin esto, elegir dos veces el mismo archivo
+    // no vuelve a disparar el evento y parece que no pasa nada.
+    input.value = "";
+    if (!file) return;
+    importError = "";
+    arriving = file;
+  }
+
+  async function bringIn(nombre: string) {
+    const file = arriving;
+    if (!file) return;
+
+    importing = true;
+    importError = "";
+    try {
+      const result = await importApp(file, nombre);
+      arriving = null;
+      navigate(`/a/${result.appId}/app`);
+    } catch (err) {
+      importError = errorMessage(err);
+    } finally {
+      importing = false;
+    }
+  }
 </script>
 
 <div id="home-page" class="home-page">
@@ -62,13 +105,34 @@
         <h1 class="home-title">Tus aplicaciones</h1>
         <p class="home-subtitle">Administra tus aplicaciones, tablas y páginas.</p>
       </div>
-      <Button variant="secondary" onclick={() => (creating = true)} buttonClass="btn-new-app">
-        <Icon name="sidebar-left" size={18} />
-        Nueva aplicación
-      </Button>
+      <div class="home-actions flex items-center gap-2">
+        <Button
+          buttonClass="btn-import-app-home"
+          loading={importing}
+          onclick={() => picker?.click()}
+        >
+          <Icon name="upload-01" size={18} />
+          Importar
+        </Button>
+        <Button variant="secondary" onclick={() => (creating = true)} buttonClass="btn-new-app">
+          <Icon name="sidebar-left" size={18} />
+          Nueva aplicación
+        </Button>
+        <!-- El selector de verdad: lo abre el botón de al lado, que es el que
+             lleva el vestido del sistema. -->
+        <input
+          bind:this={picker}
+          class="input-planer-file-home"
+          type="file"
+          accept={PLANER_ACCEPT}
+          onchange={pick}
+          hidden
+        />
+      </div>
     </div>
 
     <ErrorNote message={apps.error} />
+    <ErrorNote message={importError} />
 
     {#if apps.loading && !apps.data}
       <Loading />
@@ -111,6 +175,14 @@
     open={creating}
     onClose={() => (creating = false)}
     onCreated={(app) => navigate(`/a/${app.id}/app`)}
+  />
+
+  <ImportAppModal
+    open={!!arriving}
+    file={arriving}
+    busy={importing}
+    onClose={() => (arriving = null)}
+    onConfirm={(nombre) => void bringIn(nombre)}
   />
 </div>
 

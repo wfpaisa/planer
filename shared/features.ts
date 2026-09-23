@@ -67,6 +67,18 @@ export const FEATURES: FeatureGroup[] = [
     ],
   },
   {
+    titulo: "Llévate tu aplicación cuando quieras",
+    resumen:
+      "Una aplicación entera cabe en un archivo: te la llevas a otro servidor, la guardas de respaldo o la duplicas para empezar otra parecida.",
+    items: [
+      'Desde los ajustes de tu cuenta eliges una aplicación y la duplicas, la guardas en un archivo o traes una de vuelta. El archivo se llama como tu aplicación y termina en ".planer".',
+      "Dentro va todo lo que la aplicación es: las tablas con sus columnas, las pantallas con su contenido, los colores, los roles, las filas y los archivos adjuntos.",
+      "Puedes elegir llevarte sólo la estructura, sin los datos: te queda una plantilla con las mismas tablas y pantallas, vacías, lista para empezar de nuevo.",
+      "Las personas invitadas nunca viajan en el archivo: su cuenta es de esa aplicación y de ninguna otra. Lo que cada fila decía de ellas sí se conserva, a la vista.",
+      "También puedes importar desde la pantalla de tus aplicaciones. Al elegir el archivo se te pregunta con qué nombre quieres que entre: importar nunca reemplaza nada, siempre crea una aplicación nueva, y entra como borrador para que tú decidas cuándo publicarla.",
+    ],
+  },
+  {
     titulo: "Vuelve atrás cuando quieras",
     resumen:
       "Todos los cambios importantes dejan una versión guardada. Si algo no salió como esperabas, regresas al estado anterior en un clic.",

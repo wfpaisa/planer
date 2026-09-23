@@ -22,6 +22,7 @@
     "smoke:relaciones": "bun run scripts/smoke-relaciones.ts",
     "smoke:permisos": "bun run scripts/smoke-permisos.ts",
     "smoke:ia": "bun run scripts/smoke-ia-conversacion.ts",
+    "smoke:transferir": "bun run scripts/smoke-transferir.ts",
     "typecheck": "tsc --noEmit && svelte-check --tsconfig ./web/tsconfig.json --threshold error",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -41,6 +42,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
     "chart.js": "^4.5.1",
+    "fflate": "^0.8.3",
     "monaco-editor": "^0.56.0",
     "pocketbase": "^0.26.2",
     "read-excel-file": "^9.3.10",

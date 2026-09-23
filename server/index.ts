@@ -277,8 +277,12 @@ const ROUTES: [RegExp, string, Handler][] = [
   [/^\/api\/apps$/, "POST", api.createApp],
   // Antes que `/api/apps/:id`: "limpiar" no es el id de ninguna aplicación.
   [/^\/api\/apps\/limpiar$/, "POST", api.wipeApps],
+  // Antes que `/api/apps/:id`, por lo mismo: "importar" no es ningún id.
+  [/^\/api\/apps\/importar$/, "POST", api.importAppFile],
   [/^\/api\/apps\/([^/]+)$/, "PATCH", api.updateApp],
   [/^\/api\/apps\/([^/]+)$/, "DELETE", api.deleteApp],
+  [/^\/api\/apps\/([^/]+)\/exportar$/, "GET", api.exportAppFile],
+  [/^\/api\/apps\/([^/]+)\/duplicar$/, "POST", api.duplicateApp],
   [/^\/api\/apps\/([^/]+)\/tables$/, "POST", api.createTable],
   [/^\/api\/apps\/([^/]+)\/members$/, "GET", api.listMembers],
   [/^\/api\/apps\/([^/]+)\/personas$/, "GET", api.listPeople],

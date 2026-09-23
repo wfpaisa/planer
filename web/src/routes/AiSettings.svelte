@@ -11,6 +11,7 @@
   import CleanSection from "../components/settings/CleanSection.svelte";
   import DemoSection from "../components/settings/DemoSection.svelte";
   import FontSizeSection from "../components/settings/FontSizeSection.svelte";
+  import TransferSection from "../components/settings/TransferSection.svelte";
   import ThemePicker from "../components/ThemePicker.svelte";
   import { ErrorNote, Loading } from "../components/ui";
   import { api } from "../lib/pb";
@@ -53,6 +54,10 @@
       </div>
 
       <AiDebugSection />
+
+      <!-- Lo que se hace con las aplicaciones enteras, y no con los ajustes:
+           llevárselas primero y borrarlas al final. -->
+      <TransferSection />
 
       <CleanSection />
     </main>

@@ -279,6 +279,15 @@ export function createRecordForm<T = Record<string, unknown>>(
   });
 }
 
+/** Lo mismo sobre una fila que ya existe: es como se le suben sus adjuntos. */
+export function updateRecordForm<T = Record<string, unknown>>(
+  collection: string,
+  id: string,
+  form: FormData,
+): Promise<T> {
+  return pb<T>(recordPath(collection, id), { method: "PATCH", body: form });
+}
+
 /* ------------------------------------------------------------------ */
 /* Archivos                                                             */
 /* ------------------------------------------------------------------ */
