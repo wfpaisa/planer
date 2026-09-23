@@ -715,7 +715,11 @@
       toAi(list.filter(canAttachToAi));
       return;
     }
-    say("warning", `No se sabe que hacer con "${file.name}".`);
+    const ext = file.name.match(/\.[^.]+$/)?.[0].toLowerCase();
+    say(
+      "warning",
+      ext ? `No se pueden usar archivos ${ext} aquí.` : "Este tipo de archivo no está permitido.",
+    );
   }
 
   /* Se respondio la pregunta y se confirmo: ahora si se escribe en la tabla. */
@@ -806,7 +810,7 @@
         !dropping && "overlay-drop-inert",
       )}
     >
-      <p class="overlay-drop-copy flex items-center gap-2" role={busyDrop ? "status" : undefined}>
+      <div class="overlay-drop-copy flex items-center gap-2" role={busyDrop ? "status" : undefined}>
         <!--
           Mientras se escribe, el giro es la única senal de que la espera
           avanza: un cartel quieto no distingue trabajando de colgado.
@@ -815,11 +819,12 @@
           {#if busyDrop}
             <span class="spinner overlay-drop-spinner"></span>
           {:else}
-            <Icon name="file-upload" size={16} />
+            <Icon name="file-upload" size={32} />
           {/if}
         </span>
+
         {busyDrop || "Suelta el archivo y elige que hacer con el."}
-      </p>
+      </div>
     </div>
   {/if}
 
@@ -1042,9 +1047,6 @@
    */
   .overlay-drop-icon {
     display: grid;
-    height: 1rem;
-    width: 1rem;
-    flex-shrink: 0;
     place-items: center;
   }
 
@@ -1058,12 +1060,17 @@
   }
 
   .overlay-drop-copy {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
     border-radius: var(--radius-lg);
-    border: var(--border-width) dashed var(--accent);
-    background: var(--bg-level2);
-    padding: var(--sp-16) var(--sp-20);
-    color: var(--text-primary);
-    font-size: var(--text-sm);
+    border: 2px dashed var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 5%, var(--bg-level1));
+    padding: 3rem 2rem;
+    color: var(--accent-soft-text);
+    font-weight: 500;
+    font-size: var(--text-base);
     box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 0.18);
   }
 </style>

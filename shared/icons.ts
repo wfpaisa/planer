@@ -186,7 +186,6 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
       "database-export",
       "database-import",
       "file-spreadsheet",
-      "table-02",
       "csv-01",
       "xls-01",
       "google-sheet",

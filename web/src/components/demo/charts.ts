@@ -28,7 +28,7 @@ export const KPIS = [
   {
     label: "Ingresos netos",
     val: "$184.320",
-    d: "12.4 %",
+    d: "12,4 %",
     up: true,
     foot: "vs. $163.980 anterior",
     ico: "hgi-dollar-circle",
@@ -38,7 +38,7 @@ export const KPIS = [
   {
     label: "Pedidos",
     val: "2.486",
-    d: "8.1 %",
+    d: "8,1 %",
     up: true,
     foot: "214 nuevos esta semana",
     ico: "hgi-shopping-bag-02",
@@ -48,17 +48,17 @@ export const KPIS = [
   {
     label: "Ticket medio",
     val: "$74.140",
-    d: "-2.3 %",
+    d: "−2,3 %",
     up: false,
-    foot: "objetivo 78,00 €",
+    foot: "objetivo $78.000",
     ico: "hgi-sale-tag-02",
     spark: [52, 50, 53, 49, 48, 51, 47, 46, 48, 45, 44, 43],
     c: "--chart-3",
   },
   {
     label: "Conversión",
-    val: "3.82 %",
-    d: "0.6 pp",
+    val: "3,82 %",
+    d: "0,6 pp",
     up: true,
     foot: "96.480 sesiones",
     ico: "hgi-target-02",
@@ -162,7 +162,7 @@ function buildSparkline(el: HTMLCanvasElement, data: readonly number[], color: s
       maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { enabled: false } },
       scales: { x: { display: false }, y: { display: false } },
-      animation: { duration: 600 },
+      animation: { duration: matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 600 },
     },
   });
 }
@@ -213,7 +213,6 @@ export function buildDemoCharts(refs: DemoChartRefs, range: number) {
   /* --- Gráfica principal --- */
   if (refs.main) {
     const n = range;
-    const step = n > 45 ? 12 : n > 20 ? 5 : 1;
     const labels = labelsFor(n);
     const c1 = cssColor(refs.main, "--chart-1");
     const c2 = cssColor(refs.main, "--chart-2");
@@ -278,8 +277,8 @@ export function buildDemoCharts(refs: DemoChartRefs, range: number) {
               offset: false,
               ticks: {
                 maxRotation: 0,
-                autoSkip: false,
-                callback: (_v, i) => (i % step === 0 ? labels[i] : ""),
+                autoSkip: true,
+                maxTicksLimit: 6,
               },
             },
             y: {
@@ -292,7 +291,7 @@ export function buildDemoCharts(refs: DemoChartRefs, range: number) {
               },
             },
           },
-          animation: { duration: 700 },
+          animation: { duration: matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 700 },
         },
       }),
     );
@@ -322,7 +321,7 @@ export function buildDemoCharts(refs: DemoChartRefs, range: number) {
           maintainAspectRatio: false,
           cutout: "72%",
           plugins: { legend: { display: false }, tooltip },
-          animation: { duration: 700 },
+          animation: { duration: matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 700 },
         },
       }),
     );
@@ -368,7 +367,7 @@ export function buildDemoCharts(refs: DemoChartRefs, range: number) {
               },
             },
           },
-          animation: { duration: 700 },
+          animation: { duration: matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 700 },
         },
       }),
     );

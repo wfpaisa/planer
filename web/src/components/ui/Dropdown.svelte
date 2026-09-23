@@ -108,5 +108,8 @@
   .menu-up {
     margin-top: 0;
     margin-bottom: var(--sp-6);
+    /* Sale por debajo del disparador, asi que crece desde ese borde y no
+       desde el de arriba, que es el que `.menu` trae de serie. */
+    transform-origin: bottom center;
   }
 </style>

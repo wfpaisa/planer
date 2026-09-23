@@ -23,9 +23,9 @@
   let kpiSparks = $state<(HTMLCanvasElement | null)[]>([]);
 
   const RANGES = [
-    { days: 7, label: "7 D" },
-    { days: 30, label: "30 D" },
-    { days: 90, label: "90 D" },
+    { days: 7, label: "7 días" },
+    { days: 30, label: "30 días" },
+    { days: 90, label: "90 días" },
   ] as const;
   let range = $state<number>(30);
 
@@ -62,7 +62,7 @@
 
 <div id="demo-graficas" class="gallery-group">
   <div class="gallery-group-head">
-    <h3>Gráficas</h3>
+    <h2>Gráficas</h2>
     <p>Canvas de Chart.js pintados con los colores del sistema</p>
   </div>
   <div class="gallery-grid">
@@ -74,6 +74,8 @@
             type="button"
             class="chip"
             class:active={range === r.days}
+            aria-pressed={range === r.days}
+            aria-label={`Últimos ${r.days} días`}
             onclick={() => (range = r.days)}
           >
             {r.label}
@@ -83,22 +85,29 @@
     {/snippet}
     <article class="card gallery-item wide col-span-2">
       {@render head(
-        "Line chart",
+        "Gráfica de líneas",
         "Dos series y el periodo anterior. En páginas generadas",
         lineRanges,
       )}
       <div class="card-body">
-        <div class="chart-figure"><canvas bind:this={main}></canvas></div>
+        <div class="chart-figure">
+          <canvas
+            bind:this={main}
+            aria-label={`Ingresos en euros y sesiones de los últimos ${range} días, comparados con el periodo anterior`}
+          ></canvas>
+        </div>
+        <p class="demo-feedback">
+          Datos de ejemplo · Últimos {range} días. Pasa el cursor por la gráfica para ver cada valor.
+        </p>
         <div class="legend">
           <span class="legend-item">
             <i class="swatch" style="background: var(--chart-1)"></i>
             Ingresos
-            <b class="number">$184.320</b>
+            <b class="number">€</b>
           </span>
           <span class="legend-item">
             <i class="swatch" style="background: var(--chart-2)"></i>
             Sesiones
-            <b class="number">96.480</b>
           </span>
           <span class="legend-item">
             <i class="swatch" style="background: var(--text-muted); opacity: 0.5"></i>
@@ -109,12 +118,15 @@
     </article>
     <!-- Donut -->
     <article class="card gallery-item">
-      {@render head("Doughnut chart", "Reparto con el total en el centro. En páginas generadas")}
+      {@render head("Gráfica de anillo", "Reparto con el total en el centro. En páginas generadas")}
       <div class="card-body">
         <div class="donut-wrap">
-          <canvas bind:this={donut}></canvas>
+          <canvas
+            bind:this={donut}
+            aria-label="Distribución de sesiones por canal; cifras detalladas debajo"
+          ></canvas>
           <div class="donut-center">
-            <b class="number">96,4 K</b>
+            <b class="number">{channelsTotal.toLocaleString("es-CO")}</b>
             <span>sesiones totales</span>
           </div>
         </div>
@@ -124,7 +136,11 @@
               <i class="swatch" style="background: var({c.c})"></i>
               <span class="dist-name">{c.name}</span>
               <span class="dist-val number">{c.val.toLocaleString("es-CO")}</span>
-              <span class="dist-pct number">{((c.val / channelsTotal) * 100).toFixed(1)} %</span>
+              <span class="dist-pct number">
+                {((c.val / channelsTotal) * 100).toLocaleString("es-CO", {
+                  maximumFractionDigits: 1,
+                })} %
+              </span>
             </div>
           {/each}
         </div>
@@ -132,14 +148,19 @@
     </article>
     <!-- Bar -->
     <article class="card gallery-item col-span-2">
-      {@render head("Bar chart", "Una barra por categoría. En páginas generadas")}
+      {@render head("Gráfica de barras", "Una barra por categoría. En páginas generadas")}
       <div class="card-body">
-        <div class="bar-figure"><canvas bind:this={category}></canvas></div>
+        <div class="bar-figure">
+          <canvas
+            bind:this={category}
+            aria-label="Ventas por categoría: Software 52.400, Servicios 38.150, Hardware 21.870, Formación 14.300 y Soporte 9.760"
+          ></canvas>
+        </div>
       </div>
     </article>
     <!-- KPI -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Metric", "Cifra con tendencia y minigráfica. En páginas generadas")}
+      {@render head("Métricas", "Cifra con tendencia y minigráfica. En páginas generadas")}
       <div class="card-body">
         <div class="kpis">
           {#each KPIS as k, i (k.label)}
@@ -158,7 +179,12 @@
                 </div>
                 <div class="kpi-foot number">{k.foot}</div>
               </div>
-              <div class="spark"><canvas bind:this={kpiSparks[i]}></canvas></div>
+              <div class="spark">
+                <canvas
+                  bind:this={kpiSparks[i]}
+                  aria-label={`Tendencia de ${k.label}: ${k.up ? "creciente" : "decreciente"}`}
+                ></canvas>
+              </div>
             </article>
           {/each}
         </div>
@@ -166,19 +192,21 @@
     </article>
     <!-- Sparkline -->
     <article class="card gallery-item">
-      {@render head("Sparkline", "La tendencia debajo de una cifra. En páginas generadas")}
+      {@render head("Minigráfica", "La tendencia debajo de una cifra. En páginas generadas")}
       <div class="card-body">
         <div class="stat">
           <span class="s-label">Ingresos netos</span>
           <span class="s-val number">
             $184.320 <span class="tag tag-success">
               <i class="hgi-stroke hgi-arrow-up-right-01"></i>
-              12.4 %
+              12,4 %
             </span>
           </span>
           <span class="s-foot">vs. $163.980 del periodo anterior</span>
         </div>
-        <div class="spark"><canvas bind:this={spark}></canvas></div>
+        <div class="spark">
+          <canvas bind:this={spark} aria-label="Tendencia creciente de los ingresos netos"></canvas>
+        </div>
       </div>
     </article>
   </div>
@@ -309,6 +337,6 @@
      card, como en el panel de origen. */
   .spark {
     height: 2.75rem;
-    margin: var(--sp-12) calc(var(--sp-20) * -1) calc(var(--sp-18) * -1);
+    margin-top: var(--sp-12);
   }
 </style>

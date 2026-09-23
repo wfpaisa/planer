@@ -957,6 +957,7 @@ select.field-control {
       align-items: center;
       gap: 0.5625rem;
       min-height: 2rem;
+      margin-block: 0.125rem;
       padding: 0.4375rem 0.5625rem;
       border-radius: var(--radius-sm);
       color: var(--text-secondary);
@@ -1967,8 +1968,9 @@ input[type="range"].field-control {
   place-items: center;
   border-radius: 50%;
   border: var(--border-width) solid color-mix(in srgb, var(--accent) 32%, transparent);
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-  color: var(--accent);
+  /* background: color-mix(in srgb, var(--accent) 10%, transparent); */
+  background-color: var(--accent);
+  color: var(--ink);
   font-size: var(--accent-soft);
   font-weight: 700;
 }
@@ -2774,10 +2776,13 @@ input[type="range"].field-control {
 }
 
 /* ---- Menu: popover anclado al botón que lo abre. Se cierra solo
-        al clicar fuera o con Esc, sin una línea de JS ---- */
-.menu-btn {
-  anchor-name: --menu;
+        al clicar fuera o con Esc, sin una línea de JS.
 
+        El ancla es implícita (la relación popovertarget → id ya
+        asocia cada botón con SU popover), sin anchor-name: con un
+        nombre fijo, dos .menu-btn en la misma página compiten por
+        él y el navegador ancla a la última, no a la que se pulsó. */
+.menu-btn {
   & i.caret {
     transition: rotate 0.2s;
   }
@@ -2798,13 +2803,48 @@ input[type="range"].field-control {
   box-shadow: var(--shadow-xl);
   flex-direction: column;
   gap: 0.0625rem;
+  /*
+   * Se abre creciendo desde el borde por el que sale del disparador, que es
+   * el de arriba salvo que se diga --`Dropdown` pone el de abajo en los suyos
+   * con `up`--. Un menu es un gesto corto: tarda la mitad que un modal, y
+   * crece de `0.97` sin desplazarse, porque el sitio se lo da el anclaje y
+   * moverlo lo desmentiria. `position-try-fallbacks` puede voltearlo cuando no
+   * cabe; con este escalado el origen equivocado no llega a verse.
+   */
+  transform-origin: top center;
+  opacity: 0;
+  scale: 0.97;
+  /* Al cerrar, mas corto todavia: un menu se quita, no se despide. */
+  transition:
+    opacity 0.1s ease-in,
+    scale 0.1s ease-in,
+    overlay 0.1s allow-discrete,
+    display 0.1s allow-discrete;
 
   &:popover-open {
     display: flex;
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity 0.12s ease-out,
+      scale 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+      overlay 0.16s allow-discrete,
+      display 0.16s allow-discrete;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* El estado abierto lleva su propia `transition`: hay que nombrarlo. */
+    &,
+    &:popover-open {
+      transition: none;
+    }
+
+    & {
+      scale: 1;
+    }
   }
 
   @supports (anchor-name: --a) {
-    position-anchor: --menu;
     position-area: bottom span-right;
     margin-top: 0.375rem;
     justify-self: start;
@@ -2842,6 +2882,15 @@ input[type="range"].field-control {
 
   & i {
     font-size: var(--text-base);
+  }
+}
+
+/* Sin @starting-style el menu ya estaria puesto al mostrarse: la transicion
+   necesita un valor de partida desde el que salir. */
+@starting-style {
+  .menu:popover-open {
+    opacity: 0;
+    scale: 0.97;
   }
 }
 
@@ -2932,20 +2981,106 @@ input[type="range"].field-control {
     }
   }
   overflow: hidden; /* el scroll vive en .modal-body */
+  /*
+   * La columna se declara aqui y no solo en `:popover-open`: al cerrar, el
+   * `display: flex` se sostiene los 0.15s de la salida --`allow-discrete`--
+   * pero `flex-direction` no se transiciona y volvia a `row` de golpe. La
+   * cabeza, el cuerpo y el pie se ponian en fila durante todo el cierre y la
+   * tarjeta pegaba un salto de alto justo cuando se iba.
+   */
+  flex-direction: column;
   border: var(--border-width) solid var(--border);
   border-radius: var(--radius-xl);
   background: var(--bg-level2);
   color: var(--text-primary);
   box-shadow: var(--shadow-lg);
+  /*
+   * El estado cerrado es tambien el de salida. Antes solo se desvanecia, y un
+   * desvanecimiento suelto --sin nada que se mueva-- es lo que hacia que la
+   * tarjeta pareciera aparecer de golpe en mitad de la pantalla. Ahora entra
+   * un poco desde abajo y creciendo lo justo; el desplazamiento se escribe con
+   * `translate`/`scale` y no con `transform` porque el centrado es `margin:
+   * auto` y asi ninguna de las dos cosas pisa a la otra.
+   */
+  opacity: 0;
+  scale: 0.97;
+  translate: 0 0.625rem;
+  /* Al cerrar, corto y acelerando: quitarse de en medio no se mira. */
+  transition:
+    opacity 0.15s ease-in,
+    scale 0.15s ease-in,
+    translate 0.15s ease-in,
+    overlay 0.15s allow-discrete,
+    display 0.15s allow-discrete;
 
   &:popover-open {
     display: flex;
-    flex-direction: column;
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    /*
+     * Al abrir, mas largo y frenando: la curva gasta casi todo el recorrido
+     * en el primer tercio y llega posandose en vez de parandose en seco. La
+     * opacidad acaba antes que el movimiento, para que el ultimo tramo --el
+     * lento, el que se mira-- se vea ya nitido y no medio transparente.
+     */
+    transition:
+      opacity 0.18s ease-out,
+      scale 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      translate 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      overlay 0.3s allow-discrete,
+      display 0.3s allow-discrete;
   }
 
   &::backdrop {
     background: rgba(12, 12, 20, 0.5);
     backdrop-filter: blur(0.125rem);
+    opacity: 0;
+    transition:
+      opacity 0.15s ease-in,
+      overlay 0.15s allow-discrete,
+      display 0.15s allow-discrete;
+  }
+
+  /* El velo entra antes que la tarjeta y se va con ella: lo de detras se
+     apaga primero y asi la tarjeta no llega sobre el panel a plena luz. */
+  &:popover-open::backdrop {
+    opacity: 1;
+    transition:
+      opacity 0.22s ease-out,
+      overlay 0.22s allow-discrete,
+      display 0.22s allow-discrete;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* El estado abierto lleva su propia `transition`, asi que hay que
+       nombrarlo: si no, gana por especificidad y la entrada sigue animando. */
+    &,
+    &:popover-open,
+    &::backdrop,
+    &:popover-open::backdrop {
+      transition: none;
+    }
+
+    /* Sin transicion no hay entrada que valga: que salga ya en su sitio. */
+    & {
+      scale: 1;
+      translate: 0 0;
+    }
+  }
+}
+
+/* Sin @starting-style el modal ya estaria dentro al mostrarse: la
+   transicion necesita un valor de partida desde el que salir. */
+@starting-style {
+  .modal:popover-open {
+    opacity: 0;
+    scale: 0.97;
+    translate: 0 0.625rem;
+  }
+
+  .modal:popover-open::backdrop {
+    opacity: 0;
   }
 }
 
@@ -3026,6 +3161,9 @@ input[type="range"].field-control {
   max-width: calc(100vw - 3rem);
   height: auto;
   max-height: none;
+  /* Fuera del estado abierto por lo mismo que en `.modal`, y aqui se veia mas
+     porque la salida dura el doble. */
+  flex-direction: column;
   border: var(--border-width) solid var(--border);
   background: var(--bg-level2);
   color: var(--text-primary);
@@ -3051,7 +3189,6 @@ input[type="range"].field-control {
 
   &:popover-open {
     display: flex;
-    flex-direction: column;
 
     /* Compuesto (0,3,0) para ganar al estado cerrado venga donde venga */
     &.left,
@@ -3226,6 +3363,15 @@ input[type="range"].field-control {
     display: block;
     height: auto;
     max-height: none;
+  }
+
+  /* Y con la entrada deshecha: sin popover nunca llega el estado abierto que
+     la devuelve a su sitio. */
+  .modal,
+  .menu {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
   }
 }
 

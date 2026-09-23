@@ -12,36 +12,68 @@
 
   import Icon from "../Icon.svelte";
 
+  let page = $state(1);
+  let destination = $state("");
+  let action = $state("");
+  let columnType = $state("Texto");
+
   let { head }: { head: Snippet<[string, string, Snippet?]> } = $props();
 </script>
 
 <div id="demo-navegacion" class="gallery-group">
   <div class="gallery-group-head">
-    <h3>Navegación</h3>
+    <h2>Navegación</h2>
     <p>Cómo se mueve la gente por el panel</p>
   </div>
   <div class="gallery-grid">
     <!-- Breadcrumbs -->
     <article class="card gallery-item">
-      {@render head("Breadcrumbs", "La ruta hasta donde estás. En páginas generadas")}
+      {@render head("Ruta de navegación", "La ruta hasta donde estás. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <nav class="crumbs" aria-label="Ruta">
             <ol>
               <li>
-                <a href="/">
+                <a
+                  href="#demo-navegacion"
+                  onclick={(event) => {
+                    event.preventDefault();
+                    destination =
+                      event.currentTarget.getAttribute("aria-label") ??
+                      event.currentTarget.textContent?.trim() ??
+                      "";
+                  }}
+                >
                   <i class="hgi-stroke hgi-dashboard-square-01"></i>
                   Panel
                 </a>
               </li>
               <li>
-                <a href="/">
+                <a
+                  href="#demo-navegacion"
+                  onclick={(event) => {
+                    event.preventDefault();
+                    destination =
+                      event.currentTarget.getAttribute("aria-label") ??
+                      event.currentTarget.textContent?.trim() ??
+                      "";
+                  }}
+                >
                   <i class="hgi-stroke hgi-store-01"></i>
                   Comercio
                 </a>
               </li>
               <li>
-                <a href="/">
+                <a
+                  href="#demo-navegacion"
+                  onclick={(event) => {
+                    event.preventDefault();
+                    destination =
+                      event.currentTarget.getAttribute("aria-label") ??
+                      event.currentTarget.textContent?.trim() ??
+                      "";
+                  }}
+                >
                   <i class="hgi-stroke hgi-shopping-bag-01"></i>
                   Pedidos
                 </a>
@@ -60,17 +92,50 @@
           <nav class="crumbs icons" aria-label="Ruta, solo iconos">
             <ol>
               <li>
-                <a href="/" aria-label="Panel" data-tip="Panel">
+                <a
+                  href="#demo-navegacion"
+                  onclick={(event) => {
+                    event.preventDefault();
+                    destination =
+                      event.currentTarget.getAttribute("aria-label") ??
+                      event.currentTarget.textContent?.trim() ??
+                      "";
+                  }}
+                  aria-label="Panel"
+                  data-tip="Panel"
+                >
                   <i class="hgi-stroke hgi-dashboard-square-01"></i>
                 </a>
               </li>
               <li>
-                <a href="/" aria-label="Comercio" data-tip="Comercio">
+                <a
+                  href="#demo-navegacion"
+                  onclick={(event) => {
+                    event.preventDefault();
+                    destination =
+                      event.currentTarget.getAttribute("aria-label") ??
+                      event.currentTarget.textContent?.trim() ??
+                      "";
+                  }}
+                  aria-label="Comercio"
+                  data-tip="Comercio"
+                >
                   <i class="hgi-stroke hgi-store-01"></i>
                 </a>
               </li>
               <li>
-                <a href="/" aria-label="Pedidos" data-tip="Pedidos">
+                <a
+                  href="#demo-navegacion"
+                  onclick={(event) => {
+                    event.preventDefault();
+                    destination =
+                      event.currentTarget.getAttribute("aria-label") ??
+                      event.currentTarget.textContent?.trim() ??
+                      "";
+                  }}
+                  aria-label="Pedidos"
+                  data-tip="Pedidos"
+                >
                   <i class="hgi-stroke hgi-shopping-bag-01"></i>
                 </a>
               </li>
@@ -79,12 +144,17 @@
               </li>
             </ol>
           </nav>
+          <p class="demo-feedback" aria-live="polite">
+            {destination
+              ? `Destino de ejemplo: ${destination}`
+              : "Prueba una ruta sin salir de la galería."}
+          </p>
         </div>
       </div>
     </article>
     <!-- Tab -->
     <article class="card gallery-item wide">
-      {@render head("Tabs", "Cambiar de vista sin salir. Ej.: los ajustes, importar")}
+      {@render head("Pestañas", "Cambiar de vista sin salir. Ej.: los ajustes, importar")}
       <div class="card-body">
         <div class="tabs">
           <!-- `fit`: cada pestaña a su ancho (la pastilla va anclada, no
@@ -112,38 +182,58 @@
     </article>
     <!-- Steps -->
     <article class="card gallery-item wide">
-      {@render head("Steps", "El avance de un proceso. Ej.: la IA trabajando")}
+      {@render head("Pasos", "El avance de un proceso. Ej.: la IA trabajando")}
       <div class="card-body">
         <ol class="steps">
           <li class="done">Carrito</li>
           <li class="done">Envío</li>
-          <li class="current">Pago</li>
+          <li class="current" aria-current="step">Pago</li>
           <li>Confirmación</li>
         </ol>
       </div>
     </article>
     <!-- Pagination -->
     <article class="card gallery-item">
-      {@render head("Pagination", "Saltar entre páginas. Ej.: la rejilla de datos")}
+      {@render head("Paginación", "Saltar entre páginas. Ej.: la rejilla de datos")}
       <div class="card-body">
-        <nav class="pager" aria-label="Paginación">
-          <button disabled aria-label="Anterior">
-            <i class="hgi-stroke hgi-arrow-left-01"></i>
+        <nav class="nav-demo-pagination pager" aria-label="Paginación de ejemplo">
+          <button
+            class="btn-demo-previous"
+            disabled={page === 1}
+            aria-label="Anterior"
+            onclick={() => page--}
+          >
+            <i class="hgi-stroke hgi-arrow-left-01" aria-hidden="true"></i>
           </button>
-          <button aria-current="page">1</button>
-          <button>2</button>
-          <button>3</button>
-          <span class="gap">…</span>
-          <button>12</button>
-          <button aria-label="Siguiente">
-            <i class="hgi-stroke hgi-arrow-right-01"></i>
+          {#each [1, 2, 3, 4, 5] as number (number)}
+            <button
+              aria-label={`Página ${number}`}
+              aria-current={page === number ? "page" : undefined}
+              onclick={() => (page = number)}
+            >
+              {number}
+            </button>
+          {/each}
+          <button
+            class="btn-demo-next"
+            disabled={page === 5}
+            aria-label="Siguiente"
+            onclick={() => page++}
+          >
+            <i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i>
           </button>
         </nav>
+        <p class="demo-feedback" aria-live="polite">
+          Página {page} de 5 · Resultados {(page - 1) * 10 + 1}–{page * 10} de 50
+        </p>
       </div>
     </article>
     <!-- Menu -->
     <article class="card gallery-item">
-      {@render head("Menu", "Acciones en un desplegable. Ej.: la cabecera de una columna")}
+      {@render head(
+        "Menú de acciones",
+        "Acciones en un desplegable. Ej.: la cabecera de una columna",
+      )}
       <div class="card-body">
         <div class="gallery-row">
           <button class="btn menu-btn" popovertarget="demoMenu">
@@ -151,21 +241,45 @@
             <i class="caret hgi-stroke hgi-arrow-down-01"></i>
           </button>
         </div>
+        <p class="demo-feedback" aria-live="polite">
+          {action ? `Acción de ejemplo: ${action}.` : "Abre el menú y elige una acción."}
+        </p>
         <div class="menu" id="demoMenu" popover>
-          <button type="button">
+          <button
+            type="button"
+            popovertarget="demoMenu"
+            popovertargetaction="hide"
+            onclick={() => (action = "Editar")}
+          >
             <i class="hgi-stroke hgi-pencil-edit-02"></i>
             Editar
           </button>
-          <button type="button">
+          <button
+            type="button"
+            popovertarget="demoMenu"
+            popovertargetaction="hide"
+            onclick={() => (action = "Duplicar")}
+          >
             <i class="hgi-stroke hgi-copy-01"></i>
             Duplicar
           </button>
-          <button type="button">
+          <button
+            type="button"
+            popovertarget="demoMenu"
+            popovertargetaction="hide"
+            onclick={() => (action = "Exportar")}
+          >
             <i class="hgi-stroke hgi-download-04"></i>
             Exportar
           </button>
           <div class="menu-sep"></div>
-          <button type="button" class="danger">
+          <button
+            type="button"
+            class="danger"
+            popovertarget="demoMenu"
+            popovertargetaction="hide"
+            onclick={() => (action = "Eliminar")}
+          >
             <i class="hgi-stroke hgi-delete-02"></i>
             Eliminar
           </button>
@@ -174,7 +288,7 @@
     </article>
     <!-- Quiet trigger -->
     <article class="card gallery-item">
-      {@render head("Ghost button", "Abre un menú sin pintar caja. Ej.: columnas al importar")}
+      {@render head("Selector discreto", "Abre un menú sin pintar caja. Ej.: columnas al importar")}
       <div class="card-body">
         <div class="gallery-demo">
           <p class="demo-note">
@@ -182,23 +296,36 @@
             de tabla, que con caja parecen mandos.
           </p>
           <div class="gallery-row">
-            <button type="button" class="trigger-quiet">
+            <button type="button" class="trigger-quiet menu-btn" popovertarget="demoQuietMenu">
               <span class="trigger-quiet-soft">correo_cliente</span>
               <i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i>
               <span>Correo</span>
               <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i>
             </button>
-            <button type="button" class="trigger-quiet">
-              <span>Texto</span>
+            <button type="button" class="trigger-quiet menu-btn" popovertarget="demoQuietMenu">
+              <span>{columnType}</span>
               <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i>
             </button>
           </div>
+          <div class="menu" id="demoQuietMenu" popover>
+            {#each ["Texto", "Número", "Correo"] as type (type)}
+              <button
+                type="button"
+                popovertarget="demoQuietMenu"
+                popovertargetaction="hide"
+                onclick={() => (columnType = type)}
+              >
+                {type}
+              </button>
+            {/each}
+          </div>
+          <p class="demo-feedback" aria-live="polite">Tipo seleccionado: {columnType}</p>
         </div>
       </div>
     </article>
     <!-- Divider -->
     <article class="card gallery-item">
-      {@render head("Divider", "Línea entre bloques. Ej.: la barra superior")}
+      {@render head("Separadores", "Línea entre bloques. Ej.: la barra superior")}
       <div class="card-body">
         <div class="gallery-demo">
           <hr class="divider" />

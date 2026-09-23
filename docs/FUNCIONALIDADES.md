@@ -119,7 +119,7 @@
   - Registros de depuración de IA (ver, borrar)
   - Tamaño de letra del panel
   - Limpiar aplicaciones (mantenimiento)
-  - Catálogo de estilos de referencia (`/demo`)
+  - Catálogo de estilos de referencia (`/demo`), con previsualizaciones adaptables e interactivas
 - **Instalación y despliegue**
 
   - Arranque con un solo comando, un solo puerto

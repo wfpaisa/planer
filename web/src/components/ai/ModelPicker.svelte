@@ -134,7 +134,7 @@
     }
 
     & .model-name {
-      max-width: 7rem;
+      max-width: 6rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

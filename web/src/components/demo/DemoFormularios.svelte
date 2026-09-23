@@ -10,18 +10,26 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
+  let amount = $state(1200);
+  let rating = $state(4);
+  let visibility = $state("publica");
+  let color = $state("Azul");
+
   let { head }: { head: Snippet<[string, string, Snippet?]> } = $props();
 </script>
 
 <div id="demo-formulario" class="gallery-group">
   <div class="gallery-group-head">
-    <h3>Formularios</h3>
+    <h2>Formularios</h2>
     <p>Entradas y controles de selección</p>
   </div>
   <div class="gallery-grid">
     <!-- Input field -->
     <article class="card gallery-item wide">
-      {@render head("Text fields", "Con etiqueta, ayuda y error. Ej.: el nombre de una aplicación")}
+      {@render head(
+        "Campos de texto",
+        "Con etiqueta, ayuda y error. Ej.: el nombre de una aplicación",
+      )}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="field">
@@ -41,7 +49,7 @@
             />
             <span class="field-hint" id="demoInputErrMsg">
               <i class="hgi-stroke hgi-alert-circle" aria-hidden="true"></i>
-              Falta el dominio después de la arroba.
+              Introduce un dominio completo, por ejemplo, empresa.com.
             </span>
           </div>
 
@@ -62,7 +70,7 @@
     <!-- Field stack / field row -->
     <article class="card gallery-item wide">
       {@render head(
-        "Field group",
+        "Grupo de campos",
         "Varios campos juntos, apilados o en fila. Ej.: los datos de un paciente",
       )}
       <div class="card-body">
@@ -91,7 +99,7 @@
     </article>
     <!-- Join -->
     <article class="card gallery-item wide">
-      {@render head("Field with button", "Entrada y botón pegados. Ej.: el enlace al publicar")}
+      {@render head("Campo con acción", "Entrada y botón pegados. Ej.: el enlace al publicar")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="field">
@@ -132,7 +140,10 @@
     </article>
     <!-- Textarea -->
     <article class="card gallery-item">
-      {@render head("Textarea", "Texto largo en varias líneas. Ej.: pegar un CSV al importar")}
+      {@render head(
+        "Texto multilínea",
+        "Texto largo en varias líneas. Ej.: pegar un CSV al importar",
+      )}
       <div class="card-body">
         <div class="field">
           <label for="demoTextarea">Nota interna</label>
@@ -146,7 +157,7 @@
     <!-- Select -->
     <article class="card gallery-item">
       {@render head(
-        "Select",
+        "Lista de opciones",
         "Una opción de una lista cerrada. Ej.: ver la página como otra persona",
       )}
       <div class="card-body">
@@ -183,20 +194,30 @@
     </article>
     <!-- Range -->
     <article class="card gallery-item">
-      {@render head("Slider", "Un número dentro de un rango. Ej.: el tamaño de letra")}
+      {@render head("Deslizador", "Un número dentro de un rango. Ej.: el tamaño de letra")}
       <div class="card-body">
         <div class="field">
-          <span class="field-label">
+          <label class="label-demo-amount field-label" for="demoAmount">
             Importe máximo
-            <b class="range-val">$1.200</b>
-          </span>
-          <input type="range" min="0" max="2000" step="50" value="1200" />
+            <output class="value-demo-amount range-val" for="demoAmount">
+              ${amount.toLocaleString("es-CO")}
+            </output>
+          </label>
+          <input
+            class="input-demo-amount"
+            id="demoAmount"
+            type="range"
+            min="0"
+            max="2000"
+            step="50"
+            bind:value={amount}
+          />
         </div>
       </div>
     </article>
     <!-- Checkbox -->
     <article class="card gallery-item">
-      {@render head("Checkboxes", "Varias opciones a la vez. Ej.: las opciones al importar")}
+      {@render head("Casillas", "Varias opciones a la vez. Ej.: las opciones al importar")}
       <div class="card-body">
         <div class="gallery-demo">
           <label class="choice">
@@ -219,7 +240,7 @@
     </article>
     <!-- Radio -->
     <article class="card gallery-item">
-      {@render head("Radio", "Una sola opción del grupo. En páginas generadas")}
+      {@render head("Selección única", "Una sola opción del grupo. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <label class="choice">
@@ -242,7 +263,7 @@
     </article>
     <!-- Toggle -->
     <article class="card gallery-item">
-      {@render head("Switch", "Encender o apagar al momento. Ej.: la IA en los ajustes")}
+      {@render head("Interruptores", "Encender o apagar al momento. Ej.: la IA en los ajustes")}
       <div class="card-body">
         <div class="gallery-demo">
           <label class="choice switch">
@@ -258,38 +279,73 @@
     </article>
     <!-- Rating -->
     <article class="card gallery-item">
-      {@render head("Rating", "Estrellas. En páginas generadas")}
+      {@render head("Valoración", "Estrellas. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="rating" role="radiogroup" aria-label="Valoración">
-            <input type="radio" name="demoRate" id="demoRate5" />
+            <input
+              type="radio"
+              name="demoRate"
+              id="demoRate5"
+              value={5}
+              bind:group={rating}
+              aria-label="5 estrellas"
+            />
             <label for="demoRate5" data-tip="5 estrellas">
               <i class="hgi-stroke hgi-star"></i>
             </label>
-            <input type="radio" name="demoRate" id="demoRate4" checked />
+            <input
+              type="radio"
+              name="demoRate"
+              id="demoRate4"
+              value={4}
+              bind:group={rating}
+              aria-label="4 estrellas"
+            />
             <label for="demoRate4" data-tip="4 estrellas">
               <i class="hgi-stroke hgi-star"></i>
             </label>
-            <input type="radio" name="demoRate" id="demoRate3" />
+            <input
+              type="radio"
+              name="demoRate"
+              id="demoRate3"
+              value={3}
+              bind:group={rating}
+              aria-label="3 estrellas"
+            />
             <label for="demoRate3" data-tip="3 estrellas">
               <i class="hgi-stroke hgi-star"></i>
             </label>
-            <input type="radio" name="demoRate" id="demoRate2" />
+            <input
+              type="radio"
+              name="demoRate"
+              id="demoRate2"
+              value={2}
+              bind:group={rating}
+              aria-label="2 estrellas"
+            />
             <label for="demoRate2" data-tip="2 estrellas">
               <i class="hgi-stroke hgi-star"></i>
             </label>
-            <input type="radio" name="demoRate" id="demoRate1" />
-            <label for="demoRate1" data-tip="1 estrellas">
+            <input
+              type="radio"
+              name="demoRate"
+              id="demoRate1"
+              value={1}
+              bind:group={rating}
+              aria-label="1 estrella"
+            />
+            <label for="demoRate1" data-tip="1 estrella">
               <i class="hgi-stroke hgi-star"></i>
             </label>
           </div>
-          <span style="font-size: 0.71875rem; color: var(--text-muted)">4 de 5 · 128 reseñas</span>
+          <p class="demo-feedback" aria-live="polite">Tu valoración: {rating} de 5 estrellas</p>
         </div>
       </div>
     </article>
     <!-- Opciones -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Option cards", "Tarjetas de selección. Ej.: el tipo de una columna")}
+      {@render head("Tarjetas de selección", "Tarjetas de selección. Ej.: el tipo de una columna")}
       <div class="card-body">
         <div class="gallery-demo">
           <!-- prettier-ignore -->
@@ -299,14 +355,26 @@
             </p>
 
           <div class="demo-opt-grid">
-            <button type="button" class="opt active" aria-pressed="true">
+            <button
+              type="button"
+              class="btn-demo-public opt"
+              class:active={visibility === "publica"}
+              aria-pressed={visibility === "publica"}
+              onclick={() => (visibility = "publica")}
+            >
               <i class="hgi-stroke hgi-globe-02" aria-hidden="true"></i>
               <span class="opt-body">
                 <span class="opt-label">Pública</span>
                 <span class="opt-hint">Cualquiera con el enlace entra</span>
               </span>
             </button>
-            <button type="button" class="opt" aria-pressed="false">
+            <button
+              type="button"
+              class="btn-demo-private opt"
+              class:active={visibility === "privada"}
+              aria-pressed={visibility === "privada"}
+              onclick={() => (visibility = "privada")}
+            >
               <i class="hgi-stroke hgi-user-lock-01" aria-hidden="true"></i>
               <span class="opt-body">
                 <span class="opt-label">Requiere iniciar sesión</span>
@@ -339,7 +407,7 @@
     <!-- Cuadros de color -->
     <article class="card gallery-item">
       {@render head(
-        "Color swatches",
+        "Muestras de color",
         "Rejilla de colores para elegir. Ej.: la paleta de una aplicación",
       )}
       <div class="card-body">
@@ -349,44 +417,54 @@
             porque el fondo ya es el color.
           </p>
           <div>
-            <p class="eyebrow">Color principal</p>
+            <p class="eyebrow">Color principal: {color}</p>
             <div class="gallery-row demo-tiles">
               <button
                 type="button"
-                class="opt-tile swatch-color selected"
-                aria-pressed="true"
+                class="btn-demo-color opt-tile swatch-color"
+                class:selected={color === "Azul"}
+                aria-pressed={color === "Azul"}
+                onclick={() => (color = "Azul")}
                 aria-label="Usar Azul"
                 data-tip="Azul"
                 style="background: #2b7fff"
               ></button>
               <button
                 type="button"
-                class="opt-tile swatch-color"
-                aria-pressed="false"
+                class="btn-demo-color opt-tile swatch-color"
+                class:selected={color === "Esmeralda"}
+                aria-pressed={color === "Esmeralda"}
+                onclick={() => (color = "Esmeralda")}
                 aria-label="Usar Esmeralda"
                 data-tip="Esmeralda"
                 style="background: #00bc7d"
               ></button>
               <button
                 type="button"
-                class="opt-tile swatch-color"
-                aria-pressed="false"
+                class="btn-demo-color opt-tile swatch-color"
+                class:selected={color === "Ámbar"}
+                aria-pressed={color === "Ámbar"}
+                onclick={() => (color = "Ámbar")}
                 aria-label="Usar Ámbar"
                 data-tip="Ámbar"
                 style="background: #fe9a00"
               ></button>
               <button
                 type="button"
-                class="opt-tile swatch-color"
-                aria-pressed="false"
+                class="btn-demo-color opt-tile swatch-color"
+                class:selected={color === "Violeta"}
+                aria-pressed={color === "Violeta"}
+                onclick={() => (color = "Violeta")}
                 aria-label="Usar Violeta"
                 data-tip="Violeta"
                 style="background: #8e51ff"
               ></button>
               <button
                 type="button"
-                class="opt-tile swatch-color"
-                aria-pressed="false"
+                class="btn-demo-color opt-tile swatch-color"
+                class:selected={color === "Pizarra"}
+                aria-pressed={color === "Pizarra"}
+                onclick={() => (color = "Pizarra")}
                 aria-label="Usar Pizarra"
                 data-tip="Pizarra"
                 style="background: #62748e"
@@ -398,31 +476,29 @@
     </article>
     <!-- Zona de arrastre -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Dropzone", "Donde se sueltan archivos. Ej.: importar un CSV")}
+      {@render head("Carga de archivos", "Donde se sueltan archivos. Ej.: importar un CSV")}
       <div class="card-body">
         <div class="gallery-demo">
           <!-- prettier-ignore -->
           <p class="demo-note">
-              Acepta el archivo arrastrado encima, o abre el explorador al pulsarla.
+              Tres estados de ejemplo: vacío, archivo válido y archivo rechazado.
               <code>loaded</code> cuando se ha leído, <code>rejected</code> cuando no sirve; el
               motivo lo da el aviso de al lado.
             </p>
           <div class="demo-dropzones">
             <div class="dropzone">
               <i class="hgi-stroke hgi-upload-01" aria-hidden="true"></i>
-              <span class="dropzone-hint">
-                Arrastra un archivo CSV, Excel o JSON, o haz clic para elegirlo
-              </span>
+              <span class="dropzone-hint">Estado vacío · CSV, Excel o JSON</span>
             </div>
             <div class="dropzone loaded">
               <i class="hgi-stroke hgi-checkmark-circle-02" aria-hidden="true"></i>
               <span class="dropzone-lead">pedidos-marzo.csv</span>
-              <span class="dropzone-hint">Suelta otro archivo o haz clic para cambiarlo</span>
+              <span class="dropzone-hint">Archivo listo para importar</span>
             </div>
             <div class="dropzone rejected">
               <i class="hgi-stroke hgi-alert-circle" aria-hidden="true"></i>
               <span class="dropzone-lead">informe.pdf</span>
-              <span class="dropzone-hint">Suelta otro archivo o haz clic para cambiarlo</span>
+              <span class="dropzone-hint">Formato no compatible. Usa CSV, Excel o JSON.</span>
             </div>
           </div>
         </div>
@@ -430,7 +506,7 @@
     </article>
     <!-- Fieldset -->
     <article class="card gallery-item">
-      {@render head("Fieldset", "Controles bajo una leyenda. En páginas generadas")}
+      {@render head("Grupo de opciones", "Controles bajo una leyenda. En páginas generadas")}
       <div class="card-body">
         <fieldset class="fieldset">
           <legend>Visibilidad del panel</legend>

@@ -1640,7 +1640,7 @@
                     class="btn-icon btn-rounded btn-send-ai"
                     onclick={() => void send(chat.draft)}
                   >
-                    <Icon name="arrow-up-01" size={24} />
+                    <Icon name="arrow-up-02" size={24} />
                   </Button>
                 {/if}
               </div>

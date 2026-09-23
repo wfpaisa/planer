@@ -33,6 +33,8 @@
     { st: "fail", label: "Fallidos" },
   ];
 
+  let tagVisible = $state(true);
+
   let orderFilter = $state<OrderFilter>("all");
   let orderSort = $state<{ key: OrderSortKey; dir: "asc" | "desc" }>({
     key: "date",
@@ -87,13 +89,13 @@
 
 <div id="demo-contenido" class="gallery-group">
   <div class="gallery-group-head">
-    <h3>Contenido</h3>
+    <h2>Contenido</h2>
     <p>Superficies y piezas para mostrar datos</p>
   </div>
   <div class="gallery-grid">
     <!-- Typography -->
     <article class="card gallery-item wide">
-      {@render head("Typography", "Los tamaños de letra del sistema")}
+      {@render head("Tipografía", "Los tamaños de letra del sistema")}
       <div class="card-body">
         <div class="type-scale">
           <div class="ty-row">
@@ -115,7 +117,7 @@
           <div class="ty-row">
             <small>Comparado con el periodo anterior · datos provisionales</small>
             <span class="ty-meta">
-              SMALL
+              PEQUEÑO
               <b>0.875rem</b>
             </span>
           </div>
@@ -124,14 +126,14 @@
     </article>
     <!-- Card -->
     <article class="card gallery-item wide">
-      {@render head("Card", "Cabecera, cuerpo y pie. Ej.: cada bloque de los ajustes")}
+      {@render head("Tarjeta", "Cabecera, cuerpo y pie. Ej.: cada bloque de los ajustes")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-cards">
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h1 class="card-title">Plan Pro anual</h1>
+                  <h4 class="card-title">Plan Pro anual</h4>
                   <p class="card-sub">Renovación en 24 días</p>
                 </div>
               </div>
@@ -152,7 +154,10 @@
     </article>
     <!-- Hero -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Hero", "La banda de portada, con el color de la marca. En páginas generadas")}
+      {@render head(
+        "Portada",
+        "La banda de portada, con el color de la marca. En páginas generadas",
+      )}
       <div class="card-body">
         <div class="gallery-demo">
           <!-- prettier-ignore -->
@@ -164,7 +169,7 @@
               paleta o de modo.
             </p>
           <div class="hero">
-            <h1 class="hero-title">Chequeo preoperacional</h1>
+            <h4 class="hero-title">Chequeo preoperacional</h4>
             <p class="hero-sub">
               Revisa el vehículo antes de salir. Queda a tu nombre y se suma al resumen del turno.
             </p>
@@ -181,7 +186,7 @@
     </article>
     <!-- Inset -->
     <article class="card gallery-item wide">
-      {@render head("Inner box", "Agrupa dentro de otra caja. Ej.: dentro de un modal")}
+      {@render head("Panel interior", "Agrupa dentro de otra caja. Ej.: dentro de un modal")}
       <div class="card-body">
         <div class="gallery-demo">
           <!-- prettier-ignore -->
@@ -215,7 +220,7 @@
     </article>
     <!-- Eyebrow -->
     <article class="card gallery-item">
-      {@render head("Group label", "Encabeza un grupo, en versalitas. Ej.: sobre una lista")}
+      {@render head("Etiqueta de grupo", "Encabeza un grupo, en versalitas. Ej.: sobre una lista")}
       <div class="card-body">
         <div class="gallery-demo">
           <p class="demo-note">
@@ -234,7 +239,7 @@
     </article>
     <!-- Identity -->
     <article class="card gallery-item">
-      {@render head("Identity", "Quién ha entrado. Ej.: los ajustes, los miembros de una página")}
+      {@render head("Identidad", "Quién ha entrado. Ej.: los ajustes, los miembros de una página")}
       <div class="card-body">
         <div class="gallery-demo">
           <p class="demo-note">
@@ -261,7 +266,7 @@
     </article>
     <!-- Insight -->
     <article class="card gallery-item wide col-span-2">
-      {@render head("Tip", "Un apunte destacado. En páginas generadas")}
+      {@render head("Recomendaciones", "Un apunte destacado. En páginas generadas")}
       <div class="card-body">
         <div class="insights">
           <article class="insight a">
@@ -284,7 +289,7 @@
     </article>
     <!-- Stat -->
     <article class="card gallery-item">
-      {@render head("Stat", "Un número con su etiqueta. En páginas generadas")}
+      {@render head("Estadística", "Un número con su etiqueta. En páginas generadas")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="stat">
@@ -292,7 +297,7 @@
             <span class="s-val number">
               $184.320 <span class="tag tag-success">
                 <i class="hgi-stroke hgi-arrow-up-right-01"></i>
-                12.4 %
+                12,4 %
               </span>
             </span>
             <span class="s-foot">vs. $163.980 del periodo anterior</span>
@@ -302,7 +307,7 @@
     </article>
     <!-- List -->
     <article class="card gallery-item">
-      {@render head("List", "Filas con avatar, texto y estado. Ej.: las tablas huérfanas")}
+      {@render head("Lista", "Filas con avatar, texto y estado. Ej.: las tablas huérfanas")}
       <div class="card-body">
         <ul class="list">
           <li>
@@ -344,25 +349,22 @@
             type="button"
             class="chip"
             class:active={orderFilter === s.st}
+            aria-pressed={orderFilter === s.st}
             onclick={() => setOrderFilter(s.st)}
           >
             {s.label}
           </button>
         {/each}
       </div>
-      <button class="btn hide-sm-btn">
-        <i class="hgi-stroke hgi-filter"></i>
-        Filtrar
-      </button>
     {/snippet}
     <article class="card gallery-item col-span-2 table-card">
       {@render head(
-        "Table",
+        "Tabla",
         "Datos con filtro, orden y páginas. Ej.: la rejilla de una tabla",
         tableFilters,
       )}
       <div class="table-wrap">
-        <table class="table table-striped">
+        <table class="table table-striped" aria-label="Pedidos de ejemplo">
           <thead>
             <tr>
               <th
@@ -370,10 +372,11 @@
                 class:sorted={orderSort.key === "client"}
                 class:asc={orderSort.dir === "asc"}
                 aria-sort={orderSortAria("client")}
-                onclick={() => sortOrders("client")}
               >
-                Cliente
-                <span class="arrow"></span>
+                <button class="btn-demo-sort" type="button" onclick={() => sortOrders("client")}>
+                  Cliente
+                  <span class="arrow" aria-hidden="true"></span>
+                </button>
               </th>
               <th>Pedido</th>
               <th
@@ -381,10 +384,11 @@
                 class:sorted={orderSort.key === "date"}
                 class:asc={orderSort.dir === "asc"}
                 aria-sort={orderSortAria("date")}
-                onclick={() => sortOrders("date")}
               >
-                Fecha
-                <span class="arrow"></span>
+                <button class="btn-demo-sort" type="button" onclick={() => sortOrders("date")}>
+                  Fecha
+                  <span class="arrow" aria-hidden="true"></span>
+                </button>
               </th>
               <th>Estado</th>
               <th
@@ -393,10 +397,11 @@
                 class:asc={orderSort.dir === "asc"}
                 aria-sort={orderSortAria("amount")}
                 style="text-align: right"
-                onclick={() => sortOrders("amount")}
               >
-                Importe
-                <span class="arrow"></span>
+                <button class="btn-demo-sort" type="button" onclick={() => sortOrders("amount")}>
+                  Importe
+                  <span class="arrow" aria-hidden="true"></span>
+                </button>
               </th>
               <th></th>
             </tr>
@@ -473,7 +478,7 @@
     </article>
     <!-- Timeline -->
     <article class="card gallery-item wide">
-      {@render head("Timeline", "Eventos en orden. Ej.: los pasos de la IA")}
+      {@render head("Cronología", "Eventos en orden. Ej.: los pasos de la IA")}
       <div class="card-body">
         <ol class="timeline">
           <li class="done">
@@ -521,7 +526,7 @@
     </article>
     <!-- Tag -->
     <article class="card gallery-item">
-      {@render head("Tag", "Categoría o estado. Ej.: una versión de solo lectura")}
+      {@render head("Etiquetas", "Categoría o estado. Ej.: una versión de solo lectura")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -553,25 +558,37 @@
             </span>
           </div>
           <div class="gallery-row">
-            <span class="tag tint-1">
-              Filtro
-              <button type="button" class="tag-remove" aria-label="Quitar Filtro" data-tip="Quitar">
-                <i class="hgi-stroke hgi-cancel-01"></i>
+            {#if tagVisible}
+              <span class="tag tint-1">
+                Filtro
+                <button
+                  type="button"
+                  class="tag-remove"
+                  onclick={() => (tagVisible = false)}
+                  aria-label="Quitar Filtro"
+                  data-tip="Quitar"
+                >
+                  <i class="hgi-stroke hgi-cancel-01"></i>
+                </button>
+              </span>
+            {:else}
+              <button class="btn-restore-demo-tag btn sm" onclick={() => (tagVisible = true)}>
+                Restablecer etiqueta
               </button>
-            </span>
-            <span class="tag">Along</span>
+            {/if}
+            <span class="tag">Sin asignar</span>
           </div>
         </div>
       </div>
     </article>
     <!-- Badge -->
     <article class="card gallery-item">
-      {@render head("Badge", "Aviso sobre un elemento. Ej.: un archivo en el chat")}
+      {@render head("Indicadores", "Aviso sobre un elemento. Ej.: un archivo en el chat")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
-            <button class="btn badge-success" data-tip="Todo correcto">Sync</button>
-            <button class="btn badge-warning" data-tip="Requiere atención">Warn</button>
+            <button class="btn badge-success" data-tip="Todo correcto">Sincronizado</button>
+            <button class="btn badge-warning" data-tip="Requiere atención">Atención</button>
             <button class="btn badge-error" data-tip="Con incidencias">Error</button>
           </div>
         </div>
@@ -579,9 +596,10 @@
     </article>
     <!-- Button -->
     <article class="card gallery-item wide">
-      {@render head("Buttons", "Variantes, tamaños y estados")}
+      {@render head("Botones", "Variantes, tamaños y estados")}
       <div class="card-body">
         <div class="gallery-demo">
+          <p class="demo-variant-label">Principal, secundario y deshabilitado</p>
           <div class="gallery-row">
             <button class="btn btn-primary">
               <i class="hgi-stroke hgi-checkmark-circle-02"></i>
@@ -593,10 +611,12 @@
             </button>
             <button class="btn" disabled>Deshabilitado</button>
           </div>
+          <p class="demo-variant-label">Sin fondo</p>
           <div class="gallery-row">
             <button class="btn btn-ghost">Sin fondo</button>
             <button class="btn btn-ghost" disabled>Deshabilitado</button>
           </div>
+          <p class="demo-variant-label">Acciones destructivas</p>
           <div class="gallery-row">
             <button class="btn btn-danger">
               <i class="hgi-stroke hgi-delete-02"></i>
@@ -610,12 +630,14 @@
               botón de la fila y solo avisa cuando el cursor ya está encima, que
               es el instante en que importa. Para lo que sale de una barra o un pie.
             -->
+          <p class="demo-variant-label">Acciones discretas</p>
           <div class="gallery-row">
             <button class="btn btn-danger-quiet">Cerrar sesión</button>
             <button class="btn-icon sm btn-danger-quiet" aria-label="Cerrar sesión">
               <i class="hgi-stroke hgi-logout-03"></i>
             </button>
           </div>
+          <p class="demo-variant-label">Solo icono</p>
           <div class="gallery-row">
             <button class="btn-icon btn-rounded" aria-label="Más opciones">
               <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
@@ -630,6 +652,7 @@
               <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
             </button>
           </div>
+          <p class="demo-variant-label">Durante una operación</p>
           <div class="gallery-row">
             <button class="btn btn-primary is-loading" disabled aria-busy="true">
               <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
@@ -649,10 +672,10 @@
 
     <!-- Link -->
     <article class="card gallery-item">
-      {@render head("Link", "Con icono de salida. Ej.: abrir la página publicada")}
+      {@render head("Enlace", "Con icono de salida. Ej.: abrir la página publicada")}
       <div class="card-body">
         <div class="gallery-demo">
-          <a class="link" href="/">
+          <a class="link" href="/demo" target="_blank" rel="noopener noreferrer">
             Abrir en pestaña nueva
             <i class="hgi-stroke hgi-link-square-02"></i>
           </a>
@@ -727,14 +750,31 @@
     transition: opacity 0.15s;
   }
 
-  tbody tr:hover .row-act {
-    opacity: 1;
+  tbody tr {
+    &:hover .row-act,
+    &:focus-within .row-act {
+      opacity: 1;
+    }
   }
 
-  /* Acciones que se pueden dejar fuera cuando no hay sitio */
-  @media (max-width: 38.75rem) {
-    .hide-sm-btn {
-      display: none;
+  .btn-demo-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-8);
+    font: inherit;
+    color: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: var(--border-width) solid var(--accent);
+      outline-offset: var(--sp-4);
+    }
+  }
+
+  @media (hover: none) {
+    .row-act {
+      opacity: 1;
     }
   }
 </style>

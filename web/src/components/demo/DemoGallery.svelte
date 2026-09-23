@@ -1,48 +1,8 @@
 <!--
-  La galeria de componentes, copiada del panel de referencia
-  (`/home/projects/ia/dashboard`) tal cual: el mismo marcado, sin nada propio.
-
-  Es lo que la hace útil. Estas piezas no las pinta nadie de aqui --las pinta
-  `styles/components.css`, la misma hoja que viste el resto del panel-- asi que
-  cualquier cambio en el catálogo se ve aqui en todos sus casos a la vez: los
-  cuatro tonos de aviso, los estados de un botón, un campo con error, un modal
-  con medida fija. Si algo se rompe al tocar la hoja, se rompe a la vista.
-
-  Este archivo es el armazon; las fichas viven en las cinco secciones que
-  compone, las mismas cinco que lista `DemoSidebar.svelte`:
-
-    DemoNavegacion   pestañas, menu, migas, paginado
-    DemoContenido    tarjetas, listas, la tabla de pedidos, tipografia, avatares
-    DemoGraficas     las figuras de Chart.js (no son del catálogo)
-    DemoFormularios  campos, selectores, casillas, interruptores
-    DemoAvisos       notas, toasts, modales, cajones, cargando, vacío
-
-  Lo que se queda aqui es lo que es de todas: la cabecera de ficha (`head()`,
-  con el botón que enseña su código), el modal del código, y el reparto en
-  columnas de las fichas --el masonry, que va por script porque el nativo de
-  CSS aun no esta en todos los motores; esta explicado donde ocurre--.
-
-  La disposicion compartida vive en `gallery.css` y no en el <style> de aqui:
-  el marcado que la usa esta en las secciones, y el CSS con ambito de Svelte no
-  cruza de un archivo a otro. Lo de cada sección se queda en su componente.
-
-  Tres cosas cambian respecto del original, y ninguna es de estilo: los iconos
-  van con las dos clases de la casa (`hgi-stroke hgi-<nombre>`, ver
-  `shared/icons.ts`) en vez de las cuatro del original; la muestra de la escala
-  tipografica usa `ty-sample`, que es la clase que de verdad esta escrita en
-  `gallery.css` --en el original decia `ty-body`, que no existe en ninguna
-  hoja--; y el globo de ayuda es el del panel y no el `.tip` del catálogo, por
-  lo que se explica en su ficha.
-
-  La sidebar del panel de referencia y su selector de paleta no estan aqui: son
-  la página entera de la demo, en `DemoSidebar.svelte` y `routes/Demo.svelte`.
-
-  Y cada ficha lleva en su cabecera el botón que enseña su código. Lo que se
-  ve ahi no esta escrito en ninguna parte: es el `card-body` de la propia ficha,
-  sacado de los archivos de la galeria al abrir el modal (ver `./source.ts`),
-  que es lo que evita tener cada ejemplo escrito dos veces. Al venir del archivo
-  y no de lo pintado, una ficha que use un componente enseña la línea con la que
-  se pide --`<PlanerAvatar mood="ok" size={24} />`-- y no el `<svg>` que salio.
+  Previsualizaciones del catálogo: cada sección conserva el marcado real de
+  los componentes. Aquí se comparten las cabeceras, el visor de código y el
+  reparto adaptable. El CSS de presentación vive en gallery.css y solo afecta
+  a esta galería; los ejemplos siguen usando las hojas del panel.
 -->
 <script lang="ts">
   import "./gallery.css";
@@ -124,11 +84,12 @@
         const gapY = Number.parseFloat(styles.rowGap) || 0;
         const gapX = Number.parseFloat(styles.columnGap) || 0;
         const width = grid.clientWidth;
-        const colWidth = (width - gapX) / 2;
+        const columnCount = Number(styles.getPropertyValue("--gallery-columns")) || 1;
+        const colWidth = (width - gapX * (columnCount - 1)) / columnCount;
         const cols = [0, 0];
 
         for (const item of items) {
-          const full = item.classList.contains("col-span-2");
+          const full = columnCount === 1 || item.classList.contains("col-span-2");
           const w = full ? width : colWidth;
           if (item.style.width !== `${w}px`) item.style.width = `${w}px`;
           const h = item.offsetHeight;
@@ -177,9 +138,9 @@
   tabla, el periodo de la gráfica): entran antes del botón, en la misma fila.
 -->
 {#snippet head(title: string, sub: string, actions?: Snippet)}
-  <div class="card-head">
+  <div class="head-demo-preview card-head">
     <div>
-      <h1 class="card-title">{title}</h1>
+      <h3 class="title-demo-preview card-title">{title}</h3>
       <p class="card-sub">{sub}</p>
     </div>
     <div class="card-head-actions">
@@ -192,7 +153,7 @@
         onpointerenter={warmCode}
         onfocus={warmCode}
         data-tip="Ver el código"
-        aria-label="Ver el código"
+        aria-label={`Ver el código de ${title}`}
       >
         <i class="hgi-stroke hgi-source-code"></i>
       </button>
@@ -201,7 +162,9 @@
 {/snippet}
 <section class="gallery" bind:this={gallery}>
   <!-- Solo una línea separa el panel de la galeria -->
-  <hr class="divider" />
+  <p class="note-demo-preview demo-note">
+    Explora las variantes y prueba los controles. Todas las muestras usan datos de ejemplo.
+  </p>
 
   <DemoNavegacion {head} />
   <DemoContenido {head} />

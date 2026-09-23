@@ -15,13 +15,13 @@
 
 <div id="demo-retro" class="gallery-group">
   <div class="gallery-group-head">
-    <h3>Avisos y estado</h3>
+    <h2>Avisos y estado</h2>
     <p>Estado del sistema y respuestas a una acción</p>
   </div>
   <div class="gallery-grid">
     <!-- Alert -->
     <article class="card gallery-item wide">
-      {@render head("Alerts", "Mensajes de estado. Ej.: el aviso de vista previa")}
+      {@render head("Avisos", "Mensajes de estado. Ej.: el aviso de vista previa")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="alert info" role="status">
@@ -57,7 +57,7 @@
     </article>
     <!-- Toast -->
     <article class="card gallery-item">
-      {@render head("Toast", "Aviso que se va solo. Ej.: al guardar una fila")}
+      {@render head("Notificación", "Abre un aviso y ciérralo con la cruz o con Escape.")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -131,14 +131,20 @@
     </article>
     <!-- Modal -->
     <article class="card gallery-item">
-      {@render head("Modal", "Pide una decisión. Ej.: crear una columna")}
+      {@render head("Ventana emergente", "Pide una decisión. Ej.: crear una columna")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
             <button class="btn btn-primary" popovertarget="demoModal">Abrir modal</button>
             <button class="btn" popovertarget="demoModalLg">Con medida fija</button>
           </div>
-          <div class="modal" id="demoModal" popover>
+          <div
+            class="modal"
+            id="demoModal"
+            role="dialog"
+            aria-label="Cancelar pedido de ejemplo"
+            popover
+          >
             <div class="modal-head">
               <div>
                 <h3>¿Cancelar el pedido #AR-4821?</h3>
@@ -162,7 +168,11 @@
               <button class="btn" popovertarget="demoModal" popovertargetaction="hide">
                 Volver
               </button>
-              <button class="btn btn-primary" popovertarget="demoModal" popovertargetaction="hide">
+              <button
+                class="btn-demo-cancel-order btn btn-danger"
+                popovertarget="demoModal"
+                popovertargetaction="hide"
+              >
                 Cancelar pedido
               </button>
             </div>
@@ -171,6 +181,8 @@
           <div
             class="modal"
             id="demoModalLg"
+            role="dialog"
+            aria-label="Historial del pedido de ejemplo"
             popover
             style="--modal-w: 38.75rem; --modal-h: 28.75rem"
           >
@@ -303,7 +315,7 @@
     </article>
     <!-- Drawer -->
     <article class="card gallery-item">
-      {@render head("Drawer", "Entra desde un lado. Ej.: editar una fila")}
+      {@render head("Panel lateral", "Entra desde un lado. Ej.: editar una fila")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -317,7 +329,13 @@
             </button>
           </div>
 
-          <div class="drawer left" id="demoDrawerL" popover>
+          <div
+            class="drawer left"
+            id="demoDrawerL"
+            role="dialog"
+            aria-label="Filtros de ejemplo"
+            popover
+          >
             <div class="modal-head">
               <div>
                 <h3>Filtros</h3>
@@ -380,7 +398,14 @@
             </div>
           </div>
 
-          <div class="drawer right" id="demoDrawerR" popover style="--drawer-w: 23rem">
+          <div
+            class="drawer right"
+            id="demoDrawerR"
+            role="dialog"
+            aria-label="Pedido de ejemplo"
+            popover
+            style="--drawer-w: 23rem"
+          >
             <div class="modal-head">
               <div>
                 <h3>Pedido #AR-4821</h3>
@@ -464,7 +489,10 @@
         el que se ve en el resto de la pantalla.
       -->
     <article class="card gallery-item">
-      {@render head("Tooltip", "Texto corto al pasar el cursor. Ej.: los iconos de la barra")}
+      {@render head(
+        "Ayuda contextual",
+        "Texto corto al pasar el cursor. Ej.: los iconos de la barra",
+      )}
       <div class="card-body">
         <div class="gallery-row">
           <button class="btn" data-tip="Se aplica al periodo actual">Pasa el cursor</button>
@@ -480,7 +508,7 @@
     </article>
     <!-- Loading -->
     <article class="card gallery-item">
-      {@render head("Loading", "Actividad en curso. Ej.: mientras llega una tabla")}
+      {@render head("Carga", "Actividad en curso. Ej.: mientras llega una tabla")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="gallery-row">
@@ -500,19 +528,19 @@
     </article>
     <!-- Progress -->
     <article class="card gallery-item">
-      {@render head("Progress", "Cuánto falta. Ej.: la IA trabajando")}
+      {@render head("Progreso", "Cuánto falta. Ej.: la IA trabajando")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="progress-label">
             <span>Eventos del plan</span>
             <span class="number">74 %</span>
           </div>
-          <progress class="progress" max="100" value="74"></progress>
+          <progress class="progress" max="100" value="74" aria-label="Eventos del plan"></progress>
           <div class="progress-label">
             <span>Almacenamiento</span>
             <span class="number">31 %</span>
           </div>
-          <progress class="progress" max="100" value="31"></progress>
+          <progress class="progress" max="100" value="31" aria-label="Almacenamiento"></progress>
         </div>
       </div>
     </article>
