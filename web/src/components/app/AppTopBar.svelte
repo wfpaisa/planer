@@ -21,6 +21,9 @@
 
   Aqui no vive el botón de la IA: ese bajo a la barra de dirección, donde tiene
   sentido junto al enlace que la IA ayuda a construir.
+
+  A la derecha, antes de los ajustes, esta la guía de bienvenida: la que sale
+  sola la primera vez se vuelve a pedir desde ahi.
 -->
 <script lang="ts" module>
   /** Las dos mitades de una aplicación: lo que se ve y lo que se guarda. */
@@ -31,6 +34,7 @@
   import type { AppRecord } from "@shared/types";
 
   import { cx } from "../../lib/cx";
+  import { guide } from "../../lib/guide.svelte";
   import { closePublish, publishCard, togglePublish } from "../../lib/publishPanel.svelte";
   import Icon from "../Icon.svelte";
   import PanelModal from "../PanelModal.svelte";
@@ -153,6 +157,24 @@
     construye --en las páginas--. En los datos se guarda y ya esta afuera.
   -->
   <div class="topbar-group-right">
+    <!--
+      La guía de bienvenida, otra vez. Vive al lado de los ajustes porque es lo
+      mismo que ellos --lo que se abre cuando hace falta enterarse de algo, no
+      lo que se usa construyendo-- y porque es donde se la busca después de
+      haberla visto salir sola la primera vez.
+    -->
+    <Button
+      size="sm"
+      tip="Ver la guía rápida"
+      aria-label="Ver la guía rápida"
+      tipSide="bottom"
+      buttonClass="btn-open-guide"
+      class="btn-ghost btn-icon topbar-help-btn"
+      onclick={() => guide.show()}
+    >
+      <Icon name="help-circle" size={16} />
+    </Button>
+
     <Button
       size="sm"
       tip="Ajustes de la aplicación"
@@ -216,7 +238,8 @@
       color: var(--text-secondary);
     }
 
-    & :global(.topbar-settings-btn) {
+    & :global(.topbar-settings-btn),
+    & :global(.topbar-help-btn) {
       flex-shrink: 0;
       color: var(--text-secondary);
     }

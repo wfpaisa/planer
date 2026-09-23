@@ -752,6 +752,16 @@
               display: inline-flex;
             }
           }
+
+          /* La guía de bienvenida señala este botón en uno de sus pasos, y ahí
+             tiene que verse sin el puntero encima. La marca la pone el propio
+             recorrido en la raíz del documento; ver `guide/GuideTour.svelte`.
+             Los separadores se quedan fuera: el paso habla de una página. */
+          :global(html[data-guide-reveal="page-settings"]) &:not(.sidebar-separator-row) {
+            & :global(.btn-page-settings) {
+              display: inline-flex;
+            }
+          }
         }
 
         /* El hueco donde caeria la página arrastrada.

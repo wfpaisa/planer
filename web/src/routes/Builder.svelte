@@ -79,6 +79,7 @@
   import { aiUsable } from "@shared/aiCatalog";
   import { isPeopleTable, withRoleOptions } from "@shared/people";
   import type { AiConfigView, AppRecord, PageRecord, TableRecord } from "@shared/types";
+  import { untrack } from "svelte";
 
   import AppTopBar, { type Section } from "../components/app/AppTopBar.svelte";
   import DropChoice from "../components/DropChoice.svelte";
@@ -102,6 +103,7 @@
     tableFromPlan,
   } from "../lib/dropFiles";
   import { FRAME_DRAG, FRAME_DROP } from "../lib/frameEvents";
+  import { guide } from "../lib/guide.svelte";
   import { api, errorMessage, pb } from "../lib/pb";
   import { askImport } from "../lib/pendingImport.svelte";
   import { appPeople, setPeople } from "../lib/people.svelte";
@@ -293,6 +295,19 @@
     return () => {
       alive = false;
     };
+  });
+
+  /*
+   * La guía de bienvenida se abre sola la primera vez que se entra a una
+   * aplicación, y no antes: sobre un cartel de "Abriendo la aplicación" no hay
+   * nada que señalar.
+   *
+   * Si esta pendiente se lee sin depender de ello (`untrack`): cerrarla la da
+   * por vista, y con esa lectura suelta este efecto volveria a correr cada vez.
+   */
+  $effect(() => {
+    if (loading || !app) return;
+    untrack(() => guide.showOnce());
   });
 
   /*

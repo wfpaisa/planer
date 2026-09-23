@@ -9,6 +9,7 @@
   import "./lib/fontSize.svelte";
   import "./lib/theme.svelte";
 
+  import GuideTour from "./components/guide/GuideTour.svelte";
   import Router from "./components/Router.svelte";
   import TooltipLayer from "./components/TooltipLayer.svelte";
   import type { RouteDef } from "./lib/router.svelte";
@@ -40,3 +41,10 @@
 
 <!-- Una sola capa para todos los globos de ayuda del panel. -->
 <TooltipLayer />
+
+<!--
+  La guía de bienvenida. Va aquí y no en el constructor porque la piden dos
+  sitios de rutas distintas: la primera entrada a una aplicación y los ajustes
+  de la cuenta. Cerrada no dibuja nada.
+-->
+<GuideTour />
