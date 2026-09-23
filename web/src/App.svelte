@@ -26,8 +26,10 @@
     { path: "/entrar", component: Login },
     { path: "/", component: Home, guarded: true },
     { path: "/ajustes", component: AiSettings, guarded: true },
-    // La demo del sistema de estilos: no es del producto, se entra desde ajustes.
-    { path: "/demo", component: Demo, guarded: true },
+    // La demo del sistema de estilos: no es del producto y no ensena datos de
+    // nadie --todo lo suyo es de ejemplo, el pie del sidebar incluido-- asi
+    // que se entra sin sesión. Se llega desde ajustes o por la dirección.
+    { path: "/demo", component: Demo },
     // El constructor se queda con todo lo que cuelgue de la aplicación: sus dos
     // mitades y las capas que se abren encima. Ver `Builder.svelte`.
     { path: "/a/:appId/*", component: Builder, guarded: true },

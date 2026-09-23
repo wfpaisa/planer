@@ -24,7 +24,7 @@
 
   import { cx } from "../../lib/cx";
   import { link } from "../../lib/router.svelte";
-  import { session } from "../../lib/session.svelte";
+  import { type Builder, session } from "../../lib/session.svelte";
   import Logo from "../Logo.svelte";
   import PalettePicker from "../PalettePicker.svelte";
   import ThemePicker from "../ThemePicker.svelte";
@@ -104,8 +104,19 @@
   };
 
   /* ---- Quién ha entrado ---- */
-  const me = $derived(session.me);
-  const displayName = $derived(me?.name || me?.email || "Invitado");
+  /*
+   * A la demo se entra sin sesión --ver las rutas en `App.svelte`--, asi que
+   * cuando no hay nadie dentro el pie ensena una cuenta de ejemplo, como el
+   * resto de la galeria. Si quien mira ha entrado de verdad sale lo suyo, y
+   * con su salida: el pie es el componente de siempre, no una ficha.
+   */
+  const EJEMPLO: Pick<Builder, "name" | "email"> = {
+    name: "Elena Vargas",
+    email: "elena.vargas@empresa.com",
+  };
+  const dentro = $derived(!!session.me);
+  const me = $derived(session.me ?? EJEMPLO);
+  const displayName = $derived(me.name || me.email);
   const initials = $derived.by(() => {
     const parts = displayName.split(/[\s@.]+/).filter(Boolean);
     return (
@@ -183,19 +194,33 @@
     <span class="avatar">{initials}</span>
     <div class="user-meta identity">
       <strong>{displayName}</strong>
-      {#if me?.email && me.email !== displayName}
+      {#if me.email && me.email !== displayName}
         <span>{me.email}</span>
       {/if}
     </div>
-    <button
-      type="button"
-      class="btn-sign-out btn-icon sm btn-danger-quiet"
-      aria-label="Cerrar sesión"
-      data-tip="Cerrar sesión"
-      onclick={() => session.signOut()}
-    >
-      <i class="hgi-stroke hgi-logout-03"></i>
-    </button>
+    {#if dentro}
+      <button
+        type="button"
+        class="btn-sign-out btn-icon sm btn-danger-quiet"
+        aria-label="Cerrar sesión"
+        data-tip="Cerrar sesión"
+        onclick={() => session.signOut()}
+      >
+        <i class="hgi-stroke hgi-logout-03"></i>
+      </button>
+    {:else}
+      <!-- Sin sesión no hay nada que cerrar, y un botón que no hace nada
+           miente: el mismo hueco ofrece la puerta de entrada. -->
+      <a
+        class="btn-sign-in btn-icon sm"
+        href="/entrar"
+        use:link
+        aria-label="Entrar"
+        data-tip="Entrar"
+      >
+        <i class="hgi-stroke hgi-login-03"></i>
+      </a>
+    {/if}
   </div>
 </aside>
 
