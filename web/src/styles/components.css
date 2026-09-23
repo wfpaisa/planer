@@ -1968,9 +1968,8 @@ input[type="range"].field-control {
   place-items: center;
   border-radius: 50%;
   border: var(--border-width) solid color-mix(in srgb, var(--accent) 32%, transparent);
-  /* background: color-mix(in srgb, var(--accent) 10%, transparent); */
   background-color: var(--accent);
-  color: var(--ink);
+  color: var(--accent-text);
   font-size: var(--accent-soft);
   font-weight: 700;
 }
