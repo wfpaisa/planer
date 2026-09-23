@@ -11,11 +11,15 @@
 
   import { loadMonaco } from "../../lib/monaco";
   import CodeEditor from "../CodeEditor.svelte";
-  import DemoAvisos from "./DemoAvisos.svelte";
-  import DemoContenido from "./DemoContenido.svelte";
-  import DemoFormularios from "./DemoFormularios.svelte";
+  import DemoArchivo from "./DemoArchivo.svelte";
+  import DemoDatos from "./DemoDatos.svelte";
+  import DemoFormulario from "./DemoFormulario.svelte";
   import DemoGraficas from "./DemoGraficas.svelte";
-  import DemoNavegacion from "./DemoNavegacion.svelte";
+  import DemoMensajes from "./DemoMensajes.svelte";
+  import DemoMenu from "./DemoMenu.svelte";
+  import DemoPanel from "./DemoPanel.svelte";
+  import DemoSuperposicion from "./DemoSuperposicion.svelte";
+  import DemoVarios from "./DemoVarios.svelte";
   import { loadCardSource } from "./source.ts";
 
   /* ---- El código de cada ficha ---- */
@@ -68,6 +72,10 @@
   // fichas reacomoda cuando cambia el ancho (ventana, cajón de paletas) o el
   // alto del contenido (gráficas, fuentes); sin script manda el grid de la
   // hoja de estilos, que es el mismo comportamiento de siempre.
+  //
+  // Por eso las fichas `col-span-2` van las últimas de su grupo: una ficha ancha
+  // se apoya en la columna más baja y deja plantada a la otra, así que puesta en
+  // medio abre un hueco. Al final no corta nada.
   let gallery = $state<HTMLElement | null>(null);
 
   $effect.pre(() => {
@@ -166,11 +174,15 @@
     Explora las variantes y prueba los controles. Todas las muestras usan datos de ejemplo.
   </p>
 
-  <DemoNavegacion {head} />
-  <DemoContenido {head} />
+  <DemoFormulario {head} />
+  <DemoDatos {head} />
   <DemoGraficas {head} />
-  <DemoFormularios {head} />
-  <DemoAvisos {head} />
+  <DemoPanel {head} />
+  <DemoSuperposicion {head} />
+  <DemoArchivo {head} />
+  <DemoMenu {head} />
+  <DemoMensajes {head} />
+  <DemoVarios {head} />
 
   <!--
     El código de la ficha que se pidio. Es el `.modal` del catálogo con

@@ -3,7 +3,7 @@
 
   Es una hoja aparte y no el <style> de `DemoGallery.svelte` porque el marcado
   que la usa ya no vive en un solo archivo: cada sección es su propio
-  componente (`DemoNavegacion`, `DemoContenido`...) y el CSS con ambito de
+  componente (`DemoFormulario`, `DemoDatos`...) y el CSS con ambito de
   Svelte solo alcanza al marcado escrito en el mismo archivo. Lo de cada
   sección --las figuras de las gráficas, las celdas de la tabla-- si se queda
   en su componente; aquí esta unicamente lo que comparten todas.

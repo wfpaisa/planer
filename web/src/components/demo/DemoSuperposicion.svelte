@@ -1,11 +1,11 @@
 <!--
-  Avisos y estado: lo que el panel dice de vuelta --notas, toasts, modales,
-  cajones, cargando, vacío y el resto de estados--.
+  Superposición: lo que se abre encima de la página --modales, paneles
+  laterales y el texto que asoma al pasar el cursor--.
 
-  Una de las cinco secciones de la galería; la cabecera de cada ficha y el modal
-  con su código los pone `DemoGallery.svelte`, que es quien las compone. Lo que
-  se ve aquí no lo pinta este archivo sino `styles/components.css`, igual que en
-  el resto del panel.
+  Uno de los grupos de la galería; la cabecera de cada ficha y el modal con su
+  código los pone `DemoGallery.svelte`, que es quien los compone. Lo que se ve
+  aquí no lo pinta este archivo sino `styles/components.css`, igual que en el
+  resto del panel.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -13,122 +13,12 @@
   let { head }: { head: Snippet<[string, string, Snippet?]> } = $props();
 </script>
 
-<div id="demo-retro" class="gallery-group">
+<div id="demo-superposicion" class="gallery-group">
   <div class="gallery-group-head">
-    <h2>Avisos y estado</h2>
-    <p>Estado del sistema y respuestas a una acción</p>
+    <h2>Superposición</h2>
+    <p>Lo que se abre encima de la página</p>
   </div>
   <div class="gallery-grid">
-    <!-- Alert -->
-    <article class="card gallery-item wide">
-      {@render head("Avisos", "Mensajes de estado. Ej.: el aviso de vista previa")}
-      <div class="card-body">
-        <div class="gallery-demo">
-          <div class="alert info" role="status">
-            <i class="hgi-stroke hgi-information-circle"></i>
-            <span>
-              <strong>Sincronización programada</strong>
-              Los datos se actualizarán esta noche a las 03:00.
-            </span>
-          </div>
-          <div class="alert ok" role="status">
-            <i class="hgi-stroke hgi-checkmark-circle-02"></i>
-            <span>
-              <strong>Todo correcto</strong>
-              El informe se exportó sin incidencias.
-            </span>
-          </div>
-          <div class="alert warn" role="status">
-            <i class="hgi-stroke hgi-alert-02"></i>
-            <span>
-              <strong>Cuota al 74 %</strong>
-              Quedan 258 K eventos en el plan de este mes.
-            </span>
-          </div>
-          <div class="alert danger" role="alert">
-            <i class="hgi-stroke hgi-cancel-circle"></i>
-            <span>
-              <strong>Pago rechazado</strong>
-              Revisa el método de pago del cliente.
-            </span>
-          </div>
-        </div>
-      </div>
-    </article>
-    <!-- Toast -->
-    <article class="card gallery-item">
-      {@render head("Notificación", "Abre un aviso y ciérralo con la cruz o con Escape.")}
-      <div class="card-body">
-        <div class="gallery-demo">
-          <div class="gallery-row">
-            <button class="btn" popovertarget="demoToast-ok">Éxito</button>
-            <button class="btn" popovertarget="demoToast-info">Info</button>
-            <button class="btn" popovertarget="demoToast-warn">Aviso</button>
-            <button class="btn" popovertarget="demoToast-danger">Error</button>
-          </div>
-          <div class="toast ok" id="demoToast-ok" popover>
-            <i class="ico hgi-stroke hgi-checkmark-circle-02"></i>
-            <span class="t-text">
-              <span>Cambios guardados</span>
-              <span class="t-sub">El informe se actualizó correctamente.</span>
-            </span>
-            <button
-              class="close"
-              popovertarget="demoToast-ok"
-              popovertargetaction="hide"
-              aria-label="Cerrar"
-            >
-              <i class="hgi-stroke hgi-cancel-01"></i>
-            </button>
-          </div>
-          <div class="toast info" id="demoToast-info" popover>
-            <i class="ico hgi-stroke hgi-information-circle"></i>
-            <span class="t-text">
-              <span>Sincronización en curso</span>
-              <span class="t-sub">Terminará en menos de un minuto.</span>
-            </span>
-            <button
-              class="close"
-              popovertarget="demoToast-info"
-              popovertargetaction="hide"
-              aria-label="Cerrar"
-            >
-              <i class="hgi-stroke hgi-cancel-01"></i>
-            </button>
-          </div>
-          <div class="toast warn" id="demoToast-warn" popover>
-            <i class="ico hgi-stroke hgi-alert-02"></i>
-            <span class="t-text">
-              <span>Cuota casi agotada</span>
-              <span class="t-sub">Quedan 258 K eventos este mes.</span>
-            </span>
-            <button
-              class="close"
-              popovertarget="demoToast-warn"
-              popovertargetaction="hide"
-              aria-label="Cerrar"
-            >
-              <i class="hgi-stroke hgi-cancel-01"></i>
-            </button>
-          </div>
-          <div class="toast danger" id="demoToast-danger" popover>
-            <i class="ico hgi-stroke hgi-cancel-circle"></i>
-            <span class="t-text">
-              <span>No se pudo exportar</span>
-              <span class="t-sub">Revisa la conexión e inténtalo de nuevo.</span>
-            </span>
-            <button
-              class="close"
-              popovertarget="demoToast-danger"
-              popovertargetaction="hide"
-              aria-label="Cerrar"
-            >
-              <i class="hgi-stroke hgi-cancel-01"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </article>
     <!-- Modal -->
     <article class="card gallery-item">
       {@render head("Ventana emergente", "Pide una decisión. Ej.: crear una columna")}
@@ -503,44 +393,6 @@
           <button class="btn btn-danger" data-tip="Algo no cuadra" data-tip-tone="error">
             Aviso
           </button>
-        </div>
-      </div>
-    </article>
-    <!-- Loading -->
-    <article class="card gallery-item">
-      {@render head("Carga", "Actividad en curso. Ej.: mientras llega una tabla")}
-      <div class="card-body">
-        <div class="gallery-demo">
-          <div class="gallery-row">
-            <span class="spinner" role="status" aria-label="Cargando"></span>
-            <span class="dots" aria-hidden="true">
-              <i></i>
-              <i></i>
-              <i></i>
-            </span>
-            <span style="font-size: 0.78125rem; color: var(--text-muted)">Cargando…</span>
-          </div>
-          <div class="skeleton" style="width: 100%"></div>
-          <div class="skeleton" style="width: 72%"></div>
-          <div class="skeleton" style="width: 45%"></div>
-        </div>
-      </div>
-    </article>
-    <!-- Progress -->
-    <article class="card gallery-item">
-      {@render head("Progreso", "Cuánto falta. Ej.: la IA trabajando")}
-      <div class="card-body">
-        <div class="gallery-demo">
-          <div class="progress-label">
-            <span>Eventos del plan</span>
-            <span class="number">74 %</span>
-          </div>
-          <progress class="progress" max="100" value="74" aria-label="Eventos del plan"></progress>
-          <div class="progress-label">
-            <span>Almacenamiento</span>
-            <span class="number">31 %</span>
-          </div>
-          <progress class="progress" max="100" value="31" aria-label="Almacenamiento"></progress>
         </div>
       </div>
     </article>

@@ -44,11 +44,15 @@
   /* ---- Secciones: los ids los ponen `routes/Demo.svelte` y `DemoGallery.svelte` ---- */
   const TOP = "demo-main";
   const CATALOG = [
-    { id: "demo-navegacion", label: "Navegación", icon: "navigation-03" },
-    { id: "demo-contenido", label: "Contenido", icon: "layout-01" },
+    { id: "demo-formulario", label: "Formulario", icon: "note-edit" },
+    { id: "demo-datos", label: "Datos", icon: "table-01" },
     { id: "demo-graficas", label: "Gráficas", icon: "analytics-up", isSafe: true },
-    { id: "demo-formulario", label: "Formularios", icon: "note-edit" },
-    { id: "demo-retro", label: "Avisos y estado", icon: "message-01" },
+    { id: "demo-panel", label: "Panel", icon: "layout-01" },
+    { id: "demo-superposicion", label: "Superposición", icon: "layers-01" },
+    { id: "demo-archivo", label: "Archivo", icon: "file-upload" },
+    { id: "demo-menu", label: "Menú", icon: "menu-01" },
+    { id: "demo-mensajes", label: "Mensajes", icon: "message-01" },
+    { id: "demo-varios", label: "Varios", icon: "grid-view" },
   ] as const;
 
   let active = $state<string>(TOP);

@@ -6,8 +6,8 @@
   el momento y se vuelve a pintar todo al cambiar la paleta de la demo o el
   tema, que es lo que vigila el observador de aquí abajo.
 
-  Una de las cinco secciones de la galería; la cabecera de cada ficha y el modal
-  con su código los pone `DemoGallery.svelte`, que es quien las compone.
+  Uno de los grupos de la galería; la cabecera de cada ficha y el modal con su
+  código los pone `DemoGallery.svelte`, que es quien los compone.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -63,9 +63,76 @@
 <div id="demo-graficas" class="gallery-group">
   <div class="gallery-group-head">
     <h2>Gráficas</h2>
-    <p>Canvas de Chart.js pintados con los colores del sistema</p>
+    <p>Cifras y figuras de Chart.js con los colores del sistema</p>
   </div>
   <div class="gallery-grid">
+    <!-- Donut -->
+    <article class="card gallery-item">
+      {@render head("Gráfica de anillo", "Reparto con el total en el centro. En páginas generadas")}
+      <div class="card-body">
+        <div class="donut-wrap">
+          <canvas
+            bind:this={donut}
+            aria-label="Distribución de sesiones por canal; cifras detalladas debajo"
+          ></canvas>
+          <div class="donut-center">
+            <b class="number">{channelsTotal.toLocaleString("es-CO")}</b>
+            <span>sesiones totales</span>
+          </div>
+        </div>
+        <div class="dist-list">
+          {#each CHANNELS as c (c.name)}
+            <div class="dist">
+              <i class="swatch" style="background: var({c.c})"></i>
+              <span class="dist-name">{c.name}</span>
+              <span class="dist-val number">{c.val.toLocaleString("es-CO")}</span>
+              <span class="dist-pct number">
+                {((c.val / channelsTotal) * 100).toLocaleString("es-CO", {
+                  maximumFractionDigits: 1,
+                })} %
+              </span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </article>
+    <!-- Stat -->
+    <article class="card gallery-item">
+      {@render head("Estadística", "Un número con su etiqueta. En páginas generadas")}
+      <div class="card-body">
+        <div class="gallery-demo">
+          <div class="stat">
+            <span class="s-label">Ingresos netos</span>
+            <span class="s-val number">
+              $184.320 <span class="tag tag-success">
+                <i class="hgi-stroke hgi-arrow-up-right-01"></i>
+                12,4 %
+              </span>
+            </span>
+            <span class="s-foot">vs. $163.980 del periodo anterior</span>
+          </div>
+        </div>
+      </div>
+    </article>
+    <!-- Sparkline -->
+    <article class="card gallery-item">
+      {@render head("Minigráfica", "La tendencia debajo de una cifra. En páginas generadas")}
+      <div class="card-body">
+        <div class="stat">
+          <span class="s-label">Ingresos netos</span>
+          <span class="s-val number">
+            $184.320 <span class="tag tag-success">
+              <i class="hgi-stroke hgi-arrow-up-right-01"></i>
+              12,4 %
+            </span>
+          </span>
+          <span class="s-foot">vs. $163.980 del periodo anterior</span>
+        </div>
+        <div class="spark">
+          <canvas bind:this={spark} aria-label="Tendencia creciente de los ingresos netos"></canvas>
+        </div>
+      </div>
+    </article>
     <!-- Line -->
     {#snippet lineRanges()}
       <div class="chips">
@@ -116,36 +183,6 @@
         </div>
       </div>
     </article>
-    <!-- Donut -->
-    <article class="card gallery-item">
-      {@render head("Gráfica de anillo", "Reparto con el total en el centro. En páginas generadas")}
-      <div class="card-body">
-        <div class="donut-wrap">
-          <canvas
-            bind:this={donut}
-            aria-label="Distribución de sesiones por canal; cifras detalladas debajo"
-          ></canvas>
-          <div class="donut-center">
-            <b class="number">{channelsTotal.toLocaleString("es-CO")}</b>
-            <span>sesiones totales</span>
-          </div>
-        </div>
-        <div class="dist-list">
-          {#each CHANNELS as c (c.name)}
-            <div class="dist">
-              <i class="swatch" style="background: var({c.c})"></i>
-              <span class="dist-name">{c.name}</span>
-              <span class="dist-val number">{c.val.toLocaleString("es-CO")}</span>
-              <span class="dist-pct number">
-                {((c.val / channelsTotal) * 100).toLocaleString("es-CO", {
-                  maximumFractionDigits: 1,
-                })} %
-              </span>
-            </div>
-          {/each}
-        </div>
-      </div>
-    </article>
     <!-- Bar -->
     <article class="card gallery-item col-span-2">
       {@render head("Gráfica de barras", "Una barra por categoría. En páginas generadas")}
@@ -187,25 +224,6 @@
               </div>
             </article>
           {/each}
-        </div>
-      </div>
-    </article>
-    <!-- Sparkline -->
-    <article class="card gallery-item">
-      {@render head("Minigráfica", "La tendencia debajo de una cifra. En páginas generadas")}
-      <div class="card-body">
-        <div class="stat">
-          <span class="s-label">Ingresos netos</span>
-          <span class="s-val number">
-            $184.320 <span class="tag tag-success">
-              <i class="hgi-stroke hgi-arrow-up-right-01"></i>
-              12,4 %
-            </span>
-          </span>
-          <span class="s-foot">vs. $163.980 del periodo anterior</span>
-        </div>
-        <div class="spark">
-          <canvas bind:this={spark} aria-label="Tendencia creciente de los ingresos netos"></canvas>
         </div>
       </div>
     </article>

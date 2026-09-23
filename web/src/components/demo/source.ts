@@ -15,10 +15,10 @@
   se ve en el modal es entonces, literalmente, lo que hay escrito en la ficha:
   componentes incluidos, y con sus `{#if}` y sus `{#each}` donde los haya.
 
-  Se leen las cinco secciones y no una sola porque ahi es donde estan las
-  fichas; `DemoGallery.svelte` solo las compone y no tiene ninguna. Cada título
+  Se leen los archivos de los grupos y no uno solo porque ahi es donde estan las
+  fichas; `DemoGallery.svelte` solo los compone y no tiene ninguna. Cada título
   es único en la galeria --es lo que se lee en la cabecera de la ficha-- así que
-  juntar los cinco mapas no pisa nada.
+  juntar los mapas no pisa nada.
 
   Los archivos pesan lo suyo, así que se traen con `import()` y no de entrada:
   lo paga quien abre el código de una ficha, y la primera vez nada mas.
@@ -75,13 +75,17 @@ function parse(raw: string): Map<string, string> {
 
 let pending: Promise<Map<string, string>> | null = null;
 
-/** Las secciones de la galeria, que es donde estan las fichas. */
+/** Los grupos de la galeria, que es donde estan las fichas. */
 const SECTIONS = [
-  () => import("./DemoNavegacion.svelte?raw"),
-  () => import("./DemoContenido.svelte?raw"),
+  () => import("./DemoFormulario.svelte?raw"),
+  () => import("./DemoDatos.svelte?raw"),
   () => import("./DemoGraficas.svelte?raw"),
-  () => import("./DemoFormularios.svelte?raw"),
-  () => import("./DemoAvisos.svelte?raw"),
+  () => import("./DemoPanel.svelte?raw"),
+  () => import("./DemoSuperposicion.svelte?raw"),
+  () => import("./DemoArchivo.svelte?raw"),
+  () => import("./DemoMenu.svelte?raw"),
+  () => import("./DemoMensajes.svelte?raw"),
+  () => import("./DemoVarios.svelte?raw"),
 ];
 
 /** El ejemplo de cada ficha, por el título de su cabecera. */

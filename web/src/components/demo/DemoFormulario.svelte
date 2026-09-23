@@ -1,11 +1,13 @@
 <!--
-  Formularios: campos de texto, selectores, casillas, interruptores y todo lo
-  que se rellena antes de guardar.
+  Formulario: todo lo que se rellena y se pulsa antes de guardar --campos,
+  selectores, casillas, interruptores y los botones que cierran la faena--, y
+  las marcas con las que un campo o una fila contestan: etiquetas, indicadores
+  y la barra de lo que va hecho.
 
-  Una de las cinco secciones de la galería; la cabecera de cada ficha y el modal
-  con su código los pone `DemoGallery.svelte`, que es quien las compone. Lo que
-  se ve aquí no lo pinta este archivo sino `styles/components.css`, igual que en
-  el resto del panel.
+  Uno de los grupos de la galería; la cabecera de cada ficha y el modal con su
+  código los pone `DemoGallery.svelte`, que es quien los compone. Lo que se ve
+  aquí no lo pinta este archivo sino `styles/components.css`, igual que en el
+  resto del panel.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -14,14 +16,15 @@
   let rating = $state(4);
   let visibility = $state("publica");
   let color = $state("Azul");
+  let tagVisible = $state(true);
 
   let { head }: { head: Snippet<[string, string, Snippet?]> } = $props();
 </script>
 
 <div id="demo-formulario" class="gallery-group">
   <div class="gallery-group-head">
-    <h2>Formularios</h2>
-    <p>Entradas y controles de selección</p>
+    <h2>Formulario</h2>
+    <p>Entradas, controles de selección, botones y marcas de estado</p>
   </div>
   <div class="gallery-grid">
     <!-- Input field -->
@@ -343,67 +346,6 @@
         </div>
       </div>
     </article>
-    <!-- Opciones -->
-    <article class="card gallery-item wide col-span-2">
-      {@render head("Tarjetas de selección", "Tarjetas de selección. Ej.: el tipo de una columna")}
-      <div class="card-body">
-        <div class="gallery-demo">
-          <!-- prettier-ignore -->
-          <p class="demo-note">
-              Cada tarjeta lleva su nombre y una línea que lo explica, y se tiñe al elegirla.
-              <code>opt-row</code> es la misma caja sin nada que elegir, con su mando a la derecha.
-            </p>
-
-          <div class="demo-opt-grid">
-            <button
-              type="button"
-              class="btn-demo-public opt"
-              class:active={visibility === "publica"}
-              aria-pressed={visibility === "publica"}
-              onclick={() => (visibility = "publica")}
-            >
-              <i class="hgi-stroke hgi-globe-02" aria-hidden="true"></i>
-              <span class="opt-body">
-                <span class="opt-label">Pública</span>
-                <span class="opt-hint">Cualquiera con el enlace entra</span>
-              </span>
-            </button>
-            <button
-              type="button"
-              class="btn-demo-private opt"
-              class:active={visibility === "privada"}
-              aria-pressed={visibility === "privada"}
-              onclick={() => (visibility = "privada")}
-            >
-              <i class="hgi-stroke hgi-user-lock-01" aria-hidden="true"></i>
-              <span class="opt-body">
-                <span class="opt-label">Requiere iniciar sesión</span>
-                <span class="opt-hint">Solo las personas invitadas</span>
-              </span>
-            </button>
-            <button type="button" class="opt" disabled>
-              <i class="hgi-stroke hgi-building-03" aria-hidden="true"></i>
-              <span class="opt-body">
-                <span class="opt-label">Solo mi organización</span>
-                <span class="opt-hint">Todavía no disponible</span>
-              </span>
-            </button>
-          </div>
-
-          <div class="opt-row">
-            <div class="opt-body">
-              <span class="opt-label">Generación con IA activa</span>
-              <span class="opt-hint">
-                Mientras esté apagado, el panel de IA no aparece en el constructor.
-              </span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" checked aria-label="Generación con IA activa" />
-            </label>
-          </div>
-        </div>
-      </div>
-    </article>
     <!-- Cuadros de color -->
     <article class="card gallery-item">
       {@render head(
@@ -474,36 +416,6 @@
         </div>
       </div>
     </article>
-    <!-- Zona de arrastre -->
-    <article class="card gallery-item wide col-span-2">
-      {@render head("Carga de archivos", "Donde se sueltan archivos. Ej.: importar un CSV")}
-      <div class="card-body">
-        <div class="gallery-demo">
-          <!-- prettier-ignore -->
-          <p class="demo-note">
-              Tres estados de ejemplo: vacío, archivo válido y archivo rechazado.
-              <code>loaded</code> cuando se ha leído, <code>rejected</code> cuando no sirve; el
-              motivo lo da el aviso de al lado.
-            </p>
-          <div class="demo-dropzones">
-            <div class="dropzone">
-              <i class="hgi-stroke hgi-upload-01" aria-hidden="true"></i>
-              <span class="dropzone-hint">Estado vacío · CSV, Excel o JSON</span>
-            </div>
-            <div class="dropzone loaded">
-              <i class="hgi-stroke hgi-checkmark-circle-02" aria-hidden="true"></i>
-              <span class="dropzone-lead">pedidos-marzo.csv</span>
-              <span class="dropzone-hint">Archivo listo para importar</span>
-            </div>
-            <div class="dropzone rejected">
-              <i class="hgi-stroke hgi-alert-circle" aria-hidden="true"></i>
-              <span class="dropzone-lead">informe.pdf</span>
-              <span class="dropzone-hint">Formato no compatible. Usa CSV, Excel o JSON.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </article>
     <!-- Fieldset -->
     <article class="card gallery-item">
       {@render head("Grupo de opciones", "Controles bajo una leyenda. En páginas generadas")}
@@ -526,6 +438,230 @@
             <span>Cualquiera con el enlace</span>
           </label>
         </fieldset>
+      </div>
+    </article>
+    <!-- Button -->
+    <article class="card gallery-item wide">
+      {@render head("Botones", "Variantes, tamaños y estados")}
+      <div class="card-body">
+        <div class="gallery-demo">
+          <p class="demo-variant-label">Principal, secundario y deshabilitado</p>
+          <div class="gallery-row">
+            <button class="btn btn-primary">
+              <i class="hgi-stroke hgi-checkmark-circle-02"></i>
+              Guardar cambios
+            </button>
+            <button class="btn">
+              Cancelar
+              <i class="hgi-stroke hgi-arrow-right-01"></i>
+            </button>
+            <button class="btn" disabled>Deshabilitado</button>
+          </div>
+          <p class="demo-variant-label">Sin fondo</p>
+          <div class="gallery-row">
+            <button class="btn btn-ghost">Sin fondo</button>
+            <button class="btn btn-ghost" disabled>Deshabilitado</button>
+          </div>
+          <p class="demo-variant-label">Acciones destructivas</p>
+          <div class="gallery-row">
+            <button class="btn btn-danger">
+              <i class="hgi-stroke hgi-delete-02"></i>
+              Eliminar
+            </button>
+            <button class="btn btn-danger" disabled>Eliminar</button>
+            <button class="btn btn-ghost btn-danger">Quitar del equipo</button>
+          </div>
+          <!--
+              `btn-danger-quiet` no grita en reposo: se lee como cualquier otro
+              botón de la fila y solo avisa cuando el cursor ya está encima, que
+              es el instante en que importa. Para lo que sale de una barra o un pie.
+            -->
+          <p class="demo-variant-label">Acciones discretas</p>
+          <div class="gallery-row">
+            <button class="btn btn-danger-quiet">Cerrar sesión</button>
+            <button class="btn-icon sm btn-danger-quiet" aria-label="Cerrar sesión">
+              <i class="hgi-stroke hgi-logout-03"></i>
+            </button>
+          </div>
+          <p class="demo-variant-label">Solo icono</p>
+          <div class="gallery-row">
+            <button class="btn-icon btn-rounded" aria-label="Más opciones">
+              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+            </button>
+            <button class="btn-icon btn-ghost btn-rounded" aria-label="Más opciones">
+              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+            </button>
+            <button class="btn-icon" aria-label="Más opciones">
+              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+            </button>
+            <button class="btn-icon btn-ghost" aria-label="Más opciones">
+              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+            </button>
+          </div>
+          <p class="demo-variant-label">Durante una operación</p>
+          <div class="gallery-row">
+            <button class="btn btn-primary is-loading" disabled aria-busy="true">
+              <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
+              Guardando…
+            </button>
+            <button class="btn is-loading" disabled aria-busy="true">
+              <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
+              Procesando…
+            </button>
+            <button class="btn-icon is-loading" disabled aria-busy="true" aria-label="Cargando">
+              <i class="hgi-stroke hgi-loading-03"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+    <!-- Tag -->
+    <article class="card gallery-item">
+      {@render head("Etiquetas", "Categoría o estado. Ej.: una versión de solo lectura")}
+      <div class="card-body">
+        <div class="gallery-demo">
+          <div class="gallery-row">
+            <span class="tag tint-1">Azul</span>
+            <span class="tag tint-2">Violeta</span>
+            <span class="tag tint-3">Ciruela</span>
+            <span class="tag tint-4">Rojo</span>
+            <span class="tag tint-5">Teja</span>
+          </div>
+          <div class="gallery-row">
+            <span class="tag tint-6">Ámbar</span>
+            <span class="tag tint-7">Oliva</span>
+            <span class="tag tint-8">Verde</span>
+            <span class="tag tint-9">Turquesa</span>
+            <span class="tag tint-10">Pizarra</span>
+          </div>
+          <div class="gallery-row">
+            <span class="tag tag-success">
+              <i class="hgi-stroke hgi-checkmark-circle-02"></i>
+              Correcto
+            </span>
+            <span class="tag tag-warning">
+              <i class="hgi-stroke hgi-alert-02"></i>
+              Aviso
+            </span>
+            <span class="tag tag-error">
+              <i class="hgi-stroke hgi-cancel-circle"></i>
+              Error
+            </span>
+          </div>
+          <div class="gallery-row">
+            {#if tagVisible}
+              <span class="tag tint-1">
+                Filtro
+                <button
+                  type="button"
+                  class="tag-remove"
+                  onclick={() => (tagVisible = false)}
+                  aria-label="Quitar Filtro"
+                  data-tip="Quitar"
+                >
+                  <i class="hgi-stroke hgi-cancel-01"></i>
+                </button>
+              </span>
+            {:else}
+              <button class="btn-restore-demo-tag btn sm" onclick={() => (tagVisible = true)}>
+                Restablecer etiqueta
+              </button>
+            {/if}
+            <span class="tag">Sin asignar</span>
+          </div>
+        </div>
+      </div>
+    </article>
+    <!-- Badge -->
+    <article class="card gallery-item">
+      {@render head("Indicadores", "Aviso sobre un elemento. Ej.: un archivo en el chat")}
+      <div class="card-body">
+        <div class="gallery-demo">
+          <div class="gallery-row">
+            <button class="btn badge-success" data-tip="Todo correcto">Sincronizado</button>
+            <button class="btn badge-warning" data-tip="Requiere atención">Atención</button>
+            <button class="btn badge-error" data-tip="Con incidencias">Error</button>
+          </div>
+        </div>
+      </div>
+    </article>
+    <!-- Progress -->
+    <article class="card gallery-item">
+      {@render head("Progreso", "Cuánto falta. Ej.: la IA trabajando")}
+      <div class="card-body">
+        <div class="gallery-demo">
+          <div class="progress-label">
+            <span>Eventos del plan</span>
+            <span class="number">74 %</span>
+          </div>
+          <progress class="progress" max="100" value="74" aria-label="Eventos del plan"></progress>
+          <div class="progress-label">
+            <span>Almacenamiento</span>
+            <span class="number">31 %</span>
+          </div>
+          <progress class="progress" max="100" value="31" aria-label="Almacenamiento"></progress>
+        </div>
+      </div>
+    </article>
+    <!-- Opciones -->
+    <article class="card gallery-item wide col-span-2">
+      {@render head("Tarjetas de selección", "Tarjetas de selección. Ej.: el tipo de una columna")}
+      <div class="card-body">
+        <div class="gallery-demo">
+          <!-- prettier-ignore -->
+          <p class="demo-note">
+              Cada tarjeta lleva su nombre y una línea que lo explica, y se tiñe al elegirla.
+              <code>opt-row</code> es la misma caja sin nada que elegir, con su mando a la derecha.
+            </p>
+
+          <div class="demo-opt-grid">
+            <button
+              type="button"
+              class="btn-demo-public opt"
+              class:active={visibility === "publica"}
+              aria-pressed={visibility === "publica"}
+              onclick={() => (visibility = "publica")}
+            >
+              <i class="hgi-stroke hgi-globe-02" aria-hidden="true"></i>
+              <span class="opt-body">
+                <span class="opt-label">Pública</span>
+                <span class="opt-hint">Cualquiera con el enlace entra</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              class="btn-demo-private opt"
+              class:active={visibility === "privada"}
+              aria-pressed={visibility === "privada"}
+              onclick={() => (visibility = "privada")}
+            >
+              <i class="hgi-stroke hgi-user-lock-01" aria-hidden="true"></i>
+              <span class="opt-body">
+                <span class="opt-label">Requiere iniciar sesión</span>
+                <span class="opt-hint">Solo las personas invitadas</span>
+              </span>
+            </button>
+            <button type="button" class="opt" disabled>
+              <i class="hgi-stroke hgi-building-03" aria-hidden="true"></i>
+              <span class="opt-body">
+                <span class="opt-label">Solo mi organización</span>
+                <span class="opt-hint">Todavía no disponible</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="opt-row">
+            <div class="opt-body">
+              <span class="opt-label">Generación con IA activa</span>
+              <span class="opt-hint">
+                Mientras esté apagado, el panel de IA no aparece en el constructor.
+              </span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" checked aria-label="Generación con IA activa" />
+            </label>
+          </div>
+        </div>
       </div>
     </article>
   </div>
