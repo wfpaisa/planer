@@ -527,7 +527,7 @@
       flex-shrink: 0;
       align-items: center;
       gap: 0.125rem;
-      padding-inline: var(--sp-12);
+      padding: 0 var(--sp-8);
 
       & .title-tables {
         display: flex;
@@ -537,8 +537,11 @@
         gap: var(--sp-6);
 
         /* El rotulo es `.eyebrow` del catálogo; aqui solo el peso, que en
-           una barra estrecha manda un punto mas que en una lista. */
+           una barra estrecha manda un punto mas que en una lista. El
+           margen de abajo que trae de fábrica es para cuando encabeza un
+           bloque; aquí vive en una fila y descuadraba el texto. */
         & .title-tables-label {
+          margin: 0;
           font-weight: 600;
         }
 
