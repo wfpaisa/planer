@@ -113,7 +113,9 @@
   - Con datos o sólo la estructura, como plantilla vacía
   - Al importar se elige primero el archivo y después el nombre, avisando de que se crea una aplicación nueva y no se reemplaza ninguna
   - Importar también desde la pantalla de aplicaciones, con el mismo diálogo
-  - Las cuentas de las personas invitadas no viajan; lo que las filas decían de ellas queda como valor sin enlace
+  - Las personas invitadas viajan con los datos: correo, nombre, roles y columnas propias, conservando el id de su fila para que las columnas que las nombran sigan enlazadas
+  - La clave no viaja: cada persona entra con su correo y se le pone la clave desde su fila
+  - Sólo la estructura: no viaja ninguna persona, y lo que las filas decían de ellas queda como valor sin enlace
   - Lo importado entra siempre como borrador, con enlace propio
 - **Versiones e historial**
 

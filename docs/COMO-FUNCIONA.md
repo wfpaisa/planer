@@ -62,10 +62,23 @@ apretar al final: entre una vuelta y la otra toda fila pasa por un momento con
 su relación vacía, y con la columna ya obligatoria la base rechazaría ese
 momento.
 
-Las cuentas de las personas invitadas no viajan. Una cuenta es de una aplicación
-y de ninguna otra --la identidad lleva delante el id de la app, ver `loginFor`--
-así que copiarla no daría acceso a nadie. Lo que sí se conserva es lo que las
-filas decían de cada persona: una columna que apuntaba a alguien sale con el
+Las personas invitadas viajan con los datos: el correo, el nombre, los roles y
+las columnas que la aplicación les puso. Su fila nace con el id que traía, y eso
+es lo que deja enlazadas las columnas que las nombran --las filas de las demás
+tablas llegan apuntando a ese mismo id-- así que una copia conserva exactamente
+los mismos enlaces a personas que el original.
+
+Lo que no viaja es la clave. Una cuenta es de una aplicación y de ninguna otra
+--la identidad lleva delante el id de la app, ver `loginFor`-- así que la de
+allá no abriría nada aquí y hay que hacerla de nuevo de todos modos; y llevar
+claves de un servidor a otro dentro de un archivo que se manda por correo no es
+algo que esta plataforma vaya a hacer. Cada persona nace con una clave de un
+solo uso que nadie ve, igual que al importarlas desde un archivo: se entra con
+el correo y la clave se pone desde la fila de cada una.
+
+Sin los datos --una plantilla vacía-- no viaja ninguna persona: una plantilla no
+tiene por qué llevarse la lista de correos de nadie. Ahí sí se conserva lo que
+las filas decían de cada una: la columna que apuntaba a alguien sale con el
 valor a la vista y sin enlace, que es exactamente el hueco que el panel ya sabe
 rellenar (`relationCellValues` en `shared/relations.ts`).
 

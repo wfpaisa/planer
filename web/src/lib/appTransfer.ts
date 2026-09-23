@@ -68,5 +68,6 @@ export function transferSummary(result: TransferResult): string {
   ];
   if (result.filas) partes.push(plural(result.filas, "fila", "filas"));
   if (result.archivos) partes.push(plural(result.archivos, "archivo", "archivos"));
+  if (result.personas) partes.push(plural(result.personas, "persona", "personas"));
   return `"${result.name}" quedó lista con ${partes.join(", ")}.`;
 }

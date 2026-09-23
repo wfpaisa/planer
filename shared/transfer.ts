@@ -6,14 +6,24 @@
  * su apariencia y sus roles, sus tablas con sus columnas, sus páginas con el
  * HTML de cada una, las filas y los archivos adjuntos.
  *
- * Lo que **no** viaja son las personas invitadas. Una cuenta es de una
- * aplicación y de ninguna otra --la identidad lleva delante el id de la app,
- * ver `loginFor` en `shared/people.ts`-- así que copiarla no daria acceso a
- * nadie, y llevarse claves de un servidor a otro dentro de un archivo que se
- * manda por correo no es algo que esta plataforma vaya a hacer. Lo que si se
- * conserva es lo que las filas decian de cada persona: una columna que
- * apuntaba a alguien sale con el valor a la vista, sin enlace, que es
- * exactamente el hueco que el panel ya sabe rellenar.
+ * Las personas invitadas viajan con los datos: su correo, su nombre, sus roles
+ * y las columnas que la aplicación les puso. Lo que no viaja es la clave.
+ *
+ * No es que se olvide: una cuenta es de una aplicación y de ninguna otra --la
+ * identidad lleva delante el id de la app, ver `loginFor` en
+ * `shared/people.ts`-- así que la cuenta de alla no abriria nada aquí y hay
+ * que hacerla de nuevo de todas formas. Y llevar claves de un servidor a otro
+ * dentro de un archivo que se manda por correo no es algo que esta plataforma
+ * vaya a hacer. Al importar, cada persona nace con una clave de un solo uso
+ * que nadie ve: se le pone la suya desde su fila, igual que a quien se invita
+ * a mano.
+ *
+ * La consecuencia buena de que viajen es que las columnas que las nombran
+ * siguen enlazadas: el id de su fila se conserva, así que una columna de
+ * persona llega apuntando a la misma persona y no a un valor suelto. Sin los
+ * datos --una plantilla vacía-- no viaja ninguna, y entonces si: lo que las
+ * filas decian de cada una sale con el valor a la vista y sin enlace, que es
+ * el hueco que el panel ya sabe rellenar.
  *
  * Nada aquí dentro nombra un id de PocketBase: las tablas se nombran por su
  * nombre tecnico y las columnas por el suyo. Es lo que permite que el archivo
@@ -73,6 +83,26 @@ export interface TransferTable {
   filas: number;
 }
 
+/**
+ * Una persona invitada, sin nada que dependa de esta instalacion.
+ *
+ * No lleva el id de su cuenta --es de la aplicación de origen y alli se
+ * queda-- pero si el de su fila en la tabla de personas: es el ancla de toda
+ * columna que la nombre, y conservarlo es lo que deja esas columnas enlazadas
+ * al llegar. Sus columnas propias no estan aquí: viajan como las filas de
+ * cualquier otra tabla, que es lo que su fila es.
+ */
+export interface TransferPerson {
+  /** Id de su fila en la tabla de personas. Se conserva al importar. */
+  fila: string;
+  /** El correo con el que entra. Es su llave dentro de la aplicación. */
+  cuenta: string;
+  /** Como se llama. Vacío: se toma la parte del correo. */
+  name: string;
+  /** Los roles que tiene en la aplicación. Los que ella no defina se caen. */
+  roles: string[];
+}
+
 export interface TransferPage {
   name: string;
   slug: string;
@@ -101,6 +131,11 @@ export interface PlanerManifest {
   };
   tablas: TransferTable[];
   paginas: TransferPage[];
+  /**
+   * Las personas invitadas, con sus roles. Solo viajan con los datos: una
+   * plantilla vacía no tiene por que llevarse la lista de correos de nadie.
+   */
+  personas?: TransferPerson[];
   /** El comprimido trae las filas de las tablas. */
   datos: boolean;
   /** Cuantos archivos adjuntos trae. */
@@ -116,6 +151,8 @@ export interface TransferResult {
   paginas: number;
   filas: number;
   archivos: number;
+  /** Cuantas personas invitadas entraron, con sus roles. */
+  personas: number;
   /**
    * Lo que no se pudo traer tal cual, dicho en frases. Vacío: entro todo.
    *

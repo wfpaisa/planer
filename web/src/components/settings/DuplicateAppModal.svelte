@@ -56,8 +56,8 @@
   {onClose}
   title="Duplicar aplicación"
   description={datos
-    ? "La copia se lleva las tablas, las pantallas y todo lo que hay dentro."
-    : "La copia se lleva las tablas y las pantallas, vacías: sin las filas ni los adjuntos."}
+    ? "La copia se lleva las tablas, las pantallas, todo lo que hay dentro y las personas invitadas con sus roles."
+    : "La copia se lleva las tablas y las pantallas, vacías: sin las filas, sin los adjuntos y sin nadie invitado."}
 >
   <!-- Lo que falle se dice en el aviso de la pantalla, que se dibuja por
        encima del modal: repetirlo aquí dentro sacaria el mismo texto dos

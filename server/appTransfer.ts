@@ -8,8 +8,8 @@
  * se queda en memoria-- pero recorre exactamente el mismo código, así que una
  * copia y un archivo importado no pueden salir distintos.
  *
- * El formato esta descrito en `shared/transfer.ts`, incluido por que las
- * personas invitadas no viajan.
+ * El formato esta descrito en `shared/transfer.ts`, incluido que viaja de cada
+ * persona invitada y que no.
  *
  * ### Lo que hay que deshacer para que el paquete viaje
  *
@@ -30,6 +30,9 @@ import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 
 import {
   isPeopleTable,
+  loginFor,
+  MEMBER_FIELD,
+  newPassword,
   peopleInitialFields,
   personKeyValue,
   storedFields,
@@ -44,6 +47,7 @@ import {
   ROWS_DIR,
   type TransferField,
   type TransferPage,
+  type TransferPerson,
   type TransferResult,
   type TransferSource,
   type TransferTable,
@@ -154,6 +158,13 @@ function fileNames(value: unknown): string[] {
   return one ? [one] : [];
 }
 
+/** Los ids que guarda una celda que nombra personas, siempre como lista. */
+function personIds(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map((v) => String(v ?? "")).filter(Boolean);
+  const one = String(value ?? "");
+  return one ? [one] : [];
+}
+
 /**
  * Lo que se enseñaria de una persona en la celda que la nombra.
  *
@@ -180,12 +191,38 @@ export async function exportApp(app: AppRecord, opts: { datos: boolean }): Promi
   const nameById = new Map(tables.map((t) => [t.id, t.name]));
   const byId = new Map(tables.map((t) => [t.id, t]));
   const peopleTable = tables.find((t) => isPeopleTable(t)) ?? null;
-  // Solo se piden si alguna columna apunta a personas: en una aplicación sin
-  // esa clase de columna, la lista de invitados no pinta nada aquí.
-  const needsPeople = tables.some((t) =>
+  /*
+   * Los invitados se piden si van a viajar --lo hacen con los datos-- o si
+   * alguna columna los nombra, que es cuando hace falta saber lo que esa
+   * columna enseñaba aunque ellos se queden. En una aplicación sin datos y sin
+   * columnas de persona, la lista de invitados no pinta nada aquí.
+   */
+  const named = tables.some((t) =>
     (t.fields ?? []).some((f) => isRelationField(f) && f.relationTableId === peopleTable?.id),
   );
-  const people = needsPeople ? await peopleOf(app.id) : [];
+  const people = peopleTable && (opts.datos || named) ? await peopleOf(app.id) : [];
+
+  /*
+   * Las personas viajan con los datos y no siempre: sin ellos el archivo es
+   * una plantilla, y una plantilla no tiene por que llevarse la lista de
+   * correos de nadie a otro servidor.
+   *
+   * Solo las que tienen fila. Sin ella no hay nada que conservar --su id es el
+   * ancla de toda columna que la nombre-- y una invitacion sin fila es un
+   * estado a medias que `syncPersonRows` repone sola.
+   */
+  const personas: TransferPerson[] = opts.datos
+    ? people
+        .filter((p) => p.fila)
+        .map((p) => ({
+          fila: String(p.fila),
+          cuenta: p.email,
+          name: p.name,
+          roles: [...p.roles],
+        }))
+    : [];
+  /** Las que viajan, por el id de su fila. Lo demás sigue siendo un valor suelto. */
+  const traveling = new Set(personas.map((p) => p.fila));
 
   const docs = new Map<string, string>();
   const rows = new Map<string, Record<string, unknown>[]>();
@@ -208,10 +245,21 @@ export async function exportApp(app: AppRecord, opts: { datos: boolean }): Promi
       fields.push({ ...rest, relationTable: target });
     }
 
-    const exportRows = opts.datos && !isPeopleTable(table);
-    const items = exportRows ? await allRows(table.dataCollection) : [];
-    if (exportRows) {
-      rows.set(table.name, await portableRows(table, items, { byId, peopleTable, people, files }));
+    /*
+     * La tabla de personas suelta sus filas como cualquier otra: lo que las
+     * hace distintas --el correo y los roles-- no esta en ellas, y lo que si
+     * esta son las columnas que la aplicación les puso. Lo único que se deja
+     * fuera es la fila de quien no viaja.
+     */
+    let items = opts.datos ? await allRows(table.dataCollection) : [];
+    if (opts.datos && isPeopleTable(table)) {
+      items = items.filter((row) => traveling.has(String(row.id ?? "")));
+    }
+    if (opts.datos) {
+      rows.set(
+        table.name,
+        await portableRows(table, items, { byId, peopleTable, people, traveling, files }),
+      );
     }
 
     tablas.push({
@@ -278,6 +326,7 @@ export async function exportApp(app: AppRecord, opts: { datos: boolean }): Promi
     },
     tablas,
     paginas,
+    personas,
     datos: opts.datos,
     archivos: files.length,
   };
@@ -300,6 +349,8 @@ async function portableRows(
     byId: Map<string, TableRecord>;
     peopleTable: TableRecord | null;
     people: AppPerson[];
+    /** Ids de fila de las personas que viajan en este paquete. */
+    traveling: Set<string>;
     files: BundleFile[];
   },
 ): Promise<Record<string, unknown>[]> {
@@ -332,15 +383,26 @@ async function portableRows(
         if (!target) continue;
 
         /*
-         * Las personas no viajan. Lo que la celda enseñaba, si: entra en la
-         * otra mitad de la celda, la que guarda un valor todavía sin dueno.
+         * Una columna que nombra a una persona.
          *
-         * Una columna de personas de varios valores se va entera, y no hay
-         * donde ponerla: el corralito es de la relación de un solo valor --son
-         * las dos mitades de una misma celda, ver `toPbFields` en
-         * `server/schema.ts`-- y una lista de nombres no cabe en el.
+         * Si esa persona viaja, la celda viaja enlazada como cualquier otra
+         * relación: su fila lleva el mismo id al llegar, así que el enlace
+         * sigue en pie sin emparejar nada.
+         *
+         * Si no viaja --una plantilla sin datos, o alguien que ya no esta
+         * invitado-- lo que la celda enseñaba entra en la otra mitad de la
+         * celda, la que guarda un valor todavía sin dueno. Ahí una columna de
+         * varios valores se va entera y no hay donde ponerla: el corralito es
+         * de la relación de un solo valor --son las dos mitades de una misma
+         * celda, ver `toPbFields` en `server/schema.ts`-- y una lista de
+         * nombres no cabe en el.
          */
         if (ctx.peopleTable && target.id === ctx.peopleTable.id) {
+          const linked = personIds(value).filter((id) => ctx.traveling.has(id));
+          if (linked.length) {
+            row[field.name] = field.multiple === true ? linked : linked[0];
+            continue;
+          }
           if (field.multiple === true) continue;
           const key = displayFieldOf(field) || firstUnique(ctx.peopleTable) || "cuenta";
           const label = personLabel(ctx.people, String(value ?? ""), key);
@@ -487,6 +549,7 @@ export function fileToBundle(bytes: Uint8Array): TransferBundle {
 interface Tally {
   filas: number;
   archivos: number;
+  personas: number;
   avisos: string[];
 }
 
@@ -519,7 +582,7 @@ export async function importBundle(
     roles: withAdminRole(sanitizeRoles(manifest.aplicacion.roles)),
   });
 
-  const tally: Tally = { filas: 0, archivos: 0, avisos: [] };
+  const tally: Tally = { filas: 0, archivos: 0, personas: 0, avisos: [] };
 
   try {
     // Las relaciones obligatorias que haya que apretar al final, cuando las
@@ -528,7 +591,12 @@ export async function importBundle(
 
     const tables = await createTables(app, manifest.tablas, tally, strict);
     await createPages(bundle, app, tables, tally);
-    if (manifest.datos) await fillTables(bundle, tables, tally);
+    if (manifest.datos) {
+      // Antes de volcar las filas: las de la tabla de personas nacen aquí, y
+      // cualquier columna que nombre a alguien necesita que esa fila exista.
+      await createPeople(bundle, app, tables, tally);
+      await fillTables(bundle, tables, tally);
+    }
     await tightenRelations(tables, strict);
 
     return {
@@ -541,6 +609,7 @@ export async function importBundle(
         paginas: (manifest.paginas ?? []).length,
         filas: tally.filas,
         archivos: tally.archivos,
+        personas: tally.personas,
         avisos: tally.avisos,
       },
     };
@@ -768,6 +837,96 @@ async function createPages(
 }
 
 /**
+ * Vuelve a invitar a las personas que traia el paquete.
+ *
+ * Cada una son tres cosas en tres sitios --la cuenta, el enlace que le da los
+ * roles y su fila en la tabla de personas-- y aquí se hacen las tres, en ese
+ * orden, porque cada una necesita la anterior.
+ *
+ * Su fila nace con el id que traia. Es lo que deja enlazadas las columnas que
+ * la nombran: las filas de las demás tablas llegan apuntando a ese id, y se
+ * vuelcan justo después de esto.
+ *
+ * La clave no viaja y no puede viajar: la cuenta de alla es de aquella
+ * aplicación --ver `loginFor`-- así que hay que hacer una nueva de todas
+ * formas. Nace con una de un solo uso que no se enseña en ningún sitio, que es
+ * lo mismo que ya hace importar personas desde un archivo: se entra con el
+ * correo y la clave se pone desde la fila de cada una.
+ */
+async function createPeople(
+  bundle: TransferBundle,
+  app: AppRecord,
+  tables: Map<string, TableRecord>,
+  tally: Tally,
+) {
+  const personas = bundle.manifest.personas ?? [];
+  if (!personas.length) return;
+
+  const table = [...tables.values()].find((t) => isPeopleTable(t));
+  if (!table) {
+    warn(tally, "El archivo traía personas invitadas, pero no la tabla donde viven.");
+    return;
+  }
+
+  // Sus columnas propias viajan como las filas de cualquier otra tabla. Lo que
+  // apunta a otras se deja para la segunda vuelta de `fillTables`, igual que
+  // en todas: la fila de al lado puede no existir todavía.
+  const own = new Map(
+    (bundle.rows.get(table.name) ?? []).map((row) => [String(row.id ?? ""), row]),
+  );
+  const relations = new Set(
+    (table.fields ?? []).filter((f) => isRelationField(f)).map((f) => f.name),
+  );
+
+  for (const persona of personas) {
+    const email = String(persona.cuenta ?? "")
+      .trim()
+      .toLowerCase();
+    if (!email.includes("@") || !persona.fila) {
+      warn(tally, "Alguna persona del archivo venía sin correo y se quedó fuera.");
+      continue;
+    }
+
+    try {
+      const password = newPassword();
+      const account = await createRecord<{ id: string }>(INTERNAL.members, {
+        app: app.id,
+        cuenta: email,
+        login: loginFor(app.id, email),
+        password,
+        passwordConfirm: password,
+        name: persona.name || email.split("@")[0],
+        verified: true,
+      });
+
+      await createRecord(INTERNAL.access, {
+        app: app.id,
+        member: account.id,
+        roles: sanitizeRoles(persona.roles, app.roles ?? []),
+      });
+
+      const row = own.get(persona.fila) ?? {};
+      const body: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(row)) {
+        if (key === "id" || relations.has(key)) continue;
+        body[key] = value;
+      }
+      await createRecord(table.dataCollection, {
+        id: persona.fila,
+        [MEMBER_FIELD]: account.id,
+        ...body,
+      });
+      tally.personas++;
+    } catch {
+      warn(
+        tally,
+        `No se pudo invitar a "${email}", así que lo que las filas decían de esa persona quedó sin enlace.`,
+      );
+    }
+  }
+}
+
+/**
  * Vuelca las filas, en dos vueltas sobre **todas** las tablas.
  *
  * La primera crea cada fila con lo que no depende de nadie; la segunda le pone
@@ -796,6 +955,9 @@ async function fillTables(bundle: TransferBundle, tables: Map<string, TableRecor
   for (const [tabla, rows] of bundle.rows) {
     const table = tables.get(tabla);
     if (!table) continue;
+    // Las de personas ya existen: las creo `createPeople` junto con la cuenta
+    // de cada una, que es lo que una fila de esa tabla necesita para existir.
+    if (isPeopleTable(table)) continue;
     const relations = relationsOf(table);
 
     for (const row of rows) {

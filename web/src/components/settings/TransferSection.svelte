@@ -186,13 +186,16 @@
 
     <Switch bind:checked={datos} label="Llevar también los datos" />
     <p class="transfer-hint">
-      Las filas de cada tabla y los archivos adjuntos. Sin marcar sale sólo la estructura: las
-      mismas tablas y las mismas pantallas, vacías.
+      Las filas de cada tabla, los archivos adjuntos y las personas invitadas con sus roles. Sin
+      marcar sale sólo la estructura: las mismas tablas, las mismas pantallas y los mismos roles,
+      sin nadie y sin nada dentro.
     </p>
 
     <p class="transfer-hint">
-      Las personas invitadas no viajan nunca: su cuenta es de esa aplicación y de ninguna otra. Lo
-      que cada fila decía de ellas sí se conserva, a la vista y sin enlace.
+      Lo que no viaja nunca es la clave de cada persona: la cuenta es de una aplicación y de ninguna
+      otra, así que se hace de nuevo. Entra con su correo y la clave se le pone desde su fila. Sin
+      los datos no viaja ninguna, y entonces lo que cada fila decía de ellas se conserva a la vista
+      y sin enlace.
     </p>
   {/if}
 
@@ -210,6 +213,11 @@
   {#if done}
     <div class="transfer-result inset flex flex-col gap-2">
       <p class="transfer-summary">{transferSummary(done)}</p>
+      {#if done.personas}
+        <p class="transfer-hint">
+          Cada persona entra con su correo; la clave se le pone desde su fila.
+        </p>
+      {/if}
       {#if done.avisos.length}
         <ul class="transfer-warnings">
           {#each done.avisos as aviso, i (i)}
