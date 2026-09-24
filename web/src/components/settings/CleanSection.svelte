@@ -19,10 +19,10 @@
 
 {#snippet footer()}
   <p class="foot-settings-note">
-    Los ajustes se conservan: el servidor de IA, sus claves y el tamaño de letra siguen igual.
+    Los ajustes de la cuenta y de la inteligencia artificial no cambiarán.
   </p>
   <Button variant="danger" buttonClass="btn-open-clean-apps" onclick={() => (cleaning = true)}>
-    <Icon name="trash" size={14} /> Limpiar aplicaciones
+    <Icon name="trash" size={14} /> Elegir aplicaciones
   </Button>
 {/snippet}
 
@@ -30,12 +30,13 @@
   id="ajustes-limpiar"
   {icon}
   {footer}
-  title="Limpiar aplicaciones"
-  description="Borra aplicaciones con sus tablas, páginas y datos."
+  title="Eliminar aplicaciones"
+  description="Elimina de forma permanente una o varias aplicaciones y todo su contenido."
   class="section-clean-apps"
 >
   <p class="text-clean-section">
-    Selecciona las aplicaciones y escribe la confirmación. Esta acción no se puede deshacer.
+    Selecciona las aplicaciones que ya no necesitas. Antes de eliminarlas, tendrás que confirmar la
+    acción por escrito.
   </p>
   <SuccessNote message={done} />
 </SettingsSection>

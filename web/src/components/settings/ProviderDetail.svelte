@@ -72,12 +72,12 @@
     <Switch
       checked={provider.enabled}
       onchange={(v) => onChange({ enabled: v })}
-      label={provider.enabled ? "Encendido" : "Apagado"}
+      label={provider.enabled ? "Servidor activo" : "Servidor inactivo"}
     />
     <Button
       variant="ghost"
       size="sm"
-      tip="Quitar este servidor"
+      tip="Eliminar este servidor"
       buttonClass="btn-remove-ai-provider"
       class="btn-icon btn-remove-ai-provider-tone"
       onclick={() => (confirmRemove = true)}
@@ -87,7 +87,7 @@
   </div>
 
   <div class="grid-ai-provider-fields">
-    <Field label="Dirección del servidor" hint={hint.base}>
+    <Field label="Dirección del servidor (URL)" hint={hint.base}>
       <Input
         value={provider.baseUrl}
         oninput={(e) => onChange({ baseUrl: e.currentTarget.value })}
@@ -99,9 +99,9 @@
     </Field>
 
     <Field
-      label="Clave"
+      label="Clave de acceso"
       hint={provider.hasKey && !apiKey
-        ? "Ya hay una clave guardada. Escribe una nueva solo si quieres cambiarla."
+        ? "Ya hay una clave guardada. Escribe otra solo para reemplazarla."
         : hint.key}
     >
       <div class="row-ai-provider-key join">
@@ -119,7 +119,7 @@
             name={`ai-api-key-${provider.id}`}
             value={apiKey}
             oninput={(e) => onKey(e.currentTarget.value)}
-            placeholder={provider.hasKey ? "Clave guardada" : "Pega aquí la clave"}
+            placeholder={provider.hasKey ? "Hay una clave guardada" : "Pega aquí la clave"}
             class="input-ai-api-key"
           />
           {#if apiKey}
@@ -139,7 +139,7 @@
           disabled={(!provider.hasKey && !apiKey.trim()) || !provider.models.length}
           onclick={() => void check()}
         >
-          Probar
+          Probar conexión
         </Button>
       </div>
     </Field>
@@ -150,7 +150,7 @@
 
     {#if provider.models.length === 0}
       <p class="models-ai-provider-empty">
-        Este servidor todavía no tiene ningún modelo, así que no se le puede pedir nada.
+        Añade al menos un modelo para poder usar este servidor.
       </p>
     {/if}
 
@@ -180,9 +180,9 @@
   <ConfirmDialog
     open={confirmRemove}
     onClose={() => (confirmRemove = false)}
-    title={`¿Quitar ${aiProviderName(provider)}?`}
-    message="Se va con sus modelos y su clave. Las conversaciones que se hicieron con él no se tocan."
-    confirmLabel="Quitar"
+    title={`¿Eliminar ${aiProviderName(provider)}?`}
+    message="Se eliminarán este servidor, sus modelos y su clave. Las conversaciones existentes se conservarán."
+    confirmLabel="Eliminar servidor"
     onConfirm={() => {
       confirmRemove = false;
       onRemove();

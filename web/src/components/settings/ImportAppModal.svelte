@@ -48,7 +48,7 @@
   {open}
   onClose={busy ? () => {} : onClose}
   title="Importar aplicación"
-  description="Lo que traiga el archivo entra como una aplicación nueva."
+  description="El archivo se importará como una aplicación nueva."
 >
   <div class="body-import-app flex flex-col gap-4">
     <!-- En línea y no en la capa de avisos: es lo que hay que leer antes de
@@ -57,7 +57,7 @@
       <i class="hgi-stroke hgi-information-circle" aria-hidden="true"></i>
       <span>
         <strong>No se reemplaza ninguna aplicación.</strong>
-        Se crea una nueva, con su propio enlace y sin publicar. Las que ya tienes se quedan como están.
+        Se creará una aplicación sin publicar y con su propio enlace. Las aplicaciones actuales no cambiarán.
       </span>
     </p>
 
@@ -71,13 +71,13 @@
     <Field
       label="Nombre de la aplicación"
       hint={link
-        ? `Se abrirá en /p/${link}`
-        : "Si lo dejas en blanco se queda con el nombre que trae dentro."}
+        ? `Su enlace público será /p/${link}`
+        : "Déjalo en blanco para conservar el nombre guardado en el archivo."}
     >
       <Input
         autofocus
         bind:value={name}
-        placeholder="El nombre que trae el archivo"
+        placeholder="Conservar el nombre del archivo"
         onkeydown={(e) => e.key === "Enter" && !busy && onConfirm(name)}
       />
     </Field>
@@ -91,7 +91,7 @@
       loading={busy}
       onclick={() => onConfirm(name)}
     >
-      Aceptar
+      Importar aplicación
     </Button>
   {/snippet}
 </Modal>

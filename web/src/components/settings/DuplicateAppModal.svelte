@@ -56,13 +56,13 @@
   {onClose}
   title="Duplicar aplicación"
   description={datos
-    ? "La copia se lleva las tablas, las pantallas, todo lo que hay dentro y las personas invitadas con sus roles."
-    : "La copia se lleva las tablas y las pantallas, vacías: sin las filas, sin los adjuntos y sin nadie invitado."}
+    ? "La copia incluirá tablas, páginas, datos, archivos adjuntos y personas invitadas con sus roles."
+    : "La copia incluirá la estructura y la configuración, pero no los datos, los archivos adjuntos ni las personas invitadas."}
 >
   <!-- Lo que falle se dice en el aviso de la pantalla, que se dibuja por
        encima del modal: repetirlo aquí dentro sacaria el mismo texto dos
        veces. Ver `Note.svelte`. -->
-  <Field label="Nombre de la copia" hint="Se abrirá en /p/{link}">
+  <Field label="Nombre de la copia" hint="Su enlace público será /p/{link}">
     <Input
       autofocus
       bind:value={name}
@@ -80,7 +80,7 @@
       disabled={!ready}
       onclick={() => onConfirm(name)}
     >
-      Duplicar
+      Crear copia
     </Button>
   {/snippet}
 </Modal>

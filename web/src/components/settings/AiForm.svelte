@@ -168,7 +168,7 @@
         ? " Falta escribir 1 clave."
         : ` Faltan ${missing} claves por escribir.`
       : "";
-    say("warning", `${entered}${gone}.${keysNote} Pulsa Guardar para que quede.`);
+    say("warning", `${entered}${gone}.${keysNote} Guarda los cambios para aplicarlos.`);
   }
 
   async function save(): Promise<void> {
@@ -220,7 +220,7 @@
   <div class="group-ai-config-files">
     <Button
       buttonClass="btn-open-import-ai-config"
-      tip="Traer servidores de un archivo exportado"
+      tip="Importar servidores desde un archivo JSON"
       onclick={() => (importing = true)}
     >
       <Icon name="upload-01" size={14} />
@@ -228,7 +228,7 @@
     </Button>
     <Button
       buttonClass="btn-export-ai-config"
-      tip="Descargar esta configuración como JSON. Las claves no salen en el archivo"
+      tip="Descargar la configuración en un archivo JSON sin incluir las claves"
       disabled={!config.providers.length}
       onclick={exportConfig}
     >
@@ -240,7 +240,7 @@
     {#if saved}
       <Icon name="check" size={18} />
     {/if}
-    Guardar
+    Guardar cambios
   </Button>
 {/snippet}
 
@@ -249,22 +249,22 @@
   {icon}
   {footer}
   title="Servidores de inteligencia artificial"
-  description="Conecta servidores y configura los modelos disponibles."
+  description="Conecta los servicios y modelos que usará la generación con IA."
   class="section-ai-server"
 >
   <div class="row-ai-toggle opt-row">
     <div class="opt-body">
-      <p class="opt-label">Activar generación con IA</p>
-      <p class="opt-hint">Muestra el panel de IA en el constructor.</p>
+      <p class="opt-label">Permitir la generación con IA</p>
+      <p class="opt-hint">Muestra el asistente de IA al editar una aplicación.</p>
     </div>
     <Switch checked={config.enabled} onchange={(v) => set({ enabled: v })} />
   </div>
 
   <div class="row-ai-toggle opt-row">
     <div class="opt-body">
-      <p class="opt-label">Mostrar el contexto enviado al modelo</p>
+      <p class="opt-label">Permitir ver el contexto enviado al modelo</p>
       <p class="opt-hint">
-        Muestra el sistema, las herramientas y los mensajes enviados en cada respuesta.
+        Añade una opción para revisar las instrucciones, herramientas y mensajes de cada petición.
       </p>
     </div>
     <Switch checked={config.debugButton} onchange={(v) => set({ debugButton: v })} />
@@ -272,10 +272,10 @@
 
   <div class="row-ai-toggle opt-row">
     <div class="opt-body">
-      <p class="opt-label">Elegir modelo y razonamiento en el chat</p>
+      <p class="opt-label">Permitir elegir el modelo y el razonamiento en el chat</p>
       <p class="opt-hint">
-        Muestra los dos selectores en el menú «+» del chat. Si lo desactivas, cada petición usa el
-        modelo y el razonamiento por defecto.
+        Muestra ambas opciones en el menú «+». Si la desactivas, se usarán los valores
+        predeterminados.
       </p>
     </div>
     <Switch checked={config.modelPicker} onchange={(v) => set({ modelPicker: v })} />
@@ -283,9 +283,9 @@
 
   <div class="row-ai-toggle opt-row">
     <div class="opt-body">
-      <p class="opt-label">Tiempo máximo por petición</p>
+      <p class="opt-label">Tiempo máximo por petición, en minutos</p>
       <p class="opt-hint">
-        Detiene las peticiones que superen este límite. Usa 0 para no aplicar un límite.
+        Cancela las peticiones que superen este tiempo. Escribe 0 para no limitarlo.
       </p>
     </div>
     <Input
@@ -324,8 +324,8 @@
         class="empty-ai-providers inset dashed flex flex-col items-center justify-center gap-2 text-center"
       >
         <Icon name="robotic" size={20} class="icon-ai-empty" />
-        <p class="empty-ai-title">No hay servidores conectados.</p>
-        <p class="empty-ai-hint">Añade uno desde la lista.</p>
+        <p class="empty-ai-title">No hay servidores de IA configurados.</p>
+        <p class="empty-ai-hint">Añade uno en la lista de servidores.</p>
       </div>
     {/if}
   </div>
@@ -334,7 +334,7 @@
     Selección inicial de cada petición; puede cambiarse desde el chat.
   -->
   <div class="grid-ai-fallback inset plain grid gap-4">
-    <Field label="Modelo por defecto" hint="Se usa mientras no elijas otro modelo en el chat.">
+    <Field label="Modelo predeterminado" hint="Se usará cuando no elijas otro modelo en el chat.">
       <Select
         value={choiceValue(config.fallback.provider, config.fallback.model)}
         disabled={!usable.length}
@@ -360,7 +360,7 @@
       Los niveles son los que ofrece el modelo elegido, no una lista inventada:
       cada servidor tiene los suyos y son los que va a aceptar.
     -->
-    <Field label="Cuánto piensa por defecto" hint={aiThinkingHint(config.fallback.thinking)}>
+    <Field label="Razonamiento predeterminado" hint={aiThinkingHint(config.fallback.thinking)}>
       <Select
         value={config.fallback.thinking}
         onchange={(e) => set({ fallback: { ...config.fallback, thinking: e.currentTarget.value } })}
@@ -376,8 +376,8 @@
       se usa el modelo de la petición.
     -->
     <Field
-      label="Modelo para las memorias de página"
-      hint="Resume las reglas de la página al terminar cada petición."
+      label="Modelo para resumir las reglas de las páginas"
+      hint="Crea una memoria breve de las reglas al terminar cada petición."
     >
       <Select
         value={config.memoryChoice

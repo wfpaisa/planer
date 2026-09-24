@@ -168,13 +168,17 @@ function readProvider(raw: unknown): { provider?: AiProviderConfig; message?: st
  */
 export function parseAiConfigFile(input: string): AiConfigFileResult {
   const trimmed = input.trim();
-  if (!trimmed) return { ok: false, error: "Pega o selecciona un archivo JSON" };
+  if (!trimmed) return { ok: false, error: "Pega el contenido o selecciona un archivo JSON." };
 
   let data: unknown;
   try {
     data = JSON.parse(trimmed);
   } catch {
-    return { ok: false, error: "No se pudo leer el JSON" };
+    return {
+      ok: false,
+      error:
+        "No se pudo leer el JSON. Revisa que el contenido esté completo y tenga el formato correcto.",
+    };
   }
 
   let list: unknown[];
@@ -184,14 +188,14 @@ export function parseAiConfigFile(input: string): AiConfigFileResult {
   } else if (data && typeof data === "object") {
     head = data as Record<string, unknown>;
     if (head.formato !== AI_CONFIG_FORMAT || !Array.isArray(head.servidores)) {
-      return { ok: false, error: "El archivo no contiene una configuración de IA válida" };
+      return { ok: false, error: "El archivo no contiene una configuración de IA válida." };
     }
     list = head.servidores;
   } else {
-    return { ok: false, error: "El archivo no contiene una configuración de IA válida" };
+    return { ok: false, error: "El archivo no contiene una configuración de IA válida." };
   }
 
-  if (list.length === 0) return { ok: false, error: "El archivo no contiene servidores" };
+  if (list.length === 0) return { ok: false, error: "El archivo no contiene ningún servidor." };
 
   const providers: AiProviderConfig[] = [];
   const invalid: { index: number; message: string }[] = [];

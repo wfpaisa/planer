@@ -67,7 +67,7 @@
         : plan?.removed.length
           ? {
               kind: "warning",
-              text: `${count(plan.removed.length, "servidor que ya estaba se va", "servidores que ya estaban se van")} con su clave al guardar.`,
+              text: `${count(plan.removed.length, "servidor existente se eliminará", "servidores existentes se eliminarán")} con sus claves cuando guardes los cambios.`,
             }
           : plan && !plan.added.length
             ? { kind: "warning", text: "Todos los servidores del archivo ya estaban aquí." }
@@ -81,7 +81,7 @@
   open
   {onClose}
   title="Importar servidores de inteligencia artificial"
-  description="Pega o arrastra una configuración JSON. El archivo no incluye las claves."
+  description="Selecciona un archivo JSON o pega su contenido. Las claves no están incluidas."
 >
   <label
     class="dropzone-ai-config drop-filter dropzone"
@@ -93,7 +93,9 @@
     }}
   >
     <Icon name="upload-01" size={18} class="drop-filter-icon" />
-    <span class="drop-filter-text">Arrastra un archivo JSON, o haz clic para elegirlo</span>
+    <span class="drop-filter-text">
+      Arrastra aquí un archivo JSON o haz clic para seleccionarlo
+    </span>
     <input
       type="file"
       accept=".json,application/json"
@@ -115,13 +117,13 @@
 
   <div class="import-ai-field">
     <Field
-      label="Modo"
+      label="Cómo importar"
       hint={mode === "add"
-        ? "Los que ya estén aquí se quedan como están."
-        : "Se restaura la sección entera: los servidores, el modelo por defecto y los dos interruptores."}
+        ? "Añade los servidores nuevos y conserva la configuración actual."
+        : "Sustituye todos los servidores y los valores predeterminados por los del archivo."}
     >
       <Select bind:value={mode}>
-        <option value="add">Agregar los servidores que faltan</option>
+        <option value="add">Añadir solo los servidores nuevos</option>
         <option value="replace">Reemplazar toda la configuración</option>
       </Select>
     </Field>
@@ -131,8 +133,8 @@
     <div class="list-import-ai inset">
       <p class="list-import-ai-title eyebrow">
         {plan.added.length
-          ? `${count(plan.added.length, "servidor entra", "servidores entran")}`
-          : "No entra ningún servidor"}
+          ? `${count(plan.added.length, "servidor se añadirá", "servidores se añadirán")}`
+          : "No se añadirá ningún servidor"}
       </p>
 
       {#each plan.added as provider (provider.id)}
@@ -142,7 +144,7 @@
           <Tag tone="tint-3">{AI_PROVIDER_LABEL[provider.provider]}</Tag>
           <span class="detail-import-ai">{models(provider)}</span>
           {#if !provider.enabled}
-            <span class="detail-import-ai">apagado</span>
+            <span class="detail-import-ai">inactivo</span>
           {/if}
         </div>
       {/each}
@@ -151,7 +153,7 @@
         <div class="row-import-ai row-import-ai-skipped">
           <Icon name="robotic" size={14} class="icon-import-ai" />
           <span class="name-import-ai">{aiProviderName(provider)}</span>
-          <span class="detail-import-ai">ya estaba</span>
+          <span class="detail-import-ai">ya existe</span>
         </div>
       {/each}
 
@@ -160,8 +162,8 @@
           <p class="title-import-ai-invalid">
             {count(
               parsed.invalid.length,
-              "servidor no se puede traer",
-              "servidores no se pueden traer",
+              "servidor no se puede importar",
+              "servidores no se pueden importar",
             )}
           </p>
           <ul class="list-import-ai-invalid">
@@ -179,7 +181,7 @@
   </div>
 
   {#snippet footer()}
-    <p class="foot-import-ai">La configuración no cambiará hasta que guardes.</p>
+    <p class="foot-import-ai">Revisa el resultado y guarda los cambios para aplicarlo.</p>
     <Button buttonClass="btn-cancel-import-ai" onclick={onClose}>Cancelar</Button>
     <Button
       variant="secondary"
@@ -189,7 +191,7 @@
         if (plan) onApply(plan);
       }}
     >
-      {mode === "replace" ? "Reemplazar" : "Agregar"}
+      {mode === "replace" ? "Reemplazar configuración" : "Añadir servidores"}
     </Button>
   {/snippet}
 </Modal>

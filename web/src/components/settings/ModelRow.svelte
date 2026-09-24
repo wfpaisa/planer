@@ -69,7 +69,7 @@
       {#if model.id}
         {model.id}
       {:else}
-        <span class="name-ai-model-empty">Sin nombre</span>
+        <span class="name-ai-model-empty">Modelo sin nombre</span>
       {/if}
     </span>
 
@@ -97,7 +97,7 @@
         size="sm"
         loading={busy}
         disabled={!model.id.trim()}
-        tip="Traer sus datos del catálogo"
+        tip="Actualizar los datos desde el catálogo"
         buttonClass="btn-fetch-ai-model"
         class="btn-icon"
         onclick={() => void load()}
@@ -108,7 +108,7 @@
     <Button
       variant="ghost"
       size="sm"
-      tip={open ? "Cerrar" : "Cambiar sus datos"}
+      tip={open ? "Cerrar detalles" : "Editar los datos del modelo"}
       buttonClass="btn-edit-ai-model"
       class="btn-icon"
       onclick={() => (open = !open)}
@@ -118,7 +118,7 @@
     <Button
       variant="ghost"
       size="sm"
-      tip="Quitar este modelo"
+      tip="Eliminar este modelo"
       buttonClass="btn-remove-ai-model"
       class="btn-icon btn-remove-ai-model-square"
       onclick={onRemove}
@@ -130,7 +130,10 @@
   {#if open}
     <div class="body-ai-model">
       <div class="grid-ai-model">
-        <Field label="Nombre técnico" hint="Tal y como lo conoce su servidor.">
+        <Field
+          label="Identificador del modelo"
+          hint="Escribe el nombre exacto que usa el servidor."
+        >
           <Input
             value={model.id}
             oninput={(e) => onChange({ id: e.currentTarget.value })}
@@ -140,7 +143,7 @@
             class="input-ai-model-id"
           />
         </Field>
-        <Field label="Nombre en el panel" hint="Vacío: se le llama por su nombre técnico.">
+        <Field label="Nombre visible" hint="Si lo dejas vacío, se mostrará el identificador.">
           <Input
             value={model.label}
             oninput={(e) => onChange({ label: e.currentTarget.value })}
@@ -152,7 +155,7 @@
 
       <div class="row-ai-model-measures">
         <label class="measure-ai-model">
-          <span class="measure-ai-model-label">Máximo por respuesta</span>
+          <span class="measure-ai-model-label">Tokens máximos por respuesta</span>
           <input
             type="number"
             min={256}
@@ -163,7 +166,7 @@
           />
         </label>
         <label class="measure-ai-model">
-          <span class="measure-ai-model-label">Contexto</span>
+          <span class="measure-ai-model-label">Ventana de contexto</span>
           <input
             type="number"
             min={0}
@@ -204,7 +207,7 @@
       {#if model.thinking}
         <div>
           <span class="efforts-ai-model-label">
-            Niveles que acepta (ninguno marcado: los de siempre)
+            Niveles de razonamiento disponibles. Sin selección, se usarán los habituales.
           </span>
           <div class="efforts-ai-model-list">
             {#each efforts as level (level)}

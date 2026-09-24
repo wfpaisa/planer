@@ -23,12 +23,12 @@
   id="ajustes-demo"
   {icon}
   {footer}
-  title="Demo del sistema de estilos"
-  description="Componentes con los estilos reales del panel."
+  title="Catálogo de componentes"
+  description="Consulta los controles y estilos disponibles en el panel."
   class="section-demo"
 >
   <p class="text-demo-section">
-    Comprueba los componentes con cualquier paleta y en modo claro u oscuro.
+    Prueba cada componente con distintas paletas y en modo claro u oscuro.
   </p>
 </SettingsSection>
 

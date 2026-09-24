@@ -122,8 +122,8 @@
 
 {#snippet footer()}
   <p class="foot-settings-note">
-    El archivo es un <code>.planer</code>
-    : dentro va todo lo que la aplicación es.
+    El archivo <code>.planer</code>
+     contiene la estructura y la configuración de la aplicación.
   </p>
   <Button
     buttonClass="btn-duplicate-app"
@@ -159,8 +159,8 @@
   id="ajustes-traslados"
   {icon}
   {footer}
-  title="Copias y traslados"
-  description="Duplica una aplicación, guárdala en un archivo para llevártela a otro servidor, o trae una de vuelta."
+  title="Duplicar, exportar e importar"
+  description="Crea una copia o traslada una aplicación mediante un archivo .planer."
   class="section-app-transfer"
 >
   <ErrorNote message={apps.error} />
@@ -171,11 +171,11 @@
   {:else}
     {#if list.length === 0}
       <p class="empty-transfer">
-        Todavía no hay ninguna aplicación que duplicar o guardar. Importar sí funciona: es la forma
-        de traer la primera.
+        Aún no hay aplicaciones para duplicar o exportar. Puedes importar una desde un archivo
+        .planer.
       </p>
     {:else}
-      <Field label="Aplicación" hint="Sobre la que trabajan Duplicar y Exportar.">
+      <Field label="Aplicación" hint="Esta selección se usa al duplicar o exportar.">
         <Select bind:value={chosenId} class="select-transfer-app" disabled={!!busy}>
           {#each list as app (app.id)}
             <option value={app.id}>{app.name} — /{app.slug}</option>
@@ -184,18 +184,15 @@
       </Field>
     {/if}
 
-    <Switch bind:checked={datos} label="Llevar también los datos" />
+    <Switch bind:checked={datos} label="Incluir datos y personas invitadas" />
     <p class="transfer-hint">
-      Las filas de cada tabla, los archivos adjuntos y las personas invitadas con sus roles. Sin
-      marcar sale sólo la estructura: las mismas tablas, las mismas pantallas y los mismos roles,
-      sin nadie y sin nada dentro.
+      Al activarlo, la copia o el archivo incluirá las filas, los archivos adjuntos y las personas
+      invitadas con sus roles. Si lo desactivas, solo incluirá la estructura y la configuración.
     </p>
 
     <p class="transfer-hint">
-      Lo que no viaja nunca es la clave de cada persona: la cuenta es de una aplicación y de ninguna
-      otra, así que se hace de nuevo. Entra con su correo y la clave se le pone desde su fila. Sin
-      los datos no viaja ninguna, y entonces lo que cada fila decía de ellas se conserva a la vista
-      y sin enlace.
+      Las contraseñas nunca se copian ni se exportan. Después de importar, asigna una nueva
+      contraseña a cada persona desde su fila.
     </p>
   {/if}
 
@@ -215,7 +212,7 @@
       <p class="transfer-summary">{transferSummary(done)}</p>
       {#if done.personas}
         <p class="transfer-hint">
-          Cada persona entra con su correo; la clave se le pone desde su fila.
+          Las personas conservaron su correo. Asigna una nueva contraseña a cada una desde su fila.
         </p>
       {/if}
       {#if done.avisos.length}

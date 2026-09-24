@@ -35,7 +35,7 @@
   const loaded = useAsync(() => api<AiConfigView>("/api/ai/config"));
 
   const tabs = $derived<{ id: Tab; label: string; icon: string }[]>([
-    { id: "general", label: "General", icon: "settings-02" },
+    { id: "general", label: "Apariencia", icon: "settings-02" },
     { id: "ia", label: "Inteligencia artificial", icon: "ai-brain-01" },
     { id: "aplicaciones", label: "Aplicaciones", icon: "dashboard-square-01" },
     // Solo un administrador gestiona usuarios (el servidor lo vuelve a comprobar).
@@ -72,7 +72,7 @@
     <main id="ai-settings-main" class="main-ai-settings">
       <div class="ai-settings-head">
         <h1 class="ai-settings-title">Ajustes</h1>
-        <p class="ai-settings-subtitle">Preferencias de la cuenta.</p>
+        <p class="ai-settings-subtitle">Configura tu cuenta y esta instalación de Planer.</p>
       </div>
 
       <div role="tablist" class="tabs-settings tab-list">

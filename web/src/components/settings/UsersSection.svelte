@@ -45,7 +45,7 @@
 
 {#snippet footer()}
   <p class="foot-settings-note">
-    Una aplicación asignada se trabaja como propia, pero solo quien la creó puede borrarla.
+    Cada usuario puede editar las aplicaciones asignadas, pero solo su creador puede eliminarlas.
   </p>
   <Button variant="secondary" buttonClass="btn-new-user" onclick={() => (editing = "nuevo")}>
     <Icon name="user-add-01" size={14} /> Nuevo usuario
@@ -57,7 +57,7 @@
   {icon}
   {footer}
   title="Usuarios"
-  description="Quién entra al panel a construir y en qué aplicaciones trabaja."
+  description="Gestiona el acceso al panel y las aplicaciones asignadas a cada usuario."
   class="section-users"
 >
   <ErrorNote message={loaded.error} />

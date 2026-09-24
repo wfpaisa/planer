@@ -47,13 +47,15 @@
 {/snippet}
 
 {#snippet footer()}
-  <p class="foot-settings-note">Se guarda en tu cuenta: la verás igual en cualquier navegador.</p>
+  <p class="foot-settings-note">
+    La paleta se guarda en tu cuenta y se aplica en todos tus dispositivos.
+  </p>
   <Button
     buttonClass="btn-discard-panel-palette"
     disabled={!dirty || busy}
     onclick={() => (pending = panelPalette.value)}
   >
-    Descartar
+    Descartar cambios
   </Button>
   <Button
     variant="secondary"
@@ -62,7 +64,7 @@
     disabled={!dirty}
     onclick={() => void save()}
   >
-    Guardar
+    Guardar cambios
   </Button>
 {/snippet}
 
@@ -71,7 +73,7 @@
   {icon}
   {footer}
   title="Paleta de colores"
-  description="El color del panel para tu cuenta. Las aplicaciones conservan la suya."
+  description="Elige los colores del panel. Cada aplicación conserva su propia paleta."
   class="section-panel-palette"
 >
   <ErrorNote message={error} />

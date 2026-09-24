@@ -30,7 +30,7 @@
     disabled={pending === fontSize.percent}
     onclick={() => fontSize.set(pending)}
   >
-    Guardar
+    Guardar tamaño
   </Button>
 {/snippet}
 
@@ -39,7 +39,7 @@
   {icon}
   {footer}
   title="Tamaño de letra"
-  description="Ajusta el texto del panel como porcentaje del tamaño del navegador."
+  description="Aumenta o reduce el tamaño del texto y los controles del panel."
   class="section-font-size"
 >
   <div class="body-font-size w-full">

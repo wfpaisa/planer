@@ -27,10 +27,10 @@ export const AI_PROVIDER_LABEL: Record<AiProvider, string> = {
 
 /** Una frase de que es cada clase de servidor, para elegir sin saber de esto. */
 export const AI_PROVIDER_ABOUT: Record<AiProvider, string> = {
-  anthropic: "El servidor oficial de Claude.",
-  openai: "Cualquier servidor con el formato de ChatGPT: Ollama, LM Studio, vLLM.",
-  openrouter: "Cientos de modelos de muchas marcas con una sola clave.",
-  llamacpp: "Un modelo GGUF corriendo en tu maquina con llama-server.",
+  anthropic: "Conecta directamente con el servicio oficial de Claude.",
+  openai: "Conecta ChatGPT u otro servidor compatible, como Ollama, LM Studio o vLLM.",
+  openrouter: "Accede a modelos de distintos proveedores con una sola clave.",
+  llamacpp: "Conecta un modelo GGUF local mediante llama-server.",
 };
 
 export const AI_PROVIDER_HINT: Record<AiProvider, { base: string; key: string }> = {
@@ -39,8 +39,8 @@ export const AI_PROVIDER_HINT: Record<AiProvider, { base: string; key: string }>
     key: "Empieza por sk-ant-",
   },
   openai: {
-    base: "Dirección del servidor, terminada en /v1. Sirve para ChatGPT, Ollama, LM Studio y otros.",
-    key: "La clave que entrega tu servidor.",
+    base: "Escribe la dirección completa, terminada en /v1. Sirve para ChatGPT, Ollama, LM Studio y otros.",
+    key: "Usa la clave de acceso entregada por el servidor.",
   },
   openrouter: {
     base: "Déjalo vacío para usar la dirección oficial de OpenRouter.",
@@ -48,7 +48,7 @@ export const AI_PROVIDER_HINT: Record<AiProvider, { base: string; key: string }>
   },
   llamacpp: {
     base: "Dirección de tu llama-server, terminada en /v1. Por ejemplo: http://localhost:8080/v1",
-    key: "Vacía, si no le pusiste ninguna a llama-server.",
+    key: "Déjala vacía si llama-server no requiere una clave.",
   },
 };
 

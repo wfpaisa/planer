@@ -36,7 +36,7 @@
 {/snippet}
 
 {#snippet footer()}
-  <p class="foot-settings-note">Las conversaciones y las páginas se conservan.</p>
+  <p class="foot-settings-note">Las conversaciones y las páginas no se eliminarán.</p>
   <Button variant="danger" buttonClass="btn-clear-ai-debug" onclick={() => (asking = true)}>
     <Icon name="trash" size={14} /> Borrar registros
   </Button>
@@ -47,12 +47,12 @@
   {icon}
   {footer}
   title="Registros de depuración"
-  description="Guarda el contexto de la última petición de cada página para diagnosticar errores."
+  description="Consulta y elimina los datos técnicos guardados para diagnosticar problemas de IA."
   class="section-ai-debug"
 >
   <p class="text-ai-debug-section">
-    Cada petición reemplaza el registro anterior de esa página. La limpieza afecta a toda la
-    instalación.
+    Solo se conserva la petición más reciente de cada página. Al borrar los registros, se eliminan
+    los de todas las aplicaciones.
   </p>
   <SuccessNote message={done} />
   <ErrorNote message={failed} />
@@ -61,8 +61,8 @@
 <ConfirmDialog
   open={asking}
   onClose={() => (asking = false)}
-  title="Borrar los registros de depuración"
-  message="Se borrarán los registros de depuración de todas las aplicaciones. Las conversaciones y las páginas se conservarán."
+  title="¿Borrar todos los registros de depuración?"
+  message="Se borrarán los registros de todas las aplicaciones. Las conversaciones y las páginas no cambiarán."
   confirmLabel="Borrar registros"
   {busy}
   onConfirm={() => void clear()}

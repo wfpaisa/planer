@@ -85,8 +85,8 @@
   class="modal-clean-apps"
   {open}
   onClose={busy ? () => {} : onClose}
-  title="Limpiar aplicaciones"
-  description="Elige cuáles se van. Se borran con sus tablas, sus páginas y todos sus datos."
+  title="Eliminar aplicaciones"
+  description="Selecciona las aplicaciones que quieres eliminar de forma permanente."
   width="modal-clean-apps-width"
 >
   <div class="body-clean-apps flex flex-col gap-4">
@@ -96,7 +96,7 @@
       <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
       <span>
         <strong>Esto no se puede deshacer.</strong>
-        Se borrarán las aplicaciones seleccionadas con sus tablas, páginas, accesos y datos. Los ajustes
+        Se eliminarán las aplicaciones seleccionadas con sus tablas, páginas, accesos y datos. Los ajustes
         de la cuenta se conservarán.
       </span>
     </p>
@@ -107,7 +107,7 @@
     {#if apps.loading && !apps.data}
       <Loading label="Cargando aplicaciones" />
     {:else if list.length === 0}
-      <p class="empty-clean-apps">No hay ninguna aplicación que limpiar.</p>
+      <p class="empty-clean-apps">No hay aplicaciones para eliminar.</p>
     {:else}
       <div class="head-clean-apps flex items-center justify-between gap-3">
         <label class="choice check-clean-all">
@@ -140,8 +140,8 @@
 
       <div class="auth-clean-apps">
         <Field
-          label="Autorización"
-          hint={`Escribe ${CLEAN_PHRASE} para confirmar que estás de acuerdo con que se eliminen las aplicaciones marcadas y se borren sus datos. No se puede deshacer.`}
+          label="Confirmación"
+          hint={`Escribe ${CLEAN_PHRASE} para confirmar que quieres eliminar las aplicaciones seleccionadas y todos sus datos. Esta acción no se puede deshacer.`}
         >
           <Input bind:value={typed} placeholder={CLEAN_PHRASE} />
         </Field>

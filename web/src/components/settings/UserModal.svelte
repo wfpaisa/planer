@@ -111,8 +111,8 @@
   onClose={busy ? () => {} : onClose}
   title={creating ? "Nuevo usuario" : "Editar usuario"}
   description={creating
-    ? "Tendrá su propio acceso al panel y verá las aplicaciones que le asignes."
-    : "Sus datos, su permiso de administrador y las aplicaciones en las que trabaja."}
+    ? "Crea una cuenta para entrar al panel y asígnale las aplicaciones que podrá editar."
+    : "Cambia sus datos, sus permisos y las aplicaciones que puede editar."}
   width="modal-user-width"
 >
   <div class="body-user flex flex-col gap-4">
@@ -124,7 +124,9 @@
       </Field>
       <Field
         label="Correo"
-        hint={principal ? "El de la cuenta principal se cambia en el archivo .env." : undefined}
+        hint={principal
+          ? "El correo de la cuenta principal solo se puede cambiar en el archivo .env."
+          : undefined}
       >
         <Input type="email" bind:value={email} disabled={principal} autocomplete="off" />
       </Field>
@@ -134,8 +136,8 @@
       <Field
         label={creating ? "Contraseña" : "Nueva contraseña"}
         hint={creating
-          ? `Al menos ${MIN_BUILDER_PASSWORD} caracteres. Compártela con esta persona.`
-          : `Déjala vacía para no cambiarla. Al menos ${MIN_BUILDER_PASSWORD} caracteres.`}
+          ? `Escribe al menos ${MIN_BUILDER_PASSWORD} caracteres y comparte la contraseña con esta persona.`
+          : `Déjala vacía para conservar la contraseña actual. Si la cambias, usa al menos ${MIN_BUILDER_PASSWORD} caracteres.`}
       >
         <Input type="password" bind:value={password} autocomplete="new-password" />
       </Field>
@@ -146,11 +148,11 @@
         <p class="label-user-admin">Administrador</p>
         <p class="hint-user-admin">
           {#if principal}
-            La cuenta principal siempre lo es.
+            La cuenta principal siempre tiene permisos de administrador.
           {:else if isMe && admin}
-            No puedes quitarte el permiso a ti mismo.
+            No puedes quitar tus propios permisos de administrador.
           {:else}
-            Gestiona usuarios y los servidores de IA de la instalación.
+            Puede gestionar usuarios y configurar los servidores de IA.
           {/if}
         </p>
       </div>
@@ -160,7 +162,7 @@
     </div>
 
     <div class="apps-user-modal flex flex-col gap-2">
-      <p class="label-user-apps">Aplicaciones</p>
+      <p class="label-user-apps">Aplicaciones que puede editar</p>
       {#if apps.length === 0}
         <p class="empty-user-apps">Todavía no hay ninguna aplicación.</p>
       {:else}
@@ -196,7 +198,7 @@
         disabled={busy}
         onclick={() => (confirmDelete = true)}
       >
-        <Icon name="trash" size={14} /> Borrar
+        <Icon name="trash" size={14} /> Eliminar usuario
       </Button>
       <span class="spacer-user-footer"></span>
     {/if}
@@ -217,11 +219,11 @@
   <ConfirmDialog
     open={confirmDelete}
     onClose={() => (confirmDelete = false)}
-    title="Borrar usuario"
+    title="Eliminar usuario"
     message={user.owned.length
-      ? `${user.name || user.email} ya no podrá entrar al panel. Sus ${user.owned.length} aplicaciones pasan a ser tuyas, con todo lo que tienen.`
-      : `${user.name || user.email} ya no podrá entrar al panel.`}
-    confirmLabel="Borrar usuario"
+      ? `${user.name || user.email} perderá el acceso al panel. Sus ${user.owned.length} aplicaciones, con todo su contenido, pasarán a ser tuyas.`
+      : `${user.name || user.email} perderá el acceso al panel. Esta acción no se puede deshacer.`}
+    confirmLabel="Eliminar usuario"
     {busy}
     onConfirm={() => void remove()}
   />

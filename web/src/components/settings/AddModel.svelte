@@ -118,7 +118,7 @@
       <Input
         bind:value={query}
         autofocus
-        placeholder="Busca por nombre: glm, claude, llama…"
+        placeholder="Buscar por nombre: glm, claude, llama…"
         aria-label="Buscar un modelo en el catálogo"
         autocomplete="off"
         spellcheck={false}
@@ -129,12 +129,12 @@
         Verla aqui delata el error al instante.
       -->
       <p class="search-model-url">
-        Buscando en {provider.baseUrl || AI_PROVIDER_BASE[provider.provider] || "(oficial)"}
+        Catálogo: {provider.baseUrl || AI_PROVIDER_BASE[provider.provider] || "servidor oficial"}
       </p>
 
       {#if busy}
         <p class="search-model-loading">
-          <Spinner /> Trayendo el catálogo
+          <Spinner /> Cargando el catálogo…
         </p>
       {/if}
 
@@ -164,7 +164,7 @@
             </li>
           {/each}
           {#if !found.length}
-            <li class="search-model-none">Ninguno se llama así. Puedes escribirlo a mano.</li>
+            <li class="search-model-none">No hay coincidencias. Puedes añadir el nombre exacto.</li>
           {/if}
         </ul>
       {/if}
@@ -180,7 +180,7 @@
           onclick={() => void addTyped(query.trim())}
           disabled={!query.trim()}
         >
-          Añadir "{query.trim() || "…"}"{hasCatalog ? "" : " a mano"}
+          Añadir «{query.trim() || "…"}»
         </Button>
       </div>
     </div>
@@ -203,7 +203,7 @@
         }}
       >
         <Icon name="plus-sign" size={13} />
-        {hasCatalog ? "Buscar un modelo" : "Otro modelo"}
+        {hasCatalog ? "Buscar modelo" : "Añadir otro modelo"}
       </Button>
 
       <Note kind={notice?.kind ?? "error"} message={notice?.text ?? ""} />
