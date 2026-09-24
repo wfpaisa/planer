@@ -12,7 +12,6 @@
   import ErrorNote from "../components/ui/ErrorNote.svelte";
   import Loading from "../components/ui/Loading.svelte";
   import MenuItem from "../components/ui/MenuItem.svelte";
-  import Tag from "../components/ui/Tag.svelte";
   import { paletteAttrs } from "../lib/appTheme";
   import { cx } from "../lib/cx";
   import { api, pb } from "../lib/pb";
@@ -60,6 +59,26 @@
     const source = user.name.trim() || user.email;
     const words = source.split(/[\s@.]+/).filter(Boolean);
     return ((words[0]?.[0] ?? "") + (words[1]?.[0] ?? "")).toUpperCase() || "?";
+  }
+
+  const since = new Intl.RelativeTimeFormat("es", { numeric: "auto" });
+
+  /** "hace 3 días", "ayer", "hace 5 minutos": cuándo se tocó por última vez. */
+  function ago(iso: string): string {
+    const seconds = (new Date(iso).getTime() - Date.now()) / 1000;
+    if (!Number.isFinite(seconds)) return "";
+    const steps: [Intl.RelativeTimeFormatUnit, number][] = [
+      ["year", 31_536_000],
+      ["month", 2_592_000],
+      ["week", 604_800],
+      ["day", 86_400],
+      ["hour", 3_600],
+      ["minute", 60],
+    ];
+    for (const [unit, size] of steps) {
+      if (Math.abs(seconds) >= size) return since.format(Math.round(seconds / size), unit);
+    }
+    return "ahora mismo";
   }
 
   const userTip = (user: BuilderAccount, appId: string) =>
@@ -137,75 +156,72 @@
           <a
             href="/a/{app.id}/app"
             use:link
-            class="card-app card card-solid"
+            class="card-app"
             {...paletteAttrs(app.theme, { fontScale: false })}
           >
-            <div class="card-app-cover">
-              <AppIcon {app} size={22} class="card-app-icon" />
-              <!-- Los cuatro colores de la paleta, tal cual: es la marca de la
-                   aplicación en pequeño, no un adorno. -->
-              <span class="card-app-swatches" aria-hidden="true">
-                <i></i>
-                <i></i>
-                <i></i>
-                <i></i>
+            <div class="card-app-top">
+              <AppIcon {app} size={34} class="card-app-icon" />
+              <!-- Borrador es la pastilla apagada: todavía no hay nada publicado. -->
+              <span class={cx("card-app-status", app.published && "is-live")}>
+                <span class="card-app-dot"></span>
+                {app.published ? "Publicada" : "Borrador"}
               </span>
             </div>
 
-            <div class="card-app-body">
+            <div class="card-app-text">
               <h3 class="card-app-name">{app.name}</h3>
               <p class="card-app-slug">/{app.slug}</p>
+            </div>
 
-              <div class="card-app-meta">
-                <!-- Borrador es la pastilla apagada: todavía no hay nada publicado. -->
-                <Tag
-                  tone={app.published ? "tag-success" : "off"}
-                  class={cx("card-badge", app.published ? "card-badge-on" : "card-badge-off")}
-                >
-                  <span
-                    class={cx("status-dot", app.published ? "status-dot-on" : "status-dot-off")}
-                  ></span>
-                  {app.published ? "Publicada" : "Borrador"}
-                </Tag>
-                <span class="card-app-vis">
-                  {app.visibility === "public" ? "Pública" : "Requiere iniciar sesión"}
-                </span>
-              </div>
+            <div class="card-app-foot">
+              <span class="card-app-fact">
+                <Icon
+                  name={app.visibility === "public" ? "globe-02" : "square-lock-02"}
+                  size={13}
+                />
+                {app.visibility === "public" ? "Pública" : "Con sesión"}
+              </span>
+              <span class="card-app-fact" title={new Date(app.updated).toLocaleString("es")}>
+                <Icon name="clock-01" size={13} />
+                {ago(app.updated)}
+              </span>
 
               {#if team.data}
                 {@const users = usersByApp.get(app.id) ?? []}
-                <div class="card-app-users">
-                  {#if users.length === 0}
-                    <span class="card-app-users-none">Sin usuarios asignados</span>
-                  {:else}
-                    <span
-                      class="card-app-faces"
-                      aria-label={`Usuarios: ${users.map((u) => u.name || u.email).join(", ")}`}
-                    >
-                      {#each users.slice(0, MAX_FACES) as user (user.id)}
-                        <span class="avatar card-app-face" data-tip={userTip(user, app.id)}>
-                          {initials(user)}
-                        </span>
-                      {/each}
-                      {#if users.length > MAX_FACES}
-                        <span
-                          class="avatar card-app-face card-app-face-more"
-                          data-tip={users
-                            .slice(MAX_FACES)
-                            .map((u) => userTip(u, app.id))
-                            .join(", ")}
-                        >
-                          +{users.length - MAX_FACES}
-                        </span>
-                      {/if}
-                    </span>
-                    <span class="card-app-users-count">
-                      {users.length === 1 ? "1 usuario" : `${users.length} usuarios`}
-                    </span>
-                  {/if}
-                </div>
+                {#if users.length === 0}
+                  <span
+                    class="card-app-faces card-app-faces-none"
+                    data-tip="Sin usuarios asignados"
+                  >
+                    <Icon name="user-group" size={13} />
+                  </span>
+                {:else}
+                  <span
+                    class="card-app-faces"
+                    aria-label={`Usuarios: ${users.map((u) => u.name || u.email).join(", ")}`}
+                  >
+                    {#each users.slice(0, MAX_FACES) as user (user.id)}
+                      <span class="card-app-face" data-tip={userTip(user, app.id)}>
+                        {initials(user)}
+                      </span>
+                    {/each}
+                    {#if users.length > MAX_FACES}
+                      <span
+                        class="card-app-face card-app-face-more"
+                        data-tip={users
+                          .slice(MAX_FACES)
+                          .map((u) => userTip(u, app.id))
+                          .join(", ")}
+                      >
+                        +{users.length - MAX_FACES}
+                      </span>
+                    {/if}
+                  </span>
+                {/if}
               {/if}
             </div>
+
+            <Icon name="arrow-up-right-01" size={16} class="card-app-go" />
           </a>
         {/each}
       </div>
@@ -301,26 +317,59 @@
     }
   }
 
-  /* La caja es `.card` del catálogo; `card-solid` porque en oscuro la del
-     catálogo es translucida y la ficha se posa sobre el lienzo. Lo propio de
-     la ficha es la portada: una franja en el tono suave de la paleta de la
-     aplicación, con su icono relleno del acento y sus cuatro colores. Es lo
-     que hace que seis fichas dejen de ser seis rectangulos grises iguales:
-     cada una se reconoce por su color antes que por su nombre. */
+  /* La ficha lleva la paleta de SU aplicación: el resplandor de la esquina,
+     el icono y el anillo al pasar el ratón salen de su acento, así cada
+     tarjeta se reconoce por su color antes que por su nombre. El resto es
+     del panel, para que seis fichas no compitan entre sí. */
   .card-app {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-16);
+    min-height: 11.5rem;
+    padding: var(--sp-20);
     overflow: hidden;
-    border-color: color-mix(in oklab, var(--border) 50%, transparent);
+    isolation: isolate;
+    border: var(--border-width) solid color-mix(in oklab, var(--border) 70%, transparent);
+    border-radius: var(--radius-xl);
+    background: var(--bg-level2);
+    color: var(--text-primary);
     box-shadow: var(--shadow-sm);
     transition:
-      border-color 150ms var(--travel-fade),
-      box-shadow 150ms var(--travel-fade);
+      transform 200ms var(--travel-fade),
+      border-color 200ms var(--travel-fade),
+      box-shadow 200ms var(--travel-fade);
+
+    /* El resplandor: un halo del acento que nace detrás del icono. */
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -40% 30% 45% -30%;
+      z-index: -1;
+      background: radial-gradient(
+        closest-side,
+        color-mix(in oklab, var(--accent) 22%, transparent),
+        transparent
+      );
+      opacity: 0.7;
+      transition: opacity 200ms var(--travel-fade);
+      pointer-events: none;
+    }
 
     &:hover {
-      border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
-      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: color-mix(in oklab, var(--accent) 40%, var(--border));
+      box-shadow:
+        var(--shadow-md),
+        0 0 0 3px color-mix(in oklab, var(--accent) 10%, transparent);
 
-      & .card-app-cover {
-        background: color-mix(in oklab, var(--accent) 12%, var(--accent-soft));
+      &::before {
+        opacity: 1;
+      }
+
+      & :global(.card-app-go) {
+        opacity: 1;
+        transform: translate(0, 0);
       }
     }
 
@@ -329,144 +378,131 @@
       outline-offset: 2px;
     }
 
-    & .card-app-cover {
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
+
+    & .card-app-top {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      height: 4.5rem;
-      padding: 0 var(--sp-16);
-      /* El suave de la paleta y no una mezcla a mano: cada paleta lo deriva
-         para cada modo, y en oscuro una mezcla del acento con el papel se
-         quedaba en un pardo sin color. */
-      background: var(--accent-soft);
-      transition: background-color 150ms var(--travel-fade);
+      gap: var(--sp-12);
     }
 
-    /* El icono, relleno del acento: sobre la portada tenida el lavado de
-       `AppIcon` se perdia contra el fondo. Va entero dentro de la franja y
-       centrado en ella; asomarlo por el borde lo dejaba a medio salir, y el
-       anillo del color de la tarjeta le dibujaba un marco oscuro encima del
-       color. */
+    /* El icono va suelto, sin caja: grande y del color de la aplicación. */
     & :global(.card-app-icon) {
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: var(--radius-md);
-      background: var(--accent);
-      color: var(--accent-text);
-      box-shadow: 0 0.5rem 1.25rem -0.625rem var(--accent);
+      width: auto;
+      height: auto;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      color: var(--accent);
     }
 
-    /* La muestra sube a la esquina: el icono manda en la franja. */
-    & .card-app-swatches {
-      align-self: flex-start;
-      margin-top: var(--sp-14);
-      display: flex;
-      gap: 0.1875rem;
+    /* Publicada lleva su punto encendido; Borrador se queda apagada. */
+    & .card-app-status {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-6);
+      padding: var(--sp-4) var(--sp-10);
+      border-radius: 62.5rem;
+      background: var(--bg-field);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--text-secondary);
 
-      & i {
-        width: 0.5rem;
-        height: 0.875rem;
-        border-radius: 0.125rem;
-        box-shadow: inset 0 0 0 1px oklch(0 0 0 / 0.08);
-      }
+      &.is-live {
+        background: var(--success-bg);
+        color: var(--success);
 
-      /* Sin `data-palette` --la paleta de partida-- no hay colores crudos:
-         se cae en el acento y en las series del tema, que son los suyos. */
-      & i:nth-child(1) {
-        background: var(--palette-1, var(--accent));
-      }
-      & i:nth-child(2) {
-        background: var(--palette-2, var(--chart-2));
-      }
-      & i:nth-child(3) {
-        background: var(--palette-3, var(--chart-3));
-      }
-      & i:nth-child(4) {
-        background: var(--palette-4, var(--chart-4));
+        & .card-app-dot {
+          background: var(--success);
+          box-shadow: 0 0 0 3px color-mix(in oklab, var(--success) 20%, transparent);
+        }
       }
     }
 
-    & .card-app-body {
-      padding: var(--sp-14) var(--sp-16) var(--sp-16);
+    & .card-app-dot {
+      width: 0.375rem;
+      height: 0.375rem;
+      border-radius: 62.5rem;
+      background: var(--text-muted);
+    }
+
+    & .card-app-text {
+      min-width: 0;
+      /* Empuja el pie abajo: las fichas de una fila acaban a la misma altura. */
+      flex: 1;
     }
 
     & .card-app-name {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-size: var(--text-md);
-      font-weight: 700;
-      letter-spacing: -0.01em;
+      font-size: var(--text-lg);
+      font-weight: 650;
+      letter-spacing: -0.015em;
       color: var(--text-primary);
     }
 
     & .card-app-slug {
-      margin-top: 0.125rem;
+      margin-top: var(--sp-4);
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    & .card-app-foot {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-12);
+      padding-top: var(--sp-14);
+      border-top: var(--border-width) solid color-mix(in oklab, var(--border) 60%, transparent);
+    }
+
+    & .card-app-fact {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-4);
+      min-width: 0;
       white-space: nowrap;
       font-size: var(--text-xs);
       color: var(--text-muted);
     }
 
-    & .card-app-meta {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-8);
-      margin-top: var(--sp-12);
-    }
-
-    /* La pastilla la dibuja `Tag`, asi que su clase sale del ambito de aqui.
-       Lo único que cambia aqui es el peso: en una tarjeta acompana al nombre
-       de la app, no lo compite. */
-    & :global(.card-badge) {
-      font-weight: 500;
-    }
-
-    /* El punto va dentro de la etiqueta, que la dibuja `Tag`: fuera del ambito. */
-    & :global(.card-badge .status-dot) {
-      width: 0.375rem;
-      height: 0.375rem;
-      border-radius: 62.5rem;
-    }
-
-    & :global(.card-badge .status-dot-on) {
-      background: var(--success);
-    }
-
-    & :global(.card-badge .status-dot-off) {
-      background: var(--text-muted);
-    }
-
-    & .card-app-vis {
-      font-size: var(--text-xs);
-      color: var(--text-muted);
-    }
-
-    /* Quién trabaja en ella: solo lo ve la cuenta principal. Las caras se
-       montan un poco unas sobre otras, con el borde del color de la tarjeta
-       para que se lean separadas. */
-    & .card-app-users {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-8);
-      margin-top: var(--sp-12);
-      padding-top: var(--sp-12);
-      border-top: var(--border-width) solid color-mix(in oklab, var(--border) 50%, transparent);
-    }
-
+    /* Quién trabaja en ella: solo lo ve la cuenta principal. Van a la derecha,
+       un poco montadas, con el borde del color de la tarjeta para separarlas. */
     & .card-app-faces {
       display: flex;
+      margin-left: auto;
+    }
+
+    & .card-app-faces-none {
+      color: var(--text-muted);
+      opacity: 0.6;
     }
 
     & .card-app-face {
-      width: 1.5rem;
-      height: 1.5rem;
-      font-size: var(--text-xs);
+      display: grid;
+      place-items: center;
+      width: 1.625rem;
+      height: 1.625rem;
       border: 2px solid var(--bg-level2);
+      border-radius: 62.5rem;
+      background: var(--accent-soft);
+      color: var(--accent-soft-text);
+      font-size: calc(var(--text-xs) * 0.85);
+      font-weight: 700;
 
       & + .card-app-face {
-        margin-left: calc(var(--sp-6) * -1);
+        margin-left: calc(var(--sp-8) * -1);
       }
     }
 
@@ -475,10 +511,22 @@
       color: var(--text-secondary);
     }
 
-    & .card-app-users-count,
-    & .card-app-users-none {
-      font-size: var(--text-xs);
-      color: var(--text-muted);
+    /* La flecha: aparece al pasar el ratón, diciendo que la ficha se abre. */
+    & :global(.card-app-go) {
+      position: absolute;
+      top: var(--sp-20);
+      right: var(--sp-20);
+      opacity: 0;
+      transform: translate(-4px, 4px);
+      color: var(--text-secondary);
+      transition:
+        opacity 200ms var(--travel-fade),
+        transform 200ms var(--travel-fade);
+    }
+
+    /* Con la flecha a la vista, el estado se aparta para no quedar debajo. */
+    &:hover .card-app-status {
+      margin-right: var(--sp-24);
     }
   }
 </style>
