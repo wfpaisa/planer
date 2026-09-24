@@ -78,9 +78,9 @@ The `person` field type is a relation to the internal `members` collection. No r
 
 ## Panel users (builders, admins, assigned apps)
 
-- An app has one `owner` (who created it) plus `editors`: panel users an admin assigned it to. Both reach everything in it — rules, `d_*` collections, `/api` — except deleting it, which is owner-only. Server checks go through `buildsApp()` (`server/access.ts`); `ownedApp()` in `routes.ts` uses it, `appOfOwner()` is the owner-only variant for deletes.
-- `builders.admin` marks an admin. The `builders` update rule forbids setting it on yourself, and the `apps` update rule forbids writing `owner`/`editors` from the browser; both change only through `server/builders.ts` (`/api/constructores`, admin-only via `requireAdmin()`), which writes with the superuser token. `putAiConfig` is admin-only too.
-- The `.env` account is always admin (bootstrap re-sets it) and cannot be deleted or demoted. Deleting a user first moves their apps to the admin doing it — `owner` cascades, and the cascade would orphan the `d_*` collections.
+- An app has one `owner` (who created it) plus `editors`: panel users the principal account assigned it to. Both reach everything in it — rules, `d_*` collections, `/api` — except deleting it, which is owner-only. Server checks go through `buildsApp()` (`server/access.ts`); `ownedApp()` in `routes.ts` uses it, `appOfOwner()` is the owner-only variant for deletes.
+- There are no admin levels. The **principal account** is the `.env` one (`PB_ADMIN_EMAIL`), recognised by email: `isPrincipal()` / `requirePrincipal()` in `server/auth.ts` for the API, `principalRule()` in `server/schema.ts` for the PocketBase rules (the email is baked in; boot rewrites the rules if it changes). It alone opens `/ajustes`, manages users (`/api/constructores` in `server/builders.ts`), saves the AI config (`putAiConfig`), and sees every app without being assigned. It is not listed in the users list and is edited only in `.env`. `builders.admin` survives only as a UI hint the boot sets on the principal and clears elsewhere (`markPrincipal()`); no permission reads it. The `apps` update rule forbids writing `owner`/`editors` from the browser.
+- Deleting a user first moves their apps to the principal account — `owner` cascades, and the cascade would orphan the `d_*` collections.
 - **PocketBase 0.39 does not match `editors ?= @request.auth.id` on a multi-relation**; write `editors.id ?= @request.auth.id` (and `@collection.apps.editors.id` in `accessRules()`).
 
 ## The two-session split (biggest frontend gotcha)

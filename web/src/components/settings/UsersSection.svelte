@@ -1,10 +1,10 @@
 <!--
   Los usuarios del panel: quién entra a construir y en qué aplicaciones.
 
-  Solo la ve un administrador (`AiSettings.svelte` decide si se pinta, y el
-  servidor lo vuelve a comprobar en cada ruta). Cada fila abre el mismo modal
-  con que se crea un usuario, ya relleno: ahí se le cambian los datos, el
-  permiso de administrador y las aplicaciones asignadas.
+  Solo la ve la cuenta principal, que es la única que entra a los ajustes (el
+  servidor lo vuelve a comprobar en cada ruta) y no sale en la lista. Cada
+  fila abre el mismo modal con que se crea un usuario, ya relleno: ahí se le
+  cambian los datos y las aplicaciones asignadas.
 
   Las aplicaciones que un usuario creó son suyas y no se asignan: se cuentan
   aparte, como "propias".
@@ -13,11 +13,10 @@
   import type { BuilderAccount, BuildersView } from "@shared/types";
 
   import { api } from "../../lib/pb";
-  import { session } from "../../lib/session.svelte";
   import { useAsync } from "../../lib/useAsync.svelte";
   import Icon from "../Icon.svelte";
   import SettingsSection from "../SettingsSection.svelte";
-  import { Button, ErrorNote, Loading, Tag } from "../ui";
+  import { Button, ErrorNote, Loading } from "../ui";
   import UserModal from "./UserModal.svelte";
 
   const loaded = useAsync(() => api<BuildersView>("/api/constructores"));
@@ -64,6 +63,8 @@
 
   {#if loaded.loading && !data}
     <Loading label="Cargando usuarios" />
+  {:else if builders.length === 0}
+    <p class="empty-users">Todavía no hay usuarios. Crea uno para darle acceso al panel.</p>
   {:else}
     <ul class="list-users flex flex-col">
       {#each builders as user (user.id)}
@@ -71,16 +72,10 @@
           <button type="button" class="row-user" onclick={() => (editing = user)}>
             <span class="avatar">{initials(user)}</span>
             <span class="copy-user flex flex-col">
-              <span class="name-user">
-                {user.name || user.email}
-                {#if user.id === session.me?.id}<span class="you-user">(tú)</span>{/if}
-              </span>
+              <span class="name-user">{user.name || user.email}</span>
               <span class="email-user">{user.email}</span>
             </span>
             <span class="meta-user flex items-center gap-2">
-              {#if user.admin}
-                <Tag tone="tint-2">Administrador</Tag>
-              {/if}
               <span class="apps-user">
                 {count(user.owned.length, "propia", "propias")} · {count(
                   user.assigned.length,
@@ -148,7 +143,7 @@
     font-weight: 500;
   }
 
-  .you-user,
+  .empty-users,
   .email-user,
   .apps-user {
     font-size: var(--text-xs);

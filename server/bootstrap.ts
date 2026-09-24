@@ -45,7 +45,7 @@ import {
   updateRecord,
 } from "./pb.ts";
 import { ensurePeopleTable, peopleTableFor } from "./peopleTable.ts";
-import { syncAppRules, updateDataCollection } from "./schema.ts";
+import { principalRule, syncAppRules, updateDataCollection } from "./schema.ts";
 
 let scaffolds: Record<string, PbCollection> | null = null;
 
@@ -278,30 +278,8 @@ async function repointPersonRow(appId: string, from: string, to: string): Promis
   if (row) await updateRecord(table.dataCollection, row.id, { member: to }).catch(() => {});
 }
 
-/**
- * Las cuentas del panel que ya existían cuando llegó el permiso de
- * administrador lo conservan todo: hasta entonces cualquiera cambiaba los
- * servidores de IA, y quitárselo de golpe en una actualización sería perder
- * algo sin haberlo pedido. Corre una sola vez, cuando se suma la columna.
- */
-async function keepExistingBuildersAdmin(): Promise<void> {
-  const rows = await listRecords<{ id: string }>(INTERNAL.builders, {
-    perPage: 500,
-    skipTotal: 1,
-    fields: "id",
-  });
-  for (const row of rows.items) await updateRecord(INTERNAL.builders, row.id, { admin: true });
-  if (rows.items.length) {
-    console.log(`  ~ ${rows.items.length} constructores existentes quedan como administradores`);
-  }
-}
-
 export async function bootstrap() {
   // --- Constructores: quienes arman las aplicaciones ---------------------
-  // Antes de los usuarios cualquier cuenta del panel lo podía todo. Se mira
-  // aquí, antes de sumar la columna, para no quitárselo a nadie: ver abajo.
-  const before = await getCollection(INTERNAL.builders);
-  const hadAdminField = !before || before.fields.some((f) => f.name === "admin");
   const builders = await ensure(INTERNAL.builders, "auth", (base) => ({
     fields: [
       ...base.fields,
@@ -313,8 +291,9 @@ export async function bootstrap() {
         maxSize: 2_000_000,
         mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
       },
-      // Gestiona los usuarios del panel y los ajustes de IA. Lo pone otro
-      // administrador desde la API, nunca la propia cuenta: ver `updateRule`.
+      // Marca la cuenta principal (la del `.env`) para que el panel sepa si
+      // enseñar los ajustes. Solo la escribe el arranque; los permisos no la
+      // leen: los decide el correo. Ver `isPrincipal` en `server/auth.ts`.
       { name: "admin", type: "bool" },
       // La paleta con la que ve el panel (`{ palette, color? }`, como la de una
       // aplicación). Es suya: la escribe desde el navegador sobre su cuenta.
@@ -322,14 +301,12 @@ export async function bootstrap() {
     ],
     listRule: "id = @request.auth.id",
     viewRule: "id = @request.auth.id",
-    // Las cuentas nuevas las crea un administrador por la API de la plataforma.
+    // Las cuentas nuevas las crea la cuenta principal por la API de la plataforma.
     createRule: null,
-    // Cada cual edita su cuenta, pero no puede darse el permiso de administrador.
+    // Cada cual edita su cuenta, pero no puede marcarse como la principal.
     updateRule: "id = @request.auth.id && @request.body.admin:isset = false",
     deleteRule: null,
   }));
-
-  if (!hadAdminField) await keepExistingBuildersAdmin();
 
   // --- Miembros: quienes usan las apps publicadas ------------------------
   const members = await ensure(INTERNAL.members, "auth", (base) => ({
@@ -377,6 +354,16 @@ export async function bootstrap() {
   await ensurePasswordMin(members);
 
   // --- Aplicaciones ------------------------------------------------------
+  // La construye su dueño, alguien a quien se la asignaron o la cuenta
+  // principal, que las ve todas. Ver `buildsApp` en `server/access.ts`.
+  //
+  // `@request.auth.id != ""` va delante a propósito: sin sesión el id es "", y
+  // PocketBase compara una relación vacía como "", así que `editors.id ?=`
+  // daba verdadero a cualquiera sin sesión en toda aplicación sin asignados.
+  const principal = principalRule();
+  const buildsIt =
+    `(@request.auth.id != "" && ` +
+    `(owner = @request.auth.id || editors.id ?= @request.auth.id || ${principal}))`;
   const apps = await ensure(INTERNAL.apps, "base", (base) => ({
     fields: [
       ...base.fields,
@@ -424,19 +411,19 @@ export async function bootstrap() {
       ...timestamps,
     ],
     indexes: ["CREATE UNIQUE INDEX `idx_apps_slug` ON `apps` (`slug`)"],
-    listRule: "owner = @request.auth.id || editors.id ?= @request.auth.id",
-    viewRule: "owner = @request.auth.id || editors.id ?= @request.auth.id",
+    listRule: buildsIt,
+    viewRule: buildsIt,
     createRule: '@request.auth.collectionName = "builders" && owner = @request.auth.id',
     // Quien la tiene asignada la edita, pero no se reparte ni cambia de dueño:
-    // eso lo decide un administrador por la API.
-    updateRule:
-      "(owner = @request.auth.id || editors.id ?= @request.auth.id) && " +
-      "@request.body.owner:isset = false && @request.body.editors:isset = false",
+    // eso lo decide la cuenta principal por la API.
+    updateRule: `${buildsIt} && @request.body.owner:isset = false && @request.body.editors:isset = false`,
     deleteRule: "owner = @request.auth.id",
   }));
 
   // Entre paréntesis: la regla de borrar páginas le añade una condición detrás.
-  const ownedByMe = "(app.owner = @request.auth.id || app.editors.id ?= @request.auth.id)";
+  const ownedByMe =
+    `(@request.auth.id != "" && ` +
+    `(app.owner = @request.auth.id || app.editors.id ?= @request.auth.id || ${principal}))`;
 
   // --- Tablas (presentacion; los datos viven en colecciones propias) -----
   await ensure(INTERNAL.tables, "base", (base) => ({
@@ -780,7 +767,7 @@ export async function bootstrap() {
   await migrateToRoleModel();
 
   // --- Primer constructor, con las mismas credenciales del .env ----------
-  const existing = await firstRecord<{ id: string; admin?: boolean }>(
+  const existing = await firstRecord<{ id: string }>(
     INTERNAL.builders,
     `email = "${quote(config.adminEmail)}"`,
   );
@@ -795,11 +782,28 @@ export async function bootstrap() {
       admin: true,
     });
     console.log(`  + constructor "${config.adminEmail}"`);
-  } else if (!existing.admin) {
-    // La cuenta del .env es siempre administradora: es la que puede crear a
-    // las demás, y una instalación de antes de los usuarios no la tenía marcada.
-    await updateRecord(INTERNAL.builders, existing.id, { admin: true });
-    console.log(`  ~ constructor "${config.adminEmail}": administrador`);
+  }
+  await markPrincipal();
+}
+
+/**
+ * Deja la marca `admin` en la cuenta del `.env` y en ninguna otra.
+ *
+ * Antes había varios administradores; ahora solo la cuenta principal entra a
+ * los ajustes. Quitársela a las demás aquí hace que el panel deje de
+ * enseñárselos, y también cubre un cambio de correo en el `.env`.
+ */
+async function markPrincipal(): Promise<void> {
+  const rows = await listRecords<{ id: string; email: string; admin?: boolean }>(
+    INTERNAL.builders,
+    { perPage: 500, skipTotal: 1, fields: "id,email,admin" },
+  );
+  const principal = config.adminEmail.toLowerCase();
+  for (const row of rows.items) {
+    const should = row.email.toLowerCase() === principal;
+    if (!!row.admin === should) continue;
+    await updateRecord(INTERNAL.builders, row.id, { admin: should });
+    console.log(`  ~ constructor "${row.email}": ${should ? "principal" : "sin ajustes"}`);
   }
 }
 

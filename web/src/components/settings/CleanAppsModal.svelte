@@ -18,6 +18,7 @@
   import type { AppRecord } from "@shared/types";
 
   import { errorMessage, pb, post } from "../../lib/pb";
+  import { session } from "../../lib/session.svelte";
   import { useAsync } from "../../lib/useAsync.svelte";
   import AppIcon from "../app/AppIcon.svelte";
   import Icon from "../Icon.svelte";
@@ -34,7 +35,14 @@
     onCleaned?: (result: { apps: number; tables: number }) => void;
   } = $props();
 
-  const apps = useAsync(() => pb.collection("apps").getFullList<AppRecord>({ sort: "-updated" }));
+  // Solo las propias: la cuenta principal ve todas, pero borrar es de quien la
+  // creó (el servidor lo vuelve a comprobar en `wipeApps`).
+  const apps = useAsync(() =>
+    pb.collection("apps").getFullList<AppRecord>({
+      sort: "-updated",
+      filter: pb.filter("owner = {:me}", { me: session.me?.id ?? "" }),
+    }),
+  );
 
   let chosen = $state<string[]>([]);
   let typed = $state("");

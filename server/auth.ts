@@ -2,7 +2,7 @@
  * Verificacion de los tokens que envia el navegador.
  * El panel entra como "builder"; las apps publicadas, como "member".
  */
-import { INTERNAL } from "./config.ts";
+import { config, INTERNAL } from "./config.ts";
 import { pb } from "./pb.ts";
 
 export interface Identity {
@@ -64,6 +64,28 @@ async function verify(token: string, collection: "builders" | "members"): Promis
   };
   cache.set(key, { identity, at: Date.now() });
   return identity;
+}
+
+/**
+ * Es la cuenta principal: la del `.env`.
+ *
+ * Es la única que entra a los ajustes de la instalación --usuarios, servidores
+ * de IA-- y la única que ve todas las aplicaciones sin que se las asignen. Se
+ * decide por el correo y no por una columna: así no hay forma de dárselo a otra
+ * cuenta desde el panel ni desde la base.
+ */
+export function isPrincipal(who: Pick<Identity, "email" | "collection">): boolean {
+  return (
+    who.collection === INTERNAL.builders &&
+    who.email.toLowerCase() === config.adminEmail.toLowerCase()
+  );
+}
+
+/** Exige una sesión de la cuenta principal. */
+export async function requirePrincipal(req: Request): Promise<Identity> {
+  const me = await requireBuilder(req);
+  if (!isPrincipal(me)) throw new HttpError(403, "Solo la cuenta principal puede hacer esto");
+  return me;
 }
 
 /** Exige una sesión de constructor. */

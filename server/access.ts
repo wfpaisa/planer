@@ -11,7 +11,7 @@
  */
 import { normalizeRole } from "../shared/people.ts";
 import type { AppPerson, AppRecord } from "../shared/types.ts";
-import { HttpError, optionalBuilder, optionalMember } from "./auth.ts";
+import { HttpError, type Identity, isPrincipal, optionalBuilder, optionalMember } from "./auth.ts";
 import { INTERNAL } from "./config.ts";
 import { quote } from "./filter.ts";
 import { firstRecord, listRecords, updateRecord } from "./pb.ts";
@@ -49,12 +49,15 @@ export interface Viewer {
 }
 
 /**
- * Este usuario del panel construye la aplicación: es su dueño o un
- * administrador se la asignó. Es la misma pregunta que hacen las reglas de
- * PocketBase (`server/bootstrap.ts`), aquí para lo que pasa por la API.
+ * Este usuario del panel construye la aplicación: es su dueño, se la asignaron
+ * o es la cuenta principal, que las ve todas. Es la misma pregunta que hacen
+ * las reglas de PocketBase (`server/bootstrap.ts`), aquí para lo que pasa por
+ * la API.
  */
-export function buildsApp(app: Pick<AppRecord, "owner" | "editors">, builderId: string): boolean {
-  return app.owner === builderId || (app.editors ?? []).includes(builderId);
+export function buildsApp(app: Pick<AppRecord, "owner" | "editors">, builder: Identity): boolean {
+  return (
+    app.owner === builder.id || (app.editors ?? []).includes(builder.id) || isPrincipal(builder)
+  );
 }
 
 const ANON: Viewer = { id: "", signedIn: false, isOwner: false, invited: false, roles: [] };
@@ -72,7 +75,7 @@ export async function resolveViewer(req: Request, app: AppRecord): Promise<Viewe
   // constructor probando su propia página llegaria aquí como si fuera nadie.
   const builder = await optionalBuilder(req);
   if (builder) {
-    if (!buildsApp(app, builder.id))
+    if (!buildsApp(app, builder))
       throw new HttpError(403, "No tienes permiso para esta aplicación");
     return { id: builder.id, signedIn: true, isOwner: true, invited: true, roles: [] };
   }

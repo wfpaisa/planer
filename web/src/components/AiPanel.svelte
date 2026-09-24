@@ -2027,14 +2027,11 @@
     white-space: pre-wrap;
     border-radius: var(--radius-lg);
     border-bottom-right-radius: 0px;
-    /* El suave del acento con su tinta: la pareja ya medida para leerse en
-       los dos temas y con cualquier paleta. Antes era el acento mezclado con
-       negro y la tinta del papel encima, que en claro no se leia. */
-    background: var(--accent-soft);
+    background: color-mix(in srgb, var(--accent) 30%, #2b2a2a);
     padding: var(--sp-8) var(--sp-14);
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
-    color: var(--accent-soft-text);
+    color: var(--text-primary);
   }
 
   .header-ai-response {
@@ -2354,7 +2351,11 @@
     }
   }
 
-  :global(.btn-send-ai) {
+  :global(.btn-icon.btn-send-ai) {
     min-width: 2.375rem;
+
+    &:disabled {
+      background-color: color-mix(in srgb, var(--text-primary) 5%, transparent);
+    }
   }
 </style>

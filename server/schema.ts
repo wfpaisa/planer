@@ -377,12 +377,28 @@ export function uniqueConflictMessage(conflicts: UniqueConflict[]): string {
  * decide quien ve cada fila --esa columna se retiro-- cambian una sola letra de
  * lo que se escribe aquí.
  */
+/**
+ * La condición de regla que deja pasar a la cuenta principal, que ve todas las
+ * aplicaciones sin que se las asignen. Es la misma pregunta que `isPrincipal`
+ * en `server/auth.ts`. Lleva el correo del `.env` escrito dentro: si cambia,
+ * el arranque reescribe las reglas (`ensure` y `syncAppRules`).
+ */
+export function principalRule(): string {
+  return (
+    `(@request.auth.collectionName = "${INTERNAL.builders}" && ` +
+    `@request.auth.email = "${quote(config.adminEmail.toLowerCase())}")`
+  );
+}
+
 export function accessRules(appId: string) {
-  // El dueño o alguien a quien se la asignaron. Las dos condiciones sobre
-  // `@collection.apps` miran la misma fila: la de esta aplicación.
+  // El dueño, alguien a quien se la asignaron o la cuenta principal. Las dos
+  // condiciones sobre `@collection.apps` miran la misma fila: la de esta
+  // aplicación. Exige sesión: sin ella el id es "", y PocketBase compara una
+  // relación vacía como "", así que `editors.id ?=` dejaba pasar a cualquiera.
   const builder =
-    `(@collection.apps.id ?= "${appId}" && ` +
-    `(@collection.apps.owner ?= @request.auth.id || @collection.apps.editors.id ?= @request.auth.id))`;
+    `(@request.auth.id != "" && @collection.apps.id ?= "${appId}" && ` +
+    `(@collection.apps.owner ?= @request.auth.id || @collection.apps.editors.id ?= @request.auth.id ` +
+    `|| ${principalRule()}))`;
   return {
     listRule: builder,
     viewRule: builder,

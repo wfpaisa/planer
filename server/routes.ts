@@ -80,8 +80,13 @@ import {
 } from "./ai/aiRuns.ts";
 import { sanitizeRoles, sanitizeTheme, uniqueSlug, withAdminRole } from "./appSetup.ts";
 import { bundleToFile, exportApp, fileToBundle, importBundle } from "./appTransfer.ts";
-import { HttpError, type Identity, optionalMember, requireBuilder } from "./auth.ts";
-import { requireAdmin } from "./builders.ts";
+import {
+  HttpError,
+  type Identity,
+  optionalMember,
+  requireBuilder,
+  requirePrincipal,
+} from "./auth.ts";
 import { INTERNAL } from "./config.ts";
 import { applyChange, pagesForChanges, readChanges, readChoice } from "./dataImpact.ts";
 import { quote } from "./filter.ts";
@@ -158,7 +163,7 @@ async function body<T>(req: Request): Promise<T> {
 async function ownedApp(appId: string, me: Identity): Promise<AppRecord> {
   const app = await firstRecord<AppRecord>(INTERNAL.apps, `id = "${quote(appId)}"`);
   if (!app) throw new HttpError(404, "La aplicación no existe");
-  if (!buildsApp(app, me.id)) throw new HttpError(403, "No tienes permiso para esta aplicación");
+  if (!buildsApp(app, me)) throw new HttpError(403, "No tienes permiso para esta aplicación");
   return app;
 }
 
@@ -1006,8 +1011,8 @@ export async function getAiConfig(req: Request) {
 
 export async function putAiConfig(req: Request) {
   // Los servidores y sus claves son de toda la instalación: los ve cualquiera
-  // para elegir modelo, pero solo un administrador los cambia.
-  await requireAdmin(req);
+  // para elegir modelo, pero solo la cuenta principal los cambia.
+  await requirePrincipal(req);
   const input = await body<Partial<StoredConfig>>(req);
   return json<AiConfigView>(aiView(await saveAiConfig(input)));
 }

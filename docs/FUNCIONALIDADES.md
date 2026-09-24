@@ -4,19 +4,18 @@
 
   - Iniciar sesión como constructor (panel)
   - Sesión aparte para miembros de una app publicada
-- **Usuarios del panel** (ajustes de la cuenta, solo administradores)
+- **Usuarios del panel** (ajustes de la cuenta, solo la cuenta principal)
 
-  - Ver los usuarios con cuántas aplicaciones tienen propias y asignadas
-  - Crear un usuario con nombre, correo, contraseña y permiso de administrador
-  - Editar sus datos, cambiarle la contraseña, darle o quitarle el permiso de administrador
+  - Cuenta principal: la del `.env`. Es la única que entra a los ajustes y ve todas las aplicaciones sin que se las asignen
+  - Ver los usuarios con cuántas aplicaciones tienen propias y asignadas; la cuenta principal no sale en la lista
+  - Crear un usuario con nombre, correo y contraseña; todos tienen los mismos permisos
+  - Editar sus datos y cambiarle la contraseña
   - Asignarle aplicaciones de otros: las trabaja como propias, pero no las borra
-  - Borrar un usuario; sus aplicaciones pasan a quien lo borra
-  - La cuenta del `.env` es siempre administradora y no se borra
-  - Solo un administrador cambia los servidores de IA
+  - Borrar un usuario; sus aplicaciones pasan a la cuenta principal
 - **Tablero de aplicaciones**
 
   - Crear, abrir, eliminar una aplicación
-  - Importar una aplicación desde un archivo `.planer`
+  - La cuenta principal ve en cada tarjeta los usuarios del panel que trabajan en ella (quien la creó y los asignados)
 - **Aplicación — apariencia**
 
   - Nombre, icono, color principal
@@ -134,7 +133,7 @@
   - Exportar a un archivo `.planer` (un zip con otra extensión) e importarlo en otro servidor
   - Con datos o sólo la estructura, como plantilla vacía
   - Al importar se elige primero el archivo y después el nombre, avisando de que se crea una aplicación nueva y no se reemplaza ninguna
-  - Importar también desde la pantalla de aplicaciones, con el mismo diálogo
+  - Importar solo desde los ajustes (Aplicaciones), no desde la pantalla de aplicaciones
   - Las personas invitadas viajan con los datos: correo, nombre, roles y columnas propias, conservando el id de su fila para que las columnas que las nombran sigan enlazadas
   - La clave no viaja: cada persona entra con su correo y se le pone la clave desde su fila
   - Sólo la estructura: no viaja ninguna persona, y lo que las filas decían de ellas queda como valor sin enlace
@@ -146,7 +145,7 @@
   - Ver cambios por versión y restaurar
 - **Configuración global**
 
-  - Pestañas por contexto, cada una con su dirección (`/ajustes/general`, `/ajustes/ia`, `/ajustes/aplicaciones`, `/ajustes/usuarios`); Usuarios solo para administradores
+  - Pestañas por contexto, cada una con su dirección (`/ajustes/general`, `/ajustes/ia`, `/ajustes/aplicaciones`, `/ajustes/usuarios`); solo para la cuenta principal
   - Paleta de colores del panel (46 + personalizada), guardada en la cuenta de cada usuario, con vista previa antes de guardar
   - Proveedores de IA
 

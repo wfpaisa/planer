@@ -8,18 +8,16 @@
   La lista de aplicaciones es la de toda la instalación. Las que el usuario
   creó salen marcadas y quietas: son suyas, no se le asignan ni se le quitan.
 
-  La cuenta principal (la del `.env`) no cambia de correo ni de contraseña
-  desde aquí, ni deja de ser administradora ni se borra: el servidor lo
-  impide igual, y aquí solo se evita ofrecerlo.
+  La cuenta principal (la del `.env`) no llega nunca aquí: no sale en la
+  lista y se cambia en el archivo `.env`.
 -->
 <script lang="ts">
   import { type BuilderAccount, type BuildersView, MIN_BUILDER_PASSWORD } from "@shared/types";
 
   import { del, errorMessage, patch, post } from "../../lib/pb";
-  import { session } from "../../lib/session.svelte";
   import AppIcon from "../app/AppIcon.svelte";
   import Icon from "../Icon.svelte";
-  import { Button, ConfirmDialog, ErrorNote, Field, Input, Modal, Switch } from "../ui";
+  import { Button, ConfirmDialog, ErrorNote, Field, Input, Modal } from "../ui";
 
   let {
     open,
@@ -44,7 +42,6 @@
   let name = $state(initial?.name ?? "");
   let email = $state(initial?.email ?? "");
   let password = $state("");
-  let admin = $state(initial?.admin ?? false);
   let assigned = $state<string[]>(initial?.assigned ?? []);
 
   let busy = $state(false);
@@ -52,8 +49,6 @@
   let confirmDelete = $state(false);
 
   const creating = $derived(!user);
-  const principal = $derived(!!user?.principal);
-  const isMe = $derived(!!user && user.id === session.me?.id);
   const owned = $derived(new Set(user?.owned ?? []));
 
   const passwordOk = $derived(
@@ -74,7 +69,6 @@
       const payload = {
         name,
         email,
-        admin,
         apps: assigned,
         ...(password ? { password } : {}),
       };
@@ -112,7 +106,7 @@
   title={creating ? "Nuevo usuario" : "Editar usuario"}
   description={creating
     ? "Crea una cuenta para entrar al panel y asígnale las aplicaciones que podrá editar."
-    : "Cambia sus datos, sus permisos y las aplicaciones que puede editar."}
+    : "Cambia sus datos y las aplicaciones que puede editar."}
   width="modal-user-width"
 >
   <div class="body-user flex flex-col gap-4">
@@ -122,44 +116,19 @@
       <Field label="Nombre">
         <Input bind:value={name} placeholder="Nombre y apellido" autofocus={creating} />
       </Field>
-      <Field
-        label="Correo"
-        hint={principal
-          ? "El correo de la cuenta principal solo se puede cambiar en el archivo .env."
-          : undefined}
-      >
-        <Input type="email" bind:value={email} disabled={principal} autocomplete="off" />
+      <Field label="Correo">
+        <Input type="email" bind:value={email} autocomplete="off" />
       </Field>
     </div>
 
-    {#if !principal}
-      <Field
-        label={creating ? "Contraseña" : "Nueva contraseña"}
-        hint={creating
-          ? `Escribe al menos ${MIN_BUILDER_PASSWORD} caracteres y comparte la contraseña con esta persona.`
-          : `Déjala vacía para conservar la contraseña actual. Si la cambias, usa al menos ${MIN_BUILDER_PASSWORD} caracteres.`}
-      >
-        <Input type="password" bind:value={password} autocomplete="new-password" />
-      </Field>
-    {/if}
-
-    <div class="row-user-admin flex items-center justify-between gap-4">
-      <div class="copy-user-admin">
-        <p class="label-user-admin">Administrador</p>
-        <p class="hint-user-admin">
-          {#if principal}
-            La cuenta principal siempre tiene permisos de administrador.
-          {:else if isMe && admin}
-            No puedes quitar tus propios permisos de administrador.
-          {:else}
-            Puede gestionar usuarios y configurar los servidores de IA.
-          {/if}
-        </p>
-      </div>
-      {#if !principal && !(isMe && admin)}
-        <Switch bind:checked={admin} label="Administrador" />
-      {/if}
-    </div>
+    <Field
+      label={creating ? "Contraseña" : "Nueva contraseña"}
+      hint={creating
+        ? `Escribe al menos ${MIN_BUILDER_PASSWORD} caracteres y comparte la contraseña con esta persona.`
+        : `Déjala vacía para conservar la contraseña actual. Si la cambias, usa al menos ${MIN_BUILDER_PASSWORD} caracteres.`}
+    >
+      <Input type="password" bind:value={password} autocomplete="new-password" />
+    </Field>
 
     <div class="apps-user-modal flex flex-col gap-2">
       <p class="label-user-apps">Aplicaciones que puede editar</p>
@@ -190,7 +159,7 @@
   </div>
 
   {#snippet footer()}
-    {#if user && !principal && !isMe}
+    {#if user}
       <Button
         variant="ghost"
         buttonClass="btn-delete-user"
@@ -240,14 +209,12 @@
     gap: var(--sp-12);
   }
 
-  .label-user-admin,
   .label-user-apps {
     font-size: var(--text-sm);
     font-weight: 500;
     color: var(--text-primary);
   }
 
-  .hint-user-admin,
   .empty-user-apps {
     font-size: var(--text-xs);
     color: var(--text-muted);

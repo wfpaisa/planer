@@ -1,11 +1,10 @@
 <script lang="ts">
-  import type { AppRecord } from "@shared/types";
+  import type { AppRecord, BuilderAccount, BuildersView } from "@shared/types";
 
   import AppIcon from "../components/app/AppIcon.svelte";
   import CreateAppModal from "../components/app/CreateAppModal.svelte";
   import Icon from "../components/Icon.svelte";
   import Logo from "../components/Logo.svelte";
-  import ImportAppModal from "../components/settings/ImportAppModal.svelte";
   import ThemePicker from "../components/ThemePicker.svelte";
   import Button from "../components/ui/Button.svelte";
   import Dropdown from "../components/ui/Dropdown.svelte";
@@ -15,57 +14,56 @@
   import MenuItem from "../components/ui/MenuItem.svelte";
   import Tag from "../components/ui/Tag.svelte";
   import { paletteAttrs } from "../lib/appTheme";
-  import { importApp, PLANER_ACCEPT } from "../lib/appTransfer";
   import { cx } from "../lib/cx";
-  import { errorMessage, pb } from "../lib/pb";
+  import { api, pb } from "../lib/pb";
   import { link, navigate } from "../lib/router.svelte";
   import { session } from "../lib/session.svelte";
   import { useAsync } from "../lib/useAsync.svelte";
 
   let creating = $state(false);
-  let importing = $state(false);
-  let importError = $state("");
-  let picker = $state<HTMLInputElement | null>(null);
-  let arriving = $state<File | null>(null);
 
   const apps = useAsync(() => pb.collection("apps").getFullList<AppRecord>({ sort: "-updated" }));
 
-  /**
-   * Trae una aplicación desde un archivo `.planer`.
-   *
-   * Importar vive también aquí y no solo en los ajustes de la cuenta porque es
-   * donde hace falta: quien recibe un archivo de otro servidor entra a ver sus
-   * aplicaciones, no a los ajustes. Lo que se pregunta después es lo mismo en
-   * los dos sitios --el mismo modal-- para que importar no sea una cosa
-   * distinta según por dónde se entre.
+  /*
+   * Los usuarios del panel de cada aplicación --quien la creó y a quien se la
+   * asignaron--, solo para la cuenta principal: es la única que puede leerlos
+   * (el servidor lo comprueba en `/api/constructores`). Ella no sale en la
+   * lista, así que una aplicación suya sin asignados no muestra a nadie.
    */
-  function pick(event: Event) {
-    const input = event.currentTarget as HTMLInputElement;
-    const file = input.files?.[0];
-    // El valor se suelta siempre: sin esto, elegir dos veces el mismo archivo
-    // no vuelve a disparar el evento y parece que no pasa nada.
-    input.value = "";
-    if (!file) return;
-    importError = "";
-    arriving = file;
-  }
+  const team = useAsync(() =>
+    session.me?.admin
+      ? api<BuildersView>("/api/constructores")
+      : Promise.resolve<BuildersView | null>(null),
+  );
 
-  async function bringIn(nombre: string) {
-    const file = arriving;
-    if (!file) return;
-
-    importing = true;
-    importError = "";
-    try {
-      const result = await importApp(file, nombre);
-      arriving = null;
-      navigate(`/a/${result.appId}/app`);
-    } catch (err) {
-      importError = errorMessage(err);
-    } finally {
-      importing = false;
+  /** Usuarios por aplicación: primero quien la creó, después los asignados. */
+  const usersByApp = $derived.by(() => {
+    const map = new Map<string, BuilderAccount[]>();
+    for (const user of team.data?.builders ?? []) {
+      for (const id of [...user.owned, ...user.assigned]) {
+        map.set(id, [...(map.get(id) ?? []), user]);
+      }
     }
+    for (const [id, users] of map) {
+      map.set(
+        id,
+        users.toSorted((a, b) => Number(b.owned.includes(id)) - Number(a.owned.includes(id))),
+      );
+    }
+    return map;
+  });
+
+  /** Cuántas caras se dibujan antes de resumir el resto en "+N". */
+  const MAX_FACES = 4;
+
+  function initials(user: BuilderAccount): string {
+    const source = user.name.trim() || user.email;
+    const words = source.split(/[\s@.]+/).filter(Boolean);
+    return ((words[0]?.[0] ?? "") + (words[1]?.[0] ?? "")).toUpperCase() || "?";
   }
+
+  const userTip = (user: BuilderAccount, appId: string) =>
+    `${user.name || user.email}${user.owned.includes(appId) ? " (la creó)" : ""}`;
 </script>
 
 <div id="home-page" class="home-page">
@@ -88,10 +86,13 @@
           </div>
         {/snippet}
         <div class="menu-email">{session.me?.email}</div>
-        <MenuItem onclick={() => navigate("/ajustes")}>
-          {#snippet icon()}<Icon name="settings-01" size={14} />{/snippet}
-          Ajustes
-        </MenuItem>
+        <!-- Los ajustes son solo de la cuenta principal. -->
+        {#if session.me?.admin}
+          <MenuItem onclick={() => navigate("/ajustes")}>
+            {#snippet icon()}<Icon name="settings-01" size={14} />{/snippet}
+            Ajustes
+          </MenuItem>
+        {/if}
         <MenuItem onclick={() => session.signOut()}>
           {#snippet icon()}<Icon name="log-out" size={14} />{/snippet}
           Cerrar sesión
@@ -107,33 +108,14 @@
         <p class="home-subtitle">Administra tus aplicaciones, tablas y páginas.</p>
       </div>
       <div class="home-actions flex items-center gap-2">
-        <Button
-          buttonClass="btn-import-app-home"
-          loading={importing}
-          onclick={() => picker?.click()}
-        >
-          <Icon name="upload-01" size={18} />
-          Importar
-        </Button>
         <Button variant="secondary" onclick={() => (creating = true)} buttonClass="btn-new-app">
           <Icon name="sidebar-left" size={18} />
           Nueva aplicación
         </Button>
-        <!-- El selector de verdad: lo abre el botón de al lado, que es el que
-             lleva el vestido del sistema. -->
-        <input
-          bind:this={picker}
-          class="input-planer-file-home"
-          type="file"
-          accept={PLANER_ACCEPT}
-          onchange={pick}
-          hidden
-        />
       </div>
     </div>
 
     <ErrorNote message={apps.error} />
-    <ErrorNote message={importError} />
 
     {#if apps.loading && !apps.data}
       <Loading />
@@ -189,6 +171,40 @@
                   {app.visibility === "public" ? "Pública" : "Requiere iniciar sesión"}
                 </span>
               </div>
+
+              {#if team.data}
+                {@const users = usersByApp.get(app.id) ?? []}
+                <div class="card-app-users">
+                  {#if users.length === 0}
+                    <span class="card-app-users-none">Sin usuarios asignados</span>
+                  {:else}
+                    <span
+                      class="card-app-faces"
+                      aria-label={`Usuarios: ${users.map((u) => u.name || u.email).join(", ")}`}
+                    >
+                      {#each users.slice(0, MAX_FACES) as user (user.id)}
+                        <span class="avatar card-app-face" data-tip={userTip(user, app.id)}>
+                          {initials(user)}
+                        </span>
+                      {/each}
+                      {#if users.length > MAX_FACES}
+                        <span
+                          class="avatar card-app-face card-app-face-more"
+                          data-tip={users
+                            .slice(MAX_FACES)
+                            .map((u) => userTip(u, app.id))
+                            .join(", ")}
+                        >
+                          +{users.length - MAX_FACES}
+                        </span>
+                      {/if}
+                    </span>
+                    <span class="card-app-users-count">
+                      {users.length === 1 ? "1 usuario" : `${users.length} usuarios`}
+                    </span>
+                  {/if}
+                </div>
+              {/if}
             </div>
           </a>
         {/each}
@@ -200,14 +216,6 @@
     open={creating}
     onClose={() => (creating = false)}
     onCreated={(app) => navigate(`/a/${app.id}/app`)}
-  />
-
-  <ImportAppModal
-    open={!!arriving}
-    file={arriving}
-    busy={importing}
-    onClose={() => (arriving = null)}
-    onConfirm={(nombre) => void bringIn(nombre)}
   />
 </div>
 
@@ -431,6 +439,44 @@
     }
 
     & .card-app-vis {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    /* Quién trabaja en ella: solo lo ve la cuenta principal. Las caras se
+       montan un poco unas sobre otras, con el borde del color de la tarjeta
+       para que se lean separadas. */
+    & .card-app-users {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-8);
+      margin-top: var(--sp-12);
+      padding-top: var(--sp-12);
+      border-top: var(--border-width) solid color-mix(in oklab, var(--border) 50%, transparent);
+    }
+
+    & .card-app-faces {
+      display: flex;
+    }
+
+    & .card-app-face {
+      width: 1.5rem;
+      height: 1.5rem;
+      font-size: var(--text-xs);
+      border: 2px solid var(--bg-level2);
+
+      & + .card-app-face {
+        margin-left: calc(var(--sp-6) * -1);
+      }
+    }
+
+    & .card-app-face-more {
+      background: var(--bg-field);
+      color: var(--text-secondary);
+    }
+
+    & .card-app-users-count,
+    & .card-app-users-none {
       font-size: var(--text-xs);
       color: var(--text-muted);
     }

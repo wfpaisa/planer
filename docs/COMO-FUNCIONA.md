@@ -17,7 +17,7 @@ Las colecciones internas de la plataforma (`builders`, `members`, `apps`, `table
 
 ## Los permisos se deciden en el servidor, no en la base de datos
 
-La regla de acceso que PocketBase guarda sobre cada colección `d_*` dice una sola cosa: solo quien construye la app —su dueño o un usuario del panel al que se la asignaron— entra directo (`accessRules()` en `server/schema.ts`). No sabe nada de si la app es pública, de roles ni de columnas — esa decisión ya no vive en la base de datos.
+La regla de acceso que PocketBase guarda sobre cada colección `d_*` dice una sola cosa: solo quien construye la app —su dueño, un usuario del panel al que se la asignaron o la cuenta principal— entra directo (`accessRules()` en `server/schema.ts`). No sabe nada de si la app es pública, de roles ni de columnas — esa decisión ya no vive en la base de datos.
 
 Quién llega a qué lo decide `server/page/pageData.ts`, el único camino por el que pasa cualquier comando de datos de una página publicada. Revisa, en orden: si la app es pública o exige sesión, si quien pregunta puede abrir la página desde la que pregunta, si el comando escribe (escribir siempre exige sesión) y si la tabla está declarada en esa página. No filtra filas: quien puede abrir una página llega a **todas** las filas de las tablas que esa página declara.
 
@@ -25,13 +25,13 @@ Quién llega a qué lo decide `server/page/pageData.ts`, el único camino por el
 
 Una columna de tipo persona puede marcar al dueño de cada fila: la página filtra "lo mío" pidiéndolo al servidor (`plane.listar` con un filtro), nunca trayendo todo y descartando en el navegador. Los roles (`PageRecord.roles`) deciden qué páginas se ven — vacío es todos, `admin` solo es quien construye — y se aplican del lado del servidor en `publicBundle`: una página que el visitante no puede ver nunca llega al navegador.
 
-## Varios usuarios del panel: dueño, asignados y administradores
+## Varios usuarios del panel: dueño, asignados y cuenta principal
 
-Una aplicación tiene un dueño (`apps.owner`, quien la creó) y una lista de usuarios del panel a los que un administrador se la asignó (`apps.editors`). Las reglas de las colecciones internas y de las `d_*` dejan entrar a cualquiera de los dos, y la API pregunta lo mismo con `buildsApp()` (`server/access.ts`). La diferencia está en borrar: solo el dueño borra la aplicación (`appOfOwner()` en `server/routes.ts` y la `deleteRule` de `apps`). Nadie puede repartirse una aplicación ni cambiarle el dueño desde el navegador: la `updateRule` de `apps` rechaza cualquier escritura que traiga `owner` o `editors`.
+Una aplicación tiene un dueño (`apps.owner`, quien la creó) y una lista de usuarios del panel a los que la cuenta principal se la asignó (`apps.editors`). Las reglas de las colecciones internas y de las `d_*` dejan entrar a cualquiera de los dos y a la cuenta principal, y la API pregunta lo mismo con `buildsApp()` (`server/access.ts`). La diferencia está en borrar: solo el dueño borra la aplicación (`appOfOwner()` en `server/routes.ts` y la `deleteRule` de `apps`). Nadie puede repartirse una aplicación ni cambiarle el dueño desde el navegador: la `updateRule` de `apps` rechaza cualquier escritura que traiga `owner` o `editors`.
 
-Ser administrador es un campo de la cuenta (`builders.admin`). La regla de `builders` impide que una cuenta se lo ponga a sí misma, así que solo cambia por la API, que escribe con el token de superusuario (`server/builders.ts`). Un administrador gestiona los usuarios y los servidores de IA. La cuenta del `.env` lo es siempre: el arranque lo repone, y la API no deja quitárselo ni borrarla. Cuando la columna aparece por primera vez, todas las cuentas que ya existían quedan como administradoras, porque hasta entonces cualquiera podía hacerlo todo.
+La cuenta principal es la del `.env` (`PB_ADMIN_EMAIL`), y se reconoce por el correo, no por una columna: `isPrincipal()` en `server/auth.ts` para la API y `principalRule()` en `server/schema.ts` para las reglas, que llevan el correo escrito dentro (el arranque las reescribe si cambia). Es la única que entra a los ajustes —usuarios, servidores de IA— y la única que ve todas las aplicaciones sin tenerlas asignadas. No hay más niveles: todas las demás cuentas tienen los mismos permisos. La columna `builders.admin` solo le avisa al panel de quién es la principal para enseñarle los ajustes; la pone el arranque (`markPrincipal()`) en esa cuenta y la quita de todas las demás, y ningún permiso la lee. La cuenta principal no sale en la lista de usuarios ni se edita desde el panel: se cambia en el `.env`.
 
-Borrar un usuario no borra sus aplicaciones: `owner` está en cascada, y la cascada se llevaría la aplicación pero dejaría huérfanas sus colecciones `d_*`, que no cuelgan de ninguna relación. Por eso `deleteBuilder` primero pasa sus aplicaciones a quien lo borra.
+Borrar un usuario no borra sus aplicaciones: `owner` está en cascada, y la cascada se llevaría la aplicación pero dejaría huérfanas sus colecciones `d_*`, que no cuelgan de ninguna relación. Por eso `deleteBuilder` primero pasa sus aplicaciones a la cuenta principal, que es quien lo borra.
 
 PocketBase 0.39 no resuelve `editors ?= @request.auth.id` sobre una relación múltiple (no encuentra nada); la forma que funciona es `editors.id ?= @request.auth.id`, y es la que usan las reglas.
 

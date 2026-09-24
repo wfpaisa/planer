@@ -339,17 +339,16 @@ export interface BuilderAccount {
   id: string;
   email: string;
   name: string;
-  /** Puede gestionar usuarios y los ajustes de IA de la instalación. */
-  admin: boolean;
-  /** La cuenta del `.env`: no se borra ni pierde el permiso de administrador. */
-  principal: boolean;
   /** Aplicaciones que creó: suyas, no asignadas. */
   owned: string[];
   /** Aplicaciones de otros que tiene asignadas. */
   assigned: string[];
 }
 
-/** Lo que enseña la gestión de usuarios: todos ellos y todas las aplicaciones. */
+/**
+ * Lo que enseña la gestión de usuarios: todos menos la cuenta principal, y
+ * todas las aplicaciones.
+ */
 export interface BuildersView {
   builders: BuilderAccount[];
   apps: Pick<AppRecord, "id" | "name" | "slug" | "icon" | "theme" | "owner">[];

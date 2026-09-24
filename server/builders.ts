@@ -1,10 +1,11 @@
 /**
  * Los usuarios del panel: quienes construyen aplicaciones.
  *
- * Solo un administrador los ve y los gestiona. Crear una cuenta, cambiarle el
- * nombre o la clave, hacerla administradora y repartirle aplicaciones pasa por
+ * Solo la cuenta principal (la del `.env`) los ve y los gestiona. Crear una
+ * cuenta, cambiarle el nombre o la clave y repartirle aplicaciones pasa por
  * aquí, con el token de administrador de PocketBase: la colección `builders`
- * no deja a nadie leer otra cuenta que la suya ni darse permisos a sí mismo.
+ * no deja a nadie leer otra cuenta que la suya. La principal no sale en la
+ * lista: no se edita desde el panel, sino en el `.env`.
  *
  * Una aplicación asignada se trabaja como la propia --tablas, páginas, datos,
  * personas, publicar--, pero no se borra: eso queda para quien la creó. Ver
@@ -16,8 +17,8 @@ import {
   type BuildersView,
   MIN_BUILDER_PASSWORD,
 } from "../shared/types.ts";
-import { HttpError, type Identity, requireBuilder } from "./auth.ts";
-import { config, INTERNAL } from "./config.ts";
+import { HttpError, isPrincipal, requirePrincipal } from "./auth.ts";
+import { INTERNAL } from "./config.ts";
 import { quote } from "./filter.ts";
 import { createRecord, deleteRecord, firstRecord, listRecords, updateRecord } from "./pb.ts";
 
@@ -25,7 +26,6 @@ interface BuilderRow {
   id: string;
   email: string;
   name?: string;
-  admin?: boolean;
 }
 
 type AppRow = Pick<AppRecord, "id" | "name" | "slug" | "icon" | "theme" | "owner" | "editors">;
@@ -44,22 +44,9 @@ async function body<T>(req: Request): Promise<T> {
   }
 }
 
-const isPrincipal = (row: Pick<BuilderRow, "email">) =>
-  row.email.toLowerCase() === config.adminEmail.toLowerCase();
-
-/**
- * Exige una sesión de administrador del panel.
- *
- * Se lee la cuenta cada vez y no se guarda en la identidad: quitarle el
- * permiso a alguien tiene que valer desde la petición siguiente, no dentro de
- * un minuto.
- */
-export async function requireAdmin(req: Request): Promise<Identity> {
-  const me = await requireBuilder(req);
-  const row = await firstRecord<BuilderRow>(INTERNAL.builders, `id = "${quote(me.id)}"`);
-  if (!row?.admin) throw new HttpError(403, "Solo un administrador puede hacer esto");
-  return me;
-}
+/** La fila es la cuenta principal. */
+const principalRow = (row: Pick<BuilderRow, "email">) =>
+  isPrincipal({ email: row.email, collection: INTERNAL.builders });
 
 async function allApps(): Promise<AppRow[]> {
   const list = await listRecords<AppRow>(INTERNAL.apps, {
@@ -73,7 +60,8 @@ async function allApps(): Promise<AppRow[]> {
 
 async function builderRow(id: string): Promise<BuilderRow> {
   const row = await firstRecord<BuilderRow>(INTERNAL.builders, `id = "${quote(id)}"`);
-  if (!row) throw new HttpError(404, "El usuario no existe");
+  // La principal no se gestiona desde aquí: para esta API no existe.
+  if (!row || principalRow(row)) throw new HttpError(404, "El usuario no existe");
   return row;
 }
 
@@ -84,20 +72,18 @@ async function view(): Promise<BuildersView> {
     listRecords<BuilderRow>(INTERNAL.builders, { perPage: 500, skipTotal: 1 }),
     allApps(),
   ]);
-  const builders: BuilderAccount[] = rows.items.map((row) => ({
-    id: row.id,
-    email: row.email,
-    name: row.name ?? "",
-    admin: !!row.admin || isPrincipal(row),
-    principal: isPrincipal(row),
-    owned: apps.filter((app) => app.owner === row.id).map((app) => app.id),
-    assigned: apps.filter((app) => (app.editors ?? []).includes(row.id)).map((app) => app.id),
-  }));
-  // La principal primero; las demás por nombre, o por correo si no lo tienen.
+  const builders: BuilderAccount[] = rows.items
+    .filter((row) => !principalRow(row))
+    .map((row) => ({
+      id: row.id,
+      email: row.email,
+      name: row.name ?? "",
+      owned: apps.filter((app) => app.owner === row.id).map((app) => app.id),
+      assigned: apps.filter((app) => (app.editors ?? []).includes(row.id)).map((app) => app.id),
+    }));
+  // Por nombre, o por correo si no lo tienen.
   const label = (b: BuilderAccount) => (b.name || b.email).toLocaleLowerCase("es");
-  builders.sort(
-    (a, b) => Number(b.principal) - Number(a.principal) || label(a).localeCompare(label(b), "es"),
-  );
+  builders.sort((a, b) => label(a).localeCompare(label(b), "es"));
   return {
     builders,
     apps: apps.map(({ id, name, slug, icon, theme, owner }) => ({
@@ -169,17 +155,16 @@ async function assignApps(builderId: string, wanted: unknown): Promise<void> {
 /* ------------------------------------------------------------------ */
 
 export async function listBuilders(req: Request) {
-  await requireAdmin(req);
+  await requirePrincipal(req);
   return json(await view());
 }
 
 export async function createBuilder(req: Request) {
-  await requireAdmin(req);
+  await requirePrincipal(req);
   const input = await body<{
     email?: string;
     name?: string;
     password?: string;
-    admin?: boolean;
     apps?: string[];
   }>(req);
 
@@ -192,7 +177,6 @@ export async function createBuilder(req: Request) {
     name: cleanName(input.name) || email.split("@")[0],
     password,
     passwordConfirm: password,
-    admin: !!input.admin,
     verified: true,
     emailVisibility: true,
   });
@@ -201,13 +185,12 @@ export async function createBuilder(req: Request) {
 }
 
 export async function updateBuilder(req: Request, id: string) {
-  const me = await requireAdmin(req);
+  await requirePrincipal(req);
   const row = await builderRow(id);
   const input = await body<{
     email?: string;
     name?: string;
     password?: string;
-    admin?: boolean;
     apps?: string[];
   }>(req);
 
@@ -216,9 +199,6 @@ export async function updateBuilder(req: Request, id: string) {
   if (input.email !== undefined) {
     const email = cleanEmail(input.email);
     if (email !== row.email.toLowerCase()) {
-      if (isPrincipal(row)) {
-        throw new HttpError(400, "El correo de la cuenta principal se cambia en el archivo .env");
-      }
       if (await emailTaken(email, row.id)) {
         throw new HttpError(409, "Ya hay un usuario con ese correo");
       }
@@ -226,25 +206,10 @@ export async function updateBuilder(req: Request, id: string) {
     }
   }
   if (input.password) {
-    if (isPrincipal(row)) {
-      throw new HttpError(400, "La contraseña de la cuenta principal se cambia en el archivo .env");
-    }
     const password = checkPassword(input.password);
     patch.password = password;
     patch.passwordConfirm = password;
   }
-  if (input.admin !== undefined && !!input.admin !== !!row.admin) {
-    // Sin esto, un administrador podría dejar la instalación sin ninguno o
-    // quitarse el permiso a sí mismo sin querer y no poder devolvérselo.
-    if (!input.admin && isPrincipal(row)) {
-      throw new HttpError(400, "La cuenta principal siempre es administradora");
-    }
-    if (!input.admin && row.id === me.id) {
-      throw new HttpError(400, "No puedes quitarte a ti mismo el permiso de administrador");
-    }
-    patch.admin = !!input.admin;
-  }
-
   if (Object.keys(patch).length) await updateRecord(INTERNAL.builders, row.id, patch);
   await assignApps(row.id, input.apps);
   return json(await view());
@@ -258,10 +223,8 @@ export async function updateBuilder(req: Request, id: string) {
  * PocketBase, que no cuelgan de ninguna relación--.
  */
 export async function deleteBuilder(req: Request, id: string) {
-  const me = await requireAdmin(req);
+  const me = await requirePrincipal(req);
   const row = await builderRow(id);
-  if (isPrincipal(row)) throw new HttpError(400, "La cuenta principal no se puede borrar");
-  if (row.id === me.id) throw new HttpError(400, "No puedes borrar tu propia cuenta");
 
   for (const app of await allApps()) {
     if (app.owner !== row.id) continue;

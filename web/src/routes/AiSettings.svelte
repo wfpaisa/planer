@@ -1,7 +1,8 @@
 <!--
   Los ajustes de la cuenta: lo que vale para todo el panel, no para una
-  aplicación. El tamaño de letra, el tema y los servidores de IA; y, para un
-  administrador, los usuarios del panel.
+  aplicación. El tamaño de letra, el tema, los servidores de IA y los usuarios
+  del panel. Solo entra la cuenta principal (la del `.env`); a cualquier otra
+  se la devuelve al inicio.
 
   Van en pestañas por contexto --general, IA, aplicaciones, usuarios-- en vez
   de una sola columna larga. Cada una tiene su dirección (`/ajustes/general`):
@@ -38,11 +39,15 @@
     { id: "general", label: "Apariencia", icon: "settings-02" },
     { id: "ia", label: "Inteligencia artificial", icon: "ai-brain-01" },
     { id: "aplicaciones", label: "Aplicaciones", icon: "dashboard-square-01" },
-    // Solo un administrador gestiona usuarios (el servidor lo vuelve a comprobar).
-    ...(session.me?.admin
-      ? [{ id: "usuarios" as const, label: "Usuarios", icon: "user-group" }]
-      : []),
+    { id: "usuarios", label: "Usuarios", icon: "user-group" },
   ]);
+
+  // Los ajustes son solo de la cuenta principal (el servidor lo vuelve a
+  // comprobar en lo que escribe). Cualquier otra vuelve al inicio.
+  const allowed = $derived(!!session.me?.admin);
+  $effect(() => {
+    if (!allowed) navigate("/", { replace: true });
+  });
 
   const chosen = $derived(rest.split("/")[1] ?? "");
   // Una pestaña que no existe --o que no es para esta cuenta-- abre la primera.
@@ -60,7 +65,9 @@
   }
 </script>
 
-{#if loaded.loading && !loaded.data}
+{#if !allowed}
+  <!-- Nada: el efecto de arriba ya la devuelve al inicio. -->
+{:else if loaded.loading && !loaded.data}
   <Loading label="Cargando ajustes" />
 {:else}
   <div id="ai-settings-page" class="page-ai-settings">
@@ -112,9 +119,7 @@
           </div>
         {:else if current === "ia"}
           <ErrorNote message={loaded.error} />
-          <!-- Los servidores de IA son de toda la instalación: solo un
-               administrador los cambia (el servidor lo vuelve a comprobar). -->
-          {#if loaded.data && session.me?.admin}
+          {#if loaded.data}
             <AiForm initial={loaded.data} />
           {/if}
           <AiDebugSection />

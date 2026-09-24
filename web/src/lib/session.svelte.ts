@@ -7,7 +7,11 @@ export interface Builder {
   email: string;
   name: string;
   avatar?: string;
-  /** Gestiona los usuarios del panel y los servidores de IA. */
+  /**
+   * Es la cuenta principal (la del `.env`): la única que entra a los ajustes y
+   * ve todas las aplicaciones. La marca la pone el arranque; el servidor lo
+   * vuelve a comprobar por el correo.
+   */
   admin?: boolean;
   /** La paleta con la que ve el panel. Vacía: la de partida. */
   palette?: AppTheme | null;
