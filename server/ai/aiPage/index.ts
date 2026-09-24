@@ -46,11 +46,12 @@ import { pruneVersions, saveVersion } from "../../versions.ts";
 import { AI_MISSING, aiEnabled, askAi, startConversation } from "../ai.ts";
 import { saveAiDebug } from "../aiDebug.ts";
 import { findAiFile, nameAiFiles, readAiFileBase64, sampleAiFile } from "../aiFiles.ts";
+import { ContextBudgetError } from "../contextBudget.ts";
 import { type ShownFile, sourcesFor, type ToolContext } from "./context.ts";
 import { runMemoryPass } from "./memory.ts";
 import { FIX_SYSTEM_TAIL, systemPrompt, USE_SYSTEM } from "./prompts.ts";
 import { MAX_PROBES, runTool } from "./toolRuntime.ts";
-import { toolsFor } from "./tools.ts";
+import { PLAN_MODE_WRITE_TOOLS, toolsFor } from "./tools.ts";
 
 const MAX_ROUNDS = 12;
 
@@ -134,29 +135,25 @@ const MAX_HISTORY_MESSAGE = 6_000;
  * que se acaba de decir es lo que explica lo que se esta pidiendo ahora.
  */
 export function priorTurns(history: AiMessage[]): { role: "user" | "assistant"; text: string }[] {
-  const turns: { role: "user" | "assistant"; text: string }[] = [];
+  const exchanges: { role: "user" | "assistant"; text: string }[][] = [];
   for (const message of history) {
-    const text = String(message.text ?? "")
-      .trim()
-      .slice(0, MAX_HISTORY_MESSAGE);
+    const text = String(message.text ?? "").trim();
     if (!text) continue;
-    turns.push({ role: message.from === "yo" ? "user" : "assistant", text });
+    const kept =
+      text.length > MAX_HISTORY_MESSAGE
+        ? text.slice(0, MAX_HISTORY_MESSAGE) +
+          "\n[Earlier message shortened. Do not assume missing details.]"
+        : text;
+    if (message.from === "yo") exchanges.push([{ role: "user", text: kept }]);
+    else exchanges.at(-1)?.push({ role: "assistant", text: kept });
   }
-
-  // Se cuentan turnos --petición y respuesta-- y no mensajes sueltos.
-  let kept = turns.slice(-MAX_HISTORY_TURNS * 2);
-  let size = kept.reduce((sum, t) => sum + t.text.length, 0);
-  while (kept.length && size > MAX_HISTORY_CHARS) {
-    size -= kept[0].text.length;
-    kept = kept.slice(1);
-  }
-
-  /*
-   * El primero tiene que ser de quien pide: los dos formatos de proveedor
-   * esperan que la conversación empiece por ahi, y recortar por tamaño puede
-   * dejar arriba una respuesta suelta.
-   */
-  while (kept.length && kept[0].role !== "user") kept = kept.slice(1);
+  let groups = exchanges.slice(-MAX_HISTORY_TURNS);
+  while (
+    groups.length > 1 &&
+    groups.flat().reduce((size, item) => size + item.text.length, 0) > MAX_HISTORY_CHARS
+  )
+    groups = groups.slice(1);
+  const kept = groups.flat();
   return kept;
 }
 
@@ -300,26 +297,13 @@ async function pageRequest(
 
   const stopped = () => opts.signal?.aborted === true;
 
-  /*
-   * "cortar": la orden de implementar a mitad de conversación (D4). No manda
-   * texto nuevo al modelo -- cierra el plan con lo ultimo que la IA dejo dicho
-   * y lo deja listo para construir de una vez, sin pasar por la tarjeta de
-   * "cerrado, esperando decision".
-   */
+  // Construir desde la conversación también necesita ejecutar y confirmar los cambios.
   if (opts.planIntent === "cortar") {
-    const lastAi = [...(opts.history ?? [])].reverse().find((m) => m.from === "ia");
-    const texto =
-      (lastAi?.text ?? "").trim() || "Sin más detalle todavía: se cortó el plan tal como estaba.";
-    return {
-      message: texto,
-      steps: [],
-      notices: [],
-      changed: false,
-      impact: null,
-      question: null,
-      plan: { texto, implementado: true },
-      access: [],
-      stopped: false,
+    opts = {
+      ...opts,
+      prompt:
+        "Construye ahora la versión acordada para esta página según esta conversación. Comprueba lo que ya existe y conserva las reglas guardadas.",
+      planIntent: "implementar",
     };
   }
 
@@ -399,12 +383,14 @@ async function pageRequest(
     if (!saved) continue;
     shown.push({
       file,
-      sample: await sampleAiFile(saved).catch(() => ({
-        body: "",
-        language: "",
-        truncated: false,
-        detail: "",
-      })),
+      sample: mine.some((item) => item.ref === file.ref)
+        ? await sampleAiFile(saved).catch(() => ({
+            body: "",
+            language: "",
+            truncated: false,
+            detail: "",
+          }))
+        : { body: "", language: "", truncated: true, detail: "" },
       earlier: !mine.some((f) => f.ref === file.ref),
     });
   }
@@ -429,6 +415,7 @@ async function pageRequest(
     opts.prompt,
     toolsFor(planActive),
     {
+      boundedContext: true,
       signal: opts.signal,
       choice: opts.choice,
       images,
@@ -436,6 +423,20 @@ async function pageRequest(
     },
   );
 
+  const allowedTools = new Set(toolsFor(planActive).map((tool) => tool.name));
+  const failures = new Map<string, number>();
+  /*
+   * Cómo terminó cada escritura, por herramienta y objetivo (el bloque o la
+   * tabla). Una lectura fallida no deja nada a medias, así que no cuenta; una
+   * escritura que falló y luego salió bien sobre lo mismo, tampoco.
+   */
+  const lastToolStatus = new Map<string, boolean>();
+  const writeKey = (name: string, input: Record<string, unknown>) =>
+    `${name}:${String(input.bloque ?? input.tabla ?? input.columna ?? input.persona ?? "")}`;
+  let completed = false;
+  let interruptedByLimit = false;
+  let contextLimited = false;
+  let responseTruncated = false;
   let message = "";
   let reasoning = "";
   /*
@@ -475,6 +476,7 @@ async function pageRequest(
       return "";
     });
     const added = ctx.steps.slice(before);
+    lastToolStatus.set("revisar_errores", !!output && added.every((step) => step.ok));
     for (const paso of added) opts.onProgress?.({ tipo: "paso", paso });
     // El paso ya dice si salio limpia: sin nada que corregir no hace falta
     // devolverle nada al modelo ni gastar otra ronda en ello.
@@ -505,6 +507,11 @@ async function pageRequest(
         // Al detener, el proveedor falla porque se le corto: eso no es un error
         // que contar, es lo que se pidio.
         if (stopped()) return null;
+        if (err instanceof ContextBudgetError) {
+          ctx.notices.push(err.message);
+          contextLimited = true;
+          return null;
+        }
         throw err;
       });
     if (!turn) break;
@@ -533,13 +540,23 @@ async function pageRequest(
       message = turn.text;
       opts.onProgress?.({ tipo: "texto", texto: turn.text });
     }
+    if (turn.truncated) {
+      responseTruncated = true;
+      break;
+    }
     if (!turn.calls.length) {
       // El modelo da por terminado. Si dejo la página escrita sin revisarla,
       // se revisa aquí y lo que salga vuelve a el: no cierra sin pasar por
       // ahi, lo pida o no.
-      if (!reviewPending()) break;
+      if (!reviewPending()) {
+        completed = true;
+        break;
+      }
       const back = await forceReview();
-      if (!back) break;
+      if (!back) {
+        completed = true;
+        break;
+      }
       chat.say(back);
       continue;
     }
@@ -552,17 +569,43 @@ async function pageRequest(
       // Se cuenta cuantos pasos había para poder mandar solo los nuevos: una
       // herramienta puede dejar mas de uno, o ninguno.
       const before = ctx.steps.length;
-      const output = await runTool(call.name, call.input, ctx).catch((err: unknown) => {
+      const signature = JSON.stringify([call.name, call.input]);
+      if ((failures.get(signature) ?? 0) >= 2) {
+        interruptedByLimit = true;
+        break;
+      }
+      const output = await (
+        allowedTools.has(call.name)
+          ? runTool(call.name, call.input, ctx)
+          : Promise.resolve(
+              "Error: tool unavailable in the current mode. Use only the tools provided.",
+            )
+      ).catch((err: unknown) => {
         const detail = err instanceof Error ? err.message : "fallo desconocido";
         ctx.steps.push({ tool: call.name, summary: detail, ok: false });
         return `Error: ${detail}`;
       });
+      if (/^Error:/i.test(output)) {
+        failures.set(signature, (failures.get(signature) ?? 0) + 1);
+        if (ctx.steps.length === before)
+          ctx.steps.push({
+            tool: call.name,
+            summary: "No se pudo completar esta acción",
+            ok: false,
+          });
+      }
+      if (PLAN_MODE_WRITE_TOOLS.has(call.name) || call.name === "revisar_errores")
+        lastToolStatus.set(
+          call.name === "revisar_errores" ? call.name : writeKey(call.name, call.input),
+          !/^Error:/i.test(output) && ctx.steps.slice(before).every((step) => step.ok),
+        );
       for (const paso of ctx.steps.slice(before)) opts.onProgress?.({ tipo: "paso", paso });
       results.push({ id: call.id, output });
+      if (ctx.question || ctx.plan || interruptedByLimit) break;
     }
     // Preguntar y cerrar el plan cierran el turno: no se abre otra ronda, así
     // que lo que el modelo llevara escrito se queda como esta y sale al panel.
-    if (ctx.question || ctx.plan) break;
+    if (ctx.question || ctx.plan || interruptedByLimit) break;
     chat.reply(results);
   }
 
@@ -608,6 +651,13 @@ async function pageRequest(
    * explica por donde iba.
    */
   const halted = stopped();
+  const incomplete = !completed && !question && !plan && !halted;
+  if (incomplete && !contextLimited && !responseTruncated)
+    ctx.notices.push(
+      interruptedByLimit
+        ? "La solicitud quedó incompleta porque una acción falló repetidamente. Revisa los cambios antes de continuar."
+        : "La solicitud llegó al límite de pasos. Revisa lo que quedó hecho antes de continuar.",
+    );
   const ending = halted
     ? `Petición detenida.${ctx.changed ? " Lo que ya se había aplicado se queda como está." : ""}`
     : "";
@@ -616,7 +666,12 @@ async function pageRequest(
   // dicho que no escriba resumen, y la conversación guardada tiene que leerse
   // igual de bien sin los botones delante.
   const closing = plan ? plan.texto : question ? question.question : "Listo.";
-  const answer = [message, ending].filter(Boolean).join("\n\n") || closing;
+  const answer = plan
+    ? plan.texto
+    : question
+      ? question.question
+      : [message, ending].filter(Boolean).join("\n\n") ||
+        (incomplete ? "La solicitud quedó incompleta." : closing);
 
   /*
    * La memoria de la página se escribe aquí, con el turno ya cerrado: la
@@ -632,8 +687,8 @@ async function pageRequest(
    * acepte. Se guarda en el turno siguiente, que es el que trae la
    * confirmacion y --por `question`-- también la pregunta (D5).
    */
-  if (!question && !plan && !halted) {
-    await runMemoryPass({
+  if (!question && !plan && !halted && !incomplete) {
+    const savedMemory = await runMemoryPass({
       app: opts.app,
       page: opts.page,
       choice: opts.choice,
@@ -651,11 +706,31 @@ async function pageRequest(
         `[memoria] La pasada de la página "${opts.page.name}" falló:`,
         err instanceof Error ? err.message : err,
       );
+      ctx.notices.push(
+        "No se pudieron guardar las reglas de esta página. Puedes revisarlas en los ajustes, en Memorias.",
+      );
       return null;
     });
+    if (
+      savedMemory === null &&
+      /recuerda|memoriza|memorias|no se te olvide/i.test(opts.prompt) &&
+      !ctx.notices.some((notice) => notice.startsWith("No se pudieron guardar"))
+    )
+      ctx.notices.push(
+        "No se añadieron reglas nuevas. Puedes comprobar lo que ya está guardado en los ajustes de la página, en Memorias.",
+      );
+    if (savedMemory !== null)
+      ctx.notices.push(
+        "Las reglas de esta página se actualizaron. Puedes revisarlas en los ajustes, en Memorias.",
+      );
   }
 
   return {
+    completed:
+      completed &&
+      [...lastToolStatus.values()].every(Boolean) &&
+      !ctx.pending.length &&
+      !ctx.grants.length,
     message: answer,
     steps: ctx.steps,
     notices: ctx.notices,

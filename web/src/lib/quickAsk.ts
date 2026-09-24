@@ -31,7 +31,7 @@ export const QUICK_ASK = {
     /** Nombre de Hugeicons: el rasgo que distingue a este atajo de los demás. */
     icon: "brush-cleaning",
     prompt:
-      'Leave this screen looking like the rest of the house, following the "Colours", "Spacing and type" and "What a Planer screen looks like" sections. ' +
+      'First read consultar_guia with tema colores, then medidas, then oficio (one call each). Leave this screen looking like the rest of the house, following the "Colours", "Spacing and type" and "What a Planer screen looks like" sections. ' +
       "Do not change the content, the data or what it does: only how it looks. " +
       "Go through these one by one and fix the ones that fail: " +
       "(1) colours and measurements only through the platform variables, no hard-coded values and no variables outside the closed list; " +

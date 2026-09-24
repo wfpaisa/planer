@@ -25,7 +25,14 @@
  */
 import { auditPageHtml, KNOWN_CLASSES, KNOWN_VARS } from "../server/html/htmlAudit.ts";
 import { PAGE_STYLES } from "../server/page/pageStyles.ts";
-import { buildHtmlDocs, SPACE_VARS, TEXT_VARS, THEME_VARS } from "../shared/htmlContract.ts";
+import {
+  buildHtmlContract,
+  buildHtmlDocs,
+  htmlGuide,
+  SPACE_VARS,
+  TEXT_VARS,
+  THEME_VARS,
+} from "../shared/htmlContract.ts";
 import { ICON_NAME_SET } from "../shared/iconNames.ts";
 import { PAGE_ICONS, SUBSET_ICONS } from "../shared/icons.ts";
 
@@ -44,7 +51,11 @@ function check(name: string, ok: boolean, detail = ""): void {
 /* 1. Lo que el contrato enseña, ¿existe?                               */
 /* ------------------------------------------------------------------ */
 
-const contract = buildHtmlDocs();
+const contract = [
+  buildHtmlDocs(),
+  buildHtmlContract({ tables: [], profile: "compact" }),
+  ...["estilos", "datos", "graficas", "bloques", "iconos"].map((topic) => htmlGuide(topic)),
+].join("\n");
 
 console.log("\nEl contrato contra el catalogo");
 
@@ -332,7 +343,7 @@ check(
   "y el subconjunto del marco los lleva todos",
   sinRecortar.length === 0,
   sinRecortar.length
-    ? `faltan ${sinRecortar.length}: vuelve a correr \`bun run iconos:subconjunto\``
+    ? `faltan ${sinRecortar.join(", ")}: vuelve a correr \`bun run iconos:subconjunto\``
     : "",
 );
 check("el subconjunto lleva la fuente pegada dentro", comunes.includes("data:font/woff2;base64,"));

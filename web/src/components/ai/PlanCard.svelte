@@ -19,7 +19,7 @@
     live,
     onImplement,
   }: {
-    plan: { texto: string; implementado: boolean };
+    plan: { texto: string; implementado: boolean; estado?: "implementando" | "incompleto" };
     /** Se puede pasar a construir: es el ultimo turno y no hay nada en marcha. */
     live: boolean;
     onImplement: () => void;
@@ -29,7 +29,13 @@
 <div class="plan-ai card card-solid">
   <p class="plan-ai-header eyebrow">
     <Icon name="route-01" size={13} class="plan-ai-icon" />
-    {plan.implementado ? "Plan implementado" : "Plan"}
+    {plan.implementado
+      ? "Plan implementado"
+      : plan.estado === "implementando"
+        ? "Implementando"
+        : plan.estado === "incompleto"
+          ? "Implementación incompleta"
+          : "Plan"}
   </p>
   <div class="plan-ai-text">
     <Markdown text={plan.texto} />
@@ -39,11 +45,12 @@
     <Button
       size="sm"
       variant="secondary"
-      disabled={!live}
+      disabled={!live || plan.estado === "implementando"}
       buttonClass="btn-implement-plan"
       onclick={onImplement}
     >
-      <Icon name="clipboard-check" size={18} /> ¡Todo listo, implementar!
+      <Icon name="clipboard-check" size={18} />
+      {plan.estado === "incompleto" ? "Continuar con lo pendiente" : "¡Todo listo, implementar!"}
     </Button>
   {/if}
 </div>

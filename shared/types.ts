@@ -730,6 +730,7 @@ export interface AiResult {
 /* ------------------------------------------------------------------ */
 
 export interface AiMessage {
+  notices?: string[];
   from: "yo" | "ia";
   text: string;
   steps?: AiStep[];
@@ -743,11 +744,11 @@ export interface AiMessage {
    * El plan con el que este mensaje cerro el modo Plan, si lo cerro. Mismo
    * patron que `question`: un campo opcional que distingue este turno de una
    * respuesta normal. `implementado` empieza en falso y pasa a verdadero
-   * cuando quien construye elige pasar a modo Implementador; desde entonces el
+   * cuando el servidor confirma que la ejecución terminó; desde entonces el
    * plan sigue visible pero no se edita ni se reabre. Ver `design.md` D2 de
    * `ia-modo-plan`.
    */
-  plan?: { texto: string; implementado: boolean };
+  plan?: { texto: string; implementado: boolean; estado?: "implementando" | "incompleto" };
   /**
    * El razonamiento que el modelo dejo escrito antes de responder, si el
    * servidor de IA lo envio. No siempre existe: depende del modelo.
@@ -1022,6 +1023,9 @@ export interface AiQuestion {
 
 /** Lo que responde la IA cuando escribe una página. */
 export interface AiPageResult {
+  /** El turno terminó sin errores ni decisiones pendientes. */
+  completed?: boolean;
+  implementation?: "implementado" | "incompleto";
   message: string;
   steps: AiStep[];
   /** Avisos cortos de lo que se aplico solo por no tener riesgo. */
@@ -1039,7 +1043,7 @@ export interface AiPageResult {
    * El plan con el que se cerro el turno, si se cerro uno. `null` es lo
    * normal, igual que `question`.
    */
-  plan: { texto: string; implementado: boolean } | null;
+  plan: { texto: string; implementado: boolean; estado?: "implementando" | "incompleto" } | null;
   /**
    * Accesos que la IA quiere dar y todavía no ha dado: cada uno se confirma
    * por separado, con su consecuencia delante. Los que quitan no llegan aquí,
@@ -1161,7 +1165,10 @@ export type AiProgress =
    * El modo Plan se cerro con este plan. Llega antes del `fin`, por lo mismo
    * que "pregunta": para que la tarjeta se pinte en cuanto se sabe.
    */
-  | { tipo: "plan"; plan: { texto: string; implementado: boolean } }
+  | {
+      tipo: "plan";
+      plan: { texto: string; implementado: boolean; estado?: "implementando" | "incompleto" };
+    }
   | { tipo: "fin"; resultado: AiPageResult }
   | { tipo: "error"; mensaje: string };
 

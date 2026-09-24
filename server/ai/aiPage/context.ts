@@ -125,10 +125,20 @@ export function filesSection(shown: ShownFile[]): string {
     ];
 
     if (file.kind === "image") {
-      head.push("- It is an image and it is attached to this same request: look at it there.");
+      head.push(
+        item.earlier
+          ? "- Image from an earlier turn. Its pixels are not in this request; do not claim to see them. Ask for the image again if needed."
+          : "- Image attached to this request only if the selected model supports vision.",
+      );
       return head.join("\n");
     }
 
+    if (item.earlier) {
+      head.push(
+        "- Stored attachment; read relevant lines with leer_archivo when needed. No sample is included this turn.",
+      );
+      return head.join("\n");
+    }
     head.push(
       sample.truncated
         ? `- What you see below is **only part of it**. To read the rest, use "leer_archivo" with \`${file.label}\`.`

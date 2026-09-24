@@ -12,7 +12,6 @@
  * dice de forma expresa en `LANGUAGE_SECTION`.
  */
 import { LINK_SUFFIX, MAX_LIST_ROWS } from "./htmlSources.ts";
-import { PAGE_ICONS } from "./icons.ts";
 import {
   ADMIN_ROLE,
   PEOPLE_NAME_FIELD,
@@ -615,12 +614,9 @@ The platform already loads an icon font in the document. **Do not draw SVG and d
 - Being type, an icon inherits \`color\` and \`font-size\` from wherever it sits. To make it bigger, \`font-size\`; to paint it, \`color\`. No \`width\`, \`height\` or \`fill\`.
 - An icon accompanies, it does not lead: beside the text, the same size as its line, in \`var(--ink-soft)\`.
 - If something has no obvious icon, give it none.
-- **An invented name does not fail visibly: it leaves a blank gap**, and nobody notices anything is missing. Hence the list below: these are the names we know exist. The font holds thousands more, and any of them is fine if that really is its name, but do not guess one --if what you want is not in the list, take the closest one that is.
+- **An invented name does not fail visibly: it leaves a blank gap**, and nobody notices anything is missing. The font holds more than six thousand names and none of them is listed here: **find them with "buscar_iconos"**, searching with English keywords (\`user\`, \`invoice\`, \`calendar\`, \`shopping cart\`), and use only names it returned. Never guess one.
+- **Write every icon name literally in the document**, as \`hgi-<name>\` or as a quoted string holding the exact name (for example inside a map from a state to its icon). Never build a name by joining pieces of text: the frame only loads the icons it finds written in the page.
 - The markup of an icon is never escaped. If you insert it with \`innerHTML\`, it goes in as it is: escaping what you wrote yourself turns it into the visible text \`<i class=...>\`. Escaping is only for what comes from the tables or from the viewer.
-
-The safe names, by family (they go after \`hgi-\`):
-
-${PAGE_ICONS.map((g) => `- **${g.group}:** ${g.names.join(", ")}`).join("\n")}
 
 ### Tables and lists
 
@@ -1129,6 +1125,9 @@ When **creating or updating** a row you write the value, never the id: \`plane.c
  * pedir, si ya lo escribio.
  */
 export function buildHtmlContract(opts: {
+  /** El contrato completo sigue siendo la referencia del harness y la documentación. */
+  profile?: "compact" | "plan";
+  sourceIds?: string[];
   appName?: string;
   tables: TableRecord[];
   request?: string;
@@ -1161,6 +1160,36 @@ export function buildHtmlContract(opts: {
 Planer is a platform where apps are put together without programming. A page is a complete screen written by hand${inApp}, with the platform's database, people and permissions behind it.
 
 The HTML is drawn in isolation from the panel. It has no access to the session, to cookies or to browser storage. Everything it needs from outside is handed to it by \`window.plane\`.`;
+
+  if (opts.profile) {
+    const index = opts.tables
+      .map((table) => `- ${table.label}: ${table.name} (${table.id})`)
+      .join("\n");
+    const relevant = opts.tables.filter((table) => opts.sourceIds?.includes(table.id));
+    const access = viewerSection({
+      pageRoles: opts.pageRoles,
+      appRoles: opts.appRoles,
+      people: opts.people,
+      tables: relevant,
+    });
+    const core = [
+      intro,
+      LANGUAGE_SECTION,
+      access,
+      rolesSection(),
+      `## Available sources\n${index || "No tables yet."}\nUse consultar_tablas to read current fields before using a source not detailed below.`,
+      tablesSection(relevant),
+    ];
+    if (opts.profile === "compact")
+      core.push(
+        shapeSection(),
+        DATA_SECTION,
+        limitsSection(),
+        blocksSection(),
+        `## Styles and reference\nUse the built-in stylesheet, bridge and component classes; never write colours or measures by hand and never invent a variable. Buttons are class="btn", fields class="field" with class="field-control", a card is class="card". Surfaces --surface-card / --surface-page, text --ink / --ink-soft / --ink-faint, borders --line, brand --color-primary, spacing the --space-* scale (see medidas). For anything else call consultar_guia: componentes (class catalogue), colores, medidas, oficio (what a Planer screen looks like), datos, graficas, bloques. Icon names come from buscar_iconos. Documentation is available on demand; never guess an API or a name.`,
+      );
+    return core.join("\n\n---\n\n");
+  }
 
   const parts = [
     intro,
@@ -1227,4 +1256,36 @@ Esto es lo mismo que recibe la inteligencia artificial en cada petición, genera
   ];
 
   return [parts[0], ...parts.slice(1).map(demote)].join("\n\n");
+}
+
+/** Secciones de la misma referencia, recuperables sin cargar el catálogo entero. */
+export function htmlGuide(topic: string): string | null {
+  switch (topic) {
+    case "estilos":
+      return [catalogSection(), colorSection(), measureSection(), craftSection()].join("\n\n");
+    // Partes de "estilos", para leer solo lo que hace falta.
+    case "componentes":
+      return catalogSection();
+    case "colores":
+      return colorSection();
+    case "medidas":
+      return measureSection();
+    case "oficio":
+      return craftSection();
+    case "datos":
+      return [DATA_SECTION, savingSection(), relationsSection()].join("\n\n");
+    case "graficas":
+      return chartSection();
+    case "bloques":
+      return [shapeSection(), blocksSection()].join("\n\n");
+    case "iconos":
+      return iconsGuide();
+    default:
+      return null;
+  }
+}
+
+/** Cómo se usan los iconos, sin lista: los nombres se buscan con `buscar_iconos`. */
+function iconsGuide(): string {
+  return `An icon is \`<i class="hgi-stroke hgi-NAME"></i>\`. The font holds more than six thousand names; none is listed here. Find them with "buscar_iconos" using English keywords --several at once if you need icons for several things-- and use only names it returned. Write each name literally in the document (\`hgi-NAME\` or a quoted string with the exact name); a name built by joining text is not loaded. Icons inherit colour and size from their line. Never emojis, never hand-drawn SVG.`;
 }

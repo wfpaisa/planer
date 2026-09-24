@@ -67,6 +67,58 @@ const BLOCK_SOURCES = {
 
 const TOOLS: ToolDef[] = [
   {
+    name: "consultar_guia",
+    description:
+      "Reads platform documentation on demand. Use before unfamiliar APIs or components, and read only the topic you need. If siguiente is not null, call again with desde set to it to read the rest.",
+    schema: {
+      type: "object",
+      properties: {
+        tema: {
+          type: "string",
+          enum: [
+            "componentes",
+            "colores",
+            "medidas",
+            "oficio",
+            "estilos",
+            "datos",
+            "graficas",
+            "bloques",
+            "iconos",
+          ],
+          description:
+            "componentes: the class catalogue; colores: palette and tokens; medidas: spacing and type; oficio: what a Planer screen looks like; estilos: those four together (long); datos: plane.* data API, saving and relations; graficas: charts; bloques: page structure and blocks; iconos: how to write icons",
+        },
+        desde: { type: "integer", minimum: 0 },
+      },
+      required: ["tema"],
+    },
+  },
+  {
+    name: "buscar_iconos",
+    description:
+      'Searches the icon font (more than six thousand names) with English keywords and returns the names that exist, best match first. Search before writing any icon: a name that is not in the font leaves a blank gap. Send one entry per thing you need an icon for, e.g. ["user", "invoice", "shopping cart"]. Changes nothing.',
+    schema: {
+      type: "object",
+      properties: {
+        consultas: {
+          type: "array",
+          items: { type: "string" },
+          minItems: 1,
+          maxItems: 12,
+          description: "English keywords, one entry per icon you are looking for",
+        },
+      },
+      required: ["consultas"],
+    },
+  },
+  {
+    name: "consultar_tablas",
+    description:
+      "Without tabla, lists available sources. With its exact name, returns the current schema including field identities and relations. Read before using an unfamiliar source, and after structure changes.",
+    schema: { type: "object", properties: { tabla: { type: "string" } } },
+  },
+  {
     name: "ver_pagina",
     description:
       "Returns the HTML the open page holds right now and the tables it declares. Use it before rewriting the page.",
@@ -93,7 +145,7 @@ const TOOLS: ToolDef[] = [
         icono: {
           type: "string",
           description:
-            "The name of the icon the page is read with in the sidebar, taken from the safe list of icon names you were given (without the `hgi-` prefix): `user-group` for people, `invoice-01` for billing, `analytics-01` for a dashboard. It says what the screen holds, so never a generic file or page. A name outside the font is ignored. It is only taken while the page still carries the filler icon it was born with; once it has one of its own, this is ignored.",
+            'The name of the icon the page is read with in the sidebar, found with "buscar_iconos" (without the `hgi-` prefix): `user-group` for people, `invoice-01` for billing, `analytics-01` for a dashboard. It says what the screen holds, so never a generic file or page. A name outside the font is ignored. It is only taken while the page still carries the filler icon it was born with; once it has one of its own, this is ignored.',
         },
       },
       required: ["html"],
@@ -387,7 +439,7 @@ const TOOLS: ToolDef[] = [
  * ofrecen al modelo: es lo que de verdad le impide construir, no una
  * instruccion que pueda ignorar (D3 de `ia-modo-plan`).
  */
-const PLAN_MODE_WRITE_TOOLS = new Set([
+export const PLAN_MODE_WRITE_TOOLS = new Set([
   "escribir_pagina",
   "reemplazar_bloque",
   "insertar_bloque",
@@ -428,5 +480,32 @@ const CERRAR_PLAN_TOOL: ToolDef = {
 /** La lista de herramientas que de verdad se le ofrece al modelo esta ronda. */
 export function toolsFor(planActive: boolean): ToolDef[] {
   if (!planActive) return TOOLS;
-  return [...TOOLS.filter((tool) => !PLAN_MODE_WRITE_TOOLS.has(tool.name)), CERRAR_PLAN_TOOL];
+  return [
+    ...TOOLS.filter((tool) => !PLAN_MODE_WRITE_TOOLS.has(tool.name)).map((tool) =>
+      tool.name === "preguntar"
+        ? {
+            ...tool,
+            description:
+              "Ask one consequential unresolved question about scope, data, access or workflow, or a conflict with a saved rule. Do not ask cosmetic or already answered questions. Ends the turn without writes.",
+            schema: {
+              ...tool.schema,
+              properties: {
+                ...(tool.schema.properties as Record<string, unknown>),
+                opciones: {
+                  type: "array",
+                  minItems: 2,
+                  maxItems: 4,
+                  items: {
+                    type: "object",
+                    properties: { etiqueta: { type: "string" }, detalle: { type: "string" } },
+                    required: ["etiqueta"],
+                  },
+                },
+              },
+            },
+          }
+        : tool,
+    ),
+    CERRAR_PLAN_TOOL,
+  ];
 }

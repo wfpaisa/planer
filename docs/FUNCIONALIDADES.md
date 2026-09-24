@@ -84,17 +84,23 @@
 - **Inteligencia artificial**
 
   - Generar y editar páginas/tablas por chat (una petición por página a la vez)
+  - Respuestas, preguntas y avisos en lenguaje sencillo para personas sin conocimientos técnicos
   - Elegir proveedor, modelo y nivel de razonamiento por petición
   - Adjuntar archivos (CSV, JSON, texto, imagen) a la conversación
-  - Herramientas del modelo: ver tablas, crear tabla, agregar columnas, crear/actualizar página, leer archivo, llenar tabla desde archivo, revisar errores
+  - Herramientas del modelo: ver tablas, crear tabla, agregar columnas, crear/actualizar página, leer archivo, llenar tabla desde archivo, revisar errores, buscar iconos
+  - Cualquier icono de la fuente (más de 6000) en las páginas, buscado por la IA sin lista en el contexto
   - Memoria de la página en el contexto de cada petición, y preguntar antes de contradecir una regla guardada
   - La memoria se escribe sola al cerrar cada turno, con su propio modelo configurable
   - Pedir expresamente que algo se recuerde lo guarda en la memoria, sea o no una regla funcional
-  - Modo Plan: conversar y preguntar antes de construir, cerrar el plan
+  - Modo Plan: conversar y preguntar antes de construir, cerrar el plan; bloqueo de escrituras en el servidor
+  - Planes con estados de ejecución y continuación del trabajo incompleto
+  - Contexto compacto con consulta de guías y esquemas bajo demanda
+  - Límite de contexto por modelo, calibrado con el uso real, y detención de errores repetidos
   - Cortar una petición en marcha
   - Diálogo de impacto para cambios riesgosos (borrar columna/tabla, cambiar tipo)
   - Autorizar accesos pedidos por la IA
   - Medidor de contexto/tokens usado
+  - Avisos guardados en la conversación
   - Historial de conversaciones por página, retomar una anterior
   - Autocomandos / preguntas rápidas
   - Constancia de depuración por petición ("contexto enviado")

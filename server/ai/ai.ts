@@ -32,6 +32,13 @@ import {
 import { HttpError } from "../auth.ts";
 import { INTERNAL } from "../config.ts";
 import { createRecord, firstRecord, updateRecord } from "../pb.ts";
+import {
+  CalibratedEstimate,
+  compactReadResults,
+  ContextBudgetError,
+  IMAGE_TOKENS,
+  MIN_OUTPUT_TOKENS,
+} from "./contextBudget.ts";
 
 /** Lo que se le deja escribir a un modelo del que no se sabe el tope. */
 const FALLBACK_MAX_TOKENS = 16000;
@@ -477,6 +484,7 @@ export interface TurnUsage {
 }
 
 export interface Turn {
+  truncated?: boolean;
   text: string;
   calls: ToolCall[];
   /** Lo que penso el modelo, si su servidor lo dejo escrito. */
@@ -502,7 +510,11 @@ export interface Conversation {
    * `onProgress` con cada fragmento para que se pueda mostrar en vivo; al
    * terminar devuelve el turno completo.
    */
-  ask(onProgress?: (ev: TurnProgress) => void): Promise<Turn>;
+  ask(
+    onProgress?: (ev: TurnProgress) => void,
+    /** Tope de salida solo para esta llamada; sin él, el configurado. */
+    opts?: { maxTokens?: number },
+  ): Promise<Turn>;
   reply(results: { id: string; output: string }[]): void;
   /**
    * Pone un mensaje mas en la conversación, como si lo escribiera quien pide.
@@ -512,6 +524,12 @@ export interface Conversation {
    * sirve ahi, porque nombra una llamada que el modelo nunca hizo.
    */
   say(text: string): void;
+  /**
+   * Sustituye lecturas repetidas por un aviso (ver `compactReadResults`).
+   * Solo se usa cuando el contexto aprieta: reescribir mensajes anteriores
+   * invalida la caché de prompt del proveedor.
+   */
+  compact(): void;
   /**
    * Todo lo que se le mandaria al proveedor ahora mismo, para el modo debug.
    * No dispara nada: solo lee lo que ya esta armado.
@@ -567,14 +585,15 @@ function anthropicConversation(
     description: t.description,
     input_schema: t.schema as Anthropic.Tool.InputSchema,
   }));
-  const budget = thinkingBudget(cfg.model, cfg.thinking);
-
   return {
     with: cfg,
 
+    compact: () => compactReadResults(messages),
     dump: () => ({ model: cfg.model.id, system, tools, messages }),
 
-    async ask(onProgress) {
+    async ask(onProgress, opts) {
+      const maxTokens = opts?.maxTokens ?? cfg.model.maxTokens;
+      const budget = thinkingBudget({ ...cfg.model, maxTokens }, cfg.thinking);
       /*
        * Se pide la respuesta en streaming y se va contando lo que llega: el
        * texto segun se escribe y las ideas segun se piensan. Así quien mira lo
@@ -583,7 +602,7 @@ function anthropicConversation(
       const stream = client.messages.stream(
         {
           model: cfg.model.id,
-          max_tokens: cfg.model.maxTokens,
+          max_tokens: maxTokens,
           system,
           tools,
           messages,
@@ -647,6 +666,7 @@ function anthropicConversation(
 
       return {
         text,
+        truncated,
         calls,
         reasoning: reasoning || undefined,
         usage: {
@@ -706,7 +726,15 @@ const WITHOUT_IMAGES =
  * tal cual, porque quien lo lee es quien puede subirlo.
  */
 const NOTICE_TRUNCATED =
-  "La respuesta se cortó al llegar al «Máximo por respuesta» configurado para este modelo. Subilo en sus ajustes si vuelve a pasar.";
+  "La respuesta quedó incompleta porque llegó al «Máximo por respuesta» configurado para este modelo. Puedes pedir un cambio más pequeño o subir ese máximo en los ajustes de IA.";
+
+/**
+ * La respuesta se cortó porque la conversación ya ocupaba casi toda la
+ * ventana y quedaba menos sitio del configurado para escribir. Subir el
+ * máximo no arreglaría nada: lo que falta es espacio.
+ */
+const NOTICE_TRUNCATED_FULL =
+  "La respuesta quedó incompleta porque la conversación ya ocupa casi toda la capacidad de este modelo. Empieza una conversación nueva o elige un modelo con más capacidad.";
 
 /**
  * Igual que `NOTICE_TRUNCATED`, pero lo que se corto fue una instruccion a
@@ -715,7 +743,7 @@ const NOTICE_TRUNCATED =
  * no aplicarla.
  */
 const NOTICE_TRUNCATED_CALL =
-  "Una instrucción se cortó a medias por el «Máximo por respuesta» configurado y no se ejecutó, para no aplicar algo incompleto. Subilo en sus ajustes si vuelve a pasar.";
+  "Una instrucción se cortó a medias por el «Máximo por respuesta» configurado y no se ejecutó, para no aplicar algo incompleto. Puedes subir ese máximo en los ajustes de IA.";
 
 /** El mensaje con el que el servidor explico el fallo, si lo explico. */
 const failureText = (body: unknown) =>
@@ -770,9 +798,11 @@ function openAiConversation(
   return {
     with: cfg,
 
+    compact: () => compactReadResults(messages),
     dump: () => ({ model: cfg.model.id, system, tools, messages }),
 
-    async ask(onProgress) {
+    async ask(onProgress, opts) {
+      const maxTokens = opts?.maxTokens ?? cfg.model.maxTokens;
       const send = () =>
         fetch(`${base}/chat/completions`, {
           method: "POST",
@@ -782,7 +812,7 @@ function openAiConversation(
           },
           body: JSON.stringify({
             model: cfg.model.id,
-            ...maxTokensField(base, cfg.model.maxTokens),
+            ...maxTokensField(base, maxTokens),
             messages,
             tools,
             tool_choice: "auto",
@@ -935,7 +965,8 @@ function openAiConversation(
 
       return {
         text: text.trim(),
-        calls: done,
+        truncated: finishReason === "length",
+        calls: finishReason === "length" ? [] : done,
         reasoning: reasoning.trim() || undefined,
         usage,
         ...(notice ? { notice } : {}),
@@ -971,6 +1002,7 @@ export async function startConversation(
   prompt: string,
   tools: ToolDef[],
   opts: {
+    boundedContext?: boolean;
     signal?: AbortSignal;
     choice?: Partial<AiChoice>;
     images?: PromptImage[];
@@ -987,10 +1019,66 @@ export async function startConversation(
   // adjunto --su nombre, que se adjunto-- sigue contado en el contexto.
   const images = picked.model.vision ? (opts.images ?? []) : [];
 
-  const history = opts.history ?? [];
-  return speaksAnthropic(picked.provider.provider)
+  /*
+   * EL PRESUPUESTO DE CONTEXTO
+   *
+   * Solo con `boundedContext` y una ventana conocida: sin ventana no hay
+   * contra qué medir, y se deja todo como estaba.
+   *
+   * La salida no se recorta de antemano. Cada llamada pide el máximo
+   * configurado si cabe, y solo cuando la conversación ya ocupa tanto que no
+   * cabe, pide lo que queda --nunca menos de `MIN_OUTPUT_TOKENS`, por debajo
+   * del cual una página no se llega a escribir y es mejor avisar--.
+   */
+  const window = picked.model.contextWindow;
+  const bounded = !!opts.boundedContext && window > 0;
+  const margin = Math.ceil(window * 0.05);
+  const configured = picked.model.maxTokens;
+  const floor = Math.min(configured, MIN_OUTPUT_TOKENS);
+  /** Lo que se deja libre para escribir al elegir cuánta historia entra. */
+  const comfortable = Math.min(configured, Math.max(floor, Math.floor(window / 4)));
+  const imageTokens = images.length * IMAGE_TOKENS;
+  const estimate = new CalibratedEstimate();
+
+  let history = [...(opts.history ?? [])];
+  if (bounded) {
+    while (
+      history.length &&
+      estimate.of({ system, prompt, tools, history }) + imageTokens > window - margin - comfortable
+    ) {
+      // Quitar intercambios completos conserva cada pregunta con su respuesta.
+      const next = history.findIndex((turn, index) => index > 0 && turn.role === "user");
+      history = next < 0 ? [] : history.slice(next);
+    }
+  }
+  const chat = speaksAnthropic(picked.provider.provider)
     ? anthropicConversation(picked, system, prompt, tools, opts.signal, images, history)
     : openAiConversation(picked, system, prompt, tools, opts.signal, images, history);
+  if (!bounded) return chat;
+
+  const measure = () => estimate.of(chat.dump()) + imageTokens;
+  return {
+    ...chat,
+    async ask(onProgress) {
+      let input = measure();
+      // Compactar reescribe mensajes anteriores y rompe la caché del
+      // proveedor: solo cuando lo que queda para escribir ya no es cómodo.
+      if (window - margin - input < comfortable) {
+        chat.compact();
+        input = measure();
+      }
+      const room = window - margin - input;
+      if (room < floor) throw new ContextBudgetError();
+      const maxTokens = Math.min(configured, room);
+      const turn = await chat.ask(onProgress, { maxTokens });
+      // Lo que el proveedor contó ajusta la estimación de las siguientes rondas.
+      if (turn.usage?.input)
+        estimate.calibrate(input - imageTokens, turn.usage.input - imageTokens);
+      if (turn.truncated && maxTokens < configured && turn.notice)
+        return { ...turn, notice: NOTICE_TRUNCATED_FULL };
+      return turn;
+    },
+  };
 }
 
 /**

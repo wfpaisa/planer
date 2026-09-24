@@ -149,7 +149,11 @@ export async function listen(
    */
   let asked: AiQuestion | null = null;
   /** El plan con el que se cerro el modo Plan, si se cerro. Mismo papel que `asked`. */
-  let closedPlan: { texto: string; implementado: boolean } | null = null;
+  let closedPlan: {
+    texto: string;
+    implementado: boolean;
+    estado?: "implementando" | "incompleto";
+  } | null = null;
   /** Los accesos que la IA dejo pedidos y hay que autorizar uno a uno. */
   let grants: AccessChange[] = [];
 
@@ -168,7 +172,21 @@ export async function listen(
       ...now,
       ...(result ? { chatId: result.chatId } : {}),
       entries: [
-        ...now.entries,
+        ...now.entries.map((entry) =>
+          entry.plan?.estado === "implementando" ||
+          (result?.implementation &&
+            entry === now.entries.findLast((item) => item.plan && !item.plan.implementado))
+            ? {
+                ...entry,
+                plan: {
+                  ...entry.plan!,
+                  implementado: result?.implementation === "implementado",
+                  estado:
+                    result?.implementation === "implementado" ? undefined : ("incompleto" as const),
+                },
+              }
+            : entry,
+        ),
         {
           id,
           from: "ia",
@@ -285,8 +303,12 @@ export async function listen(
   } catch (err) {
     // Lo escrito hasta el fallo se queda en la conversación, con el porque.
     const written = seen.text;
+    const detail = errorMessage(err);
+    const explanation = /fetch|network|connection/i.test(detail)
+      ? "Se perdió la conexión. Vuelve a abrir esta página para comprobar si la solicitud terminó antes de enviarla otra vez."
+      : detail;
     land(
-      written ? `${written}\n\n${errorMessage(err)}` : errorMessage(err),
+      written ? `${written}\n\n${explanation}` : explanation,
       taken(seen),
       undefined,
       seen.reasoning || undefined,

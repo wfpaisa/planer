@@ -2,6 +2,8 @@
  * Ejecucion de las ordenes que la IA puede pedir sobre una página: el
  * despachador `runTool` y una función por herramienta con trabajo real.
  */
+import { htmlGuide } from "../../../shared/htmlContract.ts";
+import { searchIcons } from "../../../shared/icons.ts";
 import { IMPORT_BATCH_CHUNK, MAX_IMPORT_ROWS } from "../../../shared/importBatch.ts";
 import { detectSeparator, type ParsedTable, parseImport } from "../../../shared/importParse.ts";
 import { convertValue } from "../../../shared/importValues.ts";
@@ -411,6 +413,9 @@ async function runRevisarErrores(
 
   const report = await ctx.probe(html);
   if (!report) {
+    ctx.notices.push(
+      "El cambio se revisó, pero no se pudo comprobar si la página abre correctamente.",
+    );
     note(estilo.length ? auditSummary(estilo) : "No se pudo probar la página", !estilo.length);
     return JSON.stringify({
       probado: false,
@@ -800,7 +805,7 @@ async function runAgregarColumnas(
   const names = added.map((f) => f.label).join(", ");
   note(`Columnas nuevas en "${table.label}": ${names}`);
   ctx.notices.push(
-    `Se anadio a "${table.label}" ${added.length === 1 ? "la columna" : "las columnas"} ${names}.`,
+    `Se añadió a "${table.label}" ${added.length === 1 ? "la columna" : "las columnas"} ${names}.`,
   );
   return JSON.stringify({ columnas: fields.map((f) => f.name) });
 }
@@ -896,6 +901,47 @@ export async function runTool(
   const note = (summary: string, ok = true) => ctx.steps.push({ tool: name, summary, ok });
 
   switch (name) {
+    case "consultar_guia": {
+      const guide = htmlGuide(String(input.tema));
+      if (!guide)
+        return "Error: choose componentes, colores, medidas, oficio, estilos, datos, graficas, bloques or iconos.";
+      const start = Math.max(0, Math.floor(Number(input.desde) || 0));
+      const end = start + 16000;
+      note("Consultando las opciones disponibles para la página");
+      return JSON.stringify({
+        texto: guide.slice(start, end),
+        siguiente: end < guide.length ? end : null,
+      });
+    }
+    case "buscar_iconos": {
+      const queries = (Array.isArray(input.consultas) ? input.consultas : [input.consultas])
+        .map((query: unknown) => String(query ?? "").trim())
+        .filter(Boolean)
+        .slice(0, 12);
+      if (!queries.length) return 'Error: send "consultas" with at least one English keyword.';
+      note(`Buscando iconos: ${queries.join(", ")}`);
+      const found = Object.fromEntries(
+        queries.map((query: string) => [query, searchIcons(query, 12)]),
+      );
+      const empty = queries.filter((query: string) => !found[query].length);
+      return JSON.stringify({
+        iconos: found,
+        ...(empty.length
+          ? { aviso: `No match for: ${empty.join(", ")}. Try other English words.` }
+          : {}),
+      });
+    }
+    case "consultar_tablas": {
+      if (!input.tabla)
+        return JSON.stringify(
+          ctx.tables.map((table) => ({ nombre: table.name, etiqueta: table.label })),
+        );
+      const table = findTable(ctx, input.tabla);
+      if (!table)
+        return `Error: unknown source. Available: ${ctx.tables.map((item) => item.name).join(", ")}`;
+      note(`Consultando los campos de "${table.label}"`);
+      return JSON.stringify({ nombre: table.name, etiqueta: table.label, campos: table.fields });
+    }
     case "cambiar_acceso":
       return runCambiarAcceso(input, ctx, note);
     case "cambiar_roles_pagina":

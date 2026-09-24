@@ -1342,6 +1342,10 @@ async function executeRun(
       ];
     }
 
+    // Un plan queda implementado solo si el turno terminó sin escrituras
+    // fallidas ni decisiones pendientes (`completed`, en `pageRequest`).
+    const implementationCompleted = result.completed === true;
+
     // Se guarda también lo que se detuvo a medias: es lo que paso, y quien
     // vuelva a la conversación tiene que poder leerlo.
     const chat = await appendToChat({
@@ -1352,6 +1356,7 @@ async function executeRun(
       // Pasar a modo Implementador: el plan cerrado que dejo esta misma
       // conversación queda marcado antes de anadir esta petición (D1, D2).
       implementPlan: opts.planIntent === "implementar",
+      implementationCompleted,
       messages: [
         {
           from: "yo",
@@ -1367,6 +1372,7 @@ async function executeRun(
           from: "ia",
           text: result.message,
           steps: result.steps,
+          notices: result.notices,
           // La pregunta se guarda con el mensaje: al volver a la conversación
           // se lee que se pregunto, no solo lo que se construyo después.
           ...(result.question ? { question: result.question } : {}),
@@ -1377,20 +1383,41 @@ async function executeRun(
       ],
     });
 
-    pushRun(run, { tipo: "fin", resultado: { ...result, chatId: chat.id } });
+    pushRun(run, {
+      tipo: "fin",
+      resultado: {
+        ...result,
+        chatId: chat.id,
+        ...(opts.planIntent === "implementar"
+          ? { implementation: implementationCompleted ? "implementado" : "incompleto" }
+          : {}),
+      },
+    });
   } catch (err) {
     if (timer) clearTimeout(timer);
     // Si el corte por tiempo no alcanzo a volver como resultado parcial y
     // termino tirando (un abort a mitad de un paso que no lo esperaba), el
     // motivo real no se pierde detras de un mensaje generico.
-    pushRun(run, {
-      tipo: "error",
-      mensaje: timedOut
-        ? `La petición se cortó al llegar al tiempo máximo configurado (${cfg.runTimeoutMinutes} min).`
-        : err instanceof HttpError
-          ? err.message
-          : "No se pudo completar la petición.",
-    });
+    const message = timedOut
+      ? `La solicitud se detuvo al llegar al tiempo máximo (${cfg.runTimeoutMinutes} min). Revisa lo que quedó hecho antes de continuar.`
+      : err instanceof HttpError && err.status < 500
+        ? err.message
+        : "No se pudo completar la solicitud. Revisa los cambios guardados antes de intentarlo otra vez.";
+    if (opts.planIntent === "implementar" && opts.chatId) {
+      await appendToChat({
+        appId: opts.app.id,
+        chatId: opts.chatId,
+        page: opts.page,
+        authorId: opts.authorId,
+        implementPlan: true,
+        implementationCompleted: false,
+        messages: [
+          { from: "yo", text: run.prompt },
+          { from: "ia", text: message, steps: run.steps },
+        ],
+      }).catch(() => {});
+    }
+    pushRun(run, { tipo: "error", mensaje: message });
   }
 }
 

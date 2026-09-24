@@ -25,7 +25,8 @@
  * en `shared/icons.ts`.
  */
 import { BRIDGE_PATH, CHARTS_PATH, STYLES_PATH } from "@shared/htmlContract";
-import { ICON_FONT_URL, SUBSET_FONT_URL } from "@shared/icons";
+import { ICON_NAME_SET } from "@shared/iconNames";
+import { FULL_FONT_FILE, ICON_FONT_URL, SUBSET_FONT_URL, SUBSET_ICONS } from "@shared/icons";
 
 /** Cada archivo se pide una vez por sesión del panel. */
 const files = new Map<string, Promise<string>>();
@@ -42,6 +43,92 @@ function file(path: string): Promise<string> {
   files.set(path, pending);
   return pending;
 }
+
+/*
+ * LOS ICONOS FUERA DEL SUBCONJUNTO
+ *
+ * El subconjunto pegado dibuja los nombres más comunes al instante. Una página
+ * puede usar cualquiera de los 6228: para esos se pegan solo sus reglas
+ * --unas líneas por icono, leídas de la hoja completa-- y la fuente entera
+ * llega aparte, en binario y por mensaje, porque el marco no puede pedirla. Se
+ * registra con otro nombre de familia y va primero: mientras llega, lo que el
+ * subconjunto sabe dibujar ya se ve.
+ */
+const FULL_FAMILY = "hugeicons-completa";
+const SUBSET_SET = new Set(SUBSET_ICONS);
+
+/** Nombre → punto de código, leído una vez de la hoja completa. */
+let glyphs: Promise<Map<string, string>> | null = null;
+function glyphMap(): Promise<Map<string, string>> {
+  glyphs ??= file(ICON_FONT_URL).then((css) => {
+    const map = new Map<string, string>();
+    for (const match of css.matchAll(
+      /\.hgi-stroke\.hgi-([a-z0-9-]+)::before\s*\{\s*content:\s*"\\([0-9a-f]+)"/g,
+    ))
+      map.set(match[1], match[2]);
+    return map;
+  });
+  glyphs.catch(() => (glyphs = null));
+  return glyphs;
+}
+
+/**
+ * Los iconos que la página nombra y el subconjunto no trae: los que van como
+ * clase (`hgi-nombre`) y los que van como texto entre comillas --un mapa de
+ * estado a icono, por ejemplo--. Un nombre armado a trozos no se ve, y por eso
+ * el contrato pide escribirlos enteros.
+ */
+function extraIcons(html: string): string[] {
+  const found = new Set<string>();
+  for (const match of html.matchAll(/hgi-([a-z0-9-]+)/g)) found.add(match[1]);
+  for (const match of html.matchAll(/["'`]([a-z0-9-]+)["'`]/g)) found.add(match[1]);
+  return [...found].filter((name) => ICON_NAME_SET.has(name) && !SUBSET_SET.has(name));
+}
+
+/** La fuente entera, en binario, pedida una sola vez. */
+let fullFont: Promise<ArrayBuffer> | null = null;
+function fontBytes(): Promise<ArrayBuffer> {
+  fullFont ??= fetch(FULL_FONT_FILE).then((res) => {
+    if (!res.ok) throw new Error(`No se pudo cargar ${FULL_FONT_FILE}`);
+    return res.arrayBuffer();
+  });
+  fullFont.catch(() => (fullFont = null));
+  return fullFont;
+}
+
+/*
+ * Un solo oyente para todos los marcos: la previsualización, la sonda de la
+ * IA y la conversión pasan por aquí, así que cualquiera que pida la fuente la
+ * recibe. La fuente es pública; no hay nada que proteger en quién la pide.
+ */
+let listening = false;
+function serveFullFont(): void {
+  if (listening) return;
+  listening = true;
+  window.addEventListener("message", (event) => {
+    const source = event.source as Window | null;
+    if (event.data?.plane !== "iconos-fuente" || !source) return;
+    void fontBytes()
+      .then((fuente) => source.postMessage({ plane: "iconos-fuente", fuente }, "*"))
+      .catch(() => {});
+  });
+}
+
+/** Las reglas de los iconos extra y lo que pide la fuente desde el marco. */
+async function extraIconsCss(html: string): Promise<string> {
+  const names = extraIcons(html);
+  if (!names.length) return "";
+  const map = await glyphMap().catch(() => new Map<string, string>());
+  const rules = names
+    .filter((name) => map.has(name))
+    .map((name) => `.hgi-stroke.hgi-${name}::before{content:"\\${map.get(name)}"}`);
+  if (!rules.length) return "";
+  serveFullFont();
+  return `.hgi-stroke{font-family:"${FULL_FAMILY}","hugeicons-stroke-rounded"!important}${rules.join("")}`;
+}
+
+/** Lo que corre dentro del marco: pide la fuente y la registra al llegar. */
+const FONT_REQUEST = `(function(){addEventListener("message",function(e){var d=e.data;if(!d||d.plane!=="iconos-fuente"||!d.fuente||e.source!==parent)return;new FontFace("${FULL_FAMILY}",d.fuente).load().then(function(f){document.fonts.add(f)}).catch(function(){})});parent.postMessage({plane:"iconos-fuente"},"*")})()`;
 
 /**
  * La referencia, tal como la escribio `server/page/pageAssets.ts` o la propia
@@ -95,7 +182,14 @@ export async function inlinePlaneAssets(html: string): Promise<string> {
   /* Los iconos, antes que los estilos: la hoja de la casa da por puesta la
      familia de la fuente, y así el orden del documento dice el mismo orden en
      que hacen falta. */
-  if (iconCss) out = out.replace(icons, () => `<style data-plane="iconos">${iconCss}</style>`);
+  if (iconCss) {
+    const extra = await extraIconsCss(html);
+    const request = extra ? `<script data-plane="iconos-completos">${FONT_REQUEST}</script>` : "";
+    out = out.replace(
+      icons,
+      () => `<style data-plane="iconos">${iconCss}${extra}</style>${request}`,
+    );
+  }
   if (css) out = out.replace(styles, () => `<style data-plane="estilos">${css}</style>`);
   if (js) out = out.replace(bridge, () => `<script data-plane="puente">${safeScript(js)}</script>`);
   if (chartsJs)

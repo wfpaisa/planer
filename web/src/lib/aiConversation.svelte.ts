@@ -63,7 +63,7 @@ export interface Entry {
    * El plan con el que este turno cerro el modo Plan, si lo cerro. Mismo papel
    * que `question`: se lee la tarjeta aunque se recargue o se relea después.
    */
-  plan?: { texto: string; implementado: boolean };
+  plan?: { texto: string; implementado: boolean; estado?: "implementando" | "incompleto" };
   /**
    * Los accesos que la IA quiere dar y todavía no dio. Viven en la entrada del
    * turno que los pidio: lo que hay que leer para decidir es la frase que la
@@ -97,6 +97,7 @@ export interface Entry {
 
 /** Una petición escrita mientras la IA trabajaba, esperando su turno. */
 export interface QueuedAsk {
+  plan?: import("@shared/types").AiPlanIntent | "crear";
   id: number;
   /** El texto que se va a mandar. */
   text: string;

@@ -99,9 +99,11 @@ export const iconClass = (name: string) => `hgi-stroke hgi-${name}`;
  * No es un limite, es un vademecum: una página puede usar cualquiera de los
  * seis mil nombres de la fuente, y el buscador de iconos del panel los
  * ofrece todos (`ICON_NAMES` en `shared/iconNames.ts`). Lo que la lista
- * resuelve es otra cosa: el modelo no puede comprobar si un nombre existe, y
- * uno inventado no da error --deja un hueco en blanco--, así que se le dan
- * trescientos sobre los que no tiene que adivinar.
+ * resuelve ahora es qué se dibuja al instante: son los nombres del subconjunto
+ * pegado en cada marco (`SUBSET_ICONS`). Al modelo ya no se le pasa: busca
+ * los nombres con la herramienta `buscar_iconos` (`searchIcons`), sobre los
+ * seis mil, y los que quedan fuera del subconjunto los dibuja la fuente
+ * completa que el panel le pasa al marco (ver `web/src/lib/planeAssets.ts`).
  *
  * `bun run harness` comprueba que todos existan y que ninguno este dos veces.
  */
@@ -480,16 +482,13 @@ export const PAGE_ICONS: readonly { group: string; names: readonly string[] }[] 
  *
  * `check`, `trash`, `plus`, `x`: los nombres cortos al estilo de Lucide que
  * Hugeicons declara como suyos, ademas de los numerados (`tick-01`,
- * `delete-02`, `add-01`). No se le ofrecen al modelo --tenerlos en
- * `PAGE_ICONS` seria darle dos nombres para el mismo dibujo, y una pantalla
- * saldria con `tick-01` en un botón y `check` en el de al lado-- pero si
- * tienen que **existir en el subconjunto**: una página escrita a mano, o por
+ * `delete-02`, `add-01`). No están en `PAGE_ICONS` --serían dos nombres para
+ * el mismo dibujo-- pero sí tienen que **existir en el subconjunto**: una página escrita a mano, o por
  * un modelo de antes de que la lista se curara, puede nombrarlos, y en el
  * marco quedaria el hueco en blanco.
  *
- * Es el único sitio donde esta escrita esa diferencia: lo que se le sugiere
- * al modelo es `PAGE_ICONS`; lo que el marco sabe dibujar es la union de las
- * dos listas (`SUBSET_ICONS`).
+ * Lo que el marco dibuja al instante es la unión de las dos listas
+ * (`SUBSET_ICONS`); el resto llega con la fuente completa.
  */
 export const COMMON_ICONS: readonly string[] = [
   "anchor",
@@ -572,9 +571,57 @@ export const SUBSET_ICONS: readonly string[] = [
  * Así que al marco la fuente le entra pegada, igual que los estilos y el
  * puente (ver `web/src/lib/planeAssets.ts`). Pegar las seis mil serian 1,2 MB
  * de texto en cada `srcdoc`; recortada a los nombres de `SUBSET_ICONS` son
- * unas setenta veces menos. Fuera del marco --una página abierta en su
+ * unas setenta veces menos. Un icono fuera del subconjunto no se queda en
+ * blanco: el panel pega sus reglas y le pasa al marco la fuente completa por
+ * mensaje (`FULL_FONT_FILE`). Fuera del marco --una página abierta en su
  * dirección-- sigue valiendo la hoja completa de `ICON_FONT_URL`.
  *
  * Se regenera con `bun run iconos:subconjunto`.
  */
 export const SUBSET_FONT_URL = "/iconos/comunes.css";
+
+/**
+ * La fuente entera, en binario. El marco no la alcanza por su cuenta (origen
+ * opaco), así que se la pasa el panel por mensaje, ya cargada, solo cuando la
+ * página nombra un icono que el subconjunto no dibuja. Ver `planeAssets.ts`.
+ */
+export const FULL_FONT_FILE = "/iconos/iconos.woff2";
+
+/**
+ * Buscar iconos por palabras, sobre los 6228 nombres de la fuente.
+ *
+ * Es lo que usa la IA en lugar de recibir una lista: cada palabra de la
+ * consulta puntúa por separado --nombre exacto, una parte del nombre igual,
+ * una parte que empieza así, o la palabra en cualquier sitio-- y se suman. Un
+ * nombre corto gana a uno largo con la misma coincidencia: `user` antes que
+ * `user-account-circle-02`.
+ */
+export function searchIcons(query: string, limit = 24): string[] {
+  const words = query
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 1);
+  if (!words.length) return [];
+
+  const scored: { name: string; score: number }[] = [];
+  for (const name of ICON_NAME_SET) {
+    const parts = name.split("-");
+    let score = 0;
+    for (const word of words) {
+      if (name === word) score += 100;
+      else if (parts.includes(word)) score += 40;
+      else if (
+        parts.some((part) => part.startsWith(word) || (word.startsWith(part) && part.length > 3))
+      )
+        score += 20;
+      else if (name.includes(word)) score += 8;
+    }
+    if (score) scored.push({ name, score: score - parts.length });
+  }
+  return scored
+    .sort((a, b) => b.score - a.score || a.name.length - b.name.length)
+    .slice(0, Math.max(1, Math.min(limit, 60)))
+    .map((item) => item.name);
+}

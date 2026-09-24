@@ -622,7 +622,7 @@
    */
   async function dispatch(
     text: string,
-    opts?: { label?: string; keepDraft?: boolean; plan?: AiPlanIntent },
+    opts?: { label?: string; keepDraft?: boolean; plan?: AiPlanIntent | "crear" },
   ): Promise<void> {
     // La IA trabaja en otra página: lo escrito se queda donde esta, esperando
     // a que aquello termine.
@@ -630,11 +630,16 @@
     const value = text.trim();
     if (!value) return;
     const asked = readConversation(key);
+    // "crear" fuerza una petición sin modo Plan, aunque el botón siga encendido;
+    // viaja con la cola para que lo encolado conserve la intención con que se pidió.
+    const planIntent =
+      opts?.plan === "crear" ? undefined : (opts?.plan ?? (planWanted ? "activar" : undefined));
 
     if (working) {
       const queued: QueuedAsk = {
         id: nextEntryId(),
         text: value,
+        plan: planIntent ?? "crear",
         ...(opts?.label ? { label: opts.label } : {}),
         picks: asked.picks,
         files: asked.files,
@@ -697,7 +702,6 @@
     // Fuera de una accion explicita (cortar, implementar), la petición lleva
     // la intencion del botón mientras siga encendido: es lo único que hace
     // que el modo Plan siga activo turno tras turno (D1 de `ia-modo-plan`).
-    const planIntent = opts?.plan ?? (planWanted ? "activar" : undefined);
 
     await listen(`/api/apps/${appId}/paginas/${page.id}/ia`, {
       prompt: value,
@@ -771,9 +775,11 @@
       mine,
     );
     rememberQueue(mine, rest);
-    void dispatch(first.text, { label: first.label, keepDraft: true }).finally(() => {
-      starting = false;
-    });
+    void dispatch(first.text, { label: first.label, keepDraft: true, plan: first.plan }).finally(
+      () => {
+        starting = false;
+      },
+    );
   });
 
   /** Quitar algo de la cola antes de que le llegue el turno. */
@@ -850,20 +856,31 @@
    * Lo que se manda al modelo es el plan concretado: la burbuja enseña un
    * rotulo corto, igual que al elegir la opción de una pregunta.
    *
-   * El servidor marca implementado el plan guardado, pero esta entrada ya
-   * esta pintada en el navegador con lo que tenia al cerrarse: sin marcarla
-   * también aqui, su tarjeta seguiria ofreciendo el botón hasta recargar.
+   * La tarjeta queda en curso hasta que el servidor confirme el resultado.
+   * Si falla o se detiene, permite continuar únicamente con lo pendiente.
    */
-  function implementPlan(entryId: number, plan: { texto: string; implementado: boolean }): void {
+  function implementPlan(
+    entryId: number,
+    plan: { texto: string; implementado: boolean; estado?: "implementando" | "incompleto" },
+  ): void {
     planWanted = false;
     const now = readConversation(key);
     update({
       ...now,
       entries: now.entries.map((entry) =>
-        entry.id === entryId ? { ...entry, plan: { ...plan, implementado: true } } : entry,
+        entry.id === entryId ? { ...entry, plan: { ...plan, estado: "implementando" } } : entry,
       ),
     });
-    void dispatch(plan.texto, { label: "Implementar", keepDraft: true, plan: "implementar" });
+    void dispatch(
+      plan.estado === "incompleto"
+        ? `Continúa solo con lo pendiente de este plan. Comprueba primero lo que ya quedó hecho y no repitas importaciones ni cambios aplicados.\n\n${plan.texto}`
+        : plan.texto,
+      {
+        label: plan.estado === "incompleto" ? "Continuar el plan" : "Implementar",
+        keepDraft: true,
+        plan: "implementar",
+      },
+    );
   }
 
   /** Abrir el archivo elegido con el selector nativo del "+" a la conversación. */
@@ -1017,6 +1034,7 @@
     from: m.from,
     text: m.text,
     steps: m.steps,
+    notices: m.notices,
     question: m.question,
     plan: m.plan,
     reasoning: m.reasoning,
@@ -1128,6 +1146,8 @@
   }
 
   /** La ultima respuesta de la IA: la única a la que pertenece lo guardado. */
+  /** El último plan: si quedó incompleto, se puede continuar aunque haya turnos después. */
+  const lastPlanEntry = $derived([...chat.entries].reverse().find((entry) => entry.plan)?.id);
   const lastAiEntry = $derived([...chat.entries].reverse().find((e) => e.from === "ia")?.id ?? 0);
 
   /** Escribir un ejemplo en el campo. Se manda cuando quien pide lo decida. */
@@ -1371,7 +1391,9 @@
                 {#if entry.plan}
                   <PlanCard
                     plan={entry.plan}
-                    live={!working && entry.id === chat.entries[chat.entries.length - 1]?.id}
+                    live={!working &&
+                      (entry.id === chat.entries[chat.entries.length - 1]?.id ||
+                        (entry.plan.estado === "incompleto" && entry.id === lastPlanEntry))}
                     onImplement={() => entry.plan && implementPlan(entry.id, entry.plan)}
                   />
                 {/if}

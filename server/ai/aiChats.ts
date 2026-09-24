@@ -95,10 +95,19 @@ function readMessages(value: unknown): AiMessage[] {
       return {
         from: raw.from,
         text: String(raw.text ?? ""),
+        ...(Array.isArray(raw.notices)
+          ? { notices: raw.notices.filter((item): item is string => typeof item === "string") }
+          : {}),
         ...(Array.isArray(raw.steps) ? { steps: raw.steps } : {}),
         ...(raw.question && Array.isArray(raw.question.options) ? { question: raw.question } : {}),
         ...(raw.plan && typeof raw.plan.texto === "string"
-          ? { plan: { texto: raw.plan.texto, implementado: raw.plan.implementado === true } }
+          ? {
+              plan: {
+                texto: raw.plan.texto,
+                implementado: raw.plan.implementado === true,
+                ...(raw.plan.estado === "incompleto" ? { estado: "incompleto" as const } : {}),
+              },
+            }
           : {}),
         ...(typeof raw.reasoning === "string" && raw.reasoning ? { reasoning: raw.reasoning } : {}),
         ...(files.length ? { files } : {}),
@@ -139,11 +148,20 @@ export async function getChat(appId: string, id: string): Promise<AiChat> {
  * marca, y desde ahi la conversación corre con las herramientas de siempre.
  * Sin ningún plan sin implementar, no hay nada que marcar.
  */
-function markPlanImplemented(messages: AiMessage[]): AiMessage[] {
+function markPlanImplemented(messages: AiMessage[], completed: boolean): AiMessage[] {
   const at = messages.findLastIndex((m) => m.from === "ia" && m.plan && !m.plan.implementado);
   if (at === -1) return messages;
   return messages.map((m, i) =>
-    i === at && m.plan ? { ...m, plan: { ...m.plan, implementado: true } } : m,
+    i === at && m.plan
+      ? {
+          ...m,
+          plan: {
+            ...m.plan,
+            implementado: completed,
+            estado: completed ? undefined : ("incompleto" as const),
+          },
+        }
+      : m,
   );
 }
 
@@ -160,10 +178,11 @@ export async function appendToChat(opts: {
   messages: AiMessage[];
   /** Pasar a modo Implementador desde un plan cerrado: ver `markPlanImplemented`. */
   implementPlan?: boolean;
+  implementationCompleted?: boolean;
 }): Promise<AiChat> {
   const existing = opts.chatId ? await getChat(opts.appId, opts.chatId).catch(() => null) : null;
   const before = opts.implementPlan
-    ? markPlanImplemented(existing?.messages ?? [])
+    ? markPlanImplemented(existing?.messages ?? [], opts.implementationCompleted === true)
     : (existing?.messages ?? []);
   const messages = [...before, ...opts.messages].slice(-MAX_MESSAGES);
 
