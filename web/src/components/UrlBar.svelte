@@ -239,7 +239,7 @@
           open ? "lock-public-link-open" : "lock-public-link-closed",
         )}
       >
-        <Icon name={open ? "globe-02" : "key-round"} size={16} />
+        <Icon name={open ? "globe-02" : "lock-password"} size={16} />
       </Button>
     {:else}
       <span
@@ -250,7 +250,7 @@
         data-tip={accessTip}
         data-tip-side="bottom"
       >
-        <Icon name={open ? "globe-02" : "key-round"} size={16} />
+        <Icon name={open ? "globe-02" : "lock-password"} size={16} />
       </span>
     {/if}
 

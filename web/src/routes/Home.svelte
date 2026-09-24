@@ -175,14 +175,11 @@
 
             <div class="card-app-foot">
               <span class="card-app-fact">
-                <Icon
-                  name={app.visibility === "public" ? "globe-02" : "square-lock-02"}
-                  size={13}
-                />
+                <Icon name={app.visibility === "public" ? "globe-02" : "lock-password"} size={16} />
                 {app.visibility === "public" ? "Pública" : "Con sesión"}
               </span>
               <span class="card-app-fact" title={new Date(app.updated).toLocaleString("es")}>
-                <Icon name="clock-01" size={13} />
+                <Icon name="clock-01" size={16} />
                 {ago(app.updated)}
               </span>
 

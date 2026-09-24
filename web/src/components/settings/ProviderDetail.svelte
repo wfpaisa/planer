@@ -106,7 +106,7 @@
     >
       <div class="row-ai-provider-key join">
         <label class="row-ai-provider-key-input field-control">
-          <Icon name="key-round" size={16} class="icon-ai-key" />
+          <Icon name="lock-password" size={16} class="icon-ai-key" />
           <!--
             Lo escrito ahora se puede mirar; lo guardado no vuelve nunca, asi
             que ahi no hay nada que mostrar. Y "new-password" evita que el

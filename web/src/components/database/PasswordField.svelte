@@ -43,7 +43,7 @@
     rellenar, aunque por dentro no vaya a la tabla.
   -->
   <span class="label-password-field">
-    <Icon name="key-round" size={13} class="icon-password-field" />
+    <Icon name="lock-password" size={13} class="icon-password-field" />
     Clave
   </span>
 

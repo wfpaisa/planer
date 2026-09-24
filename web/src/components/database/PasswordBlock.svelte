@@ -19,7 +19,7 @@
     <PasswordForm {accessId} {email} onClose={() => (open = false)} />
   {:else}
     <Button onclick={() => (open = true)}>
-      <Icon name="key-round" size={14} /> Cambiar la clave
+      <Icon name="lock-password" size={14} /> Cambiar la clave
     </Button>
   {/if}
 </div>

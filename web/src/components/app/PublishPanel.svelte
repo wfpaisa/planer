@@ -83,7 +83,7 @@
   const VISIBILITIES = [
     {
       value: "private",
-      icon: "key-round",
+      icon: "lock-password",
       title: "Requiere iniciar sesión",
       description: "Hay que ingresar con una cuenta creada en la Base de datos de Personas.",
     },
