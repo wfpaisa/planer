@@ -76,12 +76,23 @@
     buttonClass?: string;
     children?: Snippet;
   } = $props();
+
+  /*
+   * Un botón de solo icono no tiene texto que leer: sin nombre, un lector de
+   * pantalla anuncia "botón" y nada mas. Su globo ya dice lo que hace, asi que
+   * ese es su nombre. Solo para los de icono --`.btn-icon`--: en uno con texto
+   * el globo añade algo al rotulo y no debe taparlo.
+   */
+  const label = $derived(
+    rest["aria-label"] ?? (tip && /(^|\s)btn-icon(\s|$)/.test(className ?? "") ? tip : undefined),
+  );
 </script>
 
 <button
   {...rest}
   disabled={rest.disabled || loading}
   aria-busy={loading || undefined}
+  aria-label={label}
   class={cx(buttonClass, "btn", VARIANTS[variant], SIZES[size], loading && "is-loading", className)}
   data-tip={tip}
   data-tip-side={tip ? tipSide : undefined}

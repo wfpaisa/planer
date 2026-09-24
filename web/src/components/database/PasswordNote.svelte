@@ -18,7 +18,14 @@
 <div role="status" class="notice-password alert info flex-col">
   <div class="row-password-notice">
     <p class="title-password-notice">{title}</p>
-    <Button tip="Ya la copie" onclick={onDone}>
+    <Button
+      size="sm"
+      tip="Ya la copié"
+      aria-label="Cerrar: ya copié la clave"
+      buttonClass="btn-close-password-notice"
+      class="btn-icon btn-ghost"
+      onclick={onDone}
+    >
       <Icon name="cancel-01" size={13} />
     </Button>
   </div>

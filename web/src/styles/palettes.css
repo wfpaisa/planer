@@ -161,6 +161,39 @@
 }
 
 /* ==========================================================
+   La de partida, dicha en voz alta: data-palette="none"
+   ----------------------------------------------------------
+   Añadido de este repo. Sin atributo, un elemento hereda la
+   paleta de su antepasado, y el panel pone la de cada usuario en
+   <html> (lib/panelPalette.svelte.ts). Una aplicación con la
+   paleta de partida no puede heredar esa: `paletteAttrs()` le
+   escribe "none", y este bloque repone los valores de theme.css
+   para los dos modos con light-dark(), que lee el modo del propio
+   elemento. Va DESPUÉS de la derivación, con su misma
+   especificidad, para ganarle por orden: "none" también encaja en
+   [data-palette].
+   ========================================================== */
+
+[data-palette="none"] {
+  --palette-1: oklch(60% 0.3 256);
+  --palette-2: oklch(0.349 0 0);
+  --palette-3: oklch(0.633 0 0);
+  --palette-4: oklch(0.368 0 0);
+
+  --accent: oklch(60% 0.3 256);
+  --accent-hover: light-dark(oklch(66% 0.3 256), oklch(65% 0.3 256));
+  --accent-soft: light-dark(oklch(0.938 0.025 271.1), oklch(0.268 0.053 266));
+  --accent-soft-text: light-dark(oklch(20% 0.3 256), oklch(70% 0.3 256));
+  --accent-text: oklch(1 0 0);
+  --focus-ring: light-dark(oklch(0.47 0.244 264.7 / 0.2), oklch(0.631 0.197 269.6 / 0.32));
+
+  --chart-1: oklch(60% 0.3 256);
+  --chart-2: light-dark(oklch(33% 0.02 264), oklch(0.6 0.04 269));
+  --chart-3: light-dark(oklch(61% 0.01 212), oklch(0.38 0.03 269));
+  --chart-4: light-dark(oklch(33% 0.01 266), oklch(0.93 0.02 212));
+}
+
+/* ==========================================================
    Las paletas
    Cada una declara sus cuatro colores crudos. El bloque de
    arriba hace el resto.

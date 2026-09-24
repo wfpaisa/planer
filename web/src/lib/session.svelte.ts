@@ -1,3 +1,5 @@
+import type { AppTheme } from "@shared/types";
+
 import { pb } from "./pb";
 
 export interface Builder {
@@ -5,6 +7,10 @@ export interface Builder {
   email: string;
   name: string;
   avatar?: string;
+  /** Gestiona los usuarios del panel y los servidores de IA. */
+  admin?: boolean;
+  /** La paleta con la que ve el panel. Vacía: la de partida. */
+  palette?: AppTheme | null;
   collectionId?: string;
 }
 

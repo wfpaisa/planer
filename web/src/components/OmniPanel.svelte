@@ -60,7 +60,14 @@
       {@render actions?.()}
     </div>
 
-    <Button class="btn-icon btn-rounded" size="sm" onclick={onClose}>
+    <Button
+      buttonClass="btn-close-panel-omni"
+      class="btn-icon btn-rounded"
+      size="sm"
+      tip="Cerrar"
+      tipSide="left"
+      onclick={onClose}
+    >
       <Icon name="cancel-01" size={15} />
     </Button>
   </div>

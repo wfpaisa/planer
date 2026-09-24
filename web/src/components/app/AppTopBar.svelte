@@ -251,5 +251,33 @@
         display: inline;
       }
     }
+
+    /*
+     * Los nombres de las dos mitades se van en ventanas estrechas y quedan los
+     * iconos, como promete el comentario de las pestañas: el nombre pasa al
+     * globo y sigue en el arbol de accesibilidad. Antes no se iban, y en un
+     * telefono "Base de datos, Personas y roles" empujaba la guía, los ajustes
+     * y publicar fuera de la pantalla.
+     */
+    & :is(.tab-app-label, .tab-data-label) {
+      @media (max-width: 63.99rem) {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+    }
+
+    /* En un telefono cada pixel de la fila cuenta: la raya que separa ya la
+       hace el hueco. La guía se queda: este botón es su única entrada. */
+    @media (max-width: 29.99rem) {
+      padding: 0 var(--sp-6);
+
+      & .topbar-divider {
+        display: none;
+      }
+    }
   }
 </style>

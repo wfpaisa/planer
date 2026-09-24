@@ -47,7 +47,7 @@
       data-tip={locked
         ? "Plan cerrado: decide en la tarjeta del plan"
         : "Elegir cómo trabaja la IA"}
-      aria-label="Elegir cómo trabaja la IA"
+      aria-label={`Modo ${plan ? "Plan" : "Crear"}: elegir cómo trabaja la IA`}
       class="btn-pick-ai-mode btn sm"
       class:on={plan}
     >
@@ -63,7 +63,7 @@
     {/snippet}
     <MenuItem
       icon={createIcon}
-      description="Haz cambios directamente"
+      description="Cambia la página directamente."
       onclick={() => {
         close();
         onPick(false);
@@ -77,7 +77,7 @@
     {/snippet}
     <MenuItem
       icon={planIcon}
-      description="Define un plan antes de hacer cambios"
+      description="Acuerda un plan antes de cambiar nada."
       onclick={() => {
         close();
         onPick(true);

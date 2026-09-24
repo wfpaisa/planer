@@ -110,7 +110,7 @@
     border-radius: var(--radius-sm);
     background: black;
     padding: var(--sp-8);
-    font-size: 0.625rem;
+    font-size: var(--text-xs);
     line-height: 1.5;
     color: oklch(0.87 0 0);
   }

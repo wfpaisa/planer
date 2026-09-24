@@ -1,0 +1,570 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-24T13:37:19.739772+00:00",
+  "title": "Design System: Planer",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Azul Banco",
+        "canonical": "oklch(60% 0.3 256)",
+        "tonalRamp": [
+          "oklch(15% 0.2 256)",
+          "oklch(25% 0.2 256)",
+          "oklch(35% 0.2 256)",
+          "oklch(45% 0.2 256)",
+          "oklch(58% 0.2 256)",
+          "oklch(70% 0.2 256)",
+          "oklch(82% 0.2 256)",
+          "oklch(95% 0.2 256)"
+        ]
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Azul Banco Suave",
+        "tonalRamp": [
+          "oklch(15% 0.05 271)",
+          "oklch(25% 0.05 271)",
+          "oklch(35% 0.05 271)",
+          "oklch(45% 0.05 271)",
+          "oklch(58% 0.05 271)",
+          "oklch(70% 0.05 271)",
+          "oklch(82% 0.05 271)",
+          "oklch(95% 0.05 271)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Lienzo",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Superficie",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "Hundido",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "Bajo el Cursor",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Tinta Suave",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Tinta Tenue",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Línea",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Línea Fuerte",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Bien",
+        "tonalRamp": [
+          "oklch(15% 0.12 162)",
+          "oklch(25% 0.12 162)",
+          "oklch(35% 0.12 162)",
+          "oklch(45% 0.12 162)",
+          "oklch(58% 0.12 162)",
+          "oklch(70% 0.12 162)",
+          "oklch(82% 0.12 162)",
+          "oklch(95% 0.12 162)"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Cuidado",
+        "tonalRamp": [
+          "oklch(15% 0.13 65)",
+          "oklch(25% 0.13 65)",
+          "oklch(35% 0.13 65)",
+          "oklch(45% 0.13 65)",
+          "oklch(58% 0.13 65)",
+          "oklch(70% 0.13 65)",
+          "oklch(82% 0.13 65)",
+          "oklch(95% 0.13 65)"
+        ]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Peligro",
+        "tonalRamp": [
+          "oklch(15% 0.18 22)",
+          "oklch(25% 0.18 22)",
+          "oklch(35% 0.18 22)",
+          "oklch(45% 0.18 22)",
+          "oklch(58% 0.18 22)",
+          "oklch(70% 0.18 22)",
+          "oklch(82% 0.18 22)",
+          "oklch(95% 0.18 22)"
+        ]
+      },
+      "canvas-dark": {
+        "role": "neutral",
+        "displayName": "Lienzo (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Superficie (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "float-dark": {
+        "role": "neutral",
+        "displayName": "Superficie (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "field-dark": {
+        "role": "neutral",
+        "displayName": "Hundido (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Tinta (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink-soft-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Suave (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink-muted-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Tenue (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Línea (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "line-float-dark": {
+        "role": "neutral",
+        "displayName": "Línea Fuerte (oscuro)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Azul Banco (hover)"
+      },
+      "accent-text": {
+        "role": "primary",
+        "displayName": "Tinta sobre Acento"
+      },
+      "accent-soft-text": {
+        "role": "primary",
+        "displayName": "Tinta sobre Suave"
+      },
+      "success-bg": {
+        "role": "semantic",
+        "displayName": "Fondo Bien"
+      },
+      "warning-bg": {
+        "role": "semantic",
+        "displayName": "Fondo Cuidado"
+      },
+      "danger-bg": {
+        "role": "semantic",
+        "displayName": "Fondo Peligro"
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Título de pantalla."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Titular destacado y cifra de indicador."
+      },
+      "subtitle": {
+        "displayName": "Subtitle",
+        "purpose": "Título de tarjeta y de modal."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Tamaño de trabajo: celdas, menús, texto. Inter autoalojada en /fuentes/."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Botones, pestañas, lo que se pulsa."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Etiquetas de campo, pastillas, metadatos."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Código e identificadores."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-sm",
+        "value": "0 2px 4px oklch(0 0 0 / 0.05)",
+        "purpose": "Botones que se despegan un pelo."
+      },
+      {
+        "name": "shadow-md",
+        "value": "0 4px 8px oklch(0 0 0 / 0.05)",
+        "purpose": "Lo que se posa sobre el lienzo."
+      },
+      {
+        "name": "shadow-lg",
+        "value": "0 8px 16px oklch(0 0 0 / 0.05)",
+        "purpose": "Modal, cajón, aviso."
+      },
+      {
+        "name": "shadow-xl",
+        "value": "0 2px 6px oklch(0 0 0 / 0.08), 0 12px 28px oklch(0 0 0 / 0.18)",
+        "purpose": "Menú y lista de un select: lo que tapa."
+      },
+      {
+        "name": "halo",
+        "value": "0 0.5rem 1.25rem -0.625rem <acento o peligro>",
+        "purpose": "Botón principal y de peligro."
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 0.1875rem var(--focus-ring)",
+        "purpose": "Todo lo que recibe foco."
+      }
+    ],
+    "motion": [
+      {
+        "name": "travel-ms",
+        "value": "380ms",
+        "purpose": "Entrada de lo que aparece en la conversación de la IA."
+      },
+      {
+        "name": "travel-curve",
+        "value": "cubic-bezier(0.32, 1.12, 0.5, 1)",
+        "purpose": "Sale rápido y se posa con un rebote pequeño."
+      },
+      {
+        "name": "travel-fade",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Fundidos, sin rebote."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "md",
+        "value": "48rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "La mayoría de las acciones.",
+      "html": "<button class=\"ds-btn\">Cancelar</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:.5rem;min-height:2.375rem;padding:.25rem .875rem;border-radius:var(--radius-md,.6875rem);border:1px solid var(--border,oklch(.919 0 0));background:color-mix(in srgb,var(--bg-level2,#fff) 96%,var(--text-primary,#1a1a1a));color:var(--text-primary,oklch(.2 0 286));font:600 .875rem/1.2 Inter,system-ui,sans-serif;box-shadow:0 2px 4px oklch(0 0 0/.05);cursor:pointer;transition:background .15s,border-color .15s}.ds-btn:hover{border-color:var(--border-strong,oklch(.855 0 0));background:oklch(from var(--text-primary,#1a1a1a) l c h/6%)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 .1875rem var(--focus-ring,oklch(.47 .244 264.7/.2))}"
+    },
+    {
+      "name": "Botón principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "La acción principal de la vista; una sola.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Publicar</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:.5rem;min-height:2.375rem;padding:.25rem .875rem;border-radius:var(--radius-md,.6875rem);border:1px solid var(--border,oklch(.919 0 0));background:color-mix(in srgb,var(--bg-level2,#fff) 96%,var(--text-primary,#1a1a1a));color:var(--text-primary,oklch(.2 0 286));font:600 .875rem/1.2 Inter,system-ui,sans-serif;box-shadow:0 2px 4px oklch(0 0 0/.05);cursor:pointer;transition:background .15s,border-color .15s}.ds-btn:hover{border-color:var(--border-strong,oklch(.855 0 0));background:oklch(from var(--text-primary,#1a1a1a) l c h/6%)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 .1875rem var(--focus-ring,oklch(.47 .244 264.7/.2))}.ds-btn-primary{background:var(--accent,oklch(60% .3 256));color:var(--accent-text,#fff);border-color:transparent;box-shadow:0 .5rem 1.25rem -.625rem var(--accent,oklch(60% .3 256))}.ds-btn-primary:hover{background:var(--accent-hover,oklch(66% .3 256));border-color:transparent}"
+    },
+    {
+      "name": "Botón fantasma",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Acción secundaria que sólo se dibuja al pasar.",
+      "html": "<button class=\"ds-btn ds-btn-ghost\">Ver más</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:.5rem;min-height:2.375rem;padding:.25rem .875rem;border-radius:var(--radius-md,.6875rem);border:1px solid var(--border,oklch(.919 0 0));background:color-mix(in srgb,var(--bg-level2,#fff) 96%,var(--text-primary,#1a1a1a));color:var(--text-primary,oklch(.2 0 286));font:600 .875rem/1.2 Inter,system-ui,sans-serif;box-shadow:0 2px 4px oklch(0 0 0/.05);cursor:pointer;transition:background .15s,border-color .15s}.ds-btn:hover{border-color:var(--border-strong,oklch(.855 0 0));background:oklch(from var(--text-primary,#1a1a1a) l c h/6%)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 .1875rem var(--focus-ring,oklch(.47 .244 264.7/.2))}.ds-btn-ghost{background:none;border-color:transparent;box-shadow:none;color:var(--text-secondary,oklch(.413 0 0))}.ds-btn-ghost:hover{border-color:transparent;color:var(--text-primary,oklch(.2 0 286))}"
+    },
+    {
+      "name": "Botón de peligro",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Borra o no se puede deshacer.",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Eliminar</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:.5rem;min-height:2.375rem;padding:.25rem .875rem;border-radius:var(--radius-md,.6875rem);border:1px solid var(--border,oklch(.919 0 0));background:color-mix(in srgb,var(--bg-level2,#fff) 96%,var(--text-primary,#1a1a1a));color:var(--text-primary,oklch(.2 0 286));font:600 .875rem/1.2 Inter,system-ui,sans-serif;box-shadow:0 2px 4px oklch(0 0 0/.05);cursor:pointer;transition:background .15s,border-color .15s}.ds-btn:hover{border-color:var(--border-strong,oklch(.855 0 0));background:oklch(from var(--text-primary,#1a1a1a) l c h/6%)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 .1875rem var(--focus-ring,oklch(.47 .244 264.7/.2))}.ds-btn-danger{background:var(--danger,oklch(.569 .207 21.8));color:#fff;border-color:transparent;box-shadow:0 .5rem 1.25rem -.625rem var(--danger,oklch(.569 .207 21.8))}.ds-btn-danger:hover{background:oklch(from var(--danger,oklch(.569 .207 21.8)) calc(l - .06) c h);border-color:transparent}"
+    },
+    {
+      "name": "Campo",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo hundido con anillo de foco.",
+      "html": "<label class=\"ds-field\"><span>Nombre</span><input class=\"ds-input\" placeholder=\"Pedidos\"></label>",
+      "css": ".ds-field{display:grid;gap:.375rem;font:600 .75rem Inter,system-ui,sans-serif;color:var(--text-secondary,oklch(.413 0 0))}.ds-input{height:2.375rem;padding:0 .75rem;border-radius:var(--radius-md,.6875rem);border:1px solid var(--border,oklch(.919 0 0));background:var(--bg-field,oklch(.99 0 0));color:var(--text-primary,oklch(.2 0 286));font:300 .875rem Inter,system-ui,sans-serif;transition:border-color .15s,box-shadow .15s}.ds-input:focus{outline:none;border-color:var(--accent,oklch(60% .3 256));box-shadow:0 0 0 .1875rem var(--focus-ring,oklch(.47 .244 264.7/.2))}"
+    },
+    {
+      "name": "Etiqueta",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Píldora de categoría; el color es siempre una clase de tinte.",
+      "html": "<span class=\"ds-tag ds-tint\">Pendiente</span> <span class=\"ds-tag\">Apagada</span>",
+      "css": ".ds-tag{display:inline-flex;align-items:center;padding:.25rem .5625rem;border-radius:62.5rem;font:700 .75rem Inter,system-ui,sans-serif;color:var(--text-secondary,oklch(.413 0 0));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--text-primary,#1a1a1a) 12%,transparent)}.ds-tint{--t:oklch(60% .3 256);background:color-mix(in oklab,var(--t) 14%,transparent);color:color-mix(in oklab,var(--t) 72%,var(--text-primary,#1a1a1a));box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--t) 30%,transparent)}"
+    },
+    {
+      "name": "Tarjeta",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Cabecera, cuerpo y pie con las acciones a la derecha.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-head\">Apariencia</div><div class=\"ds-card-body\">Color y tamaño de letra de la aplicación.</div><div class=\"ds-card-foot\"><button class=\"ds-card-btn\">Guardar</button></div></div>",
+      "css": ".ds-card{display:flex;flex-direction:column;max-width:22rem;background:var(--bg-level2,#fff);border:1px solid var(--border,oklch(.919 0 0));border-radius:var(--radius-lg,1rem);font-family:Inter,system-ui,sans-serif}.ds-card-head{padding:1.125rem 1.25rem 0;font-size:1.125rem;font-weight:700;color:var(--text-primary,oklch(.2 0 286))}.ds-card-body{padding:.875rem 1.25rem 0;font-size:.875rem;font-weight:300;line-height:1.55;color:var(--text-secondary,oklch(.413 0 0))}.ds-card-foot{display:flex;justify-content:flex-end;padding:1rem 1.25rem 1.125rem}.ds-card-btn{height:2.375rem;padding:0 .875rem;border:0;border-radius:.6875rem;background:var(--accent,oklch(60% .3 256));color:#fff;font:600 .875rem Inter,system-ui,sans-serif;cursor:pointer}.ds-card-btn:hover{background:var(--accent-hover,oklch(66% .3 256))}"
+    },
+    {
+      "name": "Menú",
+      "kind": "nav",
+      "refersTo": "menu",
+      "description": "Lo que se abre encima: superficie flotante y sombra que tapa.",
+      "html": "<div class=\"ds-menu\"><button>Duplicar</button><button>Exportar</button><hr><button class=\"danger\">Eliminar</button></div>",
+      "css": ".ds-menu{display:flex;flex-direction:column;gap:1px;width:12.5rem;padding:.3125rem;border:1px solid var(--border-float,oklch(.855 0 0));border-radius:var(--radius-md,.6875rem);background:var(--bg-float,#fff);box-shadow:0 2px 6px oklch(0 0 0/.08),0 12px 28px oklch(0 0 0/.18)}.ds-menu button{all:unset;padding:.5rem .625rem;border-radius:.5rem;font:300 .875rem Inter,system-ui,sans-serif;color:var(--text-primary,oklch(.2 0 286));cursor:pointer}.ds-menu button:hover,.ds-menu button:focus-visible{background:oklch(from var(--text-primary,#1a1a1a) l c h/6%)}.ds-menu .danger{color:var(--danger,oklch(.569 .207 21.8))}.ds-menu hr{border:0;border-top:1px solid var(--border,oklch(.919 0 0));margin:.25rem 0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Banco de Trabajo",
+    "overview": "Planer es un banco de trabajo: una mesa ordenada, de grises exactos, donde lo único que tiene color es lo que se está construyendo. El panel no compite con la aplicación que arma el usuario; le pone luz encima. Por eso la casa habla en tres grises de tinta, tres planos de superficie y dos grosores de línea, y deja un solo acento por contexto: el azul del panel, o la paleta de la aplicación que se está editando, que pisa ese azul sin tocar un solo componente.\n\nLa densidad es de herramienta, no de revista. El tamaño de trabajo es 0.875rem, los controles miden 2.375rem de alto y el cuerpo va en Inter ligera (300), así que la jerarquía la ganan el peso (600 en los controles, 700–800 en los títulos) y la tinta, no el tamaño. La interfaz está entera en español y el sistema está escrito a mano, sin framework de utilidades ni librería de componentes: siete hojas en `web/src/styles/` (`theme.css`, `palettes.css`, `components.css`, `layout.css`, `compat.css`, `contract.css`, `global.css`) y una octava, `page.css`, que sólo viaja a las páginas publicadas.\n\nLas mismas hojas visten el panel y lo que se publica (`/plane/estilos.css`, que arma `server/page/pageStyles.ts`), así que `.btn`, `.card`, `.field` o `.table` son la misma pieza en los dos lados. Lo que la IA escribe en una página lo revisa `server/html/htmlAudit.ts`, y `bun run harness` comprueba que las hojas, el contrato del HTML (`shared/htmlContract.ts`) y esa auditoría digan lo mismo.",
+    "keyCharacteristics": [
+      "Un acento por contexto; todo lo demás es gris y línea.",
+      "Modo (claro/oscuro) lo elige quien mira, con `data-theme`; el color lo elige quien construye, con `data-palette`. Los dos van en el mismo elemento.",
+      "Plano en reposo: el hover es un relleno, las sombras sólo levantan lo que flota.",
+      "Todo en `rem`: mover el tamaño de letra de la raíz (o el `--font-scale` de una app) reescala cajas y texto a la vez.",
+      "Navegador moderno obligatorio: `oklch()`, `light-dark()`, `oklch(from …)`, `:has()`, CSS anidado, `popover`, `@starting-style`, `anchor-name`."
+    ],
+    "rules": [
+      {
+        "name": "La Regla del Mismo Elemento",
+        "body": "`data-theme` y `data-palette` van en el *mismo* elemento cuando ese elemento es la app: `light-dark()` lee el `color-scheme` de donde se declara, así que una paleta en un ancestro del tema no colorea nada. Un contenedor que cambia de tema recibe su propio fondo; el `color` lo repone `theme.css`, el fondo no.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla de los Tres Tonos de Tinta",
+        "body": "`--text-primary`, `--text-secondary`, `--text-muted`. Nunca un cuarto gris. `--text-muted` es el suelo y pasa 4.5:1 sobre lienzo, superficie, hundido y fila bajo el cursor en los dos modos; lo que \"casi no se lee\" no existe (el antiguo `--text-subtle` se quitó por eso).",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Token, Nunca el Literal",
+        "body": "Ningún componente escribe un color. Si hace falta uno, existe un token o se crea en `theme.css`.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Color que Significa",
+        "body": "Los diez tintes de etiqueta (`.tint-1…10`, repartidos por `colorFor()` a partir del texto) y los doce vivos (`--vivid-*` con su `-ink`) son para lo que *significa* un color: una categoría, un estado, una leyenda. Nunca pintan cromo: ni fondos, ni texto corrido, ni bordes, ni botones.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla de la Escala Corta",
+        "body": "El texto toma un paso de `--text-xs … --text-3xl`, nunca una medida intermedia. (`--text-md` y `--text-lg` valen lo mismo, 1.125rem, porque el contrato de las páginas los documenta así.)",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla del Peso, No del Tamaño",
+        "body": "Para destacar algo en una pantalla de trabajo se sube el peso o la tinta antes que el tamaño.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla Plana por Defecto",
+        "body": "El hover es un relleno (`oklch(from var(--text-primary) l c h / 6%)`), no una sombra. Las sombras levantan lo que flota; las líneas separan lo que reposa.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** pon `data-theme` y `data-palette` en el mismo elemento cuando ese elemento es la app, y dale fondo propio a todo contenedor que cambie de tema.",
+      "**Do** escribe cada color como token nativo (`--bg-level2`, `--text-primary`, `--accent`); lo propio de un componente va en su `<style>`.",
+      "**Do** pon la clase semántica primero en `class` (`btn-open-people`, `modal-new-app`) y después las del sistema.",
+      "**Do** usa los tintes para etiquetas y avatares: están medidos a 4.5:1 en los dos modos.",
+      "**Do** corre `bun run harness` después de tocar las hojas, `shared/htmlContract.ts` o la auditoría, y reinicia el servidor: las hojas se leen al arrancar."
+    ],
+    "donts": [
+      "**Don't** uses clases de Tailwind ni de daisyUI: ya no existen en el repositorio.",
+      "**Don't** pintes una etiqueta con un estilo en línea ni con una clase propia.",
+      "**Don't** nombres selectores de paleta o de tinte con coincidencias de atributo (`[class*=\"tint-\"]`); enuméralos.",
+      "**Don't** dejes un `--palette-1` en línea al salir de `custom`: en línea le gana a cualquier `[data-palette]`.",
+      "**Don't** uses los vivos ni los tintes para fondos, texto corrido, bordes o botones.",
+      "**Don't** pongas más de un botón principal por vista."
+    ]
+  }
+}

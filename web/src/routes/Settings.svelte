@@ -17,6 +17,7 @@
   import { cx } from "../lib/cx";
   import { del, errorMessage, patch } from "../lib/pb";
   import { navigate } from "../lib/router.svelte";
+  import { session } from "../lib/session.svelte";
 
   let { onClose }: { onClose: () => void } = $props();
 
@@ -149,13 +150,17 @@
         </Button>
       </div>
     {/snippet}
-    {@render section(
-      "app-settings-danger-section",
-      "Borrar aplicación",
-      "Se borran la aplicación, sus tablas y todos sus datos. Esta acción no se puede deshacer.",
-      "section-app-delete",
-      danger,
-    )}
+    <!-- Tenerla asignada deja trabajar en ella, no borrarla: eso es de quien
+         la creó (el servidor lo vuelve a comprobar). -->
+    {#if app.owner === session.me?.id}
+      {@render section(
+        "app-settings-danger-section",
+        "Borrar aplicación",
+        "Se borran la aplicación, sus tablas y todos sus datos. Esta acción no se puede deshacer.",
+        "section-app-delete",
+        danger,
+      )}
+    {/if}
   </div>
 
   {#snippet footer()}

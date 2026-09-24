@@ -69,19 +69,20 @@
   --bg-sidebar: oklch(1 0 0);
   --bg-float: oklch(1 0 0);
 
-  /* ---- Texto: cuatro niveles de importancia, no cuatro grises ----
+  /* ---- Texto: tres niveles de importancia, no tres grises ----
      --text-primary    lo que se lee primero: cifras, titulos, valores
      --text-secondary  texto corriente y etiquetas de formulario
      --text-muted      lo accesorio: pies, unidades, ayudas, placeholders
-     --text-subtle     lo que acompana y casi no se lee: el razonamiento
-                       plegado de la IA, los pasos que dio, la pista de
-                       debajo del campo de texto
      Regla: si algo se puede leer en diagonal, es primary; si explica a
-     otra cosa, es muted; si esta ahi por si alguien lo busca, es subtle. */
+     otra cosa, es muted.
+     Muted es el suelo: pasa 4,5:1 (AA de texto normal) sobre las cuatro
+     superficies del tema --lienzo, superficie, hundido y fila bajo el
+     cursor--. Hubo un cuarto gris, --text-subtle, mas tenue todavía, y se
+     quito: lo que "casi no se lee" no se lee, y lo que llevaba --los
+     pasos de la IA, la pista del campo-- era informacion. */
   --text-primary: oklch(0.2 0 286);
   --text-secondary: oklch(0.413 0 0);
-  --text-muted: oklch(0.633 0 0);
-  --text-subtle: oklch(0.72 0 0);
+  --text-muted: oklch(0.53 0 0);
 
   /* ---- Líneas ----
      --border         separaciones y contornos en reposo
@@ -226,7 +227,6 @@
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
 
-  /* --font-family: "Quicksand", system-ui, -apple-system, sans-serif; */
   --font-family: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "Reddit Mono", monospace;
 
@@ -268,8 +268,7 @@
 
   --text-primary: oklch(0.2 0 286);
   --text-secondary: oklch(0.413 0 0);
-  --text-muted: oklch(0.633 0 0);
-  --text-subtle: oklch(0.72 0 0);
+  --text-muted: oklch(0.53 0 0);
 
   --border: oklch(0.919 0 0);
   --border-strong: oklch(0.855 0 0);
@@ -315,8 +314,7 @@
 
   --text-primary: oklch(0.961 0 0);
   --text-secondary: oklch(0.741 0 0);
-  --text-muted: oklch(0.538 0 0);
-  --text-subtle: oklch(0.45 0 0);
+  --text-muted: oklch(0.64 0 0);
 
   --border: oklch(0.28 0 0);
   --border-strong: oklch(0.3 0 0);

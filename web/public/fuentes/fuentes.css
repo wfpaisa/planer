@@ -1,0 +1,28 @@
+/*
+ * Las letras del panel, servidas desde aquí mismo.
+ *
+ * Antes venían de Google Fonts: el panel dependía de un servidor ajeno para
+ * verse bien, que es justo lo que una plataforma autocontenida promete no
+ * hacer (lo mismo que llevó los iconos a `/iconos/`). Son las variables de
+ * Inter y Reddit Mono, subconjunto latino --cubre el español entero, con sus
+ * tildes, la ñ y los signos de apertura--, de @fontsource-variable. Licencia
+ * SIL OFL 1.1: ver los `LICENCIA-*.txt` de esta carpeta.
+ *
+ * El marco de una página no puede leer esta hoja (su origen es nulo): allí
+ * Inter llega por mensaje, ver `web/src/lib/planeAssets.ts`.
+ */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("./inter.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Reddit Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("./reddit-mono.woff2") format("woff2");
+}

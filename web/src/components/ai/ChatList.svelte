@@ -12,6 +12,12 @@
       hour: "2-digit",
       minute: "2-digit",
     });
+
+  /** El título es la primera frase que se escribio: se le da mayuscula al principio. */
+  const titled = (text: string) => {
+    const clean = text.trim();
+    return clean ? clean[0].toLocaleUpperCase("es") + clean.slice(1) : "Sin título";
+  };
 </script>
 
 <script lang="ts">
@@ -22,10 +28,13 @@
 
   let {
     chats,
+    current = "",
     onOpen,
     onBack,
   }: {
     chats: AiChatSummary[];
+    /** La conversación que esta abierta ahora, para marcarla. */
+    current?: string;
     onOpen: (id: string) => void;
     onBack: () => void;
   } = $props();
@@ -45,10 +54,20 @@
     {/if}
 
     {#each chats as chat (chat.id)}
-      <button type="button" onclick={() => onOpen(chat.id)} class="btn-open-conversation opt">
+      <button
+        type="button"
+        onclick={() => onOpen(chat.id)}
+        class="btn-open-conversation opt"
+        class:is-current={chat.id === current}
+        aria-current={chat.id === current ? "true" : undefined}
+      >
         <span class="opt-body">
-          <span class="chat-title opt-label">{chat.title}</span>
+          <span class="chat-title opt-label">{titled(chat.title)}</span>
           <span class="chat-meta">
+            {#if chat.id === current}
+              <span class="chat-current">Abierta</span>
+              <span aria-hidden="true">·</span>
+            {/if}
             <span class="chat-when">{when(chat.updated)}</span>
           </span>
         </span>
@@ -97,6 +116,16 @@
 
     &:hover {
       border-color: var(--border);
+    }
+
+    /* La que esta abierta: el suave del acento, como un ítem activo. */
+    &.is-current {
+      background: var(--accent-soft);
+
+      & .chat-current {
+        font-weight: 600;
+        color: var(--accent-soft-text);
+      }
     }
 
     & .chat-meta {

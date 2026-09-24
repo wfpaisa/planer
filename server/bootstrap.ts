@@ -110,7 +110,7 @@ async function ensure(
 
     if (!changed.length) return existing;
     const updated = await updateCollection(name, patch);
-    console.log(`  ~ coleccion "${name}": ${changed.join(", ")}`);
+    console.log(`  ~ colección "${name}": ${changed.join(", ")}`);
     return updated;
   }
 
@@ -118,7 +118,7 @@ async function ensure(
   body.indexes = fixIndexes(body.indexes ?? base.indexes, name);
   delete (body as { id?: string }).id;
   const created = await createCollection(body);
-  console.log(`  + coleccion "${name}"`);
+  console.log(`  + colección "${name}"`);
   return created;
 }
 
@@ -137,7 +137,7 @@ async function ensurePasswordMin(collection: PbCollection): Promise<void> {
   await updateCollection(collection.name, {
     fields: collection.fields.map((f) => (f.type === "password" ? { ...f, min: MIN_PASSWORD } : f)),
   });
-  console.log(`  ~ coleccion "${collection.name}": minimo de la clave ${MIN_PASSWORD}`);
+  console.log(`  ~ colección "${collection.name}": mínimo de la clave ${MIN_PASSWORD}`);
 }
 
 /**
@@ -192,7 +192,7 @@ async function ensureScopedAccounts(collection: PbCollection, appsId: string): P
       indexes: [...actuales, ...indices.filter((i) => !actuales.includes(i))],
       passwordAuth: { enabled: true, identityFields: ["login"] },
     });
-    console.log(`  ~ coleccion "${collection.name}": cuentas por aplicacion`);
+    console.log(`  ~ colección "${collection.name}": cuentas por aplicación`);
   }
 
   await moveAccountsIntoApps();
@@ -257,13 +257,13 @@ async function moveAccountsIntoApps(): Promise<void> {
       });
       await updateRecord(INTERNAL.access, acceso.id, { member: copia.id });
       await repointPersonRow(acceso.app, cuenta.id, copia.id);
-      console.log(`  ! clave nueva de ${email} en la aplicacion ${acceso.app}: ${password}`);
+      console.log(`  ! clave nueva de ${email} en la aplicación ${acceso.app}: ${password}`);
     }
   }
 
-  console.log(`  ~ ${pendientes.items.length} cuenta(s) repartidas por aplicacion`);
+  console.log(`  ~ ${pendientes.items.length} cuenta(s) repartidas por aplicación`);
   if (aparcadas) {
-    console.log(`    ${aparcadas} sin aplicacion ninguna: aparcadas, ya no pueden entrar`);
+    console.log(`    ${aparcadas} sin aplicación ninguna: aparcadas, ya no pueden entrar`);
   }
 }
 
@@ -278,8 +278,30 @@ async function repointPersonRow(appId: string, from: string, to: string): Promis
   if (row) await updateRecord(table.dataCollection, row.id, { member: to }).catch(() => {});
 }
 
+/**
+ * Las cuentas del panel que ya existían cuando llegó el permiso de
+ * administrador lo conservan todo: hasta entonces cualquiera cambiaba los
+ * servidores de IA, y quitárselo de golpe en una actualización sería perder
+ * algo sin haberlo pedido. Corre una sola vez, cuando se suma la columna.
+ */
+async function keepExistingBuildersAdmin(): Promise<void> {
+  const rows = await listRecords<{ id: string }>(INTERNAL.builders, {
+    perPage: 500,
+    skipTotal: 1,
+    fields: "id",
+  });
+  for (const row of rows.items) await updateRecord(INTERNAL.builders, row.id, { admin: true });
+  if (rows.items.length) {
+    console.log(`  ~ ${rows.items.length} constructores existentes quedan como administradores`);
+  }
+}
+
 export async function bootstrap() {
   // --- Constructores: quienes arman las aplicaciones ---------------------
+  // Antes de los usuarios cualquier cuenta del panel lo podía todo. Se mira
+  // aquí, antes de sumar la columna, para no quitárselo a nadie: ver abajo.
+  const before = await getCollection(INTERNAL.builders);
+  const hadAdminField = !before || before.fields.some((f) => f.name === "admin");
   const builders = await ensure(INTERNAL.builders, "auth", (base) => ({
     fields: [
       ...base.fields,
@@ -291,13 +313,23 @@ export async function bootstrap() {
         maxSize: 2_000_000,
         mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
       },
+      // Gestiona los usuarios del panel y los ajustes de IA. Lo pone otro
+      // administrador desde la API, nunca la propia cuenta: ver `updateRule`.
+      { name: "admin", type: "bool" },
+      // La paleta con la que ve el panel (`{ palette, color? }`, como la de una
+      // aplicación). Es suya: la escribe desde el navegador sobre su cuenta.
+      { name: "palette", type: "json", maxSize: 2_000 },
     ],
     listRule: "id = @request.auth.id",
     viewRule: "id = @request.auth.id",
+    // Las cuentas nuevas las crea un administrador por la API de la plataforma.
     createRule: null,
-    updateRule: "id = @request.auth.id",
+    // Cada cual edita su cuenta, pero no puede darse el permiso de administrador.
+    updateRule: "id = @request.auth.id && @request.body.admin:isset = false",
     deleteRule: null,
   }));
+
+  if (!hadAdminField) await keepExistingBuildersAdmin();
 
   // --- Miembros: quienes usan las apps publicadas ------------------------
   const members = await ensure(INTERNAL.members, "auth", (base) => ({
@@ -367,6 +399,15 @@ export async function bootstrap() {
         cascadeDelete: true,
         maxSelect: 1,
       },
+      // Usuarios del panel a los que un administrador se la asignó. Sin
+      // cascada: borrar a uno de ellos le quita el acceso, no la aplicación.
+      {
+        name: "editors",
+        type: "relation",
+        collectionId: builders.id,
+        cascadeDelete: false,
+        maxSelect: 999,
+      },
       { name: "theme", type: "json", maxSize: 50_000 },
       // Roles con nombre propio: deciden que páginas ve cada persona.
       { name: "roles", type: "json", maxSize: 20_000 },
@@ -383,14 +424,19 @@ export async function bootstrap() {
       ...timestamps,
     ],
     indexes: ["CREATE UNIQUE INDEX `idx_apps_slug` ON `apps` (`slug`)"],
-    listRule: "owner = @request.auth.id",
-    viewRule: "owner = @request.auth.id",
+    listRule: "owner = @request.auth.id || editors.id ?= @request.auth.id",
+    viewRule: "owner = @request.auth.id || editors.id ?= @request.auth.id",
     createRule: '@request.auth.collectionName = "builders" && owner = @request.auth.id',
-    updateRule: "owner = @request.auth.id",
+    // Quien la tiene asignada la edita, pero no se reparte ni cambia de dueño:
+    // eso lo decide un administrador por la API.
+    updateRule:
+      "(owner = @request.auth.id || editors.id ?= @request.auth.id) && " +
+      "@request.body.owner:isset = false && @request.body.editors:isset = false",
     deleteRule: "owner = @request.auth.id",
   }));
 
-  const ownedByMe = "app.owner = @request.auth.id";
+  // Entre paréntesis: la regla de borrar páginas le añade una condición detrás.
+  const ownedByMe = "(app.owner = @request.auth.id || app.editors.id ?= @request.auth.id)";
 
   // --- Tablas (presentacion; los datos viven en colecciones propias) -----
   await ensure(INTERNAL.tables, "base", (base) => ({
@@ -734,7 +780,10 @@ export async function bootstrap() {
   await migrateToRoleModel();
 
   // --- Primer constructor, con las mismas credenciales del .env ----------
-  const existing = await firstRecord(INTERNAL.builders, `email = "${quote(config.adminEmail)}"`);
+  const existing = await firstRecord<{ id: string; admin?: boolean }>(
+    INTERNAL.builders,
+    `email = "${quote(config.adminEmail)}"`,
+  );
   if (!existing) {
     await createRecord(INTERNAL.builders, {
       email: config.adminEmail,
@@ -743,8 +792,14 @@ export async function bootstrap() {
       name: "Administrador",
       verified: true,
       emailVisibility: true,
+      admin: true,
     });
     console.log(`  + constructor "${config.adminEmail}"`);
+  } else if (!existing.admin) {
+    // La cuenta del .env es siempre administradora: es la que puede crear a
+    // las demás, y una instalación de antes de los usuarios no la tenía marcada.
+    await updateRecord(INTERNAL.builders, existing.id, { admin: true });
+    console.log(`  ~ constructor "${config.adminEmail}": administrador`);
   }
 }
 
@@ -1159,7 +1214,7 @@ async function relaxRetiredLevel(): Promise<void> {
   await updateCollection(INTERNAL.access, {
     fields: collection.fields.map((f) => (f.name === "role" ? { ...f, required: false } : f)),
   });
-  console.log(`  ~ coleccion "${INTERNAL.access}": el nivel deja de ser obligatorio`);
+  console.log(`  ~ colección "${INTERNAL.access}": el nivel deja de ser obligatorio`);
 }
 
 /**
@@ -1196,7 +1251,7 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
     await updateCollection(INTERNAL.chats, {
       fields: collection.fields.filter((f) => f.name !== "pageName"),
     });
-    console.log(`  ~ coleccion "${INTERNAL.chats}": sin el nombre de la pagina`);
+    console.log(`  ~ colección "${INTERNAL.chats}": sin el nombre de la página`);
     return;
   }
 
@@ -1206,7 +1261,7 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
   const orphans = chats.filter((chat) => !chat.page || !alive.has(chat.page));
   for (const chat of orphans) await deleteRecord(INTERNAL.chats, chat.id).catch(() => {});
   if (orphans.length) {
-    console.log(`  ~ ${orphans.length} conversaciones de paginas que ya no existen, borradas`);
+    console.log(`  ~ ${orphans.length} conversaciones de páginas que ya no existen, borradas`);
   }
 
   // 2. Fuera la columna de texto --y la del nombre, que se iba con ella--.
@@ -1241,7 +1296,7 @@ async function migrateChatsToPageRelation(pagesId: string): Promise<void> {
   await updateCollection(INTERNAL.chats, {
     fields: (filled?.fields ?? []).map((f) => (f.name === "page" ? { ...f, required: true } : f)),
   });
-  console.log(`  ~ coleccion "${INTERNAL.chats}": la conversacion es de su pagina`);
+  console.log(`  ~ colección "${INTERNAL.chats}": la conversación es de su página`);
 }
 
 /** Todos los registros de una colección, página a página. */

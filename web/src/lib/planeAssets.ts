@@ -97,20 +97,56 @@ function fontBytes(): Promise<ArrayBuffer> {
 }
 
 /*
+ * Las letras de la casa --Inter y Reddit Mono--, las mismas del panel.
+ *
+ * El marco no puede pedirlas: su origen es nulo y `/fuentes/` le queda tan
+ * lejos como le quedaba la fuente de iconos. Sin esto una página se veia con
+ * la letra del sistema aunque su hoja dijera Inter, y el panel y lo publicado
+ * no parecian la misma casa. Llegan igual que la fuente de iconos entera: el
+ * marco las pide por mensaje y las registra con `FontFace`.
+ */
+const LETTERS = [
+  { familia: "Inter", peso: "100 900", archivo: "/fuentes/inter.woff2" },
+  { familia: "Reddit Mono", peso: "200 900", archivo: "/fuentes/reddit-mono.woff2" },
+] as const;
+
+type Letter = { familia: string; peso: string; fuente: ArrayBuffer };
+
+/** Las letras en binario, pedidas una sola vez. */
+let letters: Promise<Letter[]> | null = null;
+function letterBytes(): Promise<Letter[]> {
+  letters ??= Promise.all(
+    LETTERS.map(async ({ familia, peso, archivo }) => {
+      const res = await fetch(archivo);
+      if (!res.ok) throw new Error(`No se pudo cargar ${archivo}`);
+      return { familia, peso, fuente: await res.arrayBuffer() };
+    }),
+  );
+  letters.catch(() => (letters = null));
+  return letters;
+}
+
+/*
  * Un solo oyente para todos los marcos: la previsualización, la sonda de la
- * IA y la conversión pasan por aquí, así que cualquiera que pida la fuente la
- * recibe. La fuente es pública; no hay nada que proteger en quién la pide.
+ * IA y la conversión pasan por aquí, así que cualquiera que pida una fuente la
+ * recibe. Son públicas; no hay nada que proteger en quién las pide.
  */
 let listening = false;
-function serveFullFont(): void {
+function serveFonts(): void {
   if (listening) return;
   listening = true;
   window.addEventListener("message", (event) => {
     const source = event.source as Window | null;
-    if (event.data?.plane !== "iconos-fuente" || !source) return;
-    void fontBytes()
-      .then((fuente) => source.postMessage({ plane: "iconos-fuente", fuente }, "*"))
-      .catch(() => {});
+    if (!source) return;
+    if (event.data?.plane === "iconos-fuente") {
+      void fontBytes()
+        .then((fuente) => source.postMessage({ plane: "iconos-fuente", fuente }, "*"))
+        .catch(() => {});
+    } else if (event.data?.plane === "letras") {
+      void letterBytes()
+        .then((letras) => source.postMessage({ plane: "letras", letras }, "*"))
+        .catch(() => {});
+    }
   });
 }
 
@@ -123,12 +159,15 @@ async function extraIconsCss(html: string): Promise<string> {
     .filter((name) => map.has(name))
     .map((name) => `.hgi-stroke.hgi-${name}::before{content:"\\${map.get(name)}"}`);
   if (!rules.length) return "";
-  serveFullFont();
+  serveFonts();
   return `.hgi-stroke{font-family:"${FULL_FAMILY}","hugeicons-stroke-rounded"!important}${rules.join("")}`;
 }
 
 /** Lo que corre dentro del marco: pide la fuente y la registra al llegar. */
 const FONT_REQUEST = `(function(){addEventListener("message",function(e){var d=e.data;if(!d||d.plane!=="iconos-fuente"||!d.fuente||e.source!==parent)return;new FontFace("${FULL_FAMILY}",d.fuente).load().then(function(f){document.fonts.add(f)}).catch(function(){})});parent.postMessage({plane:"iconos-fuente"},"*")})()`;
+
+/** Lo que corre dentro del marco: pide las letras de la casa y las registra. */
+const LETTER_REQUEST = `(function(){addEventListener("message",function(e){var d=e.data;if(!d||d.plane!=="letras"||!d.letras||e.source!==parent)return;d.letras.forEach(function(l){new FontFace(l.familia,l.fuente,{weight:l.peso,display:"swap"}).load().then(function(f){document.fonts.add(f)}).catch(function(){})})});parent.postMessage({plane:"letras"},"*")})()`;
 
 /**
  * La referencia, tal como la escribio `server/page/pageAssets.ts` o la propia
@@ -190,7 +229,16 @@ export async function inlinePlaneAssets(html: string): Promise<string> {
       () => `<style data-plane="iconos">${iconCss}${extra}</style>${request}`,
     );
   }
-  if (css) out = out.replace(styles, () => `<style data-plane="estilos">${css}</style>`);
+  /* Con la hoja de la casa van sus letras: la hoja dice Inter, y sin ellas el
+     marco caeria en la del sistema. */
+  if (css) {
+    serveFonts();
+    out = out.replace(
+      styles,
+      () =>
+        `<style data-plane="estilos">${css}</style><script data-plane="letras">${LETTER_REQUEST}</script>`,
+    );
+  }
   if (js) out = out.replace(bridge, () => `<script data-plane="puente">${safeScript(js)}</script>`);
   if (chartsJs)
     out = out.replace(

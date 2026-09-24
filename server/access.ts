@@ -48,6 +48,15 @@ export interface Viewer {
   roles: string[];
 }
 
+/**
+ * Este usuario del panel construye la aplicación: es su dueño o un
+ * administrador se la asignó. Es la misma pregunta que hacen las reglas de
+ * PocketBase (`server/bootstrap.ts`), aquí para lo que pasa por la API.
+ */
+export function buildsApp(app: Pick<AppRecord, "owner" | "editors">, builderId: string): boolean {
+  return app.owner === builderId || (app.editors ?? []).includes(builderId);
+}
+
 const ANON: Viewer = { id: "", signedIn: false, isOwner: false, invited: false, roles: [] };
 
 /**
@@ -63,7 +72,7 @@ export async function resolveViewer(req: Request, app: AppRecord): Promise<Viewe
   // constructor probando su propia página llegaria aquí como si fuera nadie.
   const builder = await optionalBuilder(req);
   if (builder) {
-    if (builder.id !== app.owner)
+    if (!buildsApp(app, builder.id))
       throw new HttpError(403, "No tienes permiso para esta aplicación");
     return { id: builder.id, signedIn: true, isOwner: true, invited: true, roles: [] };
   }

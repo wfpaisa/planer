@@ -73,6 +73,14 @@
    * Plegado salvo que quien mira lo haya dejado abierto. Empezar plegado es lo
    * que hace que el documento se vea entero la primera vez.
    */
+  /**
+   * Por debajo del punto de corte `md` del sistema (48rem) no se fija: una
+   * columna de 18rem al lado del documento lo dejaba, en un telefono, en una
+   * tira de un par de palabras. Ahi el sidebar es siempre el cajon flotante,
+   * empieza plegado y la chincheta no se ofrece.
+   */
+  const NARROW_QUERY = "(max-width: 47.99rem)";
+
   function remembered(appId: string): boolean {
     try {
       return localStorage.getItem(storageKey(appId)) !== "0";
@@ -118,9 +126,28 @@
     onTogglePin?: () => void;
   } = $props();
 
+  /** La ventana es de telefono: no hay columna fija, solo el cajon. */
+  let narrow = $state(matchMedia(NARROW_QUERY).matches);
+
+  /** Fijado de verdad: se pidio fijar y la ventana da para una columna. */
+  const docked = $derived(pinned && !narrow);
+
   // `untrack` porque leer la aplicación aqui es a propósito: es el valor de
-  // partida, y lo que pase después lo recoge el efecto de abajo.
-  let collapsed = $state(untrack(() => remembered(app.id)));
+  // partida, y lo que pase después lo recoge el efecto de abajo. En una
+  // ventana estrecha se empieza plegado siempre: abierto taparia la página.
+  let collapsed = $state(untrack(() => narrow || remembered(app.id)));
+
+  // Cruzar el punto de corte: al estrecharse se pliega; al ensanchar vuelve lo
+  // que quien mira tenia guardado para esta aplicación.
+  $effect(() => {
+    const query = matchMedia(NARROW_QUERY);
+    const change = () => {
+      narrow = query.matches;
+      collapsed = narrow || remembered(untrack(() => app.id));
+    };
+    query.addEventListener("change", change);
+    return () => query.removeEventListener("change", change);
+  });
 
   // Cambiar de aplicación trae la preferencia de la nueva, no la de la vieja.
   let lastApp = untrack(() => app.id);
@@ -131,7 +158,10 @@
   });
 
   // Plegado y desplegado es cosa de cada quien, y se recuerda por aplicación.
+  // Lo que se hace en una ventana estrecha no cuenta: alli se pliega solo, y
+  // guardarlo dejaria plegado el sidebar de escritorio sin que nadie lo pidiera.
   $effect(() => {
+    if (narrow) return;
     try {
       localStorage.setItem(storageKey(app.id), collapsed ? "1" : "0");
     } catch {
@@ -214,7 +244,7 @@
    * cumplio su único trabajo. Fijado no se mueve, que para eso se fijo.
    */
   const open = (page: PageRecord) => {
-    if (!pinned) collapsed = true;
+    if (!docked) collapsed = true;
     onOpen(page);
   };
 
@@ -233,7 +263,7 @@
   let box = $state<HTMLElement | null>(null);
 
   $effect(() => {
-    if (pinned || collapsed || !box) return;
+    if (docked || collapsed || !box) return;
     const el = box;
 
     const outside = (e: PointerEvent) => {
@@ -299,7 +329,7 @@
   {/if}
 {/snippet}
 
-{#if collapsed && !pinned}
+{#if collapsed && !docked}
   <div id="app-sidebar-collapsed" class="sidebar-app-collapsed flex flex-col items-center gap-2">
     <Button
       tip="Desplegar la navegación"
@@ -318,7 +348,7 @@
   <aside
     id="app-sidebar"
     bind:this={box}
-    class={cx("sidebar-app flex flex-col", pinned ? "pinned" : "floating")}
+    class={cx("sidebar-app flex flex-col", docked ? "pinned" : "floating", narrow && "is-narrow")}
   >
     <!-- Quien visita la aplicación publicada no tiene encabezado arriba: aqui
          es donde se entera de en que aplicación esta. -->
@@ -338,7 +368,7 @@
       <!-- La lista se explica sola: el nombre de cada página y los separadores
            que las agrupan dicen mas que un título encima. Fijar es lo único
            que queda en la fila, porque mientras flota se cierra solo. -->
-      {#if onTogglePin}
+      {#if onTogglePin && !narrow}
         <div class="nav-pages-head">
           <Button
             tip={pinned ? "Dejar flotando" : "Fijar la navegación"}
@@ -565,6 +595,14 @@
       left: 0;
       z-index: 10;
       box-shadow: var(--shadow-sm);
+    }
+
+    /* En el telefono el cajon tapa casi todo: se levanta como lo que flota
+       --modal, cajon-- y deja siempre una franja del documento a la vista,
+       que es donde se toca para cerrarlo. */
+    &.is-narrow {
+      max-width: calc(100vw - 3rem);
+      box-shadow: var(--shadow-lg);
     }
 
     /* Quien visita no tiene encabezado arriba: se le presenta la aplicación. */

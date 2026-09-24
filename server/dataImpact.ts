@@ -231,7 +231,7 @@ export async function applyChange(opts: {
         table,
         (table.fields ?? []).filter((f) => f.name !== field.name),
       );
-      return `Se borro la columna "${field.label}" de "${table.label}".`;
+      return `Se borró la columna "${field.label}" de "${table.label}".`;
     }
 
     case "cambiar_tipo": {
@@ -263,7 +263,7 @@ export async function applyChange(opts: {
     case "borrar_tabla": {
       await dropDataCollection(table.dataCollection);
       await deleteRecord(INTERNAL.tables, table.id);
-      return `Se borro la tabla "${table.label}" con sus filas.`;
+      return `Se borró la tabla "${table.label}" con sus filas.`;
     }
   }
 }

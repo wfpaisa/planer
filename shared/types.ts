@@ -302,6 +302,11 @@ export interface AppRecord {
   visibility: "private" | "public";
   published: boolean;
   owner: string;
+  /**
+   * Otros usuarios del panel a los que un administrador le asignó la
+   * aplicación. Entran como el dueño a todo, menos a borrarla.
+   */
+  editors?: string[];
   theme: AppTheme | null;
   /**
    * Roles que define esta aplicación, con el nombre que quiera el constructor.
@@ -320,6 +325,34 @@ export interface AppRecord {
   openChat?: string;
   created: string;
   updated: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Usuarios del panel                                                   */
+/* ------------------------------------------------------------------ */
+
+/** Mínimo de caracteres de la clave de un usuario del panel (el de PocketBase). */
+export const MIN_BUILDER_PASSWORD = 8;
+
+/** Un usuario del panel, visto desde la gestión de usuarios. */
+export interface BuilderAccount {
+  id: string;
+  email: string;
+  name: string;
+  /** Puede gestionar usuarios y los ajustes de IA de la instalación. */
+  admin: boolean;
+  /** La cuenta del `.env`: no se borra ni pierde el permiso de administrador. */
+  principal: boolean;
+  /** Aplicaciones que creó: suyas, no asignadas. */
+  owned: string[];
+  /** Aplicaciones de otros que tiene asignadas. */
+  assigned: string[];
+}
+
+/** Lo que enseña la gestión de usuarios: todos ellos y todas las aplicaciones. */
+export interface BuildersView {
+  builders: BuilderAccount[];
+  apps: Pick<AppRecord, "id" | "name" | "slug" | "icon" | "theme" | "owner">[];
 }
 
 /* ------------------------------------------------------------------ */

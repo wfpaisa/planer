@@ -56,7 +56,7 @@
   }
 
   .file-uploading {
-    color: var(--text-subtle);
+    color: var(--text-muted);
   }
 
   .file-name {

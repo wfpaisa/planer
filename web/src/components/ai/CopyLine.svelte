@@ -68,5 +68,11 @@
       opacity: 1;
       color: var(--success);
     }
+
+    /* Sin puntero que pase por encima --una pantalla tactil-- no habria forma
+       de hacerlo aparecer: ahi se queda a la vista. */
+    @media (hover: none) {
+      opacity: 1;
+    }
   }
 </style>

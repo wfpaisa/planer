@@ -13,7 +13,7 @@
   salir de la sección y volver la encuentre donde iba.
 -->
 <script lang="ts">
-  import { aiUsable } from "@shared/aiCatalog";
+  import { aiModelLabel, aiUsable } from "@shared/aiCatalog";
   import type {
     AiChat,
     AiChatSummary,
@@ -102,6 +102,7 @@
     onClose,
     onChanged,
     onImpact,
+    onOpenChanges,
   }: {
     appId: string;
     /** La página sobre la que escribe esta petición. */
@@ -111,6 +112,8 @@
     onChanged: () => Promise<void> | void;
     /** Hay cambios con riesgo esperando decision. */
     onImpact: (impact: DataImpact) => void;
+    /** Abrir el Histórico de cambios. Sin el, el turno no ofrece deshacer. */
+    onOpenChanges?: () => void;
   } = $props();
 
   const key = $derived(conversationKey(appId, page.id));
@@ -209,6 +212,15 @@
    * quien pedirle nada, y es mejor decirlo aqui que dejar que falle al enviar.
    */
   const ready = $derived(aiUsable(config));
+
+  /** Como se llama el modelo con que se va a pedir, si se deja elegir. */
+  const modelLabel = $derived.by(() => {
+    const now = choice;
+    if (!now || !config?.modelPicker) return "";
+    const provider = config.providers.find((p) => p.id === now.provider);
+    const model = provider?.models.find((m) => m.id === now.model);
+    return model ? aiModelLabel(model) : "";
+  });
 
   /** El modelo elegido no mira imagenes. Se lee al adjuntar. */
   const blind = $derived.by(() => {
@@ -381,10 +393,24 @@
   const inFlight = new Map<string, Promise<unknown>>();
   const settled = new Map<string, DraftFile>();
 
-  /** Un aviso escrito como si lo dijera la IA. No es una petición fallida. */
-  function say(text: string, forKey: string = key): void {
+  /**
+   * Un aviso escrito como si lo dijera la IA. No es una petición fallida.
+   *
+   * `error` lo pinta como lo que es cuando algo no se pudo hacer --una subida
+   * que fallo, un archivo que no se abrio--; sin el, es una nota.
+   */
+  function say(text: string, forKey: string = key, error = false): void {
     const now = readConversation(forKey);
-    update({ ...now, entries: [...now.entries, { id: nextEntryId(), from: "ia", text }] }, forKey);
+    update(
+      {
+        ...now,
+        entries: [
+          ...now.entries,
+          { id: nextEntryId(), from: "ia", text, ...(error ? { error: true } : {}) },
+        ],
+      },
+      forKey,
+    );
     if (forKey === key) phase = "gone";
   }
 
@@ -414,7 +440,7 @@
         try {
           draft = draftAiFile(file);
         } catch (err) {
-          say(errorMessage(err), mine);
+          say(errorMessage(err), mine, true);
           continue;
         }
 
@@ -447,7 +473,7 @@
             if (wasCancelled(err)) return;
             const before = readConversation(mine);
             update({ ...before, files: before.files.filter((f) => f.id !== draft.id) }, mine);
-            say(errorMessage(err), mine);
+            say(errorMessage(err), mine, true);
           } finally {
             inFlight.delete(draft.id);
           }
@@ -931,7 +957,7 @@
       if (win) win.location.href = url;
     } catch (err) {
       win?.close();
-      say(errorMessage(err));
+      say(errorMessage(err), key, true);
     }
   }
 
@@ -1067,7 +1093,7 @@
     } catch (err) {
       update({
         ...readConversation(key),
-        entries: [{ id: nextEntryId(), from: "ia", text: errorMessage(err) }],
+        entries: [{ id: nextEntryId(), from: "ia", text: errorMessage(err), error: true }],
       });
       phase = "gone";
       list = null;
@@ -1152,6 +1178,28 @@
   const lastPlanEntry = $derived([...chat.entries].reverse().find((entry) => entry.plan)?.id);
   const lastAiEntry = $derived([...chat.entries].reverse().find((e) => e.from === "ia")?.id ?? 0);
 
+  /**
+   * El turno fallido que se puede reintentar, si lo hay: el ultimo, si fallo la
+   * petición y lo que se pidio antes cabe entero en un reenvio.
+   *
+   * Lo que se pidio con archivos o con elementos senalados no se ofrece: esos
+   * se soltaron al enviar y reintentar solo con el texto seria pedir otra cosa.
+   * Para eso sigue estando el campo.
+   */
+  const retry = $derived.by(() => {
+    const last = chat.entries[chat.entries.length - 1];
+    if (!last || last.from !== "ia" || !last.error || !last.unfinished) return null;
+    const asked = chat.entries.findLast((e) => e.from === "yo");
+    if (!asked || asked.files?.length || asked.picked?.length) return null;
+    return { entryId: last.id, text: asked.text, label: asked.label };
+  });
+
+  /** Volver a mandar lo ultimo que se pidio, tal cual. */
+  function retryLast(): void {
+    if (!retry || working) return;
+    void dispatch(retry.text, { label: retry.label, keepDraft: true });
+  }
+
   /** Escribir un ejemplo en el campo. Se manda cuando quien pide lo decida. */
   function pickSample(text: string): void {
     update({ ...readConversation(key), draft: text });
@@ -1179,37 +1227,56 @@
 -->
 {#snippet actions()}
   <Button
-    variant="soft"
     size="sm"
+    variant="ghost"
     disabled={working}
-    tip={working ? "Espera a que termine o detenla" : undefined}
+    tip={working ? "Espera a que termine o detenla" : "Chats anteriores de esta página"}
     buttonClass="btn-previous-conversations"
+    class="btn-icon btn-rounded"
+    aria-label="Chats anteriores de esta página"
     onclick={() => void openList()}
   >
-    <Icon name="bubble-chat-delay" size={18} /> Chats anteriores
+    <Icon name="bubble-chat-delay" size={18} />
   </Button>
   {#if chat.entries.length > 0}
     <Button
-      variant="soft"
       size="sm"
+      variant="ghost"
       disabled={working}
-      tip={working ? "Espera a que termine o detenla" : undefined}
+      tip={working ? "Espera a que termine o detenla" : "Empezar un chat nuevo"}
       buttonClass="btn-new-conversation"
+      class="btn-icon btn-rounded"
+      aria-label="Empezar un chat nuevo"
       onclick={startNew}
     >
-      <Icon name="bubble-chat-add" size={18} /> Nuevo
+      <Icon name="bubble-chat-add" size={18} />
     </Button>
   {/if}
 {/snippet}
 
-<!-- La conversación no necesita título: sus controles ocupan la cabecera. -->
-<OmniPanel {onClose} flush={!list && ready} actions={ready && !list ? actions : undefined}>
+<!--
+  El título es la página: es lo único que la IA va a tocar, y sin decirlo el
+  panel era un chat cualquiera. Los mandos de la conversación van a su lado,
+  en icono, para que no le disputen el peso.
+-->
+<OmniPanel
+  {onClose}
+  title={page.name}
+  description="La IA escribe sobre esta página"
+  flush={!list && ready}
+  actions={ready && !list ? actions : undefined}
+>
   {#if !ready}
     <p class="chat-no-server text-center">
       No hay ningún servidor de inteligencia artificial. Conecta uno en los ajustes de tu cuenta.
     </p>
   {:else if list}
-    <ChatList chats={list} onOpen={(id) => void openChat(id)} onBack={() => (list = null)} />
+    <ChatList
+      chats={list}
+      current={chat.chatId}
+      onOpen={(id) => void openChat(id)}
+      onBack={() => (list = null)}
+    />
   {:else}
     <div class="panel-body-ai flex h-full flex-col">
       <div class="panel-scroll-ai flex-1">
@@ -1228,12 +1295,12 @@
               <p class="chat-hero-subtitle">Describe una pantalla o el cambio que necesitas.</p>
 
               <!--
-                Los autocomandos se envían al pulsarlos. Las sugerencias solo
+                Las acciones rápidas se envían al pulsarlos. Las sugerencias solo
                 completan el campo para poder ajustarlas antes de enviarlas.
               -->
               <div class="chat-hero-suggestions flex flex-col">
                 <div class="hero-quick-group flex flex-col">
-                  <p class="hero-group-label eyebrow">Autocomandos</p>
+                  <p class="hero-group-label eyebrow">Acciones rápidas</p>
                   <div class="hero-group-items flex flex-col">
                     {#each QUICK_ASK_IDS as id (id)}
                       <button
@@ -1329,14 +1396,41 @@
                   />
                 {/if}
 
-                <div class="header-ai-response flex items-center">
-                  <Icon name="ai-magic" size={18} />
-                  <CopyLine text={entry.text} />
-                </div>
+                {#if entry.error}
+                  <!--
+                    Un fallo no habla con la voz de una respuesta: va como aviso
+                    de peligro, con el porque y, si se puede, la salida. Solo el
+                    ultimo se anuncia; los de mas atras ya se leyeron.
+                  -->
+                  <div
+                    class="alert-ai-error alert danger"
+                    role={entry.id === lastAiEntry ? "alert" : undefined}
+                  >
+                    <Icon name="alert-02" size={16} />
+                    <div class="alert-ai-error-body flex flex-col items-start">
+                      <Markdown text={entry.text} />
+                      {#if retry?.entryId === entry.id}
+                        <Button
+                          size="sm"
+                          buttonClass="btn-retry-ai"
+                          disabled={working || blocked}
+                          onclick={retryLast}
+                        >
+                          <Icon name="reload" size={14} /> Reintentar
+                        </Button>
+                      {/if}
+                    </div>
+                  </div>
+                {:else}
+                  <div class="header-ai-response flex items-center">
+                    <Icon name="ai-magic" size={18} />
+                    <CopyLine text={entry.text} />
+                  </div>
 
-                <div class="content-ai-response">
-                  <Markdown text={entry.text} />
-                </div>
+                  <div class="content-ai-response">
+                    <Markdown text={entry.text} />
+                  </div>
+                {/if}
 
                 <!--
                   Lo que se le mando al modelo, solo si esta encendido en
@@ -1351,6 +1445,21 @@
                 {:else if config?.debugButton && entry.id === lastAiEntry}
                   <div class="context-debug-wrap">
                     <DebugContext load={loadSavedContext} />
+                  </div>
+                {/if}
+
+                <!--
+                  El turno cambio la aplicación: se dice, y se ofrece el camino
+                  de vuelta. El servidor dejo un punto "Antes de: ..." antes de
+                  tocar nada, y el Histórico de cambios lo restaura entero.
+                -->
+                {#if entry.changed && onOpenChanges}
+                  <div class="changed-ai-response flex items-center">
+                    <Icon name="checkmark-circle-02" size={14} class="changed-ai-icon" />
+                    <span class="changed-ai-text">Apliqué los cambios.</span>
+                    <button type="button" class="btn-open-ai-changes" onclick={onOpenChanges}>
+                      Deshacer o ver cambios
+                    </button>
                   </div>
                 {/if}
 
@@ -1554,7 +1663,7 @@
                   {#snippet trigger({ toggle, open })}
                     <Button
                       size="sm"
-                      tip="Adjuntar, modelo o autocomando"
+                      tip="Adjuntar, cambiar de modelo o acción rápida"
                       aria-pressed={open}
                       buttonClass="btn-toggle-quick-menu"
                       class="btn-icon btn-rounded"
@@ -1594,7 +1703,7 @@
                     {/if}
 
                     <MenuSeparator />
-                    <MenuLabel>Autocomando</MenuLabel>
+                    <MenuLabel>Acción rápida</MenuLabel>
                     {#each QUICK_ASK_IDS as id (id)}
                       {#snippet askIcon()}
                         <Icon name={QUICK_ASK[id].icon} size={14} />
@@ -1708,7 +1817,13 @@
           {#if blocked}
             Espera a que termine la petición en curso
           {:else if !working}
-            Enter envía · Shift+Enter salto de línea
+            <!-- Con que se va a pedir, a la vista: antes solo se sabia abriendo
+                 el "+" y un submenú. -->
+            {#if modelLabel}
+              <span class="hint-model" title={modelLabel}>{modelLabel}</span>
+              <span aria-hidden="true">·</span>
+            {/if}
+            <span class="hint-keys">Enter envía · Shift+Enter salto de línea</span>
           {:else if runId}
             Puedes cerrar o recargar; la petición seguirá en curso
           {:else}
@@ -1801,14 +1916,6 @@
     padding: 2rem 0.25rem;
   }
 
-  .chat-hero-glyph {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: var(--radius-lg);
-    background: color-mix(in oklab, var(--accent) 12%, transparent);
-    color: var(--accent);
-  }
-
   .chat-hero-title {
     margin-top: var(--sp-12);
     font-size: var(--text-base);
@@ -1824,7 +1931,7 @@
     color: var(--text-secondary);
   }
 
-  /* Los dos grupos --autocomandos y sugerencias-- con aire entre ellos. */
+  /* Los dos grupos --acciones rápidas y sugerencias-- con aire entre ellos. */
   .chat-hero-suggestions {
     margin-top: var(--sp-16);
     gap: var(--sp-14);
@@ -1897,11 +2004,14 @@
     white-space: pre-wrap;
     border-radius: var(--radius-lg);
     border-bottom-right-radius: 0px;
-    background: color-mix(in srgb, var(--accent) 50%, #000);
+    /* El suave del acento con su tinta: la pareja ya medida para leerse en
+       los dos temas y con cualquier paleta. Antes era el acento mezclado con
+       negro y la tinta del papel encima, que en claro no se leia. */
+    background: var(--accent-soft);
     padding: var(--sp-8) var(--sp-14);
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
-    color: var(--text-primary);
+    color: var(--accent-soft-text);
   }
 
   .header-ai-response {
@@ -1910,24 +2020,68 @@
     margin-bottom: var(--sp-4);
   }
 
-  .header-ai-label {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    font-weight: 500;
-    color: var(--text-muted);
-  }
-
   .content-ai-response {
     font-size: var(--text-base);
     /* line-height: var(--text-base--line-height); */
     line-height: var(--text-md--line-height);
     color: var(--text-primary);
     padding-left: 1rem;
-    padding-right: 2rem;
-    text-wrap: balance;
+    padding-right: var(--sp-8);
+    /* `pretty` y no `balance`: balance iguala las líneas de cada párrafo y,
+       en un texto largo, deja el borde derecho dentado y la columna estrecha. */
+    text-wrap: pretty;
 
     :global(ul li, ol li) {
       margin-bottom: 0.5rem;
+    }
+  }
+
+  /* El fallo es `.alert.danger` del catálogo; aqui el hueco con el turno y
+     el texto, que en el catálogo va a `--text-xs` y aqui se lee entero. */
+  .alert-ai-error {
+    margin-top: var(--sp-8);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .alert-ai-error-body {
+    min-width: 0;
+    gap: var(--sp-8);
+  }
+
+  /* El pie del turno que cambio algo: dicho en pequeño, con la salida al lado. */
+  .changed-ai-response {
+    gap: var(--sp-6);
+    margin-top: var(--sp-10);
+    padding-left: 1rem;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--text-muted);
+
+    & :global(.changed-ai-icon) {
+      flex-shrink: 0;
+      color: var(--success);
+    }
+  }
+
+  .btn-open-ai-changes {
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    /* El acento puro se queda en 4:1 sobre el papel claro; empujado hacia la
+       tinta del tema pasa AA en los dos modos y sigue leyendose azul. */
+    color: color-mix(in oklab, var(--accent) 65%, var(--text-primary));
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--accent) 35%, transparent);
+    text-underline-offset: 0.2em;
+
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
   }
 
@@ -2030,6 +2184,13 @@
     box-shadow: 0 0 1.25rem var(--composer-shadow);
     transition: border-color 150ms;
 
+    /* Escribiendo: el contorno se queda medio tenido mientras dure el foco.
+       El destello de abajo dura una vuelta, y sin esto, pasada la vuelta, no
+       quedaba ninguna senal de donde estaba el teclado. */
+    &:has(textarea:focus) {
+      border-color: color-mix(in oklab, var(--accent) 55%, var(--border-strong));
+    }
+
     /* El cursor de seleccion esta encendido. */
     &.composer-picking {
       border-color: var(--accent);
@@ -2106,10 +2267,27 @@
   }
 
   .chat-hint {
+    display: flex;
+    justify-content: center;
+    gap: var(--sp-6);
+    min-width: 0;
+    white-space: nowrap;
+
+    & .hint-model {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    & .hint-keys {
+      flex-shrink: 0;
+    }
     margin-top: var(--sp-6);
-    font-size: 0.6875rem;
-    line-height: 1.5;
-    color: var(--text-subtle);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--text-muted);
   }
 
   /* --- Lo que espera turno --- */
@@ -2124,19 +2302,33 @@
     cursor: pointer;
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    color: var(--text-subtle);
+    color: var(--text-muted);
     transition: color 150ms;
 
     &:hover {
       color: var(--text-secondary);
     }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
   }
 
-  /* El badge de un adjunto que se puede abrir: el botón no lo redecora. */
+  /* El badge de un adjunto que se puede abrir: el botón no lo redecora, pero
+     el anillo de foco si se lo devuelve --`all: unset` se lo habia quitado y
+     con el teclado no se sabia que adjunto se iba a abrir--. */
   .link-user-file {
     all: unset;
     cursor: pointer;
     color: inherit;
+    border-radius: 62.5rem;
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
   }
 
   :global(.btn-send-ai) {

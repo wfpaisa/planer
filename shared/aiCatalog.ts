@@ -88,6 +88,27 @@ export const AI_THINKING_LABEL: Record<string, string> = {
 
 export const aiThinkingLabel = (level: AiThinking) => AI_THINKING_LABEL[level] ?? level;
 
+/**
+ * Los mismos niveles como se leen en el chat.
+ *
+ * Ajustes conserva los nombres de las APIs (ver arriba), porque ahi los mira
+ * quien configura el servidor con su documentacion al lado. El chat lo usa
+ * quien construye la página, que no tiene por que saber ingles: ahi se dicen
+ * en espanol, y uno que no se conozca sale tal cual, igual que en Ajustes.
+ */
+export const AI_THINKING_CHAT_LABEL: Record<string, string> = {
+  off: "Sin razonar",
+  none: "Sin razonar",
+  minimal: "Mínimo",
+  low: "Bajo",
+  medium: "Medio",
+  high: "Alto",
+  xhigh: "Muy alto",
+  max: "Máximo",
+};
+
+export const aiThinkingChatLabel = (level: AiThinking) => AI_THINKING_CHAT_LABEL[level] ?? level;
+
 export const AI_THINKING_HINT: Record<string, string> = {
   off: "Responde directo. Lo más rápido y lo más barato.",
   minimal: "Piensa lo justo antes de responder.",

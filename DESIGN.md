@@ -1,238 +1,286 @@
 ---
 name: Planer
-description: Plataforma no-code para crear aplicaciones web pequeñas y sus Base de datos, con IA.
+description: Plataforma no-code para crear aplicaciones web pequeñas y sus bases de datos, con IA.
 colors:
-  primary: "#007EFF"
-  primary-soft-text: "#0b2a99"
-  primary-content: "#ffffff"
-  paper: "#ffffff"
-  paper-field: "#f5f5f5"
-  line: "#e4e4e4"
-  line-strong: "#cfcfcf"
-  ink: "#161616"
-  ink-soft: "#4b4b4b"
-  ink-faint: "#8a8a8a"
-  paper-dark: "#161616"
-  paper-page-dark: "#0b0b0b"
-  line-dark: "#242424"
-  line-strong-dark: "#2e2e2e"
-  ink-dark: "#f2f2f2"
-  ink-soft-dark: "#ababab"
-  ink-faint-dark: "#6e6e6e"
-  accent-dark: "#5c7cff"
-  success: "#0f9f6e"
-  warning: "#a06100"
-  danger: "#d6273b"
+  accent: "oklch(60% 0.3 256)"
+  accent-hover: "oklch(66% 0.3 256)"
+  accent-text: "oklch(1 0 0)"
+  accent-soft: "oklch(0.938 0.025 271.1)"
+  accent-soft-text: "oklch(20% 0.3 256)"
+  canvas: "oklch(1 0 0)"
+  surface: "oklch(1 0 0)"
+  field: "oklch(0.99 0 0)"
+  hover: "oklch(0.955 0 0)"
+  ink: "oklch(0.2 0 286)"
+  ink-soft: "oklch(0.413 0 0)"
+  ink-muted: "oklch(0.53 0 0)"
+  line: "oklch(0.919 0 0)"
+  line-strong: "oklch(0.855 0 0)"
+  canvas-dark: "oklch(0.15 0 0)"
+  surface-dark: "oklch(0.2 0 0)"
+  float-dark: "oklch(0.245 0 0)"
+  field-dark: "oklch(0.12 0 0 / 0.5)"
+  ink-dark: "oklch(0.961 0 0)"
+  ink-soft-dark: "oklch(0.741 0 0)"
+  ink-muted-dark: "oklch(0.64 0 0)"
+  line-dark: "oklch(0.28 0 0)"
+  line-float-dark: "oklch(0.36 0 0)"
+  success: "oklch(0.622 0.133 162.3)"
+  success-bg: "oklch(0.96 0.018 166.4)"
+  warning: "oklch(66% 0.14 65)"
+  warning-bg: "oklch(0.95 0.035 80)"
+  danger: "oklch(0.569 0.207 21.8)"
+  danger-bg: "oklch(0.936 0.026 11.9)"
 typography:
-  display:
-    fontFamily: "Quicksand, system-ui, -apple-system, sans-serif"
-    fontSize: "30px"
-    fontWeight: 700
-    lineHeight: 1.15
-    letterSpacing: "-0.02em"
   headline:
-    fontFamily: "Quicksand, system-ui, -apple-system, sans-serif"
-    fontSize: "24px"
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    fontSize: "1.5rem"
     fontWeight: 700
-    letterSpacing: "-0.01em"
+    lineHeight: 1.25
   title:
-    fontFamily: "Quicksand, system-ui, -apple-system, sans-serif"
-    fontSize: "18px"
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    fontSize: "1.25rem"
+    fontWeight: 700
+    lineHeight: 1.25
+    letterSpacing: "-0.01em"
+  subtitle:
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    fontSize: "1.125rem"
     fontWeight: 700
   body:
-    fontFamily: "Quicksand, system-ui, -apple-system, sans-serif"
-    fontSize: "14px"
-    fontWeight: 500
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 300
     lineHeight: 1.5
+  control:
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 600
   label:
-    fontFamily: "Quicksand, system-ui, -apple-system, sans-serif"
-    fontSize: "12px"
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    fontSize: "0.75rem"
     fontWeight: 700
-    letterSpacing: "0.05em"
-    textTransform: "uppercase"
   mono:
     fontFamily: "Reddit Mono, monospace"
 rounded:
-  sm: "8px"
-  md: "11px"
-  lg: "16px"
-  xl: "20px"
-  full: "999px"
+  sm: "0.5rem"
+  md: "0.6875rem"
+  lg: "1rem"
+  xl: "1.25rem"
+  pill: "62.5rem"
 spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "12px"
-  lg: "16px"
-  xl: "20px"
-  xxl: "40px"
+  sp-4: "0.25rem"
+  sp-8: "0.5rem"
+  sp-12: "0.75rem"
+  sp-14: "0.875rem"
+  sp-16: "1rem"
+  sp-18: "1.125rem"
+  sp-20: "1.25rem"
+  sp-24: "1.5rem"
+  sp-28: "1.75rem"
+  sp-40: "2.5rem"
 components:
   button-default:
-    backgroundColor: "{colors.paper}"
+    backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
-    border: "1px solid {colors.line}"
+    typography: "{typography.control}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
-    height: "38px"
-    typography: "{typography.body}"
+    padding: "0.25rem 0.875rem"
+    height: "2.375rem"
   button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.primary-content}"
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.accent-text}"
+    typography: "{typography.control}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
-    height: "38px"
+    padding: "0.25rem 0.875rem"
+    height: "2.375rem"
+  button-primary-hover:
+    backgroundColor: "{colors.accent-hover}"
+    textColor: "{colors.accent-text}"
   button-ghost:
     backgroundColor: "transparent"
     textColor: "{colors.ink-soft}"
+    typography: "{typography.control}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
-    height: "38px"
+    height: "2.375rem"
   button-danger:
     backgroundColor: "{colors.danger}"
-    textColor: "#ffffff"
+    textColor: "{colors.accent-text}"
+    typography: "{typography.control}"
     rounded: "{rounded.md}"
-    padding: "0 14px"
-    height: "38px"
+    height: "2.375rem"
   input:
-    backgroundColor: "{colors.paper-field}"
+    backgroundColor: "{colors.field}"
     textColor: "{colors.ink}"
-    border: "1px solid {colors.line}"
+    typography: "{typography.body}"
     rounded: "{rounded.md}"
-    height: "38px"
-    padding: "0 12px"
+    padding: "0 0.75rem"
+    height: "2.375rem"
   card:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
-    border: "1px solid {colors.line}"
-    rounded: "{rounded.lg}"
-    padding: "16px"
-  badge:
-    backgroundColor: "{colors.paper-field}"
+    backgroundColor: "{colors.surface}"
     textColor: "{colors.ink-soft}"
-    rounded: "{rounded.full}"
-    padding: "4px 9px"
-  switch-track:
-    backgroundColor: "{colors.paper-field}"
-    border: "2px solid {colors.line-strong}"
-    rounded: "{rounded.full}"
-    height: "26px"
-    width: "46px"
+    rounded: "{rounded.lg}"
+    padding: "1.125rem 1.25rem"
+  tag:
+    textColor: "{colors.ink-soft}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0.25rem 0.5625rem"
+  menu:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.md}"
+    padding: "0.3125rem"
+  modal:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.xl}"
+    width: "26.25rem"
 ---
 
 # Design System: Planer
 
 ## Overview
 
-Planer is a self-hosted workbench where a builder arrives with a phrase and leaves with a published app. The interface is drawn entirely by its own CSS system — no utility framework, no component library: three self-contained stylesheets (`theme.css` tokens + reset, `palettes.css` the 46 palettes, `components.css` the component catalog) plus `layout.css` (layout utilities) and `compat.css` (the bridge that keeps the page-HTML contract alive). Everything is painted from tokens, and every token can be re-pointed by a palette without touching a single component.
+**Creative North Star: "El Banco de Trabajo"**
+
+Planer es un banco de trabajo: una mesa ordenada, de grises exactos, donde lo único que tiene color es lo que se está construyendo. El panel no compite con la aplicación que arma el usuario; le pone luz encima. Por eso la casa habla en tres grises de tinta, tres planos de superficie y dos grosores de línea, y deja un solo acento por contexto: el azul del panel, o la paleta de la aplicación que se está editando, que pisa ese azul sin tocar un solo componente.
+
+La densidad es de herramienta, no de revista. El tamaño de trabajo es 0.875rem, los controles miden 2.375rem de alto y el cuerpo va en Inter ligera (300), así que la jerarquía la ganan el peso (600 en los controles, 700–800 en los títulos) y la tinta, no el tamaño. La interfaz está entera en español y el sistema está escrito a mano, sin framework de utilidades ni librería de componentes: siete hojas en `web/src/styles/` (`theme.css`, `palettes.css`, `components.css`, `layout.css`, `compat.css`, `contract.css`, `global.css`) y una octava, `page.css`, que sólo viaja a las páginas publicadas.
+
+Las mismas hojas visten el panel y lo que se publica (`/plane/estilos.css`, que arma `server/page/pageStyles.ts`), así que `.btn`, `.card`, `.field` o `.table` son la misma pieza en los dos lados. Lo que la IA escribe en una página lo revisa `server/html/htmlAudit.ts`, y `bun run harness` comprueba que las hojas, el contrato del HTML (`shared/htmlContract.ts`) y esa auditoría digan lo mismo.
 
 **Key Characteristics:**
-- Pure CSS, no build step: components resolve behavior with `:checked`, `:has()`, `popover`, `@starting-style`, `anchor-name`.
-- Three text levels, three surface levels, two line weights: the whole vocabulary of grays.
-- One accent per context — the app's palette provides it; the panel default is a deep blue (`#007EFF` light / `#5c7cff` dark).
-- Mode (light/dark) is chosen by the viewer with `data-theme`; palette is chosen by the builder with `data-palette`. Both attributes live **on the same element**, and derivation is written once via `light-dark()`.
-- Requires a modern browser: `oklch()`, `light-dark()`, `oklch(from …)`, `:has()`, nested CSS, `popover` (Chrome 125+ / Safari 17.5+).
+- Un acento por contexto; todo lo demás es gris y línea.
+- Modo (claro/oscuro) lo elige quien mira, con `data-theme`; el color lo elige quien construye, con `data-palette`. Los dos van en el mismo elemento.
+- Plano en reposo: el hover es un relleno, las sombras sólo levantan lo que flota.
+- Todo en `rem`: mover el tamaño de letra de la raíz (o el `--font-scale` de una app) reescala cajas y texto a la vez.
+- Navegador moderno obligatorio: `oklch()`, `light-dark()`, `oklch(from …)`, `:has()`, CSS anidado, `popover`, `@starting-style`, `anchor-name`.
 
 ## Colors
 
-Color is **reconfigurable by design**. `theme.css` declares the default tokens (light on `:root`/`[data-theme="light"]`, dark on `[data-theme="dark"]`); `palettes.css` only *overrides* them when an element carries `data-palette`. A palette is four raw OKLCH colors (`--palette-1…4`); everything the UI sees — accent, hover, soft, focus ring, data series, tints — is *derived* in one block with `color-mix()` and relative `oklch(from …)`. The ink over a filled accent is decided by a WCAG-matched luminance switch, not by JS.
+Un azul eléctrico sobre grises neutros sin matiz; el color es reconfigurable y la fuente de verdad está en OKLCH.
 
-- **46 palettes** in three groups: 15 vivid, 15 pastel, 16 monochrome. Plus `custom`: the only palette where a hex travels through JS (`--palette-1` inline); its three companions are the mono neutrals.
-- **Per-app appearance** (`shared/brand.ts`): `{ palette: id | null, color?: hex, fontScale?: 0.8–1.6 }`. `palette: null` means the default; `custom` carries the hex. Old `{primary, secondary}` apps read back as `custom` with their primary color.
-- **Tag colors** are the four tint classes of the active palette (`.tint-1…4`, each a `--tint-N-bg` / `--tint-N-fg` pair), handed out by hashing the label text (`colorFor()` in `web/src/lib/appTheme.ts`). They already contrast in both modes.
-- **The vivid twelve** (`--vivid-*` + `-ink`) stay as an extra resource for things that *mean* a color (legends, categories, drawings). They never paint chrome.
+`theme.css` declara los tokens por defecto (claro en `:root` y en `[data-theme="light"]`, oscuro en `[data-theme="dark"]`). `palettes.css` sólo los pisa cuando un elemento lleva `data-palette`: una paleta son cuatro colores crudos (`--palette-1…4`) y de ellos se deriva, en un único bloque con `light-dark()`, `color-mix()` y `oklch(from …)`, todo lo demás: acento, hover, suave, anillo de foco, series de gráficas. La tinta sobre un acento lleno la decide un interruptor de luminosidad, no JavaScript. Hay 46 paletas en tres grupos (vivas, pasteles, monocromas) más `custom`, la única en la que viaja un hex (`--palette-1` en línea).
+
+### Primary
+- **Azul Banco** (`accent`): el único color de la casa. El botón principal, el enlace, la selección, el foco. En oscuro es el mismo azul; lo que cambia en oscuro es el hover (un punto más claro) y el suave (`accent-soft`, un fondo índigo profundo).
+- **Azul Banco Suave** (`accent-soft` / `accent-soft-text`): el fondo tenue del ítem activo y de lo seleccionado, con su tinta oscura para que se lea.
+
+### Neutral
+- **Lienzo** (`canvas`, `--bg-level1`): lo que se ve entre tarjetas.
+- **Superficie** (`surface`, `--bg-level2`): lo que se levanta del lienzo: tarjeta sólida, modal, menú, botón.
+- **Hundido** (`field`, `--bg-field`): dentro de una superficie: campos, cabecera de tabla, pista de un control. En oscuro es translúcido.
+- **Bajo el Cursor** (`hover`, `--bg-hover`): la fila o la celda señalada, un punto por encima del hundido.
+- **Flotante** (`float-dark`, `--bg-float`): lo que se abre tapando lo de debajo (menú, lista de un select). En claro es el mismo blanco; en oscuro sube un punto para no fundirse con la tarjeta.
+- **Tinta, Tinta Suave, Tinta Tenue** (`ink`, `ink-soft`, `ink-muted`): lo que se lee primero; el texto corrido y las etiquetas; notas, marcadores de posición y metadatos.
+- **Línea y Línea Fuerte** (`line`, `line-strong`): separar lo que reposa; la fuerte, para el hover de un borde y lo que flota (`--border-float`).
 
 ### Named Rules
-**La Regla del Mismo Elemento.** `data-theme` and `data-palette` go on the *same* element whenever the element is the app: `light-dark()` reads the `color-scheme` of the element where it is declared, so a palette on a *parent* of the theme element colors nothing. The bridge is declared on `:root, [data-theme], [data-palette]`, so an element that carries only the palette — an app's icon inside the panel chrome, which must take the app's color but the viewer's mode — recomputes both the native tokens and the bridge's `--color-*` right there, inheriting the mode from above. What does not recompute by itself is what is *inherited*: a container that flips `data-theme` restores `color` (`theme.css` does it), but its **background is the drawer's job** — without an explicit one it shows the document underneath.
+**La Regla del Mismo Elemento.** `data-theme` y `data-palette` van en el *mismo* elemento cuando ese elemento es la app: `light-dark()` lee el `color-scheme` de donde se declara, así que una paleta en un ancestro del tema no colorea nada. Un contenedor que cambia de tema recibe su propio fondo; el `color` lo repone `theme.css`, el fondo no.
 
-**La Regla de los Tres Tonos de Tinta.** `--text-primary` (what you read first), `--text-secondary` (copy and labels), `--text-muted` (footnotes, placeholders). Never a fourth gray.
+**La Regla de los Tres Tonos de Tinta.** `--text-primary`, `--text-secondary`, `--text-muted`. Nunca un cuarto gris. `--text-muted` es el suelo y pasa 4.5:1 sobre lienzo, superficie, hundido y fila bajo el cursor en los dos modos; lo que "casi no se lee" no existe (el antiguo `--text-subtle` se quitó por eso).
 
-**La Regla del Token, Nunca el Literal.** No rule outside `theme.css`/`palettes.css` writes a color. If a component needs a color, a token exists or gets created.
+**La Regla del Token, Nunca el Literal.** Ningún componente escribe un color. Si hace falta uno, existe un token o se crea en `theme.css`.
+
+**La Regla del Color que Significa.** Los diez tintes de etiqueta (`.tint-1…10`, repartidos por `colorFor()` a partir del texto) y los doce vivos (`--vivid-*` con su `-ink`) son para lo que *significa* un color: una categoría, un estado, una leyenda. Nunca pintan cromo: ni fondos, ni texto corrido, ni bordes, ni botones.
 
 ## Typography
 
-**Display Font:** Quicksand (Google Fonts; fallback `system-ui, -apple-system, sans-serif`)
-**Body Font:** Quicksand
-**Mono Font:** Reddit Mono
+**Body Font:** Inter (variable, 100–900, autoalojada en `web/public/fuentes/`; con `system-ui, -apple-system, sans-serif` de respaldo)
+**Mono Font:** Reddit Mono (variable, autoalojada igual; código, identificadores, valores técnicos)
 
-**Character:** one rounded, friendly sans across the board; hierarchy is won with weight (500–800) and the size scale, never with a second face. The whole sheet is in `rem`, so the root font-size (an inline `font-size` percentage on `html`, panel setting `plane-font-size`; per-app `fontScale` on the app container via `font-size: calc(1rem * var(--font-scale))`) rescales everything at once.
+Las dos se sirven desde el propio servidor, nunca desde Google Fonts: el panel las lee de `/fuentes/fuentes.css`, y el marco de una página —que no tiene origen propio— las recibe por mensaje y las registra con `FontFace` (`web/src/lib/planeAssets.ts`). Así el panel y lo publicado son la misma letra.
+
+**Character:** una sola sans neutra y precisa para todo. El cuerpo va ligero (300) para que los controles (600) y los títulos (700–800) se despeguen sin subir de tamaño. Nunca una segunda familia de texto.
 
 ### Hierarchy
-- **Display** (800, 1.875rem, `-0.01em`): modal titles (`modal-head h2`).
-- **Headline** (700, 1.5rem): screen titles (`--text-2xl`).
-- **Title** (700, 1.125rem): card titles (`card-title`, `--text-md`).
-- **Body** (500–600, 0.875rem, 1.5): the working size — cells, buttons, menus, forms (`--text-sm`).
-- **Label** (700, 0.75rem, uppercase on table heads): field labels and column heads (`--text-xs`).
+- **Headline** (700, 1.5rem, `--text-2xl`): el título de una pantalla y los encabezados grandes de una página publicada.
+- **Title** (700–800, 1.25rem, `--text-xl`, −0.01em a −0.02em): el titular de un bloque destacado y la cifra de un indicador.
+- **Subtitle** (700, 1.125rem, `--text-md`): el título de una tarjeta; el de un modal sube a 800.
+- **Body** (300, 0.875rem, 1.5, `--text-sm`): el tamaño de trabajo: celdas, menús, texto de tarjeta (con interlínea 1.55).
+- **Control** (600, 0.875rem): botones, pestañas, lo que se pulsa.
+- **Label** (600–700, 0.75rem, `--text-xs`): etiquetas de campo, pastillas, metadatos; en mayúsculas sólo las cabeceras de tabla.
 
 ### Named Rules
-**La Regla de la Escala Corta.** Seven sizes, `--text-xs` … `--text-3xl`. New text picks one of them; no in-between measures.
+**La Regla de la Escala Corta.** El texto toma un paso de `--text-xs … --text-3xl`, nunca una medida intermedia. (`--text-md` y `--text-lg` valen lo mismo, 1.125rem, porque el contrato de las páginas los documenta así.)
+
+**La Regla del Peso, No del Tamaño.** Para destacar algo en una pantalla de trabajo se sube el peso o la tinta antes que el tamaño.
 
 ## Layout
 
-Utilities live in `layout.css` (`flex`, `grid`, `gap-*`, `items-*`…), indexed on the quarter-rem scale and multiplied by `--spacing`. Component paddings use the `--sp-*` steps (4→40) and `--card-gap` for card grids. `.container` caps content at `90rem` with 2rem of air. The builder is a full-height flex column: sticky top bar, sidebar, editing surface. Breakpoint `md`: 48rem.
+El modelo espacial es el del banco: columna flexible a toda altura, con barra superior pegajosa, barra lateral y superficie de edición. Las utilidades viven en `layout.css` (`flex`, `grid`, `gap-*`, `items-*`…) y se indexan en cuartos de rem multiplicados por `--spacing` (0.25rem). Los rellenos de los componentes usan los pasos `--sp-*` (de 4 a 40 px) y las rejillas de tarjetas `--card-gap` (1rem). `.container` limita el contenido a 90rem. El único punto de corte de las utilidades es `md` (48rem); los componentes que lo necesitan se reordenan con sus propias consultas (38.75rem, 30rem). El desplazamiento horizontal vive dentro de `.table-wrap`, nunca en la página.
+
+Las capas siguen una escala de cinco peldaños (`global.css`): 10 cromo pegajoso y menús, 20 modales y velos, 30 el cajón de fila, 40 avisos, 50 globos de ayuda. Lo que es `popover` o `<dialog>` va en la capa superior del navegador y no entra en la escala.
 
 ## Elevation & Depth
 
-Four shadow tokens, by how far something leaves the page: `--shadow-sm` (buttons, chips barely detach), `--shadow-md` (cards resting on the canvas), `--shadow-lg` (modal, drawer, toast — everything that floats), `--shadow-xl` (what opens *over* the content and covers it: the menu and a select's list, two layers and more ink). Those popovers also swap the card's surface and line for `--bg-float` and `--border-float`, a notch lighter and a notch stronger in dark, so a menu never melts into the card under it. The primary button and danger also carry a colored glow (`0 .5rem 1.25rem -.625rem <accent>`) instead of a gray blur.
+Plano por defecto y con capas por tono: el lienzo, la superficie y lo hundido se distinguen por su gris, y las líneas separan lo que reposa. Las sombras son casi imperceptibles (5 % de negro) y sólo crecen para lo que flota o tapa. El botón principal y el de peligro llevan un halo de su propio color en vez de un desenfoque gris.
+
+### Shadow Vocabulary
+- **Apenas** (`--shadow-sm`, `0 2px 4px oklch(0 0 0 / 0.05)`): botones que se despegan un pelo.
+- **Reposo** (`--shadow-md`, `0 4px 8px oklch(0 0 0 / 0.05)`): lo que se posa sobre el lienzo.
+- **Flota** (`--shadow-lg`, `0 8px 16px oklch(0 0 0 / 0.05)`): modal, cajón, aviso.
+- **Tapa** (`--shadow-xl`, dos capas, 8 % y 18 %): menú y lista de un select, lo que se abre encima del contenido; va con `--bg-float` y `--border-float`.
+- **Halo** (`0 0.5rem 1.25rem -0.625rem <color>`): el botón principal (acento) y el de peligro (rojo).
+- **Anillo de foco** (`0 0 0 0.1875rem var(--focus-ring)`): todo lo que recibe foco.
 
 ### Named Rules
-**La Regla Plana por Defecto.** Hover is a fill (`oklch(from var(--text-primary) l c h / 6%)`), not a shadow. Shadows lift what floats; borders separate what rests.
+**La Regla Plana por Defecto.** El hover es un relleno (`oklch(from var(--text-primary) l c h / 6%)`), no una sombra. Las sombras levantan lo que flota; las líneas separan lo que reposa.
 
 ## Shapes
 
-Radii come from `--radius-scale`: `--radius-sm` (8px, inner boxes, menu items), `--radius-md` (11px, buttons, inputs, menus), `--radius-lg` (16px, cards, drawers), `--radius-xl` (20px, modal). `62.5rem` is the pill (`tag`, `btn-rounded`, switch track). The modifiers of `.btn` / `.btn-icon` / `.mini-btn` come *after* the base class in the stylesheet on purpose: same specificity, they win by source order — the same trick the markup must respect (modifiers after the base class in `class`).
+Esquinas suaves y consistentes, escaladas por `--radius-scale`: 0.5rem para lo interior (ítems de menú, cajas pequeñas), 0.6875rem para lo que se pulsa o se escribe (botones, campos, menús), 1rem para tarjetas y cajones, 1.25rem para el modal. La píldora (62.5rem) es para etiquetas, interruptores y botones redondos. Los bordes son de un pixel (`--border-width`); las etiquetas y los tintes dibujan su contorno con una sombra interior para no cambiar de tamaño al encenderse.
 
 ## Components
 
-The catalog is `components.css`; markup recipes live in `.claude/skills/plane-ui/references/componentes.md`. The panel's React-free kit (`web/src/components/ui/`) wraps the catalog pieces with Svelte props and state.
+El catálogo es `components.css`; las recetas de marcado están en `.claude/skills/plane-ui/references/componentes.md` y el kit Svelte (`web/src/components/ui/`) envuelve cada pieza. `/demo` muestra todos los estados de todas las piezas en una sola página: es donde se mira después de tocar el catálogo.
 
 ### Buttons
-- `.btn` — paper fill, hairline border, 38px, rounded `--radius-md`, shadow `--shadow-sm`.
-- `.btn-primary` — the accent fill (the app's color, ink chosen by the WCAG switch). One per view.
-- `.btn-ghost` — no fill, no border; hover is the only thing that draws it.
-- `.btn-danger` — red fill, never the primary. `.btn-ghost.btn-danger` — discreet destructive (red text, red wash on hover).
-- `.btn-icon` — square icon-only, `.sm` 32px; `.btn-rounded` pills any of them; `.mini-btn` (28px) lives inside rows.
-- Loading: `.is-loading > i` spins, or drop a `.spinner` inside.
+- **Shape:** esquinas de control (0.6875rem), 2.375rem de alto, texto 600.
+- **Default** (`.btn`): superficie apenas teñida hacia la tinta, línea fina, `--shadow-sm`. Es la mayoría.
+- **Primary** (`.btn-primary`): el acento lleno con su halo; hover al `accent-hover`. Uno por vista. Deshabilitado deja de ser acento: fondo hundido, tinta tenue, sin halo.
+- **Ghost** (`.btn-ghost`): sin relleno ni línea, tinta suave; el hover es lo único que lo dibuja.
+- **Danger** (`.btn-danger`): rojo lleno con halo rojo, nunca la primaria. `.btn-ghost.btn-danger` es el destructivo discreto.
+- **Warning** (`.btn-warning`): sin relleno, ámbar en la letra y el borde: algo quedó a medias, no es un error.
+- **Icono** (`.btn-icon`, 2.375rem cuadrado; `.sm` 2rem) y `.mini-btn` (1.75rem) dentro de filas. Los modificadores van después de la clase base: ganan por orden, no por especificidad.
+- **Hover / Focus:** relleno al 6 % de la tinta y borde fuerte; anillo de foco de 0.1875rem. Deshabilitado: 50 % de opacidad (el principal, como se dice arriba).
+- **Nombre:** un botón de solo icono (`.btn-icon`) toma su `tip` como `aria-label` en `ui/Button`; nunca queda un botón sin nombre.
 
 ### Inputs / Fields
-- Controls are naked elements inside a `.field` — the field dresses them (38px, `--bg-field` fill, hairline border, focus ring `--focus-ring`). Standalone controls — a toolbar's search box, a grid cell — take `.field-control`: the same dress, written next to `.field`'s in `components.css` so the two can never drift. `sm` shortens either.
-- `.field-row` lines fields up; `.field-hint` speaks under the control; `.range-val` shows a slider's current value.
-- The select arrow is drawn with two gradients so it follows `--text-muted`.
+- **Style:** hundidos (`--bg-field`), línea fina, esquinas de control, 2.375rem. Dentro de `.field` el campo los viste; sueltos (buscador, celda) llevan `.field-control`, escrito junto a `.field` para que no diverjan.
+- **Focus:** borde de acento y anillo de foco. **Error:** anillo rojo al 28 %.
+- Casillas, radios e interruptores son `<label class="choice">`; `.choice.switch` convierte la etiqueta en interruptor.
 
-### Checkbox / Radio / Switch
-- `<label class="choice">` + hidden input + `<i class="choice-box hgi-tick-02 ico-nudge">`; `.round` makes a radio. `.choice.switch` turns the label into a toggle: the input is the track, `::after` the knob.
+### Cards / Containers
+- **Corner Style:** 1rem. **Border:** línea fina. **Background:** `--bg-card`, que en oscuro es translúcido (lo que quiere una página publicada); en el panel, `.card-solid` la vuelve opaca.
+- **Internal Padding:** cabecera 1.125rem × 1.25rem, cuerpo 0.875rem × 1.25rem; el pie empuja sus acciones a la derecha y se ancla abajo, así que las tarjetas hermanas se alinean. En ajustes, toda acción —Guardar sobre todo— vive en el pie.
 
-### Cards
-- `.card` (flex column, hairline border, `--radius-lg`) with `card-head` / `card-title` / `card-sub` / `card-head-actions` / `card-body` / `card-foot`. The foot anchors to the bottom via `margin-top: auto`, so sibling cards align.
-  The settings sections (`SettingsSection.svelte`) are cards: the head only carries the title and the blurb, and every action — the Save button above all — lives in the `card-foot`, which pushes it to the right. Explanatory text in that foot is marked `foot-settings-note` so it stays on the left.
-  `/demo` puts the whole catalog on one page with the same stylesheets (`routes/Demo.svelte` + `components/demo/DemoGallery.svelte`, copied from the reference dashboard). Look there after touching `components.css`: it is the only place where every state of every component is on screen at once.
+### Chips
+- **Etiquetas** (`.tag`): píldora, 0.75rem, 700. El color es siempre una clase: `.tint-1` la normal, `.tint-2…10` para repartir categorías, `.tag-success` / `.tag-warning` / `.tag-error` para lo que significa algo. Sin clase de color es el estado apagado (sólo el anillo). En el panel no se escriben a mano: las emite `ui/Tag.svelte`.
+- **Pestañas y segmentos** (`.chips`): una píldora que se desliza, dibujada por `::before`; máximo seis opciones.
 
-### Chips (tabs & segments)
-- `.chips` — one sliding pill drawn by `::before`, positioned by `:has(> :nth-child(N))`. **Max 6 options.** Buttons get `.chip`, the active one `.active`; hidden radios work too. `.tabs` + `.tab-panels` switch `max 3` panels, no JS.
+### Navigation
+- Menús (`.menu[popover]`, anclados con `anchor-name`): superficie flotante, ítems planos con relleno al pasar, `.danger` en rojo, `.menu-sep` entre grupos. Modal, cajón y aviso también son `popover`: el navegador resuelve capa, Esc y velo. El modal mide 26.25rem por defecto (`--modal-w`) con cabecera, cuerpo desplazable y pie.
 
-### Tags
-- `.tag` — pill, `--text-xs`, bold. The colour is always a class, never an inline style: `.tint-1` is the normal one, `.tint-2…4` spread categories apart, `.tag-success` / `.tag-warning` / `.tag-error` are the ones that really mean fine, careful and wrong. The bare pill — no tint class — is the **off** state, so a toggle is `.tint-1` added and removed. No size variants and no in-row variant. `.tag-remove` is the little cross that lives *inside* it and inherits its ink. In the panel the markup is never hand-written: `ui/Tag.svelte` emits it (`tone`, defaulting to `tint-1`, with `tone="off"` for the off state; `onRemove`; `onclick` + `pressed` for a toggle).
-- `.badge-success` / `.badge-warning` / `.badge-error` are a different thing: a pulsing status dot on the element itself, not a pill with text.
-
-### Menu / Dropdown
-- `.menu-btn` (with `anchor-name: --menu`) opens `.menu[popover]`, positioned with `position-area: bottom span-right` under `@supports`. Items are plain buttons; `.danger` tints them red; `.menu-sep` separates groups. The panel's `Dropdown.svelte` wraps its own JS open/close.
-
-### Modal / Drawer / Toast
-- All three are popovers: the browser handles top layer, Esc and backdrop. `.modal` centers with `margin: auto` (`--modal-w` per instance), skeleton `modal-head` / `modal-body` (the scroller) / `modal-foot`. `.drawer.left|.right` slides with `@starting-style`. `.toast` is corner-fixed, tone via `.info .ok .warn .danger` (shared with `.alert`).
+### Ficha de aplicación
+El tablero (`routes/Home.svelte`) es donde la regla del Banco de Trabajo se ve entera: el panel en grises y cada ficha con la paleta de **su** aplicación (`paletteAttrs()` en la propia ficha, sin `data-theme`, así que el modo lo pone quien mira). Arriba, una portada de 4.5rem en `--accent-soft` de esa paleta, con el icono relleno del acento (con su halo) centrado dentro de ella y los cuatro colores crudos de la paleta como muestra; sin paleta propia, caen el acento y las series del tema. Debajo, el nombre a 1.125rem/700. Al pasar, el borde toma el acento de la app y la portada se aviva. Es la única pantalla del panel donde el color ocupa una región: lo justifica que ese color es de lo construido, no de la casa.
 
 ### Table
-- `.table` inside `.table-wrap` (horizontal scroll lives there, never on the page); `.table-card` clips corners; `.table-foot` carries count + pager and goes **inside `<tfoot>`**, in a cell spanning every column — never a `<div>` after the `</table>`. Optional `.table-striped`.
+La rejilla es la pieza firma del banco: `.table` dentro de `.table-wrap`, cabeceras en mayúsculas pequeñas sobre fondo hundido, fila con `--bg-hover` al pasar. El conteo y el paginador (`.table-foot`) van **dentro de `<tfoot>`**, en una celda que abarca todas las columnas.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** put `data-theme` and `data-palette` on the same element when that element is the app; give a container that flips the theme its own background.
-- **Do** write every color as a token; the CSS own to a component goes in its scoped `<style>`.
-- **Do** keep the semantic class first in `class` (`btn-open-people modal-new-app`), then the system's.
-- **Do** use the four tints for labels and avatars; they are measured for both modes.
+- **Do** pon `data-theme` y `data-palette` en el mismo elemento cuando ese elemento es la app, y dale fondo propio a todo contenedor que cambie de tema.
+- **Do** escribe cada color como token nativo (`--bg-level2`, `--text-primary`, `--accent`); lo propio de un componente va en su `<style>`.
+- **Do** pon la clase semántica primero en `class` (`btn-open-people`, `modal-new-app`) y después las del sistema.
+- **Do** usa los tintes para etiquetas y avatares: están medidos a 4.5:1 en los dos modos.
+- **Do** corre `bun run harness` después de tocar las hojas, `shared/htmlContract.ts` o la auditoría, y reinicia el servidor: las hojas se leen al arrancar.
 
 ### Don't:
-- **Don't** reach for Tailwind or daisyUI classes — they are gone from the repo.
-- **Don't** name palette selectors with attribute matches (`[class*="theme-"]` catches `.theme-btn` too); enumerate them.
-- **Don't** leave an inline `--palette-1` behind when leaving `custom` — inline beats any `[data-palette]`.
-- **Don't** touch `shared/htmlContract.ts` or the server prompts without running `bun run harness`: `compat.css` and `contract.css` are what keep their variable names alive, and the harness is what proves they still do.
-- A page's HTML now loads these same sheets (`/plane/estilos.css`, built in `server/pageStyles.ts`), so `.btn`, `.card`, `.table`, `.field` and the rest are the same pieces in the panel and in what gets published. A page that hand-rolls one of them gets told so by `server/htmlAudit.ts`, which runs on every write and every check.
-- **Don't** paint a tag with an inline style or a class of your own: the tint classes already carry fill and ink measured against each other. `colorFor()` in `lib/appTheme.ts` returns the *name* of a tint, which is all a tag ever needs.
+- **Don't** uses clases de Tailwind ni de daisyUI: ya no existen en el repositorio.
+- **Don't** pintes una etiqueta con un estilo en línea ni con una clase propia.
+- **Don't** nombres selectores de paleta o de tinte con coincidencias de atributo (`[class*="tint-"]`); enuméralos.
+- **Don't** dejes un `--palette-1` en línea al salir de `custom`: en línea le gana a cualquier `[data-palette]`.
+- **Don't** uses los vivos ni los tintes para fondos, texto corrido, bordes o botones.
+- **Don't** pongas más de un botón principal por vista.

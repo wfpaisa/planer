@@ -378,7 +378,11 @@ export function uniqueConflictMessage(conflicts: UniqueConflict[]): string {
  * lo que se escribe aquí.
  */
 export function accessRules(appId: string) {
-  const builder = `(@collection.apps.id ?= "${appId}" && @collection.apps.owner ?= @request.auth.id)`;
+  // El dueño o alguien a quien se la asignaron. Las dos condiciones sobre
+  // `@collection.apps` miran la misma fila: la de esta aplicación.
+  const builder =
+    `(@collection.apps.id ?= "${appId}" && ` +
+    `(@collection.apps.owner ?= @request.auth.id || @collection.apps.editors.id ?= @request.auth.id))`;
   return {
     listRule: builder,
     viewRule: builder,

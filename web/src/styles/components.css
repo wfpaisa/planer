@@ -61,6 +61,17 @@
   &:hover {
     background: var(--accent-hover);
   }
+
+  /* Deshabilitado deja de ser acento: el azul a media opacidad se seguia
+     leyendo como un botón que se puede pulsar, sobre todo en claro. Pasa a
+     la superficie hundida con la tinta tenue, y sin halo. */
+  &:disabled {
+    background: var(--bg-field);
+    color: var(--text-muted);
+    border-color: var(--border);
+    box-shadow: none;
+    opacity: 1;
+  }
 }
 
 /* Botón cuadrado de solo icono */
@@ -109,6 +120,17 @@
   &.btn-primary {
     background: var(--accent);
     color: var(--accent-text);
+
+    /* El mismo apagado que `.btn-primary:disabled`: aqui hace falta repetirlo
+       porque esta regla va después y le ganaria. Tampoco se atenua: el
+       apagado ya lo dice el color. */
+    &:disabled {
+      background: var(--bg-field);
+      color: var(--text-muted);
+      border-color: var(--border);
+      box-shadow: none;
+      opacity: 1;
+    }
   }
 }
 
@@ -1814,10 +1836,6 @@ input[type="range"].field-control {
   &:is(button) {
     cursor: pointer;
     border: 0;
-  }
-  &:is(.tag-1, .tag-2, .tag-3, .tag-4, .tag-5, .tag-6, .tag-7, .tag-8, .tag-9, .tag-10) {
-    background: color-mix(in oklab, var(--tint) 14%, transparent);
-    color: color-mix(in oklab, var(--tint) 72%, var(--ink));
   }
 
   /* Apagada: sin fondo, solo el anillo. La lista se escribe entera a

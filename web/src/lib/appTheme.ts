@@ -16,6 +16,9 @@ import { normalizePalette } from "@shared/brand";
 import { CUSTOM_PALETTE } from "@shared/palettes";
 import type { AppTheme } from "@shared/types";
 
+/** El valor de `data-palette` que repone la paleta de partida. */
+export const NO_PALETTE = "none";
+
 /**
  * La apariencia de una aplicación, ya desbrozada: lo guardado con los
  * formatos de antes --la marca de dos colores, o el nombre de un tema de la
@@ -52,10 +55,14 @@ export function paletteAttrs(
     decls.push(`--font-scale: ${brand.fontScale}`, "font-size: calc(1rem * var(--font-scale))");
   }
   // Los dos mandos son independientes: una app puede quedarse con la paleta
-  // de partida --sin data-palette, manda theme.css-- y aun así crecer la
-  // letra, o al reves.
+  // de partida y aun así crecer la letra, o al reves.
+  //
+  // La de partida se escribe "none" y no se deja sin atributo: sin él, el
+  // elemento heredaría la paleta de lo que tenga alrededor, y el panel pone la
+  // de cada usuario en <html>. Ver el bloque `[data-palette="none"]` de
+  // `palettes.css`.
   return {
-    "data-palette": brand.palette ?? undefined,
+    "data-palette": brand.palette ?? NO_PALETTE,
     style: decls.length ? `${decls.join("; ")};` : undefined,
   };
 }

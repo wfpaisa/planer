@@ -94,7 +94,7 @@ export async function ensurePeopleTable(app: AppForPeople): Promise<TableRecord 
       ],
       ...accessRules(app.id),
     });
-    console.log(`  + coleccion "${dataCollection}"`);
+    console.log(`  + colección "${dataCollection}"`);
   }
 
   if (existing) {
@@ -119,7 +119,7 @@ export async function ensurePeopleTable(app: AppForPeople): Promise<TableRecord 
     meta: { columnOrder: fields.map((f) => f.name), hidden: [], widths: {} },
     system: true,
   });
-  console.log(`  + tabla de personas en la aplicacion ${app.id}`);
+  console.log(`  + tabla de personas en la aplicación ${app.id}`);
   // La colección nacio solo con el enlace a la cuenta: aquí se le abren las
   // columnas propias con las que nace la tabla, que es el mismo camino por el
   // que se añade cualquier otra después.

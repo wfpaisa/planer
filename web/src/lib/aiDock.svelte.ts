@@ -25,8 +25,11 @@ const MAX_REM = 48;
 /** Y nunca mas de esta parte de la ventana, para no comerse el documento. */
 const MAX_SHARE = 0.45;
 /**
- * Por debajo de este ancho de ventana el dock dejaria al documento sin sitio,
- * así que no se dibuja --ni el, ni su botón.
+ * Por debajo de este ancho de ventana una columna dejaria al documento sin
+ * sitio. Ahi la conversación no es columna sino hoja: tapa la escena entera,
+ * se abre solo cuando se pide y se cierra con la misma equis. Antes, por
+ * debajo de este ancho la IA desaparecia sin decir nada --en una tableta o un
+ * telefono, justo lo que distingue a la plataforma no estaba--.
  */
 const NARROW = 900;
 
@@ -89,7 +92,7 @@ export interface AiDockState {
   readonly width: number;
   /** Confirmar un ancho nuevo. Se recuerda por aplicación. */
   setWidth: (width: number) => void;
-  /** La ventana no da para la columna: no hay dock, y tampoco botón. */
+  /** La ventana no da para la columna: la conversación se abre como hoja. */
   readonly tooNarrow: boolean;
 }
 
@@ -98,6 +101,12 @@ export function aiDock(appId: () => string): AiDockState {
   let width = $state(base());
   let tooNarrow = $state(window.innerWidth < NARROW);
   let focusAsks = $state(0);
+  /*
+   * La hoja de la ventana estrecha. No se recuerda ni nace abierta: tapa la
+   * página entera, y abrirla sola al entrar dejaria a quien entra sin ver lo
+   * que vino a mirar.
+   */
+  let sheet = $state(false);
 
   // Lo guardado se lee por aplicación: cambiar de aplicación trae su columna,
   // no la de la anterior.
@@ -138,7 +147,7 @@ export function aiDock(appId: () => string): AiDockState {
 
   return {
     get open() {
-      return wanted && !tooNarrow;
+      return tooNarrow ? sheet : wanted;
     },
     get width() {
       return width;
@@ -147,10 +156,18 @@ export function aiDock(appId: () => string): AiDockState {
       return tooNarrow;
     },
     toggle() {
+      if (tooNarrow) {
+        sheet = !sheet;
+        return;
+      }
       wanted = !wanted;
       remember(openKey, wanted ? "1" : "0");
     },
     show() {
+      if (tooNarrow) {
+        sheet = true;
+        return;
+      }
       wanted = true;
       remember(openKey, "1");
     },
@@ -158,8 +175,11 @@ export function aiDock(appId: () => string): AiDockState {
       return focusAsks;
     },
     askFocus() {
-      wanted = true;
-      remember(openKey, "1");
+      if (tooNarrow) sheet = true;
+      else {
+        wanted = true;
+        remember(openKey, "1");
+      }
       // No se lleva el cursor desde aquí: la columna puede no estar dibujada
       // todavía. Se pide, y el panel lo cumple cuando ya tiene su campo.
       focusAsks += 1;

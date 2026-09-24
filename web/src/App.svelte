@@ -7,6 +7,7 @@
    * se reserva para lo que si tiene varias instancias, como el constructor.
    */
   import "./lib/fontSize.svelte";
+  import "./lib/panelPalette.svelte";
   import "./lib/theme.svelte";
 
   import GuideTour from "./components/guide/GuideTour.svelte";
@@ -26,7 +27,9 @@
     { path: "/p/:slug/:pageSlug", component: Published },
     { path: "/entrar", component: Login },
     { path: "/", component: Home, guarded: true },
-    { path: "/ajustes", component: AiSettings, guarded: true },
+    // Cada pestaña de los ajustes tiene su dirección (`/ajustes/general`,
+    // `/ajustes/ia`…); `/ajustes` a secas abre la primera.
+    { path: "/ajustes/*", component: AiSettings, guarded: true },
     // La demo del sistema de estilos: no es del producto y no ensena datos de
     // nadie --todo lo suyo es de ejemplo, el pie del sidebar incluido-- asi
     // que se entra sin sesión. Se llega desde ajustes o por la dirección.

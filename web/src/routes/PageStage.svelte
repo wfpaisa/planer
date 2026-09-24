@@ -381,6 +381,7 @@
       dock={builder.dock}
       onChangedAll={reloadAll}
       onNote={(text) => say("success", text)}
+      onOpenChanges={() => openPanel("changes")}
     />
   {/if}
 
@@ -525,7 +526,7 @@
                   <p class="empty-blank-desc">
                     Describe la página que necesitas o suelta un archivo HTML para usarlo como base.
                   </p>
-                  {#if !builder.dock.tooNarrow}
+                  {#if builder.aiReady}
                     <div class="empty-blank-go">
                       <Button
                         variant="secondary"

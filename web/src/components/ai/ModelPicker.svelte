@@ -11,7 +11,7 @@
     aiModelLabel,
     aiProviderName,
     aiProviderReady,
-    aiThinkingLabel,
+    aiThinkingChatLabel as aiThinkingLabel,
     aiThinkingLevels,
   } from "@shared/aiCatalog";
   import { type AiChoice, type AiConfigView } from "@shared/types";

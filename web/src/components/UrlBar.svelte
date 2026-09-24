@@ -110,8 +110,8 @@
   const url = $derived(page && !page.isHome ? `${base}/${page.slug}` : base);
   const open = $derived(app.visibility === "public");
 
-  /** El botón de la IA solo esta cuando hay IA y la ventana da para su columna. */
-  const showAi = $derived(!!aiReady && !!dock && !dock.tooNarrow);
+  /** El botón de la IA esta siempre que haya IA: en una ventana estrecha abre la hoja. */
+  const showAi = $derived(!!aiReady && !!dock);
 
   /** El desplegable de la vista previa solo esta si alguien escucha lo elegido. */
   const showPreview = $derived(!!onPreviewRole && (previewOptions?.length ?? 0) > 0);
@@ -177,8 +177,9 @@
      cae en el centro de la fila y no se corre segun lo que mida el botón de al
      lado, que es como se lee en Safari. -->
 <div id="builder-urlbar" class="bar-address flex shrink-0 items-center gap-2">
+  <!-- Sin `aria-hidden`: lo tuvo, y escondia de los lectores de pantalla el
+       botón que abre el chat, que es lo único que vive aqui. -->
   <span
-    aria-hidden="true"
     class={cx("side-urlbar-left", showAi ? "side-urlbar-left-with-ai" : "side-urlbar-left-empty")}
   >
     {#if showAi && dock && !dock.open}
@@ -193,14 +194,14 @@
           tip={aiActivity.busy
             ? "La inteligencia artificial está trabajando"
             : "Pedir a la inteligencia artificial"}
-          aria-label="Inteligencia artificial"
-          aria-pressed={false}
+          aria-label="Abrir el chat con la inteligencia artificial"
           onclick={dock.toggle}
           tipSide="bottom"
           buttonClass="btn-toggle-dock-ai"
           class="btn-rounded btn-primary"
         >
-          <Icon name="bubble-chat" size={20} /> Abrir chat
+          <Icon name="bubble-chat" size={20} />
+          <span class="label-open-chat">Abrir chat</span>
         </Button>
       </span>
     {/if}
@@ -256,7 +257,7 @@
     <!-- Gris lo que situa --el dominio, las barras-- y negro lo que nombra: el
          enlace se lee por el nombre, no por el resto. -->
     <span class="text-public-link">
-      <span>{origin}/p/</span>
+      <span class="text-public-link-origin">{origin}/p/</span>
       <span class="text-public-link-name">{app.slug}</span>
       {#if page && !page.isHome}
         <span>/</span>
@@ -264,34 +265,40 @@
       {/if}
     </span>
 
-    <dir class="public-right-links">
+    <span class="public-right-links">
       <!-- El globito lee lo copiado igual que el icono, pero solo lo cuenta a
            quien vuelve a pasar por encima: la capa de globos se queda con el
            texto que había al asomar (ver `TooltipLayer`). No hace falta mas,
-           que el campo entero poniendose verde ya lo dice en el momento. -->
-      <span
+           que el campo entero poniendose verde ya lo dice en el momento.
+
+           Botones de verdad: eran `span` con un click, fuera del tabulador y
+           sin nombre, asi que con el teclado no había forma de copiar el
+           enlace ni de abrirlo. -->
+      <button
+        type="button"
         onclick={copy}
-        aria-hidden="true"
+        aria-label={copied ? "Enlace copiado" : "Copiar el enlace"}
         data-tip={copied ? "Enlace copiado" : "Copiar el enlace"}
         data-tip-side="bottom"
         class={cx(
-          "btn-icon btn-ghost btn-rounded sm",
+          "btn-copy-link-icon btn-icon btn-ghost btn-rounded sm",
           copied ? "copy-icon-public-link-copied" : "copy-icon-public-link-idle",
         )}
       >
         <Icon name={copied ? "checkmark-circle-02" : "copy-01"} size={16} />
-      </span>
+      </button>
 
-      <span
+      <button
+        type="button"
         onclick={() => window.open(url, "_blank", "noopener")}
-        aria-hidden="true"
+        aria-label="Abrir en otra pestaña"
         data-tip="Abrir en otra pestaña"
         data-tip-side="bottom"
-        class="btn-icon btn-ghost btn-rounded sm"
+        class="btn-open-link-tab btn-icon btn-ghost btn-rounded sm"
       >
         <Icon name="external-link" size={16} />
-      </span>
-    </dir>
+      </button>
+    </span>
   </div>
 
   <!-- Las del HTML van sueltas, solo el icono y su globito: ponerles nombre
@@ -320,7 +327,8 @@
           >
             <Icon name={ROLE_ICON} size={16} />
             <span class="label-preview-role">
-              Previsualizar como: <b>{previewLabel}</b>
+              <span class="label-preview-prefix">Previsualizar como:</span>
+              <b>{previewLabel}</b>
             </span>
           </Button>
         {/snippet}
@@ -479,6 +487,46 @@
       & :global(.btn-pick-preview-role) {
         min-width: 0;
         gap: var(--sp-6);
+      }
+    }
+
+    /*
+     * En ventanas estrechas la fila se queda con lo que nombra y suelta lo que
+     * explica: "Abrir chat" se queda en su icono (el nombre sigue en el globo
+     * y en el lector de pantalla) y el rol se lee sin "Previsualizar como:".
+     * Antes los rotulos enteros se montaban encima de los iconos del enlace.
+     */
+    @media (max-width: 63.99rem) {
+      & .label-preview-prefix {
+        display: none;
+      }
+    }
+
+    @media (max-width: 47.99rem) {
+      padding-inline: var(--sp-6);
+      gap: var(--sp-4);
+
+      & .label-open-chat {
+        display: none;
+      }
+
+      /* El dominio es igual en todas las páginas; lo que las distingue es el
+         final. Sin sitio para los dos, se queda el final. */
+      & .text-public-link-origin {
+        display: none;
+      }
+
+      & :global(.btn-toggle-dock-ai) {
+        width: 2rem;
+        padding: 0;
+        justify-content: center;
+      }
+
+      /* Los dos lados ya no se reparten el ancho a partes iguales: el enlace
+         es lo que se lee y se queda con lo que sobre. */
+      & .side-urlbar-left,
+      & .group-html-actions {
+        flex: 0 0 auto;
       }
     }
   }

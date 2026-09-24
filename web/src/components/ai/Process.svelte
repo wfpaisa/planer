@@ -89,16 +89,21 @@
    * Lo que se lee en la fila plegada.
    *
    * Trabajando, lo ultimo que lleva pensado, que es lo que se ve avanzar. Ya
-   * cerrado, el principio del razonamiento: la misma línea, quieta.
+   * cerrado, lo ultimo que hizo --los pasos los escribe el servidor, en
+   * espanol-- y no el principio del razonamiento: ese sale en el idioma en
+   * que piense el modelo, casi siempre ingles, y como resumen de un turno
+   * cerrado no le decia nada a quien construye.
    */
   const summary = $derived(
-    working ? latestLine(live) || "Generando" : firstLine(reasoning) || rotulo(count),
+    working
+      ? latestLine(live) || "Generando"
+      : lastStep() || (reasoning ? "Ver cómo lo pensó" : rotulo(count)),
   );
 
-  /** La primera línea de un texto: por donde empieza el razonamiento. */
-  function firstLine(text: string): string {
-    const cut = text.indexOf("\n");
-    return cut === -1 ? text : text.slice(0, cut);
+  /** El resumen del ultimo paso del turno cerrado, si dio alguno. */
+  function lastStep(): string {
+    const last = steps?.[steps.length - 1];
+    return last?.summary ?? "";
   }
 
   /** Cuantos pasos dio, dicho como se lee en la fila plegada. */
@@ -261,7 +266,7 @@
     height: 2.25rem;
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    color: var(--text-subtle);
+    color: var(--text-muted);
     transition: color 150ms;
 
     &:disabled {
@@ -288,7 +293,7 @@
   }
 
   .process-elapsed {
-    color: var(--text-subtle);
+    color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
 
@@ -334,7 +339,7 @@
   .timeline-step {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    color: var(--text-subtle);
+    color: var(--text-muted);
   }
 
   .timeline-text {

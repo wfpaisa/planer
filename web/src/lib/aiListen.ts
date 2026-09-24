@@ -167,6 +167,10 @@ export async function listen(
     context?: string,
     /** Termino sin respuesta: fallo o se detuvo. Su proceso no se pliega. */
     unfinished = false,
+    /** Fallo: lo que se deja es el porque, no una respuesta. */
+    error = false,
+    /** Cambio la aplicación: hay un punto al que volver. */
+    changed = false,
   ) => {
     const now = readConversation(mine);
     const id = nextEntryId();
@@ -198,6 +202,8 @@ export async function listen(
           reasoning,
           context,
           ...(unfinished ? { unfinished: true } : {}),
+          ...(error ? { error: true } : {}),
+          ...(changed ? { changed: true } : {}),
           ...(asked ? { question: asked } : {}),
           ...(closedPlan ? { plan: closedPlan } : {}),
           ...(grants.length ? { access: grants } : {}),
@@ -296,6 +302,8 @@ export async function listen(
         // Detenida a mitad: no hay respuesta que dejar encima, así que lo
         // que se alcanzo a hacer se queda a la vista.
         done.stopped,
+        false,
+        done.changed,
       );
       if (done.changed || done.notices.length) await onChanged();
       if (done.impact) onImpact(done.impact);
@@ -307,6 +315,7 @@ export async function listen(
         undefined,
         seen.reasoning || undefined,
         seen.context || undefined,
+        true,
         true,
       );
     }
@@ -323,6 +332,7 @@ export async function listen(
       undefined,
       seen.reasoning || undefined,
       seen.context || undefined,
+      true,
       true,
     );
   } finally {

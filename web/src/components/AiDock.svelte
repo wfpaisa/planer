@@ -17,6 +17,7 @@
   import type { AppRecord, DataImpact, PageRecord } from "@shared/types";
 
   import { type AiDockState, clampDock } from "../lib/aiDock.svelte";
+  import { cx } from "../lib/cx";
   import AiPanel from "./AiPanel.svelte";
   import ImpactPanel from "./ImpactPanel.svelte";
 
@@ -26,6 +27,7 @@
     dock,
     onChangedAll,
     onNote,
+    onOpenChanges,
   }: {
     app: AppRecord;
     page: PageRecord;
@@ -34,6 +36,8 @@
     onChangedAll: () => Promise<void> | void;
     /** Algo que contar sin interrumpir. */
     onNote: (text: string) => void;
+    /** Abrir el Histórico de cambios, donde queda el punto de antes de la IA. */
+    onOpenChanges?: () => void;
   } = $props();
 
   /** Los cambios con riesgo que esperan decision, encadenados a la conversación. */
@@ -94,11 +98,17 @@
 </script>
 
 {#if dock.open}
+  <!--
+    En una ventana estrecha no hay columna: la conversación es una hoja que
+    tapa la escena entera, sin asa --no hay nada que ensanchar-- y se cierra
+    con la equis de su cabecera.
+  -->
   <aside
     id="dock-ai"
     bind:this={column}
-    style="width: {dock.width}px"
-    class="dock-ai flex h-full shrink-0 flex-col"
+    style={dock.tooNarrow ? undefined : `width: ${dock.width}px`}
+    class={cx("dock-ai flex h-full shrink-0 flex-col", dock.tooNarrow && "dock-ai-sheet")}
+    aria-label="Conversación con la IA"
   >
     <div class="dock-content flex flex-1 flex-col">
       {#if impact}
@@ -119,6 +129,7 @@
           onClose={dock.toggle}
           onChanged={onChangedAll}
           onImpact={(next) => (impact = next)}
+          {onOpenChanges}
         />
       {/if}
     </div>
@@ -132,14 +143,16 @@
       media altura esta siempre dibujada: sin ella había que adivinar donde
       apuntar para que el asa se encendiera.
     -->
-    <div
-      aria-hidden="true"
-      onpointerdown={startResize}
-      data-tip="Arrastra para cambiar el ancho"
-      data-tip-side="right"
-      class="dock-resize-handle"
-      class:is-resizing={resizing}
-    ></div>
+    {#if !dock.tooNarrow}
+      <div
+        aria-hidden="true"
+        onpointerdown={startResize}
+        data-tip="Arrastra para cambiar el ancho"
+        data-tip-side="right"
+        class="dock-resize-handle"
+        class:is-resizing={resizing}
+      ></div>
+    {/if}
   </aside>
 {/if}
 
@@ -148,6 +161,28 @@
     position: relative;
     border-right: var(--border-width) solid var(--border);
     background: var(--bg-level2);
+  }
+
+  /* La hoja de la ventana estrecha: encima de todo, en el peldano de los
+     modales, y con la entrada de abajo arriba que dice "esto se abre encima". */
+  .dock-ai-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    width: 100%;
+    border-right: 0;
+    animation: dock-sheet-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  @keyframes dock-sheet-in {
+    from {
+      transform: translateY(1.5rem);
+      opacity: 0;
+    }
   }
 
   .dock-content {

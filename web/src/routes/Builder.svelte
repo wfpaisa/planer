@@ -493,11 +493,12 @@
   /*
    * Si se le puede dar un archivo a la IA ahora mismo.
    *
-   * Hace falta un servidor conectado y una ventana que de para la columna: sin
-   * una de las dos, el archivo se quedaria esperando en una conversación que no
-   * se puede abrir, y es mejor no ofrecerlo que ofrecerlo y no cumplir.
+   * Hace falta un servidor conectado: sin el, el archivo se quedaria esperando
+   * en una conversación que no puede contestar, y es mejor no ofrecerlo que
+   * ofrecerlo y no cumplir. El ancho ya no cuenta: en una ventana estrecha la
+   * conversación se abre como hoja.
    */
-  const canUseAi = $derived(aiReady && !dock.tooNarrow);
+  const canUseAi = $derived(aiReady);
 
   /**
    * La tabla que ya guarda lo que trae el archivo soltado, si es que hay
@@ -716,12 +717,7 @@
     }
     if (kind === "ia") {
       if (!canUseAi) {
-        say(
-          "warning",
-          aiReady
-            ? "Este archivo necesita el panel de IA. Amplía la ventana e inténtalo de nuevo."
-            : "Este archivo necesita un servidor de IA. Conecta uno en los ajustes.",
-        );
+        say("warning", "Este archivo necesita un servidor de IA. Conecta uno en los ajustes.");
         return;
       }
       // Estos si entran todos, y con ellos cualquier otro del mismo lote que se

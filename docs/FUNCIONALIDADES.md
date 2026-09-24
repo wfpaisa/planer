@@ -4,6 +4,15 @@
 
   - Iniciar sesión como constructor (panel)
   - Sesión aparte para miembros de una app publicada
+- **Usuarios del panel** (ajustes de la cuenta, solo administradores)
+
+  - Ver los usuarios con cuántas aplicaciones tienen propias y asignadas
+  - Crear un usuario con nombre, correo, contraseña y permiso de administrador
+  - Editar sus datos, cambiarle la contraseña, darle o quitarle el permiso de administrador
+  - Asignarle aplicaciones de otros: las trabaja como propias, pero no las borra
+  - Borrar un usuario; sus aplicaciones pasan a quien lo borra
+  - La cuenta del `.env` es siempre administradora y no se borra
+  - Solo un administrador cambia los servidores de IA
 - **Tablero de aplicaciones**
 
   - Crear, abrir, eliminar una aplicación
@@ -30,7 +39,7 @@
     - Renombrar sin perder datos
     - El título dice con un icono lo que la columna exige: obligatoria junto al
       nombre, "no se repite" al otro extremo
-    - Columna persona como dueño de fila ("ver solo lo mío")
+    - Columna persona: enlaza la fila con alguien invitado a la aplicación
   - Filas
 
     - Crear, editar, borrar (una o selección múltiple)
@@ -70,6 +79,7 @@
 - **Páginas** (constructor visual)
 
   - Crear página, ordenar el menú lateral
+  - En teléfonos (menos de 48rem) el menú lateral es siempre un cajón plegado que se abre encima, también en la aplicación publicada; la barra superior y la de dirección se quedan en iconos
   - Bloques: tabla con buscador, tarjetas, formulario, ficha, indicadores, texto
   - Página en HTML propio
 
@@ -86,6 +96,8 @@
   - Generar y editar páginas/tablas por chat (una petición por página a la vez)
   - Respuestas, preguntas y avisos en lenguaje sencillo para personas sin conocimientos técnicos
   - Elegir proveedor, modelo y nivel de razonamiento por petición, en submenús del menú «+» del campo de escribir
+  - El modelo elegido se ve bajo el campo de escribir; los niveles de razonamiento se nombran en español en el chat
+  - La cabecera del chat nombra la página sobre la que escribe la IA
   - Mostrar u ocultar esos dos selectores con un solo interruptor en los ajustes de IA; ocultos, se usa el modelo por defecto
   - Adjuntar archivos (CSV, JSON, texto, imagen) a la conversación
   - Herramientas del modelo: ver tablas, crear tabla, agregar columnas, crear/actualizar página, leer archivo, llenar tabla desde archivo, revisar errores, buscar iconos
@@ -98,18 +110,21 @@
   - Contexto compacto con consulta de guías y esquemas bajo demanda
   - Límite de contexto por modelo, calibrado con el uso real, y detención de errores repetidos
   - Cortar una petición en marcha
+  - Los fallos se muestran como aviso de error, con «Reintentar» cuando la petición fallida se puede reenviar tal cual
+  - Tras un turno que cambió la aplicación, enlace «Deshacer o ver cambios» al Histórico de cambios (punto «Antes de: …»)
+  - En ventanas estrechas (tableta, teléfono) el chat se abre como hoja a pantalla completa con «Abrir chat»
   - Diálogo de impacto para cambios riesgosos (borrar columna/tabla, cambiar tipo)
   - Autorizar accesos pedidos por la IA
   - Medidor de contexto: al pulsarlo, tarjeta con uso y espacio libre, entrada evaluada y tokens generados en la conversación, caché de la última llamada y velocidad media
   - Avisos guardados en la conversación
-  - Historial de conversaciones por página, retomar una anterior
-  - Autocomandos / preguntas rápidas
+  - Historial de conversaciones por página, retomar una anterior; la lista marca la que está abierta
+  - Acciones rápidas / preguntas rápidas
   - Constancia de depuración por petición ("contexto enviado")
   - Límite de tiempo máximo por petición y cortes de seguridad
 - **Publicación**
 
   - Enlace público (solo lectura) o privado (con invitados)
-  - Niveles de invitado: ver, editar, administrar
+  - Roles de invitado con nombres libres (`admin` siempre); deciden qué páginas se abren. Escribir exige cuenta
   - Gestión de miembros: invitar, resetear clave, quitar
   - Página de inicio y lado del menú lateral
 - **Copias y traslados** (ajustes de la cuenta)
@@ -131,6 +146,8 @@
   - Ver cambios por versión y restaurar
 - **Configuración global**
 
+  - Pestañas por contexto, cada una con su dirección (`/ajustes/general`, `/ajustes/ia`, `/ajustes/aplicaciones`, `/ajustes/usuarios`); Usuarios solo para administradores
+  - Paleta de colores del panel (46 + personalizada), guardada en la cuenta de cada usuario, con vista previa antes de guardar
   - Proveedores de IA
 
     - Crear, modificar, probar un proveedor (Claude/Anthropic o compatible ChatGPT: Ollama, LM Studio, OpenRouter, etc.)

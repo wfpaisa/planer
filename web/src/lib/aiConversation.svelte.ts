@@ -94,6 +94,19 @@ export interface Entry {
    * cerrar, lo que hay que leer es justo por donde iba.
    */
   unfinished?: boolean;
+  /**
+   * Lo que dice este turno es un error, no una respuesta: la petición fallo,
+   * se perdio la conexión o no se pudo hacer algo que se pidio. Se pinta como
+   * aviso de peligro --con la misma voz que una respuesta buena se confundia
+   * con una--, y si ademas es `unfinished` se ofrece reintentar.
+   */
+  error?: boolean;
+  /**
+   * Este turno cambio la aplicación. Antes de tocar nada el servidor dejo un
+   * punto "Antes de: ..." en el Histórico de cambios, y el turno lo ofrece:
+   * es lo que hace que un cambio de la IA se pueda revisar y deshacer.
+   */
+  changed?: boolean;
 }
 
 /** Una petición escrita mientras la IA trabajaba, esperando su turno. */

@@ -47,7 +47,7 @@ import type {
   TableRecord,
   VersionsView,
 } from "../shared/types.ts";
-import { peopleOf, personOf, setPersonAccess } from "./access.ts";
+import { buildsApp, peopleOf, personOf, setPersonAccess } from "./access.ts";
 import {
   loadAiConfig,
   providerFromInput,
@@ -81,6 +81,7 @@ import {
 import { sanitizeRoles, sanitizeTheme, uniqueSlug, withAdminRole } from "./appSetup.ts";
 import { bundleToFile, exportApp, fileToBundle, importBundle } from "./appTransfer.ts";
 import { HttpError, type Identity, optionalMember, requireBuilder } from "./auth.ts";
+import { requireAdmin } from "./builders.ts";
 import { INTERNAL } from "./config.ts";
 import { applyChange, pagesForChanges, readChanges, readChoice } from "./dataImpact.ts";
 import { quote } from "./filter.ts";
@@ -138,6 +139,10 @@ const json = <T = unknown>(data: T, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8" },
   });
 
+// La gestión de usuarios vive aparte; se exporta desde aquí para que el
+// servidor encuentre todas las rutas en el mismo sitio.
+export { createBuilder, deleteBuilder, listBuilders, updateBuilder } from "./builders.ts";
+
 async function body<T>(req: Request): Promise<T> {
   try {
     return (await req.json()) as T;
@@ -153,7 +158,19 @@ async function body<T>(req: Request): Promise<T> {
 async function ownedApp(appId: string, me: Identity): Promise<AppRecord> {
   const app = await firstRecord<AppRecord>(INTERNAL.apps, `id = "${quote(appId)}"`);
   if (!app) throw new HttpError(404, "La aplicación no existe");
-  if (app.owner !== me.id) throw new HttpError(403, "No tienes permiso para esta aplicación");
+  if (!buildsApp(app, me.id)) throw new HttpError(403, "No tienes permiso para esta aplicación");
+  return app;
+}
+
+/**
+ * Como `ownedApp`, pero solo para su dueño: tenerla asignada deja trabajar en
+ * ella, no borrarla.
+ */
+async function appOfOwner(appId: string, me: Identity): Promise<AppRecord> {
+  const app = await ownedApp(appId, me);
+  if (app.owner !== me.id) {
+    throw new HttpError(403, "Solo quien creó la aplicación puede borrarla");
+  }
   return app;
 }
 
@@ -297,7 +314,7 @@ export async function updateApp(req: Request, id: string) {
 
 export async function deleteApp(req: Request, id: string) {
   const me = await requireBuilder(req);
-  const app = await ownedApp(id, me);
+  const app = await appOfOwner(id, me);
 
   const tables = await listRecords<TableRecord>(INTERNAL.tables, {
     filter: `app = "${quote(app.id)}"`,
@@ -327,9 +344,9 @@ export async function wipeApps(req: Request) {
   const wanted = [...new Set((input.apps ?? []).filter((id) => typeof id === "string" && id))];
   if (wanted.length === 0) throw new HttpError(400, "No elegiste ninguna aplicación");
 
-  // Solo se borra lo propio: `ownedApp` corta en seco si alguna no lo es.
+  // Solo se borra lo propio: `appOfOwner` corta en seco si alguna no lo es.
   const apps: AppRecord[] = [];
-  for (const id of wanted) apps.push(await ownedApp(id, me));
+  for (const id of wanted) apps.push(await appOfOwner(id, me));
 
   let dropped = 0;
   for (const app of apps) {
@@ -988,7 +1005,9 @@ export async function getAiConfig(req: Request) {
 }
 
 export async function putAiConfig(req: Request) {
-  await requireBuilder(req);
+  // Los servidores y sus claves son de toda la instalación: los ve cualquiera
+  // para elegir modelo, pero solo un administrador los cambia.
+  await requireAdmin(req);
   const input = await body<Partial<StoredConfig>>(req);
   return json<AiConfigView>(aiView(await saveAiConfig(input)));
 }

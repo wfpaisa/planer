@@ -28,16 +28,13 @@
     <link rel="stylesheet" href="/iconos/iconos.css" />
     <!--
       La letra del panel y su monoespaciada (ver `--font-family` y
-      `--font-mono` en `styles/theme.css`).
+      `--font-mono` en `styles/theme.css`), servidas por el propio servidor:
+      ver `public/fuentes/fuentes.css`.
     -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400..700&family=Reddit+Mono:wght@400..700&Inter:wght@300;400;500;600;700&display=swap"
-    />
+    <link rel="preload" href="/fuentes/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fuentes/fuentes.css" />
     <script>
-      // Aplicamos el tema y el tamano de letra antes de pintar para que no haya parpadeo.
+      // Aplicamos el tema, el tamano de letra y la paleta antes de pintar para que no haya parpadeo.
       (() => {
         const saved = localStorage.getItem("plane-theme");
         const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
@@ -51,6 +48,21 @@
         if (font >= 80 && font <= 160 && font % 10 === 0 && font !== 100) {
           document.documentElement.style.fontSize = `${font}%`;
         }
+
+        // La paleta del panel, la última que vio este navegador. La de verdad
+        // está en la cuenta; ver `lib/panelPalette.svelte.ts`.
+        try {
+          const brand = JSON.parse(localStorage.getItem("plane-panel-palette") || "null");
+          const id = brand && typeof brand.palette === "string" ? brand.palette : "";
+          const color = brand && /^#[0-9a-f]{6}$/i.test(brand.color || "") ? brand.color : "";
+          // `custom` sin su color rompería todos los tokens derivados: se omite.
+          // Una aplicación publicada (/p/...) no es el panel: no lleva su paleta.
+          const published = /^\/p(\/|$)/.test(location.pathname);
+          if (!published && /^[a-z0-9-]+$/.test(id) && (id !== "custom" || color)) {
+            document.documentElement.dataset.palette = id;
+            if (color) document.documentElement.style.setProperty("--palette-1", color);
+          }
+        } catch {}
       })();
     </script>
   </head>

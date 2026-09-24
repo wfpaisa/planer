@@ -375,7 +375,7 @@
 
   .group-ai-usage-title {
     margin-bottom: var(--sp-6);
-    font-size: 0.6875rem;
+    font-size: var(--text-xs);
     font-weight: 500;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -403,7 +403,7 @@
     }
 
     & .row-ai-usage-note {
-      font-size: 0.625rem;
+      font-size: var(--text-xs);
       line-height: 1.3;
       color: var(--text-muted);
     }
@@ -423,7 +423,7 @@
     overflow: hidden;
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.625rem;
+    font-size: var(--text-xs);
     text-overflow: ellipsis;
     white-space: nowrap;
   }

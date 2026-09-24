@@ -17,13 +17,23 @@ Las colecciones internas de la plataforma (`builders`, `members`, `apps`, `table
 
 ## Los permisos se deciden en el servidor, no en la base de datos
 
-La regla de acceso que PocketBase guarda sobre cada colección `d_*` dice una sola cosa: solo quien es dueño de la app (el constructor) entra directo (`accessRules()` en `server/schema.ts`). No sabe nada de si la app es pública, de roles ni de columnas — esa decisión ya no vive en la base de datos.
+La regla de acceso que PocketBase guarda sobre cada colección `d_*` dice una sola cosa: solo quien construye la app —su dueño o un usuario del panel al que se la asignaron— entra directo (`accessRules()` en `server/schema.ts`). No sabe nada de si la app es pública, de roles ni de columnas — esa decisión ya no vive en la base de datos.
 
 Quién llega a qué lo decide `server/page/pageData.ts`, el único camino por el que pasa cualquier comando de datos de una página publicada. Revisa, en orden: si la app es pública o exige sesión, si quien pregunta puede abrir la página desde la que pregunta, si el comando escribe (escribir siempre exige sesión) y si la tabla está declarada en esa página. No filtra filas: quien puede abrir una página llega a **todas** las filas de las tablas que esa página declara.
 
 **Contar no es lo mismo que listar.** `plane.listar` entrega como máximo `MAX_LIST_ROWS` filas por llamada (200) y lo dice en la respuesta (`recortado`); `plane.contar` cuenta del lado del servidor sin traer filas. Antes de este límite, una página que contaba `filas.length` contaba el tamaño de la página, no el total: una tabla de 410 filas mostraba 200 sin que nadie lo notara.
 
 Una columna de tipo persona puede marcar al dueño de cada fila: la página filtra "lo mío" pidiéndolo al servidor (`plane.listar` con un filtro), nunca trayendo todo y descartando en el navegador. Los roles (`PageRecord.roles`) deciden qué páginas se ven — vacío es todos, `admin` solo es quien construye — y se aplican del lado del servidor en `publicBundle`: una página que el visitante no puede ver nunca llega al navegador.
+
+## Varios usuarios del panel: dueño, asignados y administradores
+
+Una aplicación tiene un dueño (`apps.owner`, quien la creó) y una lista de usuarios del panel a los que un administrador se la asignó (`apps.editors`). Las reglas de las colecciones internas y de las `d_*` dejan entrar a cualquiera de los dos, y la API pregunta lo mismo con `buildsApp()` (`server/access.ts`). La diferencia está en borrar: solo el dueño borra la aplicación (`appOfOwner()` en `server/routes.ts` y la `deleteRule` de `apps`). Nadie puede repartirse una aplicación ni cambiarle el dueño desde el navegador: la `updateRule` de `apps` rechaza cualquier escritura que traiga `owner` o `editors`.
+
+Ser administrador es un campo de la cuenta (`builders.admin`). La regla de `builders` impide que una cuenta se lo ponga a sí misma, así que solo cambia por la API, que escribe con el token de superusuario (`server/builders.ts`). Un administrador gestiona los usuarios y los servidores de IA. La cuenta del `.env` lo es siempre: el arranque lo repone, y la API no deja quitárselo ni borrarla. Cuando la columna aparece por primera vez, todas las cuentas que ya existían quedan como administradoras, porque hasta entonces cualquiera podía hacerlo todo.
+
+Borrar un usuario no borra sus aplicaciones: `owner` está en cascada, y la cascada se llevaría la aplicación pero dejaría huérfanas sus colecciones `d_*`, que no cuelgan de ninguna relación. Por eso `deleteBuilder` primero pasa sus aplicaciones a quien lo borra.
+
+PocketBase 0.39 no resuelve `editors ?= @request.auth.id` sobre una relación múltiple (no encuentra nada); la forma que funciona es `editors.id ?= @request.auth.id`, y es la que usan las reglas.
 
 ## Dos sesiones independientes: quien construye y quien usa la app publicada
 
@@ -182,3 +192,5 @@ El historial conserva intercambios completos y las reglas guardadas permanecen a
 Las instrucciones de respuesta están dirigidas a personas sin conocimientos de programación: resultados visibles, nombres de la aplicación y siguientes pasos concretos. Los detalles técnicos quedan en la actividad desplegable. No se añade otra llamada al modelo para reformular la respuesta. La pasada de memoria informa de las reglas actualizadas o de su fallo, y el texto principal no promete un guardado que todavía no ha terminado.
 
 **Los iconos se buscan, no se listan.** El modelo no recibe ningún catálogo de iconos: `buscar_iconos` busca con palabras en inglés entre los 6228 nombres de la fuente y devuelve solo nombres que existen. El marco de una página lleva pegado el subconjunto de los más comunes, que se dibuja al instante; si la página nombra otro —como clase `hgi-…` o como texto entre comillas—, el panel pega sus reglas y le pasa al marco la fuente completa en binario por mensaje, porque un marco sin origen propio no puede pedirla. Por eso el contrato exige escribir cada nombre entero: uno armado a trozos no se detecta.
+
+**Las letras llegan igual que los iconos.** Inter y Reddit Mono viven en `web/public/fuentes/` (subconjunto latino de las variables, licencia OFL) y el panel las carga de ahí, sin Google Fonts. El marco de una página no puede pedirlas, así que cada documento que lleva la hoja de la casa lleva también un pequeño script que se las pide al panel por mensaje; el panel responde con los binarios y el marco las registra con `FontFace`. Sin esto una página se veía con la letra del sistema aunque su hoja dijera Inter.

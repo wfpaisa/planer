@@ -34,7 +34,7 @@ const sizeOf = (content: string) => Buffer.byteLength(content, "utf8");
 const tooBig = (bytes: number) =>
   new HttpError(
     400,
-    `El archivo pesa ${Math.round(bytes / 1024)} KB y el maximo son ${Math.round(
+    `El archivo pesa ${Math.round(bytes / 1024)} KB y el máximo son ${Math.round(
       MAX_DOC_BYTES / 1024,
     )} KB.`,
   );
