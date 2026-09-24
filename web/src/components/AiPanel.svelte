@@ -1302,7 +1302,7 @@
     />
   {:else}
     <div class="panel-body-ai flex h-full flex-col">
-      <div class="panel-scroll-ai flex-1">
+      <div class="panel-scroll-ai flex-1" inert={blocked}>
         <div bind:this={scroller} onscroll={onScroll} class="chat-log h-full flex flex-col">
           {#if phase !== "gone"}
             <div
@@ -1599,7 +1599,7 @@
         lo escrito y lo adjunto. Es una sola cosa --lo que se va a mandar-- y
         por eso se ve como una sola cosa.
       -->
-      <div class="panel-composer-ai shrink-0">
+      <div class="panel-composer-ai shrink-0" inert={blocked}>
         <!-- El selector nativo, escondido: lo abre "Adjuntar archivo" del menu. -->
         <input
           bind:this={fileInput}
@@ -1612,20 +1612,8 @@
           aria-hidden="true"
         />
 
-        <!--
-          La IA trabaja en otra página: el campo se tapa entero.
-
-          No se atenua ni se deshabilita pieza a pieza --un campo apagado sigue
-          pareciendo un sitio donde escribir-- sino que se le pone encima un
-          velo opaco con la única salida que hay: ir a la página que trabaja.
-          Debajo, `inert` deja el campo fuera del tabulador y del puntero, para
-          que el teclado no se cuele por detras del velo.
-
-          Lo escrito sin enviar no se pierde: sigue en la conversación de esta
-          página y vuelve a estar delante en cuanto el bloqueo se levanta.
-        -->
         <div class="composer-shell-ai">
-          <div class="chat-composer w-full" inert={blocked}>
+          <div class="chat-composer w-full">
             <div
               class={cx(
                 "chat-composer-box card card-solid ia-text",
@@ -1808,27 +1796,6 @@
               </div>
             </div>
           </div>
-
-          {#if blocked}
-            <div class="veil-ai-elsewhere flex flex-col items-center justify-center gap-2">
-              <!-- prettier-ignore -->
-              <p class="veil-ai-elsewhere-text text-center">
-                <Icon name="ai-magic" size={14} class="veil-ai-elsewhere-icon" />
-                La inteligencia artificial está trabajando en
-                <strong>{blockedBy?.name ?? "otra página"}</strong>.
-              </p>
-              {#if blockedBy}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  buttonClass="btn-go-to-busy-page"
-                  onclick={() => navigate(`/a/${appId}/app/${blockedBy.id}`)}
-                >
-                  <Icon name="arrow-right-01" size={13} /> Ir a la página
-                </Button>
-              {/if}
-            </div>
-          {/if}
         </div>
 
         <!--
@@ -1854,34 +1821,133 @@
           {/if}
         </p>
       </div>
+
+      <!--
+        La IA trabaja en otra página: el panel entero queda detrás de un velo.
+
+        No se apaga pieza a pieza --un campo atenuado sigue pareciendo un sitio
+        donde escribir-- sino que todo se desenfoca y en el centro queda lo único
+        que hay que saber: dónde está trabajando y cómo ir. Debajo, `inert` saca
+        la conversación y el campo del tabulador y del puntero.
+
+        Lo escrito sin enviar no se pierde: sigue en la conversación de esta
+        página y vuelve a estar delante en cuanto el velo se levanta.
+      -->
+      {#if blocked}
+        <div class="veil-ai-elsewhere" role="status">
+          <div class="card-ai-elsewhere flex flex-col items-center text-center">
+            <div class="orb-ai-elsewhere" aria-hidden="true">
+              <span class="orb-ai-elsewhere-ring"></span>
+              <span class="orb-ai-elsewhere-core">
+                <Icon name="ai-magic" size={22} />
+              </span>
+            </div>
+            <p class="veil-ai-elsewhere-title">La IA está trabajando</p>
+            <p class="veil-ai-elsewhere-text">
+              en <strong>{blockedBy?.name ?? "otra página"}</strong>
+            </p>
+            <div class="dots-ai-elsewhere" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            {#if blockedBy}
+              <Button
+                size="sm"
+                variant="secondary"
+                buttonClass="btn-go-to-busy-page"
+                onclick={() => navigate(`/a/${appId}/app/${blockedBy.id}`)}
+              >
+                Ir a la página <Icon name="arrow-right-01" size={13} />
+              </Button>
+            {/if}
+            <p class="veil-ai-elsewhere-hint">Podrás escribir aquí en cuanto termine.</p>
+          </div>
+        </div>
+      {/if}
     </div>
   {/if}
 </OmniPanel>
 
 <style>
   .panel-body-ai {
+    position: relative;
     min-height: 0;
   }
 
-  /* El campo y, cuando toca, el velo que lo tapa. */
-  .composer-shell-ai {
-    position: relative;
-  }
-
   /*
-    Opaco de verdad, no traslucido: debajo hay un campo de texto, y dejarlo
-    entrever invita a intentar escribir en el. Ocupa el sitio exacto del campo
-    --el resto del panel se sigue leyendo y la conversación se sigue
-    desplazando-- y solo ofrece la salida que hay.
+    Translúcido y desenfocado: se ve que la conversación sigue ahí, pero no se
+    lee ni invita a escribir. El fondo es el lienzo mezclado con transparente,
+    así que vale igual en claro y en oscuro.
   */
   .veil-ai-elsewhere {
     position: absolute;
     inset: 0;
-    z-index: 1;
-    border: var(--border-width) solid var(--border);
-    border-radius: calc(var(--radius-md) + 0.125rem);
-    background: var(--bg-level2);
-    padding: var(--sp-10);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    padding: var(--sp-24);
+    background:
+      radial-gradient(
+        circle at 50% 42%,
+        color-mix(in oklch, var(--accent) 14%, transparent),
+        transparent 60%
+      ),
+      color-mix(in oklch, var(--bg-level1) 62%, transparent);
+    backdrop-filter: blur(10px) saturate(1.2);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    animation: mo-veil calc(var(--mo-t-surface) * 0.8) var(--mo-move) backwards;
+  }
+
+  .card-ai-elsewhere {
+    gap: var(--sp-4);
+    max-width: 16rem;
+    animation: veil-ai-rise calc(var(--mo-t-surface) * 1.2) var(--mo-move) backwards;
+  }
+
+  /* Un núcleo quieto y un anillo de acento que gira alrededor: se lee como
+     "pensando" sin necesidad de texto. */
+  .orb-ai-elsewhere {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: var(--sp-12);
+  }
+
+  .orb-ai-elsewhere-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      color-mix(in oklch, var(--accent) 30%, transparent) 120deg,
+      var(--accent) 300deg,
+      transparent 360deg
+    );
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    animation: spin 1.4s linear infinite;
+  }
+
+  .orb-ai-elsewhere-core {
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-soft-text);
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--accent) 35%, transparent);
+    animation: veil-ai-glow 2.4s ease-in-out infinite;
+  }
+
+  .veil-ai-elsewhere-title {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
   .veil-ai-elsewhere-text {
@@ -1895,12 +1961,60 @@
     }
   }
 
-  /* El icono lo dibuja `Icon`, con la clase que le pasamos. */
-  .veil-ai-elsewhere-text :global(.veil-ai-elsewhere-icon) {
-    display: inline-block;
-    vertical-align: -0.125em;
-    margin-right: var(--sp-4);
-    color: var(--accent);
+  .dots-ai-elsewhere {
+    display: flex;
+    gap: var(--sp-4);
+    margin: var(--sp-8) 0 var(--sp-12);
+
+    & span {
+      width: 0.3125rem;
+      height: 0.3125rem;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: veil-ai-dot 1.2s ease-in-out infinite;
+    }
+
+    & span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    & span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+
+  .veil-ai-elsewhere-hint {
+    margin-top: var(--sp-8);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--text-muted);
+  }
+
+  @keyframes veil-ai-rise {
+    from {
+      opacity: 0;
+      translate: 0 0.5rem;
+      scale: 0.97;
+    }
+  }
+
+  @keyframes veil-ai-glow {
+    50% {
+      box-shadow: 0 0 0 0.5rem color-mix(in oklch, var(--accent) 0%, transparent);
+    }
+  }
+
+  @keyframes veil-ai-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 0.25;
+      translate: 0 0;
+    }
+    40% {
+      opacity: 1;
+      translate: 0 -0.1875rem;
+    }
   }
 
   .chat-no-server {

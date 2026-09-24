@@ -611,8 +611,19 @@ The platform already loads an icon font in the document. **Do not draw SVG and d
 \`\`\`
 
 - **Never emojis.** An emoji is drawn differently on every system, does not take the theme's colour, and turns any screen into a draft.
-- Being type, an icon inherits \`color\` and \`font-size\` from wherever it sits. To make it bigger, \`font-size\`; to paint it, \`color\`. No \`width\`, \`height\` or \`fill\`.
-- An icon accompanies, it does not lead: beside the text, the same size as its line, in \`var(--ink-soft)\`.
+- Being type, an icon takes \`color\` and \`font-size\` from wherever it sits: on its own it measures a little more than the text of its line (\`1.2em\`), so inside a title it already grows with the title. To make it bigger, \`font-size\`; to paint it, \`color\`. No \`width\`, \`height\` or \`fill\`, and never a size in \`px\`.
+- **Size it by what it does, not by habit.** The most common mistake is an icon left at text size where it has to be seen from afar:
+
+| Where it sits | Size |
+|---|---|
+| beside a label, in a row, a tag, a menu item | leave it: it follows its line |
+| inside a heading (\`h1\`–\`h3\`), before the title | leave it: it follows the heading |
+| the icon of a section or a card, alone in its own tile beside the title | \`var(--type-xl)\`, centred in a square of \`var(--space-10)\` with \`border-radius: var(--radius-card)\` and the brand's soft version behind (\`color-mix(in oklab, var(--color-primary) 12%, var(--surface-card))\`) |
+| the icon of a feature or a shortcut, above its text | \`var(--type-2xl)\` |
+| an empty state, a welcome, a confirmation, a hero | \`var(--type-3xl)\` or \`calc(var(--type-3xl) * 1.5)\` |
+
+- Buttons, \`.kpi-ico\`, \`.alert\`, \`.tag\` and the rest of the catalogue already size their icon: do not touch it there.
+- Beside text, an icon accompanies in \`var(--ink-soft)\`; where it leads --a tile, an empty state-- it may carry the brand in \`var(--color-primary-text)\`.
 - If something has no obvious icon, give it none.
 - **An invented name does not fail visibly: it leaves a blank gap**, and nobody notices anything is missing. The font holds more than six thousand names and none of them is listed here: **find them with "buscar_iconos"**, searching with English keywords (\`user\`, \`invoice\`, \`calendar\`, \`shopping cart\`), and use only names it returned. Never guess one.
 - **Write every icon name literally in the document**, as \`hgi-<name>\` or as a quoted string holding the exact name (for example inside a map from a state to its icon). Never build a name by joining pieces of text: the frame only loads the icons it finds written in the page.
@@ -1287,5 +1298,5 @@ export function htmlGuide(topic: string): string | null {
 
 /** Cómo se usan los iconos, sin lista: los nombres se buscan con `buscar_iconos`. */
 function iconsGuide(): string {
-  return `An icon is \`<i class="hgi-stroke hgi-NAME"></i>\`. The font holds more than six thousand names; none is listed here. Find them with "buscar_iconos" using English keywords --several at once if you need icons for several things-- and use only names it returned. Write each name literally in the document (\`hgi-NAME\` or a quoted string with the exact name); a name built by joining text is not loaded. Icons inherit colour and size from their line. Never emojis, never hand-drawn SVG.`;
+  return `An icon is \`<i class="hgi-stroke hgi-NAME"></i>\`. The font holds more than six thousand names; none is listed here. Find them with "buscar_iconos" using English keywords --several at once if you need icons for several things-- and use only names it returned. Write each name literally in the document (\`hgi-NAME\` or a quoted string with the exact name); a name built by joining text is not loaded. Icons take colour and size from their line (1.2em of it); where an icon leads --a section tile, a feature, an empty state-- give it its own size with the --type-* scale (xl for a tile, 2xl for a feature, 3xl for an empty state), never px. Never emojis, never hand-drawn SVG.`;
 }

@@ -64,6 +64,27 @@ body {
 }
 
 /* ----------------------------------------------------------
+   Iconos
+   ----------------------------------------------------------
+   En el panel un icono suelto mide `1rem` y el componente `Icon`
+   decide el resto. En una página no hay componente: el icono
+   tiene que medirse por lo que lo rodea, que es lo que el
+   contrato le promete al modelo. Con `1rem` fijo, un icono dentro
+   de un título o de un estado vacío se quedaba del tamaño del
+   texto corrido y se veía perdido.
+
+   `1.2em` es la medida de su línea con el aire que el glifo trae
+   dentro: al lado de un párrafo es 19px, dentro del título de la
+   pantalla crece con él. Sigue en `:where()`, así que cualquier
+   clase del catálogo (`.btn i`, `.kpi-ico i`) o de la página le
+   gana sin más.
+   ---------------------------------------------------------- */
+
+:where(i[class*="hgi-"]) {
+  font-size: 1.2em;
+}
+
+/* ----------------------------------------------------------
    Las etiquetas desnudas
    ----------------------------------------------------------
    El filtro es `:not([class])` y no `:where()`, que fue el primer
