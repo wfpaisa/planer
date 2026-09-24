@@ -103,6 +103,7 @@ const EMPTY: StoredConfig = {
   memoryChoice: null,
   enabled: false,
   debugButton: false,
+  modelPicker: true,
   runTimeoutMinutes: DEFAULT_RUN_TIMEOUT_MINUTES,
 };
 
@@ -230,6 +231,7 @@ function readConfig(value: unknown): StoredConfig {
       memoryChoice: null,
       enabled: raw.enabled === true,
       debugButton: false,
+      modelPicker: true,
       runTimeoutMinutes: DEFAULT_RUN_TIMEOUT_MINUTES,
     };
   }
@@ -248,6 +250,8 @@ function readConfig(value: unknown): StoredConfig {
     memoryChoice: readChoice(raw.memoryChoice),
     enabled: raw.enabled === true,
     debugButton: raw.debugButton === true,
+    // Encendido salvo que se haya apagado: así era antes de existir el ajuste.
+    modelPicker: raw.modelPicker !== false,
     runTimeoutMinutes: readRunTimeoutMinutes(raw.runTimeoutMinutes),
   };
 }
@@ -481,6 +485,8 @@ export interface ToolCall {
 export interface TurnUsage {
   input: number;
   output: number;
+  /** De `input`, lo que salió de la caché del proveedor. */
+  cached?: number;
 }
 
 export interface Turn {
@@ -677,6 +683,7 @@ function anthropicConversation(
             (response.usage.cache_read_input_tokens ?? 0) +
             (response.usage.cache_creation_input_tokens ?? 0),
           output: response.usage.output_tokens,
+          cached: response.usage.cache_read_input_tokens ?? 0,
         },
         ...(truncated ? { notice: hadToolUse ? NOTICE_TRUNCATED_CALL : NOTICE_TRUNCATED } : {}),
       };
@@ -862,11 +869,17 @@ function openAiConversation(
 
       function onEvent(event: Record<string, unknown>) {
         const counted = event.usage as
-          { prompt_tokens?: number; completion_tokens?: number } | undefined;
+          | {
+              prompt_tokens?: number;
+              completion_tokens?: number;
+              prompt_tokens_details?: { cached_tokens?: number };
+            }
+          | undefined;
         if (counted) {
           usage = {
             input: Number(counted.prompt_tokens ?? 0),
             output: Number(counted.completion_tokens ?? 0),
+            cached: Number(counted.prompt_tokens_details?.cached_tokens ?? 0),
           };
         }
         const choice = (event.choices as Record<string, unknown>[] | undefined)?.[0] as

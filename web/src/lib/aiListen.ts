@@ -138,6 +138,8 @@ export async function listen(
   openRun(mine, since ?? Date.now());
   onListening();
   seen = NO_PROGRESS;
+  /** El id de la ejecución en el servidor: la llave de sus sumas de uso. */
+  let runId = "";
   seenKey = mine;
 
   let result: AiPageResult | null = null;
@@ -215,6 +217,7 @@ export async function listen(
         // El servidor la tiene apuntada: a partir de aquí recargar o cerrar
         // ya no la pierde.
         markRun(mine, { runId: part.runId });
+        runId = part.runId;
         return;
       }
       if (part.tipo === "pregunta") {
@@ -260,7 +263,14 @@ export async function listen(
       } else if (part.tipo === "uso") {
         // El contexto gastado se ve subir mientras trabaja, y se queda
         // apuntado en la conversación cuando termina.
-        writeConversation(mine, { ...readConversation(mine), usage: part.uso });
+        const now = readConversation(mine);
+        writeConversation(mine, {
+          ...now,
+          usage: part.uso,
+          ...(part.uso.totals
+            ? { usageRuns: { ...now.usageRuns, [runId || `inicio:${since}`]: part.uso.totals } }
+            : {}),
+        });
         return;
       } else if (part.tipo === "fin") {
         result = part.resultado;

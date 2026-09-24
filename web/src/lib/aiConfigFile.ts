@@ -41,6 +41,7 @@ export interface AiConfigFile {
   fallback: AiChoice;
   enabled: boolean;
   debugButton: boolean;
+  modelPicker: boolean;
   runTimeoutMinutes: number;
 }
 
@@ -70,6 +71,7 @@ export function aiConfigToJson(config: AiConfigView): string {
       version: 1,
       activa: config.enabled,
       botonDepuracion: config.debugButton,
+      selectorModelo: config.modelPicker,
       tiempoMaximoMinutos: config.runTimeoutMinutes,
       porDefecto: { ...config.fallback },
       servidores,
@@ -211,6 +213,7 @@ export function parseAiConfigFile(input: string): AiConfigFileResult {
       },
       enabled: head.activa === true,
       debugButton: head.botonDepuracion === true,
+      modelPicker: head.selectorModelo !== false,
       runTimeoutMinutes: readRunTimeoutMinutes(head.tiempoMaximoMinutos),
     },
     invalid,
@@ -319,6 +322,7 @@ export function planAiImport(
       memoryChoice: current.memoryChoice,
       enabled: file.enabled,
       debugButton: file.debugButton,
+      modelPicker: file.modelPicker,
       runTimeoutMinutes: file.runTimeoutMinutes,
     },
     added: incoming,

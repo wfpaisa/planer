@@ -447,6 +447,8 @@ async function pageRequest(
    * hay. Sumarlos daria un número que no significa nada.
    */
   let usage: AiUsage | undefined;
+  /* Las sumas de la petición entera, para el detalle del medidor. */
+  const totals = { input: 0, output: 0, cached: 0, seconds: 0 };
 
   /*
    * La revision de cierre.
@@ -496,6 +498,7 @@ async function pageRequest(
   for (let round = 0; round < MAX_ROUNDS && !stopped(); round++) {
     traced.context = JSON.stringify(chat.dump(), null, 2);
     if (opts.debug) opts.onProgress?.({ tipo: "contexto", texto: traced.context });
+    const askedAt = performance.now();
     const turn = await chat
       .ask((ev) => {
         // Lo que el modelo va soltando se reenvia tal cual: el texto mientras
@@ -522,11 +525,17 @@ async function pageRequest(
      */
     if (turn.notice && !ctx.notices.includes(turn.notice)) ctx.notices.push(turn.notice);
     if (turn.usage) {
+      totals.input += turn.usage.input;
+      totals.output += turn.usage.output;
+      totals.cached += turn.usage.cached ?? 0;
+      totals.seconds += (performance.now() - askedAt) / 1000;
       usage = {
         input: turn.usage.input,
         output: turn.usage.output,
+        cached: turn.usage.cached ?? 0,
         window: chat.with.model.contextWindow,
         model: chat.with.model.id,
+        totals: { ...totals },
       };
       opts.onProgress?.({ tipo: "uso", uso: usage });
     }

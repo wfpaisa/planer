@@ -45,6 +45,7 @@
     resolveChoice,
     setOpenChat,
     takeQueue,
+    usageTotals,
     wasHydrated,
     wasResumed,
     writeChoice,
@@ -708,7 +709,8 @@
       chatId: readConversation(key).chatId || undefined,
       ...(picked.length ? { picked } : {}),
       ...(ready.length ? { files: ready.map(asChatFile) } : {}),
-      ...(choice ? { choice } : {}),
+      // Sin selector en el chat, cada petición va con lo de por defecto.
+      ...(choice && config?.modelPicker ? { choice } : {}),
       ...(config?.debugButton ? { debug: true } : {}),
       ...(planIntent ? { plan: planIntent } : {}),
     });
@@ -1552,7 +1554,7 @@
                   {#snippet trigger({ toggle, open })}
                     <Button
                       size="sm"
-                      tip="Adjuntar o usar un autocomando"
+                      tip="Adjuntar, modelo o autocomando"
                       aria-pressed={open}
                       buttonClass="btn-toggle-quick-menu"
                       class="btn-icon btn-rounded"
@@ -1574,6 +1576,22 @@
                     >
                       Adjuntar archivo
                     </MenuItem>
+
+                    <!--
+                      Con qué se va a pedir. Cambiar de modelo a media petición
+                      no cambia la que ya está en marcha, así que ahí no se deja
+                      tocar.
+                    -->
+                    {#if config?.modelPicker && choice}
+                      <MenuSeparator />
+                      <ModelPicker
+                        {config}
+                        {choice}
+                        onPick={pick}
+                        onDone={close}
+                        disabled={working}
+                      />
+                    {/if}
 
                     <MenuSeparator />
                     <MenuLabel>Autocomando</MenuLabel>
@@ -1607,21 +1625,11 @@
                   <Icon name="square-dashed-mouse-pointer" size={18} />
                 </Button>
 
-                <!--
-                Con que se va a pedir. Vive pegado al campo porque es parte de la
-                petición, como lo senalado y los atajos: se mira justo antes de
-                enviar. Cambiar de modelo a media petición no cambia la que ya
-                esta en marcha, asi que ahi no se deja tocar.
-              -->
-                {#if config && choice}
-                  <ModelPicker {config} {choice} onPick={pick} disabled={working} />
-                {/if}
-
                 <div class="composer-spacer flex-1"></div>
 
                 <!-- Cuanto contexto lleva gastado lo que se esta pidiendo. -->
                 {#if chat.usage}
-                  <ContextMeter usage={chat.usage} />
+                  <ContextMeter usage={chat.usage} totals={usageTotals(chat)} />
                 {/if}
 
                 <!--

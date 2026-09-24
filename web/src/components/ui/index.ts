@@ -17,6 +17,7 @@ export { default as Loading } from "./Loading.svelte";
 export { default as MenuItem } from "./MenuItem.svelte";
 export { default as MenuLabel } from "./MenuLabel.svelte";
 export { default as MenuSeparator } from "./MenuSeparator.svelte";
+export { default as MenuSub } from "./MenuSub.svelte";
 export { default as Modal } from "./Modal.svelte";
 export { default as ModeToggle } from "./ModeToggle.svelte";
 export { default as Note } from "./Note.svelte";

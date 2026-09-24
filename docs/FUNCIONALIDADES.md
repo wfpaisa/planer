@@ -85,7 +85,8 @@
 
   - Generar y editar páginas/tablas por chat (una petición por página a la vez)
   - Respuestas, preguntas y avisos en lenguaje sencillo para personas sin conocimientos técnicos
-  - Elegir proveedor, modelo y nivel de razonamiento por petición
+  - Elegir proveedor, modelo y nivel de razonamiento por petición, en submenús del menú «+» del campo de escribir
+  - Mostrar u ocultar esos dos selectores con un solo interruptor en los ajustes de IA; ocultos, se usa el modelo por defecto
   - Adjuntar archivos (CSV, JSON, texto, imagen) a la conversación
   - Herramientas del modelo: ver tablas, crear tabla, agregar columnas, crear/actualizar página, leer archivo, llenar tabla desde archivo, revisar errores, buscar iconos
   - Cualquier icono de la fuente (más de 6000) en las páginas, buscado por la IA sin lista en el contexto
@@ -99,7 +100,7 @@
   - Cortar una petición en marcha
   - Diálogo de impacto para cambios riesgosos (borrar columna/tabla, cambiar tipo)
   - Autorizar accesos pedidos por la IA
-  - Medidor de contexto/tokens usado
+  - Medidor de contexto: al pulsarlo, tarjeta con uso y espacio libre, entrada evaluada y tokens generados en la conversación, caché de la última llamada y velocidad media
   - Avisos guardados en la conversación
   - Historial de conversaciones por página, retomar una anterior
   - Autocomandos / preguntas rápidas

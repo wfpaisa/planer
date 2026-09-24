@@ -423,6 +423,8 @@ export const BRIDGE_SCRIPT = `(function () {
   /* El color de la casa, tal como llega al documento con el tema. El valor de
      repuesto es por si el recuadro se dibuja antes del primer tema. */
   var ACENTO = "var(--color-accent-500, #6366f1)";
+  /* El texto que se lee sobre ese color, que con algunas paletas no es blanco. */
+  var ACENTO_TEXTO = "var(--accent-text, #fff)";
 
   var cursor = false;
   var marco = null;
@@ -447,7 +449,7 @@ export const BRIDGE_SCRIPT = `(function () {
     s.position = "fixed";
     s.pointerEvents = "none";
     s.zIndex = "2147483647";
-    s.border = "1px solid " + ACENTO;
+    s.border = "1px dashed " + ACENTO;
     s.background = "color-mix(in srgb, " + ACENTO + " 12%, transparent)";
     s.borderRadius = "3px";
     s.display = "none";
@@ -469,7 +471,7 @@ export const BRIDGE_SCRIPT = `(function () {
     s.pointerEvents = "none";
     s.zIndex = "2147483647";
     s.background = ACENTO;
-    s.color = "#fff";
+    s.color = ACENTO_TEXTO;
     s.font = "500 11px/1.5 ui-sans-serif, system-ui, -apple-system, sans-serif";
     s.letterSpacing = "0";
     s.textTransform = "none";

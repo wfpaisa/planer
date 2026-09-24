@@ -272,6 +272,17 @@
 
   <div class="row-ai-toggle opt-row">
     <div class="opt-body">
+      <p class="opt-label">Elegir modelo y razonamiento en el chat</p>
+      <p class="opt-hint">
+        Muestra los dos selectores en el menú «+» del chat. Si lo desactivas, cada petición usa el
+        modelo y el razonamiento por defecto.
+      </p>
+    </div>
+    <Switch checked={config.modelPicker} onchange={(v) => set({ modelPicker: v })} />
+  </div>
+
+  <div class="row-ai-toggle opt-row">
+    <div class="opt-body">
       <p class="opt-label">Tiempo máximo por petición</p>
       <p class="opt-hint">
         Detiene las peticiones que superen este límite. Usa 0 para no aplicar un límite.

@@ -1,9 +1,10 @@
 <!--
   Con que se va a pedir: que modelo y cuanto se le pide pensar.
 
-  Las dos cosas viven en el mismo menu porque se deciden juntas --un modelo que
-  no sabe pensar no tiene nivel que elegir-- y porque las dos son lo mismo:
-  cuanto se va a gastar en esta petición.
+  Son dos submenús del menú "+" del campo de escribir: se deciden juntos --un
+  modelo que no sabe pensar no tiene nivel que elegir-- pero se leen aparte,
+  cada uno con lo elegido a la vista en su fila. `onDone` cierra el menú de
+  fuera al elegir, que es cuando ya no queda nada que mirar ahí.
 -->
 <script lang="ts">
   import {
@@ -16,17 +17,19 @@
   import { type AiChoice, type AiConfigView } from "@shared/types";
 
   import Icon from "../Icon.svelte";
-  import { Dropdown, MenuItem, MenuLabel, MenuSeparator } from "../ui";
+  import { MenuItem, MenuLabel, MenuSub } from "../ui";
 
   let {
     config,
     choice,
     onPick,
+    onDone,
     disabled,
   }: {
     config: AiConfigView;
     choice: AiChoice;
     onPick: (patch: Partial<AiChoice>) => void;
+    onDone: () => void;
     disabled: boolean;
   } = $props();
 
@@ -35,6 +38,22 @@
   const usable = $derived(config.providers.filter(aiProviderReady));
   /* Un modelo que no piensa no tiene nivel que elegir, y se dice. */
   const levels = $derived(model ? aiThinkingLevels(model) : []);
+  const thinkingValue = $derived(
+    levels.length > 1
+      ? aiThinkingLabel(choice.thinking)
+      : model?.thinking
+        ? levels[0]
+          ? aiThinkingLabel(levels[0])
+          : "Siempre"
+        : "No",
+  );
+
+  /** Elegir cierra el submenú y el menú de fuera. */
+  function choose(patch: Partial<AiChoice>, close: () => void): void {
+    onPick(patch);
+    close();
+    onDone();
+  }
 </script>
 
 <!--
@@ -49,54 +68,53 @@
   {/if}
 {/snippet}
 
-<Dropdown up class="menu-ai-models">
-  {#snippet trigger({ toggle })}
-    <button
-      type="button"
-      {disabled}
-      onclick={toggle}
-      aria-label="Elegir modelo y cuánto piensa"
-      class="btn-pick-ai-model btn sm"
-    >
-      <Icon name="ai-brain-03" size={16} class="model-thinking-icon" />
-      <span class="model-name">{model ? aiModelLabel(model) : "Sin modelo"}</span>
-      <Icon name="chevron-down" size={12} class="model-chevron" />
-    </button>
-  {/snippet}
+{#snippet modelIcon()}
+  <Icon name="ai-brain-03" size={14} />
+{/snippet}
 
-  {#snippet children(close: () => void)}
+{#snippet thinkingIcon()}
+  <Icon name="idea-01" size={14} />
+{/snippet}
+
+<MenuSub
+  class="btn-pick-ai-model"
+  menuClass="menu-ai-models"
+  icon={modelIcon}
+  value={model ? aiModelLabel(model) : "Sin modelo"}
+  {disabled}
+>
+  Modelo
+  {#snippet content(close)}
     {#each usable as p (p.id)}
       <MenuLabel>{aiProviderName(p)}</MenuLabel>
       {#each p.models as m (m.id)}
         {#snippet icon()}
           {@render mark(p.id === choice.provider && m.id === choice.model)}
         {/snippet}
-        <MenuItem
-          {icon}
-          onclick={() => {
-            onPick({ provider: p.id, model: m.id });
-            close();
-          }}
-        >
+        <MenuItem {icon} onclick={() => choose({ provider: p.id, model: m.id }, close)}>
           {aiModelLabel(m)}
         </MenuItem>
       {/each}
     {/each}
+  {/snippet}
+</MenuSub>
 
-    <MenuSeparator />
-    <MenuLabel>Cuánto piensa</MenuLabel>
+<MenuSub
+  class="btn-pick-ai-thinking"
+  menuClass="menu-ai-thinking"
+  icon={thinkingIcon}
+  value={thinkingValue}
+  {disabled}
+>
+  Razonamiento
+  {#snippet content(close)}
     {#if levels.length > 1}
+      <MenuLabel>Cuánto piensa</MenuLabel>
       {#each levels as level (level)}
         {#snippet icon()}
           {@render mark(choice.thinking === level)}
         {/snippet}
-        <MenuItem
-          {icon}
-          onclick={() => {
-            onPick({ thinking: level });
-            close();
-          }}
-        >
+        <MenuItem {icon} onclick={() => choose({ thinking: level }, close)}>
           {aiThinkingLabel(level)}
         </MenuItem>
       {/each}
@@ -112,44 +130,13 @@
       </div>
     {/if}
   {/snippet}
-</Dropdown>
+</MenuSub>
 
 <style>
-  /* La clase lleva el menu de Dropdown (un componente): sale del ambito. */
-  :global(.menu-ai-models) {
+  /* Las clases llevan la lista de MenuSub (un componente): salen del ambito. */
+  :global(.menu-ai-models, .menu-ai-thinking) {
     --menu-max-height: 20rem;
-  }
-
-  .btn-pick-ai-model {
-    border-radius: var(--radius-lg);
-    color: var(--text-secondary);
-
-    &:hover:not(:disabled) {
-      color: var(--text-primary);
-    }
-
-    &:disabled {
-      cursor: default;
-      opacity: 0.5;
-    }
-
-    & .model-name {
-      max-width: 6rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  /* El icono de pensamiento va dentro del Icon: fuera del ambito del botón. */
-  :global(.model-thinking-icon) {
-    flex-shrink: 0;
-  }
-
-  /* El cheuron va dentro del Icon: fuera del ambito del botón. */
-  :global(.model-chevron) {
-    flex-shrink: 0;
-    opacity: 0.6;
+    min-width: 13rem;
   }
 
   /* El visto bueno va dentro de Icon (un componente): sale del ambito. */
@@ -164,6 +151,7 @@
   }
 
   .menu-ai-note {
+    max-width: 16rem;
     padding: var(--sp-6) var(--sp-10);
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);

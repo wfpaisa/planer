@@ -33,6 +33,7 @@ import type {
   AiStep,
   AiThinking,
   AiUsage,
+  AiUsageTotals,
   PickedBlock,
 } from "@shared/types";
 import { SvelteMap } from "svelte/reactivity";
@@ -140,6 +141,28 @@ export interface Conversation {
    * seguir viendo cuanto contexto se gasto después de que termine.
    */
   usage?: AiUsage;
+  /**
+   * Las sumas de cada petición de esta conversación, por el id de su
+   * ejecución en el servidor: al volver a engancharse a una que sigue en
+   * marcha, sus sumas se reemplazan en vez de contarse dos veces. Viven en el
+   * navegador, como `usage`; `usageTotals()` las junta.
+   */
+  usageRuns?: Record<string, AiUsageTotals>;
+}
+
+/** Lo gastado en toda la conversación, sumando sus peticiones. */
+export function usageTotals(conversation: Conversation): AiUsageTotals | null {
+  const runs = Object.values(conversation.usageRuns ?? {});
+  if (!runs.length) return null;
+  return runs.reduce(
+    (sum, run) => ({
+      input: sum.input + run.input,
+      output: sum.output + run.output,
+      cached: sum.cached + run.cached,
+      seconds: sum.seconds + run.seconds,
+    }),
+    { input: 0, output: 0, cached: 0, seconds: 0 },
+  );
 }
 
 const EMPTY: Conversation = { entries: [], chatId: "", draft: "", picks: [], files: [], queue: [] };
@@ -340,7 +363,13 @@ function closeOthers(appId: string, chat: AiOpenChat | null, shown: string): voi
     if (key === keep || key === shown) continue;
     if (!key.startsWith(`${appId}:`) || isListening(key)) continue;
     if (!conversation.entries.length && !conversation.chatId) continue;
-    store.set(key, { ...conversation, entries: [], chatId: "", usage: undefined });
+    store.set(key, {
+      ...conversation,
+      entries: [],
+      chatId: "",
+      usage: undefined,
+      usageRuns: undefined,
+    });
   }
 }
 

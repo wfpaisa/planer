@@ -680,6 +680,11 @@ export interface AiConfig {
   /** Muestra en cada respuesta del chat el contexto que se le manda al modelo. */
   debugButton: boolean;
   /**
+   * Muestra en el chat los submenús de modelo y razonamiento. Apagado, cada
+   * petición va con el modelo y el razonamiento por defecto (`fallback`).
+   */
+  modelPicker: boolean;
+  /**
    * Minutos que se deja correr una petición antes de cortarla sola, como si
    * quien la pidio hubiera apretado "detener". Protege contra un proveedor
    * colgado o una conversación que no cierra sola. 0: sin tope.
@@ -711,6 +716,24 @@ export interface AiUsage {
   window: number;
   /** El modelo que atendio, para poder decirlo aunque se cambie después. */
   model: string;
+  /** De `input`, lo que el proveedor leyó de su caché, si lo informa. */
+  cached?: number;
+  /** Las sumas de todas las llamadas al modelo de esta petición. */
+  totals?: AiUsageTotals;
+}
+
+/**
+ * Lo gastado sumando llamadas, a diferencia de `AiUsage.input`, que es lo que
+ * ocupa la última. Sumar entradas no dice cuánto contexto queda --cada llamada
+ * reenvía la conversación entera--, pero sí cuánto se evaluó y cuánto se
+ * escribió, y con los segundos, a qué velocidad.
+ */
+export interface AiUsageTotals {
+  input: number;
+  output: number;
+  cached: number;
+  /** Lo que tardaron las llamadas, para la velocidad media de escritura. */
+  seconds: number;
 }
 
 /** Una accion que la IA realizo. */
