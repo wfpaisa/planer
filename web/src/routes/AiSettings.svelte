@@ -49,9 +49,14 @@
   const current = $derived<Tab>(tabs.find((t) => t.id === chosen)?.id ?? "general");
 
   function go(tab: Tab) {
+    // De que lado viene la que se pide: con eso, el panel entra por su lado y
+    // no siempre por el mismo. Ver `Direction` en `lib/router.svelte`.
+    const desde = tabs.findIndex((t) => t.id === current);
+    const hasta = tabs.findIndex((t) => t.id === tab);
+    const dir = hasta === desde ? 0 : hasta > desde ? 1 : -1;
     // Sin entrada nueva en el historial: cambiar de pestaña no es navegar, y
     // el botón de atrás tiene que volver al tablero.
-    navigate(`/ajustes/${tab}`, { replace: true });
+    navigate(`/ajustes/${tab}`, { replace: true, dir });
   }
 </script>
 

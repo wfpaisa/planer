@@ -160,6 +160,54 @@
         (element as HTMLElement).closest("[data-palette]")?.getAttribute("data-palette") ?? null,
     };
   }
+
+  /**
+   * El mismo documento, con el tema ya puesto.
+   *
+   * El puente pinta los colores cuando recibe el mensaje del contenedor, y ese
+   * mensaje no puede salir hasta que el marco avisa de que esta listo: hasta
+   * entonces el documento se dibuja con los colores de partida, que son los
+   * claros. En modo oscuro eso es un parpadeo blanco en cada cambio de pagina
+   * --el marco se monta de nuevo con cada documento-- y se ve como un fallo.
+   *
+   * Asi que el tema entra escrito en el propio `srcdoc`: un guion al principio
+   * de la cabeza, que corre antes de que haya nada que dibujar y deja la raiz
+   * como la dejaria `pintar`. Cuando llega el mensaje de verdad, vuelve a
+   * ponerlo todo encima de lo mismo.
+   *
+   * Va en el texto y no en un atributo del marco a proposito: cambiar el
+   * `srcdoc` recarga el documento, y el cambio de claro a oscuro tiene que
+   * seguir siendo un mensaje. Por eso esto se hace UNA vez, al traer el
+   * documento, y el modo que cambie despues viaja como siempre.
+   */
+  function conTema(html: string, element: Element): { html: string; modo: "light" | "dark" } {
+    const datos = readTheme(element);
+    // `<` escapado: un `</script` dentro de los datos cerraria la etiqueta.
+    const carga = JSON.stringify(datos).replace(/</g, "\\u003c");
+    const guion =
+      `<script data-plane="tema-inicial">(function(){var d=${carga},r=document.documentElement;` +
+      `for(var k in d.vars)r.style.setProperty(k,d.vars[k]);r.style.colorScheme=d.modo;` +
+      `r.setAttribute("data-theme",d.modo);r.setAttribute("data-plane-tema",d.modo);` +
+      // La barra va como `\u002f`: escrito entero, el cierre acabaria con
+      // este mismo bloque al leer el componente.
+      `if(d.paleta)r.setAttribute("data-palette",d.paleta)})()<\u002fscript>`;
+
+    /*
+     * Lo antes posible, pero nunca delante del doctype: un guion antes de el
+     * manda al navegador a modo peculiar y el documento se dibuja con otras
+     * reglas de caja.
+     */
+    const donde =
+      /<head\b[^>]*>/i.exec(html) ??
+      /<html\b[^>]*>/i.exec(html) ??
+      /^\s*<!doctype[^>]*>/i.exec(html);
+    const texto = donde
+      ? html.slice(0, donde.index + donde[0].length) +
+        guion +
+        html.slice(donde.index + donde[0].length)
+      : guion + html;
+    return { html: texto, modo: datos.modo };
+  }
 </script>
 
 <script lang="ts">
@@ -299,6 +347,13 @@
   let frame = $state<HTMLIFrameElement | null>(null);
   let holder = $state<HTMLDivElement | null>(null);
   let doc = $state("");
+  /*
+   * Claro u oscuro, tal como lo ve este marco. Lo usa el elemento del marco
+   * para que el hueco que ocupa mientras el documento se carga sea del color
+   * que toca: sin esto el navegador lo pinta blanco, y en oscuro se ve un
+   * parpadeo en cada cambio de pagina. Lo de dentro lo pone `conTema`.
+   */
+  let modo = $state<"light" | "dark">("light");
   let height = $state(START_HEIGHT);
   let ready = $state(false);
   let error = $state("");
@@ -337,7 +392,11 @@
     load(hash)
       .then((html) => {
         if (!alive) return;
-        doc = html;
+        // Con el tema dentro, para que el documento no se dibuje nunca en
+        // claro antes de recibir el mensaje. Ver `conTema`.
+        const puesto = holder ? conTema(html, holder) : null;
+        if (puesto) modo = puesto.modo;
+        doc = puesto?.html ?? html;
         error = "";
       })
       .catch((err) => {
@@ -455,8 +514,12 @@
   function sendTheme() {
     const target = frame?.contentWindow;
     if (!target || !holder) return;
-    const { vars, modo, paleta } = readTheme(holder);
-    target.postMessage({ plane: "theme", vars, modo, paleta, usuario: viewer() }, "*");
+    const datos = readTheme(holder);
+    // Cambiar de claro a oscuro no recarga el marco --el documento ya esta
+    // dentro-- pero el hueco del elemento si tiene que cambiar con el.
+    modo = datos.modo;
+    const { vars, modo: claro, paleta } = datos;
+    target.postMessage({ plane: "theme", vars, modo: claro, paleta, usuario: viewer() }, "*");
   }
 
   /*
@@ -738,7 +801,7 @@
           title={title || "Contenido de HTML"}
           srcdoc={doc}
           sandbox="allow-scripts"
-          style={fill ? undefined : `height: ${height}px;`}
+          style={`color-scheme: ${modo};${fill ? "" : ` height: ${height}px;`}`}
           class={cx("frame-html block w-full", fill && "frame-fill")}
         ></iframe>
       {/key}
@@ -780,6 +843,12 @@
 
   .frame-html {
     border: 0;
+    /*
+     * El color del hueco mientras el documento se carga. `color-scheme` va en
+     * linea, con el modo de quien mira: los dos juntos son lo que evita el
+     * blanco de fabrica del navegador al montar un marco nuevo.
+     */
+    background: var(--bg-level1);
 
     &.frame-fill {
       height: 100%;

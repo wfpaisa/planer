@@ -32,6 +32,9 @@ const SHEETS = [
   "layout.css",
   "compat.css",
   "contract.css",
+  // La última, como en el panel: gana por orden de fuente y es la que
+  // decide como se mueve todo lo de arriba.
+  "animations.css",
   // Solo dentro de una página: ver su cabecera.
   "page.css",
 ] as const;

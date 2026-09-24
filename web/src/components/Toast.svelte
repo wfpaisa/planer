@@ -54,6 +54,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
+  import { noticeIn, noticeOut } from "../lib/motion";
   import { portal } from "../lib/portal";
   import Icon from "./Icon.svelte";
 
@@ -127,6 +128,8 @@
     role={kind === "success" ? "status" : "alert"}
     onmouseenter={() => (hover = true)}
     onmouseleave={() => (hover = false)}
+    in:noticeIn|global
+    out:noticeOut|global
     class="notice-toast toast-item alert w-full {look.className}"
   >
     <!-- Sin medida: `.alert i` la pone, y asi el icono acompana al texto. -->

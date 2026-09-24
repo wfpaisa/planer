@@ -94,6 +94,18 @@ export interface AiDockState {
   setWidth: (width: number) => void;
   /** La ventana no da para la columna: la conversación se abre como hoja. */
   readonly tooNarrow: boolean;
+  /**
+   * Si la columna esta abierta porque alguien acaba de pedirla.
+   *
+   * Es lo unico que distingue "abrir la conversación" de "volver a las páginas
+   * y encontrarla donde estaba": las dos cosas dibujan la columna de cero --al
+   * cambiar de mitad, el constructor desmonta la escena entera-- y solo la
+   * primera es un gesto que merezca verse. Lo lee la columna al entrar y lo
+   * gasta con `ackOpen`.
+   */
+  readonly openedByHand: boolean;
+  /** El gesto ya se vio: la proxima vez que se dibuje, sale puesta. */
+  ackOpen: () => void;
 }
 
 export function aiDock(appId: () => string): AiDockState {
@@ -101,6 +113,8 @@ export function aiDock(appId: () => string): AiDockState {
   let width = $state(base());
   let tooNarrow = $state(window.innerWidth < NARROW);
   let focusAsks = $state(0);
+  /** Ver `openedByHand`. */
+  let byHand = $state(false);
   /*
    * La hoja de la ventana estrecha. No se recuerda ni nace abierta: tapa la
    * página entera, y abrirla sola al entrar dejaria a quien entra sin ver lo
@@ -158,12 +172,15 @@ export function aiDock(appId: () => string): AiDockState {
     toggle() {
       if (tooNarrow) {
         sheet = !sheet;
+        byHand = sheet;
         return;
       }
       wanted = !wanted;
+      byHand = wanted;
       remember(openKey, wanted ? "1" : "0");
     },
     show() {
+      byHand = true;
       if (tooNarrow) {
         sheet = true;
         return;
@@ -175,6 +192,7 @@ export function aiDock(appId: () => string): AiDockState {
       return focusAsks;
     },
     askFocus() {
+      byHand = true;
       if (tooNarrow) sheet = true;
       else {
         wanted = true;
@@ -183,6 +201,12 @@ export function aiDock(appId: () => string): AiDockState {
       // No se lleva el cursor desde aquí: la columna puede no estar dibujada
       // todavía. Se pide, y el panel lo cumple cuando ya tiene su campo.
       focusAsks += 1;
+    },
+    get openedByHand() {
+      return byHand;
+    },
+    ackOpen() {
+      byHand = false;
     },
     setWidth(next: number) {
       width = clampDock(next);

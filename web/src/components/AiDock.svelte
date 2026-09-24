@@ -18,6 +18,7 @@
 
   import { type AiDockState, clampDock } from "../lib/aiDock.svelte";
   import { cx } from "../lib/cx";
+  import { columnIn, columnOut, sheetIn, sheetOut } from "../lib/motion";
   import AiPanel from "./AiPanel.svelte";
   import ImpactPanel from "./ImpactPanel.svelte";
 
@@ -45,6 +46,40 @@
   let column = $state<HTMLElement | null>(null);
   /** Mientras se arrastra, el asa se queda encendida aunque el ratón se salga. */
   let resizing = $state(false);
+  /**
+   * Mientras la columna se abre o se cierra.
+   *
+   * Lo que cambia es el ancho --el documento se aparta, no se tapa-- y por eso
+   * el contenido se queda clavado en su medida mientras dura: si siguiera al
+   * ancho, la conversación se recompondria entera en cada cuadro y el texto se
+   * veria bailar. Ver `is-moving` en el estilo de abajo.
+   *
+   * Nace en `true` y no en `false` a propósito: la entrada empieza con la
+   * columna a cero, y si el clavado llegara un cuadro tarde --que es lo que
+   * pasa si solo lo enciende `onintrostart`-- lo de dentro se mediria contra
+   * un ancho de nada. El campo de texto, que se mide a si mismo, se quedaba
+   * alto. Lo apaga `onintroend`, cuando la columna ya esta entera.
+   */
+  let moving = $state(true);
+
+  /*
+   * La columna y la hoja son la misma conversación, pero no entran igual: una
+   * abre sitio ensanchandose y la otra sube desde abajo, porque no hay sitio
+   * que abrir. Se elige aqui, con el nodo delante, y no en dos `{#if}`.
+   *
+   * Y solo se mueve cuando el gesto es de verdad. Cambiar de mitad --páginas a
+   * datos y vuelta-- desmonta y vuelve a montar la escena entera, y ahi la
+   * conversación no se esta abriendo: estaba abierta. Animarla cada vez que se
+   * vuelve seria contar algo que no ha pasado, y ademas encima del propio
+   * cambio de mitad, que ya se mueve. Al entrar lo dice `openedByHand`; al
+   * salir basta con mirar si sigue abierta: si lo esta, es que se va la
+   * escena, no la columna.
+   */
+  const quieta = { duration: 0 };
+  const entra = (node: Element) =>
+    dock.openedByHand ? (dock.tooNarrow ? sheetIn(node) : columnIn(node)) : quieta;
+  const sale = (node: Element) =>
+    dock.open ? quieta : dock.tooNarrow ? sheetOut(node) : columnOut(node);
 
   /*
    * Arrastrar el borde. La medida se escribe directamente sobre el nodo
@@ -106,9 +141,21 @@
   <aside
     id="dock-ai"
     bind:this={column}
-    style={dock.tooNarrow ? undefined : `width: ${dock.width}px`}
-    class={cx("dock-ai flex h-full shrink-0 flex-col", dock.tooNarrow && "dock-ai-sheet")}
+    style={dock.tooNarrow ? undefined : `width: ${dock.width}px; --dock-moving-w: ${dock.width}px`}
+    class={cx(
+      "dock-ai flex h-full shrink-0 flex-col",
+      dock.tooNarrow && "dock-ai-sheet",
+      moving && "is-moving",
+    )}
     aria-label="Conversación con la IA"
+    in:entra|global
+    out:sale|global
+    onintrostart={() => (moving = true)}
+    onintroend={() => {
+      moving = false;
+      dock.ackOpen();
+    }}
+    onoutrostart={() => (moving = true)}
   >
     <div class="dock-content flex flex-1 flex-col">
       {#if impact}
@@ -163,26 +210,28 @@
     background: var(--bg-level2);
   }
 
+  /*
+    Mientras se abre o se cierra, la columna es una ventana que se ensancha: lo
+    de dentro se queda quieto en el ancho que va a tener y lo que cambia es
+    cuanto se ve de el. El `overflow` es lo que recorta lo que aun no cabe.
+  */
+  .dock-ai.is-moving {
+    overflow: hidden;
+  }
+
+  .dock-ai.is-moving .dock-content {
+    width: var(--dock-moving-w, 100%);
+  }
+
   /* La hoja de la ventana estrecha: encima de todo, en el peldano de los
-     modales, y con la entrada de abajo arriba que dice "esto se abre encima". */
+     modales. Sube desde abajo --`sheetIn`, arriba-- para decir "esto se abre
+     encima", con el mismo tiempo y la misma curva que un modal. */
   .dock-ai-sheet {
     position: fixed;
     inset: 0;
     z-index: 20;
     width: 100%;
     border-right: 0;
-    animation: dock-sheet-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
-
-    @media (prefers-reduced-motion: reduce) {
-      animation: none;
-    }
-  }
-
-  @keyframes dock-sheet-in {
-    from {
-      transform: translateY(1.5rem);
-      opacity: 0;
-    }
   }
 
   .dock-content {

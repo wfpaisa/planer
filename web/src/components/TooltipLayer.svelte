@@ -44,8 +44,10 @@
 
   let shown = $state<Shown | null>(null);
   // Nulo mientras no se ha medido: hasta entonces el globo va invisible, para
-  // que no se vea saltar de la esquina a su sitio.
-  let pos = $state<{ left: number; top: number } | null>(null);
+  // que no se vea saltar de la esquina a su sitio. El lado es el de verdad
+  // --el que quedo despues de comprobar si cabia-- y viaja al marcado: es de
+  // donde se asoma el globo (ver `.plane-tip` en `styles/animations.css`).
+  let pos = $state<{ left: number; top: number; side: Side } | null>(null);
   let tip = $state<HTMLDivElement | null>(null);
 
   let timer: number | null = null;
@@ -190,6 +192,7 @@
     pos = {
       left: clamp(left, EDGE, vw - EDGE - box.width),
       top: clamp(top, EDGE, vh - EDGE - box.height),
+      side,
     };
   });
 </script>
@@ -199,6 +202,7 @@
     use:portal
     bind:this={tip}
     role="tooltip"
+    data-side={pos?.side ?? shown.side}
     class="plane-tip{shown.error ? ' plane-tip-error' : ''}"
     style="left: {pos?.left ?? 0}px; top: {pos?.top ?? 0}px; visibility: {pos
       ? 'visible'

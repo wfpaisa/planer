@@ -12,6 +12,8 @@
  * volver con los botones del navegador. Ver `navigate`.
  */
 
+import { tick } from "svelte";
+
 /** Lo que se guarda en el historial junto a cada dirección. */
 export interface RouteState {
   /**
@@ -31,6 +33,37 @@ export interface RouteLocation {
 }
 
 export type RouteParams = Record<string, string>;
+
+/**
+ * De que lado viene lo que se abre, cuando quien navega lo sabe: `1` si lo
+ * nuevo esta a la derecha de lo que hay --la pestana siguiente-- y `-1` si
+ * esta a la izquierda. `0`, que es lo normal, no dice nada y deja el fundido
+ * de siempre.
+ */
+export type Direction = -1 | 0 | 1;
+
+/**
+ * La mitad del constructor en la que cae una dirección: `a/<app>/app` o
+ * `a/<app>/datos`. Fuera del constructor, `null`.
+ */
+function mitad(pathname: string): string | null {
+  const t = pathname.split("/").filter(Boolean);
+  return t[0] === "a" && t.length >= 3 ? `${t[0]}/${t[1]}/${t[2]}` : null;
+}
+
+/**
+ * Si dos direcciones son la misma mitad del constructor con otra cosa abierta
+ * dentro: otra página, otra tabla.
+ *
+ * Eso no es cambiar de pantalla. La barra de arriba, el sidebar y la mitad
+ * marcada siguen donde estaban, y lo unico que cambia es el lienzo: fundir la
+ * pantalla entera para eso hace parpadear todo lo que NO cambio. Se cambia de
+ * página muchas veces seguidas mientras se construye, y ahi el efecto estorba.
+ */
+function dentroDeLaMisma(destino: string, origen: string): boolean {
+  const a = mitad(destino);
+  return a !== null && a === mitad(origen);
+}
 
 function read(): RouteLocation {
   return {
@@ -66,18 +99,87 @@ export const location = {
 };
 
 window.addEventListener("popstate", () => {
-  current = read();
+  // Ir y volver con los botones del navegador es un cambio de pantalla como
+  // cualquier otro, y se cruza igual.
+  const capa = Boolean(current.state?.background) || Boolean(window.history.state?.background);
+  const dentro = dentroDeLaMisma(window.location.pathname, current.pathname);
+  if (capa || dentro) current = read();
+  else cruzar(() => (current = read()));
 });
+
+/*
+ * El cambio de pantalla se cruza con una View Transition: el navegador
+ * fotografia lo que hay, deja que Svelte redibuje y funde las dos fotos. Lo
+ * que se ve --el fundido, y que la barra de arriba y el sidebar se queden
+ * quietos porque llevan `view-transition-name`-- esta en
+ * `styles/animations.css`; aqui solo se dispara.
+ *
+ * No en todas las navegaciones. Las capas que se abren encima --los ajustes
+ * del constructor, la vista previa-- ya tienen su propia entrada, la del
+ * modal, y fotografiar la pantalla entera para eso seria animar dos veces lo
+ * mismo. Se reconocen por la ubicacion de fondo: si la hay a un lado o al
+ * otro, es una capa y no un cambio de pantalla.
+ */
+function cruzar(cambio: () => void, dir: Direction = 0): void {
+  const puede =
+    typeof document.startViewTransition === "function" &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!puede) {
+    cambio();
+    return;
+  }
+  /*
+   * Hacia donde va el cambio, para que lo que se desplace lo haga por el lado
+   * que le toca: una pestana a la derecha entra por la derecha y la de la
+   * izquierda por la izquierda, que es lo que hace que el gesto se lea como
+   * moverse por una fila y no como una pantalla nueva. Lo escribe la raiz del
+   * documento --`styles/animations.css` lo lee de ahi-- y se borra al acabar.
+   */
+  const raiz = document.documentElement;
+  if (dir !== 0) raiz.dataset.moDir = dir > 0 ? "forward" : "back";
+  const cruce = document.startViewTransition(async () => {
+    cambio();
+    // Sin esperar al siguiente latido, la foto nueva se saca antes de que
+    // Svelte haya redibujado: se cruzaria la pantalla vieja consigo misma.
+    await tick();
+  });
+  /*
+   * Saltarse el cruce no es un error. El navegador lo hace solo cuando el
+   * documento no se esta dibujando --otra pestana delante, la ventana
+   * escondida-- o cuando llega otra navegacion encima, y entonces `ready` se
+   * rechaza. La pantalla cambia igual, que es lo que importa; sin este
+   * `catch` la promesa rechazada acabaria en la consola como un fallo.
+   */
+  cruce.ready.catch(() => {});
+  // El `catch` va ANTES del `finally`: las dos promesas del cruce se rechazan
+  // cuando se lo salta, y una promesa rechazada que nadie mira acaba en la
+  // consola como un fallo que no lo es.
+  void cruce.finished
+    .catch(() => {})
+    .finally(() => {
+      delete raiz.dataset.moDir;
+    });
+}
 
 /** Ir a otra dirección. Sin recargar: el historial se mueve y la vista con el. */
 export function navigate(
   to: string,
-  options: { replace?: boolean; state?: RouteState | null } = {},
+  options: { replace?: boolean; state?: RouteState | null; dir?: Direction } = {},
 ): void {
   const state = options.state ?? null;
-  if (options.replace) window.history.replaceState(state, "", to);
-  else window.history.pushState(state, "", to);
-  current = read();
+  const capa = Boolean(state?.background) || Boolean(current.state?.background);
+  const destino = to.split(/[?#]/)[0];
+  const mismo = destino === current.pathname;
+  // Cambiar de página o de tabla dentro del constructor no es cambio de
+  // pantalla; ver `dentroDeLaMisma`.
+  const dentro = dentroDeLaMisma(destino, current.pathname);
+  const paso = () => {
+    if (options.replace) window.history.replaceState(state, "", to);
+    else window.history.pushState(state, "", to);
+    current = read();
+  };
+  if (capa || mismo || dentro) paso();
+  else cruzar(paso, options.dir ?? 0);
 }
 
 /**

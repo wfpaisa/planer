@@ -5,7 +5,10 @@
  * components.css el catálogo de piezas; layout.css las utilidades;
  * compat.css declara los nombres que usaban la libreria de antes,
  * derivados de los tokens nuevos; contract.css los que el HTML de
- * una página nombra, y que por eso se sirven también ahi.
+ * una página nombra, y que por eso se sirven también ahi, y
+ * animations.css --la ultima, para ganar por orden de fuente-- todo
+ * lo que se mueve: no hay un solo tiempo ni una sola curva fuera de
+ * ella.
  * Lo que sigue es la casa: piezas que no son de catálogo.
  */
 
@@ -15,6 +18,7 @@
 @import "./layout.css";
 @import "./compat.css";
 @import "./contract.css";
+@import "./animations.css";
 
 /*
  * LA ESCALA DE CAPAS
@@ -45,18 +49,10 @@
  */
 
 /*
- * El ritmo de las entradas del panel: lo que aparece en la conversación y
- * la portada que la abre. Vive aquí --y no en contract.css-- porque no
- * viaja a ninguna página: es del panel y de nadie mas.
+ * El ritmo de las entradas del panel vive en `animations.css`, con el resto
+ * del movimiento. Los nombres de siempre --`--travel-ms`, `--travel-curve`,
+ * `--travel-fade`-- siguen valiendo alli, como alias de los tokens nuevos.
  */
-:root {
-  --travel-ms: 380ms;
-  /* La curva del movimiento: sale rápido y llega con un rebote pequeno, el
-   * gesto de una burbuja que se posa. */
-  --travel-curve: cubic-bezier(0.32, 1.12, 0.5, 1);
-  /* La curva de los fundidos, sin rebote: lo que aparece no rebota. */
-  --travel-fade: cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 html,
 body,
@@ -87,7 +83,6 @@ body,
   text-wrap: balance;
   box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.18);
   pointer-events: none;
-  animation: tip-in 120ms var(--travel-fade) both;
   font-weight: 500;
 }
 
@@ -96,20 +91,7 @@ body,
   color: var(--color-error-content);
 }
 
-@keyframes tip-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .plane-tip {
-    animation: none;
-  }
-}
+/* Como se asoma --y desde que lado-- lo pone `animations.css`. */
 
 /*
  * El vestido de lo que flota encima del panel (ver `components/ui/surface.ts`):
@@ -173,60 +155,12 @@ body,
 
 /*
  * La conversación con la inteligencia artificial entra escalonada: primero el
- * mensaje de quien pide, luego la pillora de "Generando" y por ultimo la
- * respuesta. Cada pieza sube un poco y se asoma (fade + slide up).
+ * mensaje de quien pide, luego la pildora de "Generando" y por ultimo la
+ * respuesta. Las clases que lo hacen --`rise`, `hero-in`, `hero-leave`-- son
+ * las mismas de siempre y estan en `animations.css`, con el resto del
+ * movimiento: aqui era donde se decidia el ritmo del panel sin que lo supiera
+ * nadie mas.
  */
-.rise {
-  animation: rise var(--travel-ms) var(--travel-curve) both;
-}
-
-.hero-in {
-  animation: hero-in var(--travel-ms) var(--travel-curve) both;
-}
-.hero-leave {
-  animation: hero-out var(--travel-ms) var(--travel-fade) both;
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(0.625rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes hero-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.875rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes hero-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-0.875rem);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rise,
-  .hero-in,
-  .hero-leave {
-    animation: none;
-  }
-}
 
 /*
  * El velo de soltar un archivo. Tapa la ventana entera y se asoma con un fade:
@@ -236,49 +170,15 @@ body,
 .drop-veil {
   background: color-mix(in oklab, var(--surface-page) 88%, transparent);
   backdrop-filter: blur(2px);
-  animation: veil-in 140ms var(--travel-fade) both;
 }
 
-@keyframes veil-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .drop-veil {
-    animation: none;
-  }
-}
+/* El fundido con el que entra es el de todos los velos: `animations.css`. */
 
 /*
- * Los avisos de la capa de arriba a la derecha (ver `components/Toast.svelte`).
- * Entran deslizandose desde el borde para que se note que llego algo nuevo sin
- * mover nada de lo que hay debajo.
+ * Los avisos de la capa de arriba a la derecha (ver `components/Toast.svelte`)
+ * entran y salen con el gesto de las superficies, que les pone
+ * `lib/motion.ts` desde los mismos tokens que el modal.
  */
-.toast-item {
-  animation: toast-in 160ms var(--travel-fade) both;
-}
-
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateX(0.75rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .toast-item {
-    animation: none;
-  }
-}
 
 /* Barras de desplazamiento discretas (el punto de partida esta en theme.css). */
 ::-webkit-scrollbar-thumb {

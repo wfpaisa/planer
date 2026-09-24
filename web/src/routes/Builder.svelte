@@ -456,8 +456,16 @@
     if (section === "app") lastAppPath = `${contentPath}${contentSearch}`;
   });
 
+  /*
+   * Las dos mitades estan una al lado de la otra en la barra --las páginas a la
+   * izquierda, los datos a la derecha-- y el contenido entra por el lado que le
+   * toca: ir a los datos trae lo nuevo desde la derecha, y volver, desde la
+   * izquierda. Ver `Direction` en `lib/router.svelte`.
+   */
   const go = (next: Section) =>
-    navigate(next === "datos" ? `/a/${appId}/datos` : lastAppPath || defaultContentPath);
+    navigate(next === "datos" ? `/a/${appId}/datos` : lastAppPath || defaultContentPath, {
+      dir: next === "datos" ? 1 : -1,
+    });
 
   /**
    * La página que se esta viendo, si es que se esta viendo alguna.

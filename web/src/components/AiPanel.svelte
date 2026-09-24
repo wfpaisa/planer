@@ -588,13 +588,36 @@
    * El campo crece con lo escrito, hasta un tope. Se mide en cada cambio: hay
    * que devolverlo a "auto" antes de leer su alto real, o borrar una línea no
    * lo encogeria nunca.
+   *
+   * Y se vuelve a medir cuando cambia de ANCHO, que es lo que decide cuantos
+   * renglones ocupa lo escrito. Sin eso, un alto medido con un ancho que ya no
+   * es --la columna arrastrada, o recien montada mientras se abre-- se quedaba
+   * puesto hasta recargar la página: el campo alto y vacio. Solo el ancho
+   * dispara la remedida; mirar tambien el alto seria mirarse a si mismo, que
+   * es un bucle.
    */
+  const ALTO_MAX = 176;
+
   $effect(() => {
     void chat.draft;
     const el = box;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 176)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, ALTO_MAX)}px`;
+  });
+
+  $effect(() => {
+    const el = box;
+    if (!el) return;
+    let ancho = el.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (el.clientWidth === ancho) return;
+      ancho = el.clientWidth;
+      el.style.height = "auto";
+      el.style.height = `${Math.min(el.scrollHeight, ALTO_MAX)}px`;
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
   });
 
   // Lo pedido a los frames para desplazar la columna y el reloj del lienzo se

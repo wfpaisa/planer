@@ -1,0 +1,894 @@
+/* ==========================================================
+   ANIMATIONS — el movimiento del panel y de las páginas
+   ----------------------------------------------------------
+   Aquí está TODO lo que se mueve. Las otras hojas dicen cómo se
+   ve una pieza; esta dice cómo llega, cómo se va y cómo responde
+   al dedo. Están separadas a propósito: el vestido se toca a
+   menudo y el movimiento casi nunca, y mezclados no había forma
+   de contestar a "¿por qué este menú entra distinto de aquel?".
+
+   La respuesta, ahora, es que no entra distinto. Hay UN gesto por
+   familia --menús, superficies, cajones, velos, avisos, globos--
+   y todos los miembros de la familia lo comparten: un desplegable
+   de la barra, la lista de un `<select>` y el menú de una celda se
+   abren con la misma curva y en el mismo tiempo. Lo que cambia
+   entre familias es el recorrido, no el lenguaje.
+
+   Se carga la última (ver `global.css` y `server/page/pageStyles.ts`),
+   así que gana por orden de fuente a lo que declare el catálogo con
+   la misma especificidad. Eso es lo que deja que `components.css`
+   no sepa nada de tiempos.
+
+   Lo de dentro:
+     1. El vocabulario: cuánto dura, con qué curva, cuánto recorre.
+     2. Menús: `.menu` y la lista de un `<select>`.
+     3. Superficies: modal, hoja y aviso.
+     4. Cajones: el panel pegado a un lado.
+     5. Velos: lo que se oscurece detrás.
+     6. Globos de ayuda.
+     7. Contenido que entra: subidas, escalonado y revelado.
+     8. Cambio de pantalla (View Transitions).
+     9. Micro-interacciones: el pulsado y lo que se abre en sitio.
+    10. Un solo apagado para quien pide menos movimiento.
+
+   Estándares que da por hechos (Chrome 125+ / Safari 17.5+, lo
+   mismo que el resto del sistema): `@starting-style`,
+   `transition-behavior: allow-discrete`, `popover`, anidado
+   nativo, `linear()`, `interpolate-size`, y con `@supports`
+   delante lo que aún no está en todas partes: `view-transition`,
+   `::details-content`, `animation-timeline`, `sibling-index()`.
+   ========================================================== */
+
+/* ==========================================================
+   1. El vocabulario
+   ========================================================== */
+:root {
+  /* ---- Cuánto dura ----
+     Cinco tiempos y ninguno más. El criterio es el recorrido: lo
+     que se mueve poco, poco tiempo. Y todo lo que se VA dura
+     menos que lo que LLEGA --quitarse de en medio no se mira--,
+     por eso `--mo-t-leave` es uno solo para todas las familias. */
+  --mo-t-press: 144ms; /* la respuesta al dedo: pulsar, marcar */
+  --mo-t-menu: 216ms; /* lo que se abre pegado a su disparador */
+  --mo-t-surface: 336ms; /* lo que llega al centro: modal, hoja, aviso */
+  --mo-t-screen: 384ms; /* cambiar de pantalla y los cajones */
+  --mo-t-leave: 180ms; /* la salida, cualquiera que sea */
+
+  /* ---- Con qué curva ----
+     `--mo-enter` frena casi del todo antes de llegar: el último
+     tercio es el que se mira, y así se posa en vez de pararse en
+     seco. `--mo-leave` acelera: lo que se va, se va.
+     `--mo-move` es la de ida y vuelta, para lo que cambia de sitio
+     sin nacer ni morir (la pastilla de unas pestañas). */
+  --mo-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --mo-leave: cubic-bezier(0.4, 0, 1, 1);
+  --mo-move: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /*
+   * Los dos muelles. Son `linear()` --una curva muestreada-- porque
+   * una bézier no puede pasarse de su destino y volver, y eso es
+   * justo lo que hace que algo parezca que tiene peso.
+   *
+   * `--mo-spring` es un muelle amortiguado (ζ=0.75, ω=9): se pasa
+   * un 2,8% y vuelve. Es el de lo que se abre; se nota sin que se
+   * vea. `--mo-pop` está menos amortiguado (ζ=0.62, ω=10): se pasa
+   * un 8%, y es el de lo pequeño que aparece de golpe --una
+   * pastilla, una marca-- donde sí se quiere ver el rebote.
+   */
+  --mo-spring: linear(
+    0,
+    0.0581 4.2%,
+    0.1914 8.3%,
+    0.3533 12.5%,
+    0.5143 16.7%,
+    0.6576 20.8%,
+    0.7757 25%,
+    0.8668 29.2%,
+    0.9329 33.3%,
+    0.9777 37.5%,
+    1.0056 41.7%,
+    1.0209 45.8%,
+    1.0274 50%,
+    1.0282 54.2%,
+    1.0256 58.3%,
+    1.0214 62.5%,
+    1.0168 66.7%,
+    1.0124 70.8%,
+    1.0085 75%,
+    1.0054 79.2%,
+    1.0031 83.3%,
+    1.0014 87.5%,
+    1.0003 91.7%,
+    0.9997 95.8%,
+    1
+  );
+  --mo-pop: linear(
+    0,
+    0.0726 4.2%,
+    0.2398 8.3%,
+    0.4412 12.5%,
+    0.636 16.7%,
+    0.8008 20.8%,
+    0.9258 25%,
+    1.0102 29.2%,
+    1.0592 33.3%,
+    1.0805 37.5%,
+    1.0825 41.7%,
+    1.0726 45.8%,
+    1.0571 50%,
+    1.0401 54.2%,
+    1.0247 58.3%,
+    1.0122 62.5%,
+    1.0031 66.7%,
+    0.9972 70.8%,
+    0.9941 75%,
+    0.9931 79.2%,
+    0.9933 83.3%,
+    0.9944 87.5%,
+    0.9958 91.7%,
+    0.9972 95.8%,
+    1
+  );
+
+  /* ---- Cuánto recorre ----
+     Tres medidas para todo el panel. Nada se mueve una distancia
+     inventada: o sube `--mo-lift` (lo que nace en su sitio y solo
+     se asoma), o entra `--mo-travel` (lo que viene de fuera), o
+     crece desde `--mo-shrink`. */
+  --mo-lift: 0.625rem;
+  --mo-travel: 1rem;
+  --mo-shrink: 0.97;
+  /* Lo que se retrasa cada hermano de una lista escalonada. */
+  --mo-step: 34ms;
+
+  /*
+   * Los nombres de antes. El panel ya los usa en varios sitios
+   * (`AiPanel`, `GuideArt`, la portada de la conversación) y aquí
+   * pasan a ser alias de lo de arriba: un solo sitio donde cambiar
+   * el ritmo, y nada que reescribir.
+   */
+  --travel-ms: var(--mo-t-screen);
+  --travel-curve: var(--mo-spring);
+  --travel-fade: var(--mo-move);
+}
+
+/* ==========================================================
+   2. Menús
+   ----------------------------------------------------------
+   Un desplegable del panel (`.menu`, que es lo que pone
+   `ui/Dropdown`), el menú de una celda y la lista de un
+   `<select>` son la misma cosa para quien mira: algo que sale del
+   control que se acaba de pulsar. Así que salen igual.
+
+   Crecen desde el borde por el que asoman y NO se desplazan: el
+   sitio se lo da el anclaje, y moverlos lo desmentiría. El origen
+   lo pone cada uno (`.menu-up` lo pasa abajo); con este escalado,
+   si `position-try-fallbacks` lo voltea, el origen equivocado no
+   llega a verse.
+
+   La lista del `<select>` dice lo mismo, pero en un bloque aparte:
+   un selector invalido dentro de una lista separada por comas tira
+   la regla ENTERA, y `::picker(select)` es de lo ultimo que ha
+   llegado a los navegadores. Agrupados, un navegador sin picker se
+   quedaba tambien sin menus. Cada uno con su regla, y la del picker
+   bajo el mismo `@supports` con el que la viste el catálogo.
+   ========================================================== */
+.menu {
+  transform-origin: top center;
+  opacity: 0;
+  scale: var(--mo-shrink);
+  transition:
+    opacity var(--mo-t-leave) var(--mo-leave),
+    scale var(--mo-t-leave) var(--mo-leave),
+    overlay var(--mo-t-leave) allow-discrete,
+    display var(--mo-t-leave) allow-discrete;
+}
+
+.menu:popover-open {
+  opacity: 1;
+  scale: 1;
+  /* La opacidad acaba antes que el tamaño: el último tramo --el
+     lento, el que se mira-- ya se ve nítido. */
+  transition:
+    opacity calc(var(--mo-t-menu) * 0.7) var(--mo-move),
+    scale var(--mo-t-menu) var(--mo-spring),
+    overlay var(--mo-t-menu) allow-discrete,
+    display var(--mo-t-menu) allow-discrete;
+}
+
+/* Sin un valor de partida no hay de dónde salir: al mostrarse, el
+   menú ya estaría puesto. */
+@starting-style {
+  .menu:popover-open {
+    opacity: 0;
+    scale: var(--mo-shrink);
+  }
+}
+
+/*
+ * Los renglones entran escalonados detrás del menú: dos centésimas
+ * entre uno y otro, lo justo para que la lista se lea como una
+ * lista y no como un bloque que aparece. `sibling-index()` lo
+ * cuenta el navegador --no hace falta enumerar hijos-- y donde no
+ * exista, el menú entra igual y los renglones con él.
+ */
+@supports (animation-delay: calc(sibling-index() * 1ms)) {
+  .menu:popover-open > * {
+    animation: mo-fade calc(var(--mo-t-menu) * 0.8) var(--mo-move) both;
+    animation-delay: calc(sibling-index() * var(--mo-step) * 0.5);
+  }
+}
+
+/* El chevrón del disparador gira con el mismo tiempo con el que
+   se abre lo que anuncia. */
+.menu-btn i.caret {
+  transition: rotate var(--mo-t-menu) var(--mo-move);
+}
+
+/* ---- La lista de un `<select>`: el mismo gesto, su propio bloque ---- */
+@supports (appearance: base-select) {
+  select::picker(select) {
+    transform-origin: top center;
+    opacity: 0;
+    scale: var(--mo-shrink);
+    transition:
+      opacity var(--mo-t-leave) var(--mo-leave),
+      scale var(--mo-t-leave) var(--mo-leave),
+      overlay var(--mo-t-leave) allow-discrete,
+      display var(--mo-t-leave) allow-discrete;
+  }
+
+  select:open::picker(select) {
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity calc(var(--mo-t-menu) * 0.7) var(--mo-move),
+      scale var(--mo-t-menu) var(--mo-spring),
+      overlay var(--mo-t-menu) allow-discrete,
+      display var(--mo-t-menu) allow-discrete;
+  }
+
+  /* Las opciones se nombran desde el `select`, no como hijas del
+     picker: de un pseudoelemento no cuelga un selector. */
+  @supports (animation-delay: calc(sibling-index() * 1ms)) {
+    select:open option {
+      animation: mo-fade calc(var(--mo-t-menu) * 0.8) var(--mo-move) both;
+      animation-delay: calc(sibling-index() * var(--mo-step) * 0.5);
+    }
+  }
+
+  select::picker-icon {
+    transition:
+      rotate var(--mo-t-menu) var(--mo-move),
+      color var(--mo-t-press);
+  }
+
+  @starting-style {
+    select:open::picker(select) {
+      opacity: 0;
+      scale: var(--mo-shrink);
+    }
+  }
+}
+
+/* ==========================================================
+   3. Superficies
+   ----------------------------------------------------------
+   Lo que llega al centro de la pantalla y tapa: el modal del
+   catálogo, la hoja de la conversación en pantalla estrecha y el
+   aviso del navegador. Entran subiendo `--mo-lift` y creciendo
+   desde `--mo-shrink`; es el mismo gesto del menú con un palmo de
+   recorrido más, porque vienen de más lejos.
+
+   El modal que dibuja Svelte (`ui/Modal`) no puede ir por aquí
+   --`{#if}` lo desmonta antes de que le dé tiempo a irse-- y lleva
+   estas mismas cifras desde `lib/motion.ts`, leídas de estos
+   tokens. Son el mismo modal para quien lo mira.
+   ========================================================== */
+.modal,
+.toast {
+  opacity: 0;
+  scale: var(--mo-shrink);
+  translate: 0 var(--mo-lift);
+  transition:
+    opacity var(--mo-t-leave) var(--mo-leave),
+    scale var(--mo-t-leave) var(--mo-leave),
+    translate var(--mo-t-leave) var(--mo-leave),
+    overlay var(--mo-t-leave) allow-discrete,
+    display var(--mo-t-leave) allow-discrete;
+}
+
+.modal:popover-open,
+.toast:popover-open {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+  transition:
+    opacity calc(var(--mo-t-surface) * 0.65) var(--mo-move),
+    scale var(--mo-t-surface) var(--mo-spring),
+    translate var(--mo-t-surface) var(--mo-spring),
+    overlay var(--mo-t-surface) allow-discrete,
+    display var(--mo-t-surface) allow-discrete;
+}
+
+@starting-style {
+  .modal:popover-open,
+  .toast:popover-open {
+    opacity: 0;
+    scale: var(--mo-shrink);
+    translate: 0 var(--mo-lift);
+  }
+}
+
+/* El aviso del navegador vive pegado a una esquina, así que su
+   recorrido es lateral: viene del borde por el que va a quedarse. */
+.toast {
+  translate: var(--mo-travel) 0;
+}
+
+@starting-style {
+  .toast:popover-open {
+    translate: var(--mo-travel) 0;
+  }
+}
+
+/* ==========================================================
+   4. Cajones
+   ----------------------------------------------------------
+   El panel pegado a un lado entra desde su propio borde. Es la
+   única familia que se desplaza entera: no aparece, ENTRA, y por
+   eso tarda lo que una pantalla y no lo que una tarjeta.
+   ========================================================== */
+.drawer {
+  transition:
+    translate var(--mo-t-leave) var(--mo-leave),
+    overlay var(--mo-t-leave) allow-discrete,
+    display var(--mo-t-leave) allow-discrete;
+
+  &.left {
+    translate: -100% 0;
+  }
+
+  &.right {
+    translate: 100% 0;
+  }
+
+  &:popover-open {
+    transition:
+      translate var(--mo-t-screen) var(--mo-enter),
+      overlay var(--mo-t-screen) allow-discrete,
+      display var(--mo-t-screen) allow-discrete;
+
+    /* Compuesto (0,3,0) para ganar al estado cerrado venga de donde venga */
+    &.left,
+    &.right {
+      translate: 0 0;
+    }
+  }
+}
+
+@starting-style {
+  .drawer.left:popover-open {
+    translate: -100% 0;
+  }
+
+  .drawer.right:popover-open {
+    translate: 100% 0;
+  }
+}
+
+/* ==========================================================
+   5. Velos
+   ----------------------------------------------------------
+   Lo que se oscurece detrás de lo que flota. Un solo fundido para
+   los tres que hay --el `::backdrop` del navegador, el velo que
+   dibuja el panel y el de soltar un archivo--, y el desenfoque
+   entra con él: de plano a desenfocado, no de golpe.
+
+   Entra antes que la superficie y se va con ella: lo de detrás se
+   apaga primero, y así la tarjeta no llega sobre el panel a plena
+   luz.
+   ========================================================== */
+.modal::backdrop,
+.drawer::backdrop {
+  opacity: 0;
+  transition:
+    opacity var(--mo-t-leave) var(--mo-leave),
+    overlay var(--mo-t-leave) allow-discrete,
+    display var(--mo-t-leave) allow-discrete;
+}
+
+.modal:popover-open::backdrop,
+.drawer:popover-open::backdrop {
+  opacity: 1;
+  transition:
+    opacity calc(var(--mo-t-surface) * 0.8) var(--mo-move),
+    overlay calc(var(--mo-t-surface) * 0.8) allow-discrete,
+    display calc(var(--mo-t-surface) * 0.8) allow-discrete;
+}
+
+@starting-style {
+  .modal:popover-open::backdrop,
+  .drawer:popover-open::backdrop {
+    opacity: 0;
+  }
+}
+
+/* Los dos que no son pseudoelemento los monta Svelte, así que su
+   entrada es una animación y no una transición: cuando aparecen ya
+   están en el documento, y no hay estado cerrado del que partir.
+   (Quien les ponga una transición de Svelte --`ui/Modal`-- escribe
+   su propia `animation` en línea y esta deja de contar: se va con
+   la suya, que es la misma.) */
+.plane-backdrop,
+.drop-veil {
+  animation: mo-veil calc(var(--mo-t-surface) * 0.8) var(--mo-move) backwards;
+}
+
+@keyframes mo-veil {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+}
+
+/* ==========================================================
+   6. Globos de ayuda
+   ----------------------------------------------------------
+   El globo (`TooltipLayer`) se asoma desde el lado por el que
+   cuelga: si está encima del botón, baja un poco; si está a la
+   izquierda, viene de la derecha. Es el mismo gesto del menú
+   --crecer desde donde nace-- con el recorrido de un globo, que
+   es casi nada.
+   ========================================================== */
+.plane-tip {
+  animation: mo-tip var(--mo-t-press) var(--mo-move) both;
+  transform-origin: bottom center;
+
+  &[data-side="bottom"] {
+    transform-origin: top center;
+  }
+
+  &[data-side="left"] {
+    transform-origin: right center;
+  }
+
+  &[data-side="right"] {
+    transform-origin: left center;
+  }
+}
+
+@keyframes mo-tip {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+}
+
+/*
+ * El globo del catálogo (`.tip`, el que se dibuja dentro del propio
+ * elemento y viaja a las páginas publicadas) no es el mismo trozo de
+ * HTML, pero es el mismo globo: se asoma igual. Aquí es una
+ * transición y no una animación porque el pseudoelemento no nace: ya
+ * está, esperando a que alguien apunte.
+ */
+.tip::after {
+  transform-origin: bottom center;
+  scale: 0.94;
+  transition:
+    opacity var(--mo-t-press) var(--mo-move),
+    scale var(--mo-t-press) var(--mo-move);
+}
+
+.tip:hover::after,
+.tip:focus-visible::after {
+  scale: 1;
+}
+
+/* ==========================================================
+   7. Contenido que entra
+   ----------------------------------------------------------
+   Lo que aparece dentro de una pantalla que ya está: un mensaje
+   de la conversación, una tarjeta nueva, el panel de una pestaña.
+   Sube `--mo-lift` y se asoma. Es el gesto de la casa, y las
+   clases de siempre (`rise`, `hero-in`) son un alias suyo.
+   ========================================================== */
+.rise,
+.mo-rise,
+.hero-in {
+  animation: mo-rise var(--mo-t-screen) var(--mo-spring) both;
+}
+
+.hero-leave {
+  animation: mo-sink var(--mo-t-screen) var(--mo-move) both;
+}
+
+/* La hoja que se abre de abajo arriba en pantalla estrecha: la
+   misma subida, con el recorrido de algo que tapa. */
+.mo-sheet {
+  animation: mo-sheet var(--mo-t-surface) var(--mo-enter) both;
+}
+
+/* Lo que cambia EN SITIO: el panel de unas pestañas, el cuerpo de
+   una vista que se recarga.
+
+   Entra de izquierda a derecha, y no de abajo arriba como el resto:
+   lo que se mueve en vertical empuja a lo que tiene debajo --y dos
+   paneles de alto distinto hacen temblar la página entera al
+   cambiar de pestaña--. En horizontal no empuja a nadie, y ademas
+   dice de donde viene: del lado por el que se lee. */
+.tab-panels > *,
+.mo-swap {
+  animation: mo-swap var(--mo-t-menu) var(--mo-move) both;
+}
+
+/*
+ * Una lista escalonada: `mo-stagger` en el contenedor y sus hijos
+ * entran uno detrás de otro. Sin `sibling-index()` entran todos a
+ * la vez, que es exactamente lo de antes.
+ */
+.mo-stagger > * {
+  animation: mo-rise var(--mo-t-surface) var(--mo-spring) both;
+}
+
+@supports (animation-delay: calc(sibling-index() * 1ms)) {
+  .mo-stagger > * {
+    animation-delay: calc(sibling-index() * var(--mo-step));
+  }
+}
+
+/*
+ * Revelado al desplazarse: la pieza se asoma cuando entra en la
+ * ventana, y lo lleva el navegador sin un observador en
+ * JavaScript. Es para una página larga --lo publicado, sobre
+ * todo--, no para el panel, donde lo que se mira ya está.
+ */
+@supports (animation-timeline: view()) {
+  .mo-reveal {
+    /* En longhand a propósito: la forma corta pone la duración a cero y
+       reinicia la línea de tiempo, y las dos cosas apagan el revelado.
+       `auto` quiere decir "lo que dure el tramo". */
+    animation-name: mo-rise;
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 28%;
+  }
+}
+
+/*
+ * Un bloque que se despliega. Con `interpolate-size` arriba, el
+ * alto automático ya se puede transicionar, así que un acordeón
+ * nativo (`<details>`) se abre solo y sin medir nada.
+ */
+@supports selector(::details-content) {
+  /*
+   * `interpolate-size` va aqui y no en `:root`: puesto arriba lo hereda
+   * TODO el panel, y entonces cualquier pieza con `transition: 0.15s`
+   * --que en el catálogo son todas las propiedades-- empieza a animar
+   * tambien sus cambios de alto y de ancho. Un boton cuyo texto cambia,
+   * una pastilla que se marca, una fila que crece: lo que antes se
+   * colocaba de golpe se ponia a temblar. Aqui solo alcanza al
+   * acordeon, que es quien lo necesita.
+   */
+  details {
+    interpolate-size: allow-keywords;
+  }
+
+  details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+      block-size var(--mo-t-menu) var(--mo-move),
+      content-visibility var(--mo-t-menu) allow-discrete,
+      opacity var(--mo-t-menu) var(--mo-move);
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+@keyframes mo-rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--mo-lift);
+  }
+}
+
+@keyframes mo-sink {
+  to {
+    opacity: 0;
+    translate: 0 calc(var(--mo-lift) * -1);
+  }
+}
+
+@keyframes mo-sheet {
+  from {
+    opacity: 0;
+    translate: 0 var(--mo-travel);
+  }
+}
+
+@keyframes mo-swap {
+  from {
+    opacity: 0;
+    translate: calc(var(--mo-lift) * -0.8) 0;
+  }
+}
+
+/* Y lo que se va, se va por donde el otro empuja: hacia la derecha. */
+@keyframes mo-swap-out {
+  to {
+    opacity: 0;
+    translate: calc(var(--mo-lift) * 0.8) 0;
+  }
+}
+
+/* Los mismos dos, del otro lado: lo que viene de la derecha empuja a lo que
+   hay hacia la izquierda. */
+@keyframes mo-swap-right {
+  from {
+    opacity: 0;
+    translate: calc(var(--mo-lift) * 0.8) 0;
+  }
+}
+
+@keyframes mo-swap-out-left {
+  to {
+    opacity: 0;
+    translate: calc(var(--mo-lift) * -0.8) 0;
+  }
+}
+
+@keyframes mo-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Lo pequeño que aparece de golpe y quiere que se le note: una
+   pastilla nueva, una marca de guardado. */
+.mo-pop {
+  animation: mo-pop var(--mo-t-surface) var(--mo-pop) both;
+}
+
+@keyframes mo-pop {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+/* ==========================================================
+   8. Cambio de pantalla
+   ----------------------------------------------------------
+   Las View Transitions: el navegador fotografía lo que hay,
+   deja que cambie el documento y cruza las dos fotos. Lo dispara
+   `lib/router.svelte.ts` al navegar por el panel, y en una página
+   publicada lo hace el propio navegador al seguir un enlace
+   (`@view-transition`), sin una línea de JavaScript.
+
+   El cromo no se cruza: la barra de arriba y el sidebar llevan
+   nombre propio, así que el navegador los reconoce a los dos
+   lados y los deja quietos. Se mueve lo que de verdad cambia.
+
+   Y la pantalla entera se cruza SIN moverse: un fundido y nada
+   más. Una pantalla que además se desplazaba hacía temblar todo
+   lo que era igual a los dos lados --que en unas pestañas es casi
+   todo-- y el temblor se leía como un fallo, no como un gesto.
+   Lo que se mueve es la parte que de verdad cambia, y lo dice
+   ella con su propio nombre. ========================================================== */
+@view-transition {
+  navigation: auto;
+}
+
+@supports (view-transition-name: none) {
+  #builder-topbar {
+    view-transition-name: mo-topbar;
+  }
+
+  .sidebar-app {
+    view-transition-name: mo-sidebar;
+  }
+
+  /* La capa de avisos no se fotografía con la pantalla: un aviso a
+     medio camino se vería dos veces, la foto y el vivo. */
+  .toast-layer {
+    view-transition-name: mo-toasts;
+  }
+
+  ::view-transition-old(root) {
+    animation: mo-fade var(--mo-t-leave) var(--mo-leave) reverse both;
+  }
+
+  ::view-transition-new(root) {
+    animation: mo-fade var(--mo-t-screen) var(--mo-move) both;
+  }
+
+  /*
+   * Las pestañas de los ajustes son direcciones, no un `:checked`: cambiar
+   * de pestaña es navegar, y por eso pasa por aquí. Con nombre propio, el
+   * navegador saca el panel de la foto de la pantalla y lo cruza aparte: el
+   * título, la fila de pestañas y la cabecera se quedan clavados, y lo único
+   * que se mueve es el contenido --que entra de izquierda a derecha, como el
+   * panel de unas pestañas del catálogo--.
+   */
+  .panel-settings-tab {
+    view-transition-name: mo-tabpanel;
+  }
+
+  /* Las dos mitades del constructor son la otra fila de pestañas: páginas a la
+     izquierda, datos a la derecha. Lo que cambia es el contenido entero. */
+  #builder-content {
+    view-transition-name: mo-tabpanel;
+  }
+
+  /*
+   * Por defecto --sin saber de donde viene-- lo nuevo entra por la izquierda,
+   * como el panel de unas pestañas del catálogo.
+   */
+  ::view-transition-old(mo-tabpanel) {
+    animation: mo-swap-out var(--mo-t-leave) var(--mo-leave) both;
+  }
+
+  ::view-transition-new(mo-tabpanel) {
+    animation: mo-swap var(--mo-t-menu) var(--mo-move) both;
+  }
+
+  /*
+   * Y cuando quien navega SI sabe de donde viene, el desplazamiento va con
+   * ella: pedir la pestaña de la derecha trae lo nuevo desde la derecha y
+   * empuja lo viejo hacia la izquierda; pedir la de la izquierda, al revés.
+   * Es lo que hace que una fila de pestañas se sienta como una fila y no
+   * como tres pantallas sueltas. El sentido lo escribe `navigate` en la raíz
+   * del documento; sin el, manda el de arriba.
+   */
+  :root[data-mo-dir="forward"]::view-transition-new(mo-tabpanel) {
+    animation-name: mo-swap-right;
+  }
+
+  :root[data-mo-dir="forward"]::view-transition-old(mo-tabpanel) {
+    animation-name: mo-swap-out-left;
+  }
+
+  :root[data-mo-dir="back"]::view-transition-new(mo-tabpanel) {
+    animation-name: mo-swap;
+  }
+
+  :root[data-mo-dir="back"]::view-transition-old(mo-tabpanel) {
+    animation-name: mo-swap-out;
+  }
+
+  /* Dos paneles de alto distinto: que el grupo no estire la foto mientras
+     cambia de medida --es lo que se veía como un tirón vertical--. */
+  ::view-transition-group(mo-tabpanel) {
+    animation-duration: var(--mo-t-menu);
+    animation-timing-function: var(--mo-move);
+  }
+
+  ::view-transition-image-pair(mo-tabpanel) {
+    isolation: auto;
+  }
+
+  ::view-transition-old(mo-tabpanel),
+  ::view-transition-new(mo-tabpanel) {
+    /* Sin recorte: cada foto conserva su alto y se cruzan sin deformarse. */
+    height: auto;
+    object-fit: none;
+    mix-blend-mode: normal;
+  }
+
+  /* El cromo con nombre propio se mueve y se redimensiona con la
+     curva de ida y vuelta, que es lo que es: no nace ni muere. */
+  ::view-transition-group(mo-topbar),
+  ::view-transition-group(mo-sidebar) {
+    animation-duration: var(--mo-t-screen);
+    animation-timing-function: var(--mo-move);
+  }
+}
+
+/* ==========================================================
+   9. Micro-interacciones
+   ----------------------------------------------------------
+   Lo que contesta al dedo. Es lo que más se repite en una sesión
+   --cientos de veces-- así que es donde más se nota que el panel
+   responde, y donde menos puede pasar cada cosa a su manera.
+
+   Todo lo que se pulsa se hunde lo mismo. Los botones del
+   catálogo ya traen `transition: 0.15s` sobre todas sus
+   propiedades, así que el `scale` viaja con ellos sin declarar
+   nada; los que no la traen la reciben aquí.
+   ========================================================== */
+.btn:active:not(:disabled),
+.btn-icon:active:not(:disabled),
+.mini-btn:active:not(:disabled),
+.chip:active,
+.tab:active,
+.trigger-quiet:active,
+.menu button:active,
+.tag[role="button"]:active {
+  scale: 0.97;
+}
+
+/* Los que no tenían transición propia: el renglón de un menú, la
+   pastilla, la fila de una lista. */
+.menu button,
+.tag,
+.trigger-quiet {
+  transition:
+    background-color var(--mo-t-press) var(--mo-move),
+    border-color var(--mo-t-press) var(--mo-move),
+    color var(--mo-t-press) var(--mo-move),
+    scale var(--mo-t-press) var(--mo-move);
+}
+
+/* Lo que queda marcado mientras un panel está abierto crece un
+   pelo: es el mismo botón, pero ahora manda algo. */
+.btn.active,
+.btn-icon.active,
+.mini-btn.active {
+  transition:
+    background-color var(--mo-t-press) var(--mo-move),
+    border-color var(--mo-t-press) var(--mo-move),
+    color var(--mo-t-press) var(--mo-move),
+    box-shadow var(--mo-t-menu) var(--mo-move);
+}
+
+/* ==========================================================
+   10. Menos movimiento
+   ----------------------------------------------------------
+   Un solo apagado para todo el sistema, y por eso no hay que
+   acordarse de escribirlo pieza por pieza. No se pone a cero sino
+   a 1ms: con cero, una transición no llega a empezar y tampoco
+   avisa de que terminó, y lo que depende de `allow-discrete`
+   --que algo siga dibujado mientras se va-- deja de funcionar.
+
+   Lo que dura una sola vuelta se deja pasar; lo que da vueltas sin
+   parar se corta con `iteration-count`. Los estados de partida se
+   dan por puestos: sin transición que los recorra, se quedarían
+   ahí para siempre.
+   ========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::backdrop {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .menu,
+  .modal,
+  .toast,
+  .drawer.left,
+  .drawer.right {
+    scale: 1;
+    translate: 0 0;
+  }
+
+  /* Aparte, por lo mismo que arriba: agrupado, un navegador sin
+     `::picker(select)` se quedaria sin el apagado de los demas. */
+  @supports (appearance: base-select) {
+    select::picker(select) {
+      scale: 1;
+      translate: 0 0;
+    }
+  }
+
+  @supports (view-transition-name: none) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+  }
+}
