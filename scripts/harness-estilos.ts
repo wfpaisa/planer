@@ -257,6 +257,16 @@ const MALAS: { nombre: string; regla: string; html: string }[] = [
     html: `<svg viewBox="0 0 16 16"><path d="M0 0"/></svg>`,
   },
   { nombre: "un emoji", regla: "emoji", html: `<p>Listo ✅</p>` },
+  {
+    nombre: "el contenido directo dentro de una tarjeta",
+    regla: "card-without-body",
+    html: `<article class="tarjeta-servicio card"><h3>Limpieza</h3><p>Controles periódicos.</p></article>`,
+  },
+  {
+    nombre: "la banda sin su aire de abajo",
+    regla: "hero-box-changed",
+    html: `<style>.hero { max-width: 74rem; margin: 0 auto; padding: var(--space-12) var(--space-8) 0; }</style>`,
+  },
 ];
 
 for (const caso of MALAS) {
@@ -294,6 +304,22 @@ const CALLA: { nombre: string; html: string }[] = [
   {
     nombre: "la banda repintada, pero con su tinta",
     html: `<style>.hero { background: var(--surface-card); color: var(--ink); }</style>`,
+  },
+  {
+    nombre: "una tarjeta con su cuerpo, tras un comentario",
+    html: `<div class="tarjeta-total card">\n  <!-- total -->\n  <div class="card-body"><p>12</p></div></div>`,
+  },
+  {
+    nombre: "una tarjeta con una clase propia que le da aire",
+    html: `<style>.tarjeta-nota { padding: var(--space-5); }</style><div class="tarjeta-nota card"><p>Nota</p></div>`,
+  },
+  {
+    nombre: "un indicador, que trae su propio aire",
+    html: `<article class="card kpi"><div class="kpi-head"><span class="kpi-label">Ventas</span></div></article>`,
+  },
+  {
+    nombre: "una parte de la banda con su propia medida",
+    html: `<style>.hero-sub { max-width: 60ch; }</style>`,
   },
   {
     nombre: "una casilla dentro de su choice",

@@ -343,6 +343,103 @@ function checkHero(css: string[], out: StyleFinding[]): void {
   }
 }
 
+/** Lo que cambia la caja de la banda: su aire y su ancho. */
+const HERO_BOX = /^(?:padding(?:-[a-z-]+)?|max-width|width)$/;
+
+/**
+ * La caja de la banda tocada por la página.
+ *
+ * La banda trae su aire y su radio, y va dentro de la columna de la pantalla
+ * como una sección más. Cuando la página la usa de contenedor --le pone el
+ * ancho de la pantalla y le quita el aire de abajo para que la siguiente
+ * sección "siga"-- sus botones quedan pegados al borde del relleno. Solo se
+ * mira `.hero` a secas: sus partes pueden medirse como quieran.
+ */
+function checkHeroBox(css: string[], out: StyleFinding[]): void {
+  for (const sheet of css) {
+    for (const block of blocksOf(sheet)) {
+      if (!/\.hero(?![\w-])[^\s>+~,]*$/i.test(block.selector)) continue;
+      const touched = declsOf(block.body).filter((d) => HERO_BOX.test(d.prop));
+      if (!touched.length) continue;
+      out.push({
+        regla: "hero-box-changed",
+        mensaje:
+          "The hero already carries its own padding and radius, and it is a band inside the screen's column, not the screen's container. Remove these declarations: put the width and the screen margin on the column that holds the hero and the sections (max-width, margin: 0 auto, padding: var(--space-8)), and separate the sections with that column's gap.",
+        donde: snip(
+          `${block.selector} { ${touched.map((d) => `${d.prop}: ${d.value}`).join("; ")} }`,
+        ),
+      });
+    }
+  }
+}
+
+/*
+ * Las clases del catálogo que ya ponen su propio aire en su regla de primer
+ * nivel. `.kpi` es la que va con `.card`; se sacan de la hoja para que una
+ * pieza nueva con aire no haga saltar el aviso de la tarjeta vacía.
+ */
+const PADDED_CLASSES: ReadonlySet<string> = new Set(
+  [...PAGE_STYLES.matchAll(/(?:^|\n)\.([\w-]+)\s*\{([^{}]*)/g)]
+    .filter((m) => /(?:^|;|\s)padding(?:-[a-z]+)?\s*:/.test(m[2]))
+    .map((m) => m[1]),
+);
+
+/** Lo que puede ir directo dentro de una `.card`: sus partes y la tabla. */
+const CARD_PARTS = /(?:^|\s)(?:card-head|card-body|card-foot|table-wrap)(?:\s|$)/;
+
+/** Un relleno que no es cero. */
+const REAL_PADDING = (d: { prop: string; value: string }) =>
+  /^padding(?:-[a-z-]+)?$/.test(d.prop) && !/^(?:0(?:px|rem)?\s*)+$/.test(d.value);
+
+/**
+ * El contenido escrito directo dentro de una `.card`.
+ *
+ * `.card` es solo el marco: fondo, borde y radio, sin aire. El aire lo ponen
+ * sus partes, así que un título o un párrafo puesto sin `.card-body` toca el
+ * borde. Es cierto o no lo es: se mira el primer hijo de la tarjeta, y se
+ * calla si la tarjeta lleva una pieza con aire propio (`.kpi`) o una clase a
+ * la que la página le dio relleno.
+ */
+function checkCardBody(html: string, css: string[], out: StyleFinding[]): void {
+  const padded = new Set<string>();
+  for (const sheet of css) {
+    for (const block of blocksOf(sheet)) {
+      if (!declsOf(block.body).some(REAL_PADDING)) continue;
+      const last = block.selector.split(",").map(
+        (part) =>
+          part
+            .trim()
+            .split(/[\s>+~]+/)
+            .pop() ?? "",
+      );
+      for (const compound of last)
+        for (const m of compound.matchAll(/\.([\w-]+)/g)) padded.add(m[1]);
+    }
+  }
+
+  const re = /<([a-z][\w-]*)(\s[^>]*?\bclass\s*=\s*["']([^"']*)["'][^>]*)>/gi;
+  for (const m of html.matchAll(re)) {
+    const classes = m[3].split(/\s+/).filter(Boolean);
+    if (!classes.includes("card")) continue;
+    if (classes.some((c) => c !== "card" && (PADDED_CLASSES.has(c) || padded.has(c)))) continue;
+    if (/\sstyle\s*=\s*["'][^"']*padding/i.test(m[2])) continue;
+
+    // El primer hijo, saltando espacios y comentarios.
+    const rest = html.slice((m.index ?? 0) + m[0].length).replace(/^(?:\s|<!--[\s\S]*?-->)+/, "");
+    if (rest.startsWith("</")) continue;
+    const child = /^<[a-z][\w-]*(\s[^>]*)?>/i.exec(rest);
+    const childClass = /\bclass\s*=\s*["']([^"']*)["']/i.exec(child?.[1] ?? "")?.[1] ?? "";
+    if (child && CARD_PARTS.test(childClass)) continue;
+
+    out.push({
+      regla: "card-without-body",
+      mensaje:
+        '.card is only the frame --background, border, radius-- and has no padding: content written straight into it touches the border. Wrap the content in <div class="card-body">…</div> (with .card-head and .card-foot around it if it has a title or actions).',
+      donde: snip(`${m[0]}${rest.slice(0, 60)}`),
+    });
+  }
+}
+
 /**
  * Piezas del catálogo escritas a pelo.
  *
@@ -470,6 +567,8 @@ export function auditPageHtml(html: string): StyleFinding[] {
   checkFillAsInk(css, found);
   checkFillWithoutInk(css, found);
   checkHero(css, found);
+  checkHeroBox(css, found);
+  checkCardBody(html, css, found);
   checkBareElements(html, found);
   checkTableFoot(html, found);
   checkIcons(html, found);

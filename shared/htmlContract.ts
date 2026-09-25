@@ -321,6 +321,22 @@ Three rules for using it:
 </div>
 \`\`\`
 
+**\`.card\` is only the frame** --background, border, radius-- **and has no padding at all.** The air inside comes from its parts: \`.card-head\`, \`.card-body\` and \`.card-foot\` each carry it, so the content always goes inside at least a \`.card-body\`. Content written straight into \`.card\` touches the border. A simple card with no title is still:
+
+\`\`\`html
+<article class="tarjeta-servicio card">
+  <div class="card-body">
+    <span class="caja-icono"><i class="icon icon-dental-tooth"></i></span>
+    <h3>Limpieza y prevención</h3>
+    <p>Controles periódicos para mantener tu salud bucal al día.</p>
+  </div>
+</article>
+\`\`\`
+
+The layout of what is inside --a column with a gap, a row-- goes on that \`.card-body\`, not on the card: \`.tarjeta-servicio .card-body { display: flex; flex-direction: column; gap: var(--space-3); }\`. Written on the card, it spaces the parts of the card and leaves the content inside the body stuck together.
+
+\`.kpi\` is the only catalogue piece that brings its own padding to a card (\`class="card kpi"\`, with its parts straight inside). Anything else goes in \`.card-body\`.
+
 The foot anchors itself to the bottom, so two cards side by side line their feet up on their own without matching heights by hand. Actions go in the foot; the head carries the title and, in \`card-head-actions\`, only what accompanies --a filter, a menu.
 
 ### Hero
@@ -339,6 +355,8 @@ The opening band of a screen: the app's brand colour filled solid, with the titl
 \`\`\`
 
 **Write no colour of your own inside it.** It is the one piece painted with the full brand fill, and it dresses what it carries: the text already comes in the ink that reads over that colour, \`.btn\` empties out to a bordered one in that same ink, and \`.btn-primary\` lifts off the band in the house's paper. Putting \`color\` on anything inside --a surface ink like \`--ink\` or \`--ink-soft\`, or the fill itself-- is what breaks it: those are the inks of the page, not of the band, and the band's colour changes with the palette and with the mode while they do not.
+
+**Do not touch its box either.** The band already carries its own padding, radius and gap: never change \`padding\`, \`margin\`, \`max-width\` or \`border-radius\` on \`.hero\`. It is a band that sits **inside** the screen's column, like any section --the screen margin goes around it and the section gap comes after it-- not the screen's container. Setting its bottom padding to \`0\` so the next section "continues" it is what glues its buttons to its edge.
 
 One hero per screen, at the top. For a section heading inside the page use a plain \`<h2>\`.
 
@@ -585,8 +603,27 @@ Before writing, decide **what gets looked at first**. A screen has one main thin
 
 It is what changes the result the most, and the first thing habit cuts back.
 
-- Screen margin \`var(--space-8)\`, and \`var(--space-10)\` between separate sections. Between blocks of one section, \`var(--space-6)\`.
-- Card padding \`var(--space-5)\`, not \`var(--space-3)\`. A cramped card looks cheap.
+- **One column holds the whole screen**, and it is the only thing that sets the margin and the width. Everything else --the hero included-- goes inside it as a sibling, and the space between sections is its \`gap\`, never a padding set to \`0\` on one side of a piece:
+
+\`\`\`css
+.pantalla-inicio {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+@media (max-width: 40rem) { .pantalla-inicio { padding: var(--space-4); } }
+\`\`\`
+\`\`\`html
+<main class="pantalla-inicio">
+  <section class="hero">…</section>
+  <section class="lista-servicios">…</section>
+</main>
+\`\`\`
+- Screen margin \`var(--space-8)\` (\`var(--space-4)\` on a phone), and \`var(--space-10)\` between separate sections. Between blocks of one section, \`var(--space-6)\`.
+- The padding of a card is already in \`.card-body\`. If a piece of your own that is not a \`.card\` needs inner air, \`var(--space-5)\`, not \`var(--space-3)\`. A cramped card looks cheap.
 - Maximum content width between \`72rem\` and \`80rem\`, centred. A long text does not go past \`65ch\`.
 - Leave empty space. The screen does not have to be filled.
 
@@ -1197,7 +1234,7 @@ The HTML is drawn in isolation from the panel. It has no access to the session, 
         DATA_SECTION,
         limitsSection(),
         blocksSection(),
-        `## Styles and reference\nUse the built-in stylesheet, bridge and component classes; never write colours or measures by hand and never invent a variable. Buttons are class="btn", fields class="field" with class="field-control", a card is class="card". Surfaces --surface-card / --surface-page, text --ink / --ink-soft / --ink-faint, borders --line, brand --color-primary, spacing the --space-* scale (see medidas). For anything else call consultar_guia: componentes (class catalogue), colores, medidas, oficio (what a Planer screen looks like), datos, graficas, bloques. Icon names come from buscar_iconos. Documentation is available on demand; never guess an API or a name.`,
+        `## Styles and reference\nUse the built-in stylesheet, bridge and component classes; never write colours or measures by hand and never invent a variable. Buttons are class="btn", fields class="field" with class="field-control", a card is class="card" with its content inside class="card-body" (.card itself has no padding), and the hero sits inside the screen's centred column without touching its padding. Surfaces --surface-card / --surface-page, text --ink / --ink-soft / --ink-faint, borders --line, brand --color-primary, spacing the --space-* scale (see medidas). For anything else call consultar_guia: componentes (class catalogue), colores, medidas, oficio (what a Planer screen looks like), datos, graficas, bloques. Icon names come from buscar_iconos. Documentation is available on demand; never guess an API or a name.`,
       );
     return core.join("\n\n---\n\n");
   }
