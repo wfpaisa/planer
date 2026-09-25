@@ -587,7 +587,7 @@
     </article>
     <!-- Progress -->
     <article class="card gallery-item">
-      {@render head("Progreso", "Cuánto falta. Ej.: la IA trabajando")}
+      {@render head("Progreso", "Cuánto falta. Ej.: proceso en curso")}
       <div class="card-body">
         <div class="gallery-demo">
           <div class="progress-label">

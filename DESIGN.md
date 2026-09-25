@@ -147,7 +147,7 @@ Planer es un banco de trabajo: una mesa ordenada, de grises exactos, donde lo ú
 
 La densidad es de herramienta, no de revista. El tamaño de trabajo es 0.875rem, los controles miden 2.375rem de alto y el cuerpo va en Inter ligera (300), así que la jerarquía la ganan el peso (600 en los controles, 700–800 en los títulos) y la tinta, no el tamaño. La interfaz está entera en español y el sistema está escrito a mano, sin framework de utilidades ni librería de componentes: siete hojas en `web/src/styles/` (`theme.css`, `palettes.css`, `components.css`, `layout.css`, `compat.css`, `contract.css`, `global.css`) y una octava, `page.css`, que sólo viaja a las páginas publicadas.
 
-Las mismas hojas visten el panel y lo que se publica (`/plane/estilos.css`, que arma `server/page/pageStyles.ts`), así que `.btn`, `.card`, `.field` o `.table` son la misma pieza en los dos lados. Lo que la IA escribe en una página lo revisa `server/html/htmlAudit.ts`, y `bun run harness` comprueba que las hojas, el contrato del HTML (`shared/htmlContract.ts`) y esa auditoría digan lo mismo.
+Las mismas hojas visten el panel y lo que se publica (`/plane/estilos.css`, que arma `server/page/pageStyles.ts`), así que `.btn`, `.card`, `.field` o `.table` son la misma pieza en los dos lados. El contenido generado de una página lo revisa `server/html/htmlAudit.ts`, y `bun run harness` comprueba que las hojas, el contrato del HTML (`shared/htmlContract.ts`) y esa auditoría digan lo mismo.
 
 **Key Characteristics:**
 - Un acento por contexto; todo lo demás es gris y línea.

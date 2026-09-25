@@ -12,10 +12,10 @@ Cada aplicación tiene dos caras: una **base de datos** que se maneja como una h
 
 ### Crea páginas con inteligencia artificial
 
-Si no sabes por dónde empezar, describe lo que necesitas con tus palabras y la IA se encarga del resto.
+Si no sabes por dónde empezar, describe lo que necesitas con tus palabras y el resto se genera automáticamente.
 
-- Escribe una frase como "quiero una página para llevar el inventario del almacén" y la IA crea las tablas y las pantallas listas para usar.
-- Antes de aplicar nada, la IA te muestra una vista previa. Tú decides si lo guardas o si prefieres ajustar algo.
+- Escribe una frase como "quiero una página para llevar el inventario del almacén" y se generan las tablas y las pantallas listas para usar.
+- Antes de aplicar nada, se muestra una vista previa. Tú decides si lo guardas o si prefieres ajustar algo.
 - Puedes usar Claude (el modelo de Anthropic) o cualquier servicio compatible con ChatGPT, como Ollama, LM Studio u OpenRouter. Eliges el que prefieras desde Ajustes.
 - La clave del modelo se guarda en tu servidor y nunca llega al navegador, así que nadie más puede verla.
 
@@ -167,7 +167,7 @@ pb/        PocketBase y sus datos
 ### Documentación adicional
 
 - [docs/FUNCIONALIDADES.md](./docs/FUNCIONALIDADES.md) — listado resumido de todas las funcionalidades, por área. Se actualiza con cada cambio que agrega, modifica o retira una funcionalidad.
-- [docs/COMO-FUNCIONA.md](./docs/COMO-FUNCIONA.md) — los mecanismos centrales de la plataforma: el modelo de datos, los permisos, las dos sesiones, versiones, y cómo la IA crea y modifica páginas.
+- [docs/COMO-FUNCIONA.md](./docs/COMO-FUNCIONA.md) — los mecanismos centrales de la plataforma: el modelo de datos, los permisos, las dos sesiones, versiones, y cómo se crean y modifican las páginas.
 - [docs/PAGINAS-HTML.md](./docs/PAGINAS-HTML.md) — guía para escribir páginas de una app en HTML propio: contrato `window.plane`, variables de estilo, datos, gráficas y límites.
 - [docs/CHAT.md](./docs/CHAT.md) — cómo funciona el chat de IA: el bucle de rondas, cómo prueba una página antes de darla por buena, y los cambios con riesgo.
 - [docs/DOCKER.md](./docs/DOCKER.md) — desplegar con Docker: cómo se construye la imagen, qué lleva dentro, los nombres que usa, actualizaciones y copias de seguridad.
@@ -182,4 +182,3 @@ bun run smoke
 ```
 
 Recorre el camino completo: crear una app, crear tablas, cambiar columnas sin perder datos, publicar, invitar a alguien, comprobar que nadie más puede entrar y que la clave de la IA no sale del servidor.
-

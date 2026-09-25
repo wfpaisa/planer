@@ -11,7 +11,7 @@ Una petición escribe sobre **una sola página**: la que está abierta. Cuatro i
 - **La conversación es de la página**, no de la aplicación. La lista del dock muestra solo las de la página abierta, y borrar la página se las lleva.
 - **Abierta hay una sola en toda la aplicación**: la última en la que se habló. La apunta la aplicación (`apps.openChat`), así que llegar a una página repone esa conversación solo si es la suya y las demás empiezan en blanco —también al volver desde otro navegador—. Lo de antes sigue a un clic, en «Conversaciones anteriores».
 
-Desde el panel se pide en **una página a la vez**: mientras la IA trabaja en una, el dock de cualquier otra no admite peticiones y ofrece ir a la que trabaja. El límite vive ahí y solo ahí —`aiRuns` sigue admitiendo una petición por página y varias páginas a la vez—, así que levantarlo es quitar esa condición del panel.
+Desde el panel se pide en **una página a la vez**: mientras se trabaja en una, el dock de cualquier otra no admite peticiones y ofrece ir a la que está en curso. El límite vive ahí y solo ahí —`aiRuns` sigue admitiendo una petición por página y varias páginas a la vez—, así que levantarlo es quitar esa condición del panel.
 
 ## Las piezas
 
@@ -40,7 +40,7 @@ flowchart TB
   rutas --> runs --> motor --> conex --> modelo
 ```
 
-`AiPanel` es la única entrada a la IA. `aiRuns` es donde vive la petición mientras el navegador va y viene.
+`AiPanel` es la única entrada del chat. `aiRuns` es donde vive la petición mientras el navegador va y viene.
 
 ## Una petición de principio a fin
 
@@ -51,7 +51,7 @@ sequenceDiagram
   participant P as AiPanel
   participant R as routes.ts
   participant M as aiPage
-  participant IA as Proveedor
+  participant Prov as Proveedor
   participant DB as PocketBase
 
   B->>P: escribe qué necesita y envía
@@ -64,8 +64,8 @@ sequenceDiagram
   R->>M: runPageRequest, sin esperarla
 
   loop hasta 12 rondas
-    M->>IA: sistema + herramientas + lo pedido
-    IA-->>M: texto, razonamiento y llamadas a herramientas
+    M->>Prov: sistema + herramientas + lo pedido
+    Prov-->>M: texto, razonamiento y llamadas a herramientas
     M-->>P: avisos de texto, pasos y uso, por el SSE
     M->>DB: lo que cada herramienta escribe
   end
@@ -92,7 +92,7 @@ Se lee desde el despliegue «Contexto enviado» de la conversación, así que re
 flowchart TB
   inicio(["Empieza la petición"]) --> ronda{"¿Quedan rondas<br/>y no se detuvo?"}
   ronda -->|no| cierre["Cierra la petición"]
-  ronda -->|sí| pide["Le pide lo que sigue al modelo"]
+  ronda -->|sí| pide["Se envía el siguiente paso al modelo"]
   pide --> llamo{"¿Pidió herramientas?"}
   llamo -->|no| cierre
   llamo -->|sí| corre["Ejecuta una por una"]
@@ -103,7 +103,7 @@ flowchart TB
   tipo -->|"base de datos con riesgo"| ret["No se aplica.<br/>Queda apuntado para el diálogo de impacto"]
   tipo -->|"revisar_errores"| rev["Manda la página a dibujarse<br/>y espera lo que suelte la consola"]
 
-  esc --> vuelta["Le devuelve los resultados al modelo"]
+  esc --> vuelta["Se devuelven los resultados al modelo"]
   apl --> vuelta
   ret --> vuelta
   rev --> vuelta
@@ -142,7 +142,7 @@ sequenceDiagram
   R-->>M: los errores, sin repetidos y hasta 10
 
   alt hay errores
-    M-->>M: se los devuelve al modelo, que corrige y vuelve a revisar
+    M-->>M: se devuelven al modelo para corregir y volver a revisar
   else está limpia
     M-->>M: sigue y termina
   end
@@ -150,7 +150,7 @@ sequenceDiagram
 
 | Situación | Qué pasa |
 |---|---|
-| Nadie está mirando el panel | Espera 15 s, vence, la IA recibe "no se pudo probar" y sigue. |
+| Nadie está mirando el panel | Espera 15 s, vence, la petición recibe "no se pudo probar" y continúa. |
 | El documento nunca dice estar listo | Tope duro de 12 s, se cierra con lo recogido hasta ahí. |
 | El modelo insiste | Dos revisiones por petición; a la tercera se le dice que pare y lo cuente. |
 | Un error que solo salta al pulsar un botón | No se ve — esto solo mira lo que pasa al cargar. |

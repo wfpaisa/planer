@@ -1285,7 +1285,7 @@
 <OmniPanel
   {onClose}
   title={page.name}
-  description="La IA escribe sobre esta página"
+  description="Se está trabajando en esta página"
   flush={!list && ready}
   actions={ready && !list ? actions : undefined}
 >
@@ -1312,8 +1312,11 @@
                 phase === "leaving" && "hero-leave",
               )}
             >
-              <!-- El personaje presenta la acción en primera persona. -->
-              <PlanerAvatar mood="ok" size={60} icon="message-01" />
+              <!-- El personaje presenta la acción en primera persona. El halo de
+                   detrás lo despega del fondo sin ponerle marco. -->
+              <div class="hero-avatar-ai">
+                <PlanerAvatar mood="ok" size={60} icon="message-01" />
+              </div>
               <p class="chat-hero-title">¿Qué quieres ver en esta página?</p>
               <p class="chat-hero-subtitle">Describe una pantalla o el cambio que necesitas.</p>
 
@@ -1329,11 +1332,13 @@
                       <button
                         type="button"
                         onclick={() => runQuickAsk(id)}
-                        class="btn-quick-ask btn sm w-full"
+                        class="btn-quick-ask opt"
                       >
-                        <Icon name={QUICK_ASK[id].icon} size={18} class="quick-ask-icon" />
+                        <span class="quick-ask-chip flex items-center justify-center">
+                          <Icon name={QUICK_ASK[id].icon} size={16} />
+                        </span>
                         <span class="quick-ask-label">{QUICK_ASK[id].label}</span>
-                        <Icon name="message-01" size={18} class="quick-ask-run" />
+                        <Icon name="arrow-right-02" size={16} class="quick-ask-run" />
                       </button>
                     {/each}
                   </div>
@@ -1349,7 +1354,7 @@
                         class="btn-sample-prompt opt"
                       >
                         <span class="sample-prompt-label opt-body">{sample}</span>
-                        <Icon name="message-add-01" size={18} class="sample-arrow" />
+                        <Icon name="arrow-right-02" size={16} class="sample-arrow" />
                       </button>
                     {/each}
                   </div>
@@ -1446,7 +1451,10 @@
                   </div>
                 {:else}
                   <div class="header-ai-response flex items-center">
-                    <Icon name="ai-magic" size={18} />
+                    <span class="avatar-ai-response flex items-center justify-center">
+                      <Icon name="ai-magic" size={14} />
+                    </span>
+                    <span class="name-ai-response">Planer</span>
                     <CopyLine text={entry.text} />
                   </div>
 
@@ -1842,7 +1850,7 @@
                 <Icon name="ai-magic" size={22} />
               </span>
             </div>
-            <p class="veil-ai-elsewhere-title">La IA está trabajando</p>
+            <p class="veil-ai-elsewhere-title">Se está trabajando</p>
             <p class="veil-ai-elsewhere-text">
               en <strong>{blockedBy?.name ?? "otra página"}</strong>
             </p>
@@ -2037,28 +2045,62 @@
     /* Un turno se separa del siguiente mas de lo que sus partes se separan
        entre si --`--sp-8` dentro del turno, ver `.header-ai-response`-- para
        que se vea donde acaba uno y empieza otro sin leerlo. */
-    gap: var(--sp-24);
+    gap: var(--sp-28);
     overflow-y: auto;
     /* La barra de desplazamiento se aparta del borde derecho los 12px que
        ocupa el asa del dock --`components/AiDock.svelte`--, que si no queda
        encima de ella. El acolchado devuelve esos pixeles, asi que lo escrito
        cae donde caia. */
     margin-right: var(--sp-12);
-    padding: var(--chat-pad-top) var(--sp-4) var(--sp-16) var(--sp-16);
+    padding: var(--chat-pad-top) var(--sp-4) var(--sp-24) var(--sp-16);
+    /* Una barra fina y del color de las lineas: acompaña, no se ve como un
+       control mas del panel. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+    /* Lo escrito se desvanece al llegar al pie en vez de cortarse en seco
+       contra el campo de la petición. Solo abajo: arriba la cabecera pegajosa
+       del proceso tiene que verse entera. */
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sp-24)), transparent);
   }
 
   /* --- La portada de la conversación vacía --- */
 
   .chat-hero {
-    padding: 2rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--sp-40) var(--sp-4) var(--sp-16);
+    text-align: center;
+  }
+
+  /* Un halo del acento detras del personaje: le da presencia sin marco. */
+  .hero-avatar-ai {
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      z-index: -1;
+      border-radius: 50%;
+      background: radial-gradient(
+        closest-side,
+        color-mix(in oklab, var(--accent) 28%, transparent),
+        transparent
+      );
+      filter: blur(0.5rem);
+    }
   }
 
   .chat-hero-title {
-    margin-top: var(--sp-12);
-    font-size: var(--text-base);
-    line-height: var(--text-base--line-height);
+    margin-top: var(--sp-16);
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--text-primary);
+    text-wrap: balance;
   }
 
   .chat-hero-subtitle {
@@ -2066,12 +2108,16 @@
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
     color: var(--text-secondary);
+    text-wrap: balance;
   }
 
-  /* Los dos grupos --acciones rápidas y sugerencias-- con aire entre ellos. */
+  /* Los dos grupos --acciones rápidas y sugerencias-- con aire entre ellos.
+     Vuelven a la izquierda: son listas que se leen, no un titular. */
   .chat-hero-suggestions {
-    margin-top: var(--sp-16);
-    gap: var(--sp-14);
+    align-self: stretch;
+    margin-top: var(--sp-24);
+    gap: var(--sp-20);
+    text-align: left;
   }
 
   .hero-group-items {
@@ -2080,18 +2126,47 @@
 
   /* El rotulo es `.eyebrow` del catálogo; aqui solo su hueco. */
   .hero-group-label {
-    margin-bottom: var(--sp-6);
-    padding: 0 0.125rem;
+    margin-bottom: var(--sp-8);
+    padding: 0 var(--sp-4);
   }
 
-  /* Los iconos de los atajos van dentro de Icon (un componente). */
-  :global(.quick-ask-icon) {
-    color: var(--accent);
+  /* El atajo es `.opt` del catálogo, tenido del acento: manda de una vez, y
+     eso lo pone por delante de las sugerencias, que solo llenan el campo. */
+  .btn-quick-ask {
+    padding: var(--sp-8) var(--sp-12) var(--sp-8) var(--sp-8);
+    border-color: color-mix(in oklab, var(--accent) 30%, transparent);
+    background: color-mix(in oklab, var(--accent-soft) 60%, transparent);
+    color: var(--text-primary);
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      border-color: color-mix(in oklab, var(--accent) 60%, transparent);
+      background: var(--accent-soft);
+    }
+
+    &:hover :global(.quick-ask-run) {
+      opacity: 1;
+      translate: 0.125rem 0;
+    }
+  }
+
+  /* El icono del atajo en su pastilla del acento, como el de un lanzador. */
+  .quick-ask-chip {
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--radius-md);
+    background: var(--accent);
+    color: var(--accent-text);
   }
 
   /* Senala que el atajo manda de una vez, sin pasar por el campo. */
   :global(.quick-ask-run) {
-    opacity: 0.5;
+    color: var(--accent);
+    opacity: 0.6;
+    transition:
+      opacity 150ms,
+      translate 150ms;
   }
 
   :global(.quick-ask-label) {
@@ -2103,19 +2178,38 @@
   /* Cada sugerencia es `.opt` del catálogo; aqui solo su letra, que en el
      panel de la IA es un punto mas chica que en una pantalla, y el cerco que
      se tine del acento al apuntarla --lo que hay debajo es una petición, no
-     un ajuste--. */
+     un ajuste--. La flecha aparece al apuntarla: dice que se puede tomar. */
   .btn-sample-prompt {
-    padding: var(--sp-8) var(--sp-12);
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    padding: var(--sp-10) var(--sp-12);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
 
-    &:hover {
+    &:hover:not(:disabled) {
       border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+      color: var(--text-primary);
+    }
+
+    &:hover :global(.sample-arrow),
+    &:focus-visible :global(.sample-arrow) {
+      opacity: 1;
+      translate: 0 0;
+      color: var(--accent);
     }
   }
 
   :global(.sample-arrow) {
-    opacity: 0.5;
+    opacity: 0;
+    translate: -0.25rem 0;
+    transition:
+      opacity 150ms,
+      translate 150ms,
+      color 150ms;
+
+    @media (hover: none) {
+      opacity: 0.5;
+      translate: 0 0;
+    }
   }
 
   :global(.sample-prompt-label) {
@@ -2136,30 +2230,57 @@
     white-space: nowrap;
   }
 
+  /* La burbuja de quien pide: el tinte del acento --el mismo que marca lo
+     elegido en todo el panel--, con la esquina de su lado recortada para
+     que se lea de donde sale. */
   .bubble-user-message {
     max-width: 88%;
     white-space: pre-wrap;
-    border-radius: var(--radius-lg);
-    border-bottom-right-radius: 0px;
-    background: color-mix(in srgb, var(--accent) 30%, #2b2a2a);
-    padding: var(--sp-8) var(--sp-14);
+    overflow-wrap: anywhere;
+    border-radius: var(--radius-xl);
+    border-bottom-right-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    padding: var(--sp-10) var(--sp-14);
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
     color: var(--text-primary);
   }
 
+  /* Quien responde, dicho con su marca: la pastilla del acento y el nombre.
+     La copia sigue a la derecha, escondida hasta que se apunta el turno. */
   .header-ai-response {
-    gap: var(--sp-6);
+    gap: var(--sp-8);
     margin-top: var(--sp-8);
-    margin-bottom: var(--sp-4);
+    margin-bottom: var(--sp-8);
   }
 
+  .avatar-ai-response {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(
+      135deg,
+      var(--accent),
+      color-mix(in oklab, var(--accent) 55%, var(--chart-2))
+    );
+    color: var(--accent-text);
+    box-shadow: 0 0.125rem 0.5rem color-mix(in oklab, var(--accent) 35%, transparent);
+  }
+
+  .name-ai-response {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* La respuesta ocupa el ancho entero y cae bajo el nombre, alineada con el
+     borde de la pastilla: se lee como un texto, que es lo que es. */
   .content-ai-response {
     font-size: var(--text-base);
-    /* line-height: var(--text-base--line-height); */
-    line-height: var(--text-md--line-height);
+    line-height: var(--text-lg--line-height);
     color: var(--text-primary);
-    padding-left: 1rem;
     padding-right: var(--sp-8);
     /* `pretty` y no `balance`: balance iguala las líneas de cada párrafo y,
        en un texto largo, deja el borde derecho dentado y la columna estrecha. */
@@ -2183,14 +2304,19 @@
     gap: var(--sp-8);
   }
 
-  /* El pie del turno que cambio algo: dicho en pequeño, con la salida al lado. */
+  /* El pie del turno que cambio algo: una pastilla del verde de lo hecho,
+     con la salida al lado. */
   .changed-ai-response {
+    width: fit-content;
+    max-width: 100%;
     gap: var(--sp-6);
-    margin-top: var(--sp-10);
-    padding-left: 1rem;
+    margin-top: var(--sp-12);
+    padding: var(--sp-4) var(--sp-12) var(--sp-4) var(--sp-8);
+    border-radius: 62.5rem;
+    background: var(--success-bg);
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    color: var(--text-muted);
+    color: var(--text-secondary);
 
     & :global(.changed-ai-icon) {
       flex-shrink: 0;
@@ -2223,27 +2349,43 @@
     margin-top: var(--sp-8);
   }
 
-  /* Se dejo de seguir el final: un toque para volver a el. */
+  /* Se dejo de seguir el final: un toque para volver a el. Flota sobre lo
+     escrito con el fondo empanado, asi que no tapa lo que hay debajo. */
   .btn-jump-to-end {
     position: absolute;
-    bottom: 0.75rem;
+    bottom: var(--sp-12);
     left: 50%;
-    transform: translateX(-50%);
-    width: 2rem;
-    height: 2rem;
+    translate: -50% 0;
+    width: 2.25rem;
+    height: 2.25rem;
     cursor: pointer;
     border-radius: 62.5rem;
     border: var(--border-width) solid var(--border);
-    background: var(--bg-level2);
+    background: color-mix(in oklab, var(--bg-level2) 80%, transparent);
+    backdrop-filter: blur(0.5rem);
     color: var(--text-secondary);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-lg);
     transition:
       background-color 150ms,
-      color 150ms;
+      color 150ms,
+      border-color 150ms,
+      translate 200ms,
+      opacity 200ms;
+
+    @starting-style {
+      opacity: 0;
+      translate: -50% 0.5rem;
+    }
 
     &:hover {
-      background: var(--bg-field);
-      color: var(--text-primary);
+      border-color: color-mix(in oklab, var(--accent) 50%, var(--border));
+      background: var(--bg-level2);
+      color: var(--accent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
   }
 

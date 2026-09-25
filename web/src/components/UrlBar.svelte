@@ -191,9 +191,7 @@
       <span class="dock-ai-wrap">
         <Button
           size="sm"
-          tip={aiActivity.busy
-            ? "La inteligencia artificial está trabajando"
-            : "Pedir a la inteligencia artificial"}
+          tip={aiActivity.busy ? "Se está trabajando" : "Pedir a la inteligencia artificial"}
           aria-label="Abrir el chat con la inteligencia artificial"
           onclick={dock.toggle}
           tipSide="bottom"

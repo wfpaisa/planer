@@ -44,10 +44,8 @@
       type="button"
       disabled={locked}
       onclick={toggle}
-      data-tip={locked
-        ? "Plan cerrado: decide en la tarjeta del plan"
-        : "Elegir cómo trabaja la IA"}
-      aria-label={`Modo ${plan ? "Plan" : "Crear"}: elegir cómo trabaja la IA`}
+      data-tip={locked ? "Plan cerrado: decide en la tarjeta del plan" : "Elegir modo de trabajo"}
+      aria-label={`Modo ${plan ? "Plan" : "Crear"}: elegir modo de trabajo`}
       class="btn-pick-ai-mode btn sm"
       class:on={plan}
     >

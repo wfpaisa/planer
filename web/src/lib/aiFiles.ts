@@ -208,7 +208,7 @@ export function cancelUpload(id: string): void {
 export function draftAiFile(file: File): DraftFile {
   const kind = aiFileKind(file);
   if (!kind) {
-    throw new Error(`No se sabe leer "${file.name}" como contexto de la inteligencia artificial.`);
+    throw new Error(`No se puede leer "${file.name}" como material de contexto.`);
   }
   if (kind === "image" && file.size > MAX_AI_IMAGE_BYTES) {
     throw new Error(`La imagen "${file.name}" pesa demasiado: el máximo son 5 MB.`);

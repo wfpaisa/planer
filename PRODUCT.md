@@ -15,13 +15,13 @@ web
 
 ## Propósito del producto
 
-Planer es una plataforma que se instala en el propio servidor del usuario y le permite **crear aplicaciones web pequeñas y sus Base de datos sin programar**. Cada aplicación tiene dos caras: una base de datos de tablas que se manejan como hoja de cálculo, y una aplicación de pantallas (páginas HTML que escribe la IA) sobre esas tablas. Cuando está lista, se publica con un enlace (abierta o privada). El éxito se mide en que el usuario pase de una idea a una app publicada funcionando, sin escribir código ni depender de un servicio en la nube.
+Planer es una plataforma que se instala en el propio servidor del usuario y le permite **crear aplicaciones web pequeñas y sus Base de datos sin programar**. Cada aplicación tiene dos caras: una base de datos de tablas que se manejan como hoja de cálculo, y una aplicación de pantallas (páginas HTML generadas a partir de esas tablas). Cuando está lista, se publica con un enlace (abierta o privada). El éxito se mide en que el usuario pase de una idea a una app publicada funcionando, sin escribir código ni depender de un servicio en la nube.
 
 Planer está pensado para funcionar dentro de una empresa: el que construye no es un técnico, es el empleado que tiene la necesidad. La herramienta tiene que aguantar que muchas áreas armen sus propias pantallas, con sus propios colaboradores y sus propios permisos, sin que ninguna dependa de un departamento de tecnología para arrancar.
 
 ## Posicionamiento
 
-El diferenciador central confirmado es la **generación con inteligencia artificial**: el usuario describe lo que necesita con una frase y la IA crea las tablas y las pantallas necesarias. La IA escribe el código necesario en un html con sus estilos y scripts, de modo que todo lo generado se puede revisar, permite hacer modificaciones mediante IA. Se complementa con el carácter autocontenido (un sólo comando de instalación, un sólo puerto, sin dependencias externas) y con permisos aplicados en el servidor (qué páginas abre cada rol, y qué tablas declara cada página).
+El diferenciador central confirmado es la **generación con inteligencia artificial**: el usuario describe lo que necesita con una frase y se crean las tablas y las pantallas necesarias. El HTML se genera con sus estilos y scripts, de modo que todo se puede revisar y modificar mediante nuevas solicitudes. Se complementa con el carácter autocontenido (un sólo comando de instalación, un sólo puerto, sin dependencias externas) y con permisos aplicados en el servidor (qué páginas abre cada rol, y qué tablas declara cada página).
 
 ## Contexto de uso
 
@@ -35,7 +35,7 @@ El diferenciador central confirmado es la **generación con inteligencia artific
 ## Capacidades y restricciones
 
 - Editor de tablas con tipos de columna: texto, texto largo, número, sí/no, correo, enlace, fecha, lista de opciones, archivo, relación con otra tabla y persona.
-- Páginas en HTML escritas por la IA con el sistema de estilos de la casa; las antiguas de bloques se pueden convertir.
+- Páginas en HTML generadas con el sistema de estilos de la casa; las antiguas de bloques se pueden convertir.
 - Selección de filas, borrado masivo y exportación selectiva en la grilla; importar/exportar tablas.
 - Apariencia por aplicación: nombre, enlace público, icono y color; paletas de colores, modo claro y oscuro.
 - Autocontenido: se instala en el servidor del usuario; todo corre en un sólo puerto (servidor Bun + PocketBase como proceso hijo).
@@ -55,8 +55,8 @@ Sin compromisos de marca fijos confirmados. El nombre actual es "Planer" y toda 
 ## Principios del producto
 
 - **El que tiene la necesidad es el que construye**: quien arma la pantalla es el empleado del área, no un técnico. Cualquier paso que obligue a pedir ayuda a tecnología es un fallo del producto.
-- **De la frase a la app**: bajar la fricción de pasar de una idea a una aplicación funcionando, con la IA como atajo y el constructor visual como control.
-- **Configuración, no código**: todo lo que crea la herramienta (y la IA) es configuración editable y validada, nunca código frágil.
+- **De la frase a la app**: bajar la fricción de pasar de una idea a una aplicación funcionando, con la generación automática como atajo y el constructor visual como control.
+- **Configuración, no código**: todo lo que crea la herramienta es configuración editable y validada, nunca código frágil.
 - **Cada quien ve lo suyo**: los permisos (roles por página, tablas declaradas por página, cuenta para escribir) se aplican en el servidor, no escondiendo cosas en el navegador.
 - **Autocontenido y simple**: el usuario controla sus datos y su servidor, con un arranque de un comando y un único puerto.
 - **Sin pérdida de datos**: cambiar la estructura de columnas preserva los datos existentes.

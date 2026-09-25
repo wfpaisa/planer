@@ -21,10 +21,10 @@ export const FEATURES: FeatureGroup[] = [
   {
     titulo: "Crea páginas con inteligencia artificial",
     resumen:
-      "Si no sabes por dónde empezar, describe lo que necesitas con tus palabras y la IA se encarga del resto.",
+      "Si no sabes por dónde empezar, describe lo que necesitas con tus palabras y el resto se genera automáticamente.",
     items: [
-      'Escribe una frase como "quiero una página para llevar el inventario del almacén" y la IA crea las tablas y las pantallas listas para usar.',
-      "Antes de aplicar nada, la IA te muestra una vista previa. Tú decides si lo guardas o si prefieres ajustar algo.",
+      'Escribe una frase como "quiero una página para llevar el inventario del almacén" y se generan las tablas y las pantallas listas para usar.',
+      "Antes de aplicar nada, se muestra una vista previa. Tú decides si lo guardas o si prefieres ajustar algo.",
       "Puedes usar Claude (el modelo de Anthropic) o cualquier servicio compatible con ChatGPT, como Ollama, LM Studio u OpenRouter. Eliges el que prefieras desde Ajustes.",
       "La clave del modelo se guarda en tu servidor y nunca llega al navegador, así que nadie más puede verla.",
     ],

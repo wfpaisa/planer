@@ -177,9 +177,7 @@
   </button>
 
   {#if working}
-    <p class="sr-only" role="status" aria-live="polite">
-      La inteligencia artificial está trabajando en esta página.
-    </p>
+    <p class="sr-only" role="status" aria-live="polite">Se está trabajando en esta página.</p>
   {/if}
 
   <!-- El pliegue lo hace la rejilla: de 0fr a 1fr la altura crece sola. -->

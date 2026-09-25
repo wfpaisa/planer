@@ -142,7 +142,7 @@ export function impactOptions(changes: StructureChange[], pages: ImpactedPage[])
   const noTouch: ImpactOption = {
     id: "no_tocar",
     label: "No tocar la tabla",
-    hint: "La base de datos se queda igual y la IA sigue con lo que si puede hacer.",
+    hint: "La base de datos se queda igual y se continúa con lo que sí se puede hacer.",
   };
   // Sin variante inocua, la única opción que no rompe nada es esta, así que
   // pasa a ir primera.
@@ -152,7 +152,7 @@ export function impactOptions(changes: StructureChange[], pages: ImpactedPage[])
     options.push({
       id: "aplicar_y_arreglar",
       label: "Aplicar y arreglar las páginas",
-      hint: `Se hace el cambio y la IA reescribe ${
+      hint: `Se hace el cambio y se reescriben ${
         pages.length === 1 ? "la página afectada" : `las ${pages.length} páginas afectadas`
       }.`,
     });

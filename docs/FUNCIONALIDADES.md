@@ -96,11 +96,11 @@
   - Respuestas, preguntas y avisos en lenguaje sencillo para personas sin conocimientos técnicos
   - Elegir proveedor, modelo y nivel de razonamiento por petición, en submenús del menú «+» del campo de escribir
   - El modelo elegido se ve bajo el campo de escribir; los niveles de razonamiento se nombran en español en el chat
-  - La cabecera del chat nombra la página sobre la que escribe la IA
+  - La cabecera del chat nombra la página sobre la que se trabaja
   - Mostrar u ocultar esos dos selectores con un solo interruptor en los ajustes de IA; ocultos, se usa el modelo por defecto
   - Adjuntar archivos (CSV, JSON, texto, imagen) a la conversación
   - Herramientas del modelo: ver tablas, crear tabla, agregar columnas, crear/actualizar página, leer archivo, llenar tabla desde archivo, revisar errores, buscar iconos
-  - Cualquier icono de la fuente (más de 6000) en las páginas, buscado por la IA sin lista en el contexto
+  - Cualquier icono de la fuente (más de 6000) en las páginas, con búsqueda desde el chat y sin lista en el contexto
   - Memoria de la página en el contexto de cada petición, y preguntar antes de contradecir una regla guardada
   - La memoria se escribe sola al cerrar cada turno, con su propio modelo configurable
   - Pedir expresamente que algo se recuerde lo guarda en la memoria, sea o no una regla funcional
@@ -113,7 +113,7 @@
   - Tras un turno que cambió la aplicación, enlace «Deshacer o ver cambios» al Histórico de cambios (punto «Antes de: …»)
   - En ventanas estrechas (tableta, teléfono) el chat se abre como hoja a pantalla completa con «Abrir chat»
   - Diálogo de impacto para cambios riesgosos (borrar columna/tabla, cambiar tipo)
-  - Autorizar accesos pedidos por la IA
+  - Autorizar accesos pedidos desde el chat
   - Medidor de contexto: al pulsarlo, tarjeta con uso y espacio libre, entrada evaluada y tokens generados en la conversación, caché de la última llamada y velocidad media
   - Avisos guardados en la conversación
   - Historial de conversaciones por página, retomar una anterior; la lista marca la que está abierta

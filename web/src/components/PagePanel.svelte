@@ -213,7 +213,7 @@
     label="Memorias"
     icon="brain-02"
     hint={aiWorking
-      ? "Bloqueadas mientras la inteligencia artificial trabaja en esta página: al terminar puede escribir aquí."
+      ? "Bloqueadas mientras se trabaja en esta página: al terminar se puede escribir aquí."
       : "Lo que esta página tiene que cumplir, una regla por renglón. Se escriben solas con cada petición; corrígelas si hace falta."}
   >
     <Textarea

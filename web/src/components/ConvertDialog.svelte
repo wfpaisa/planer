@@ -124,7 +124,7 @@
   {open}
   {onClose}
   title={`Convertir "${page.name}" a HTML`}
-  description="La IA escribe el documento equivalente a los bloques de esta página. Revísalo antes de reemplazarla."
+  description="Se escribe el documento equivalente a los bloques de esta página. Revísalo antes de reemplazarla."
   width="modal-convert-width"
   fill
 >

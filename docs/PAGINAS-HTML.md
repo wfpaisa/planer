@@ -2,11 +2,11 @@
 
 Este archivo es la guía para escribir páginas de una aplicación en HTML propio. Las páginas así se sirven aisladas del panel, sin acceso a la sesión, a las cookies ni al almacenamiento del navegador: todo lo que necesitan del exterior se lo da `window.plane`.
 
-Lo que está escrito aquí es lo mismo que recibe la inteligencia artificial en cada petición, generado desde la misma fuente (`shared/htmlContract.ts`). A ese texto se le añaden, en el momento, las tablas de la aplicación con sus columnas.
+Lo que está escrito aquí es lo mismo que se recibe en cada petición, generado desde la misma fuente (`shared/htmlContract.ts`). A ese texto se le añaden, en el momento, las tablas de la aplicación con sus columnas.
 
 La parte generada va **en inglés**, porque es una instrucción para el modelo y todas las instrucciones que se le pasan están en inglés. Lo que el modelo escribe sigue siendo español —el texto de la pantalla, los nombres de las clases y su respuesta en el chat—, y así se lo dice la primera sección.
 
-> Para una visión general de Planer (qué es, cómo se instala, cómo se publica) mira el [README principal](../README.md). Para cómo funciona el chat de IA que puede escribir estas páginas, mira [CHAT.md](./CHAT.md).
+> Para una visión general de Planer (qué es, cómo se instala, cómo se publica) mira el [README principal](../README.md). Para conocer cómo funciona el chat de IA que permite escribir estas páginas, mira [CHAT.md](./CHAT.md).
 
 <!-- generado por: bun run docs -->
 
@@ -14,7 +14,7 @@ La parte generada va **en inglés**, porque es una instrucción para el modelo y
 
 Una página es un archivo HTML completo que se dibuja aislado del panel: sin acceso a la sesión, a las cookies ni al almacenamiento del navegador. Todo lo que necesita del exterior se lo da `window.plane`.
 
-Esto es lo mismo que recibe la inteligencia artificial en cada petición, generado desde la misma fuente (`shared/htmlContract.ts`). Va en inglés porque es una instrucción para el modelo; lo que el modelo escribe --la pantalla y su respuesta-- sigue siendo español. A este texto se le añaden, en el momento, las tablas de la aplicación con sus columnas, y las columnas propias de su tabla de personas, que son las que llegan a `plane.usuario`.
+Esto es lo mismo que se recibe en cada petición, generado desde la misma fuente (`shared/htmlContract.ts`). Va en inglés porque es una instrucción para el modelo; la pantalla y la respuesta se escriben en español. A este texto se le añaden, en el momento, las tablas de la aplicación con sus columnas, y las columnas propias de su tabla de personas, que son las que llegan a `plane.usuario`.
 
 ### Language
 
@@ -73,6 +73,25 @@ Three rules for using it:
 
 The foot anchors itself to the bottom, so two cards side by side line their feet up on their own without matching heights by hand. Actions go in the foot; the head carries the title and, in `card-head-actions`, only what accompanies --a filter, a menu.
 
+#### Hero
+
+The opening band of a screen: the app's brand colour filled solid, with the title, one line of explanation and the actions that start the task.
+
+```html
+<section class="hero">
+  <h1 class="hero-title">Chequeo preoperacional</h1>
+  <p class="hero-sub">Revisa el vehículo antes de salir. Queda a tu nombre.</p>
+  <div class="hero-actions">
+    <button class="btn btn-primary"><i class="hgi-stroke hgi-add-01"></i>Registrar chequeo</button>
+    <button class="btn">Ver los de hoy</button>
+  </div>
+</section>
+```
+
+**Write no colour of your own inside it.** It is the one piece painted with the full brand fill, and it dresses what it carries: the text already comes in the ink that reads over that colour, `.btn` empties out to a bordered one in that same ink, and `.btn-primary` lifts off the band in the house's paper. Putting `color` on anything inside --a surface ink like `--ink` or `--ink-soft`, or the fill itself-- is what breaks it: those are the inks of the page, not of the band, and the band's colour changes with the palette and with the mode while they do not.
+
+One hero per screen, at the top. For a section heading inside the page use a plain `<h2>`.
+
 #### Table
 
 ```html
@@ -114,6 +133,7 @@ The foot anchors itself to the bottom, so two cards side by side line their feet
   <select id="estado"><option>All</option><option>Paid</option></select>
 </div>
 
+<form class="field-stack">…fields one under another…</form>
 <div class="field-row">…two fields side by side…</div>
 
 <div class="join">
@@ -121,6 +141,8 @@ The foot anchors itself to the bottom, so two cards side by side line their feet
   <button class="btn btn-primary"><i class="hgi-stroke hgi-search-01"></i>Search</button>
 </div>
 ```
+
+**Two fields in a row do not separate on their own, and nothing puts that space in for you.** A `.field` only spaces its own parts --label, control, hint--, so **every container holding more than one field carries `.field-stack`** (one under another) or `.field-row` (side by side). It is a class, not a tag: a `<form>`, a `<section>` or an intermediate `<div>` that groups fields all need it written out --`<form class="field-stack">`--, and so does the container you fill from JavaScript: `<div id="ed-campos" class="field-stack"></div>`, never a bare `<div>`. Write it even where it seems unnecessary: `.modal-body` happens to space the fields hanging directly off it, `.card-body` does not, and telling the two apart is not worth the mistake. A form whose fields come out glued together is a missing `field-stack`.
 
 Inside a `.field` the control needs no class. **Loose** --a search box in a bar, a cell being edited-- it takes `class="field-control"`, which is the same dress on its own; add `sm` for the short size. A checkbox or a radio has its own markup:
 
@@ -153,7 +175,7 @@ The tick needs **both** classes, `hgi-stroke` and `hgi-tick-02`: with only one o
 </div>
 ```
 
-A tag is always `class="tag"` plus **one** colour class, and never an inline style: writing `style="background: …"` or `--tag` on a tag is wrong, and so is a colour class of your own invention. `tint-1` is the normal one; `tint-2` to `tint-4` exist to tell several categories apart in the same list, all four already contrasting in both modes. `tag-success` / `tag-warning` / `tag-error` are for what really does mean fine, careful or wrong.
+A tag is always `class="tag"` plus **one** colour class, and never an inline style: writing `style="background: …"` or `--tag` on a tag is wrong, and so is a colour class of your own invention. `tint-1` is the normal one; `tint-2` to `tint-10` exist to tell several categories apart in the same list --ten fixed colours (blue, violet, plum, red, terracotta, amber, olive, green, turquoise, slate), the same in both modes and under any palette, all ten already contrasting. `tag-success` / `tag-warning` / `tag-error` are for what really does mean fine, careful or wrong.
 
 The bare pill --`class="tag"` with no colour class-- is the **off** state, and that is the whole mechanism of a tag that switches: on is `tag tint-1`, off is `tag`. A row of filters is written that way, adding and removing `tint-1`. There are no sizes and no other variants.
 
@@ -257,6 +279,8 @@ The alert has four tones: `info`, `ok`, `warn`, `danger`.
 `.menu` with `.menu-btn` and `.menu-sep` for a dropdown (native `popover`, no JavaScript), `.modal` and `.drawer` with `.modal-head` / `.modal-body` / `.modal-foot` inside, `.crumbs` for a breadcrumb, `.steps` for a flow, `.pager` for pages of results, `.divider` for a separating line (`.divider-text` when it carries a word, like "o continúa con"), `.link` for a link with an outward icon, `.fieldset` with its `<legend>`, `.tip` with `data-tip="…"` for a hint on hover, `.dots` and `.legend` with `.legend-item` for a chart's key, `.rating` (hidden radios plus star labels, the same mechanism as `.tabs`) for a star score, `.tag-remove` for the little cross on a dismissible filter tag, `.swatch` for a small colour square beside a chart's own legend (`<i class="swatch" style="background: var(--chart-1)">`), `.range-val` for the live value beside a `type="range"` input, and `.btn-warning` for a button whose action is pending, not wrong.
 
 `.toast` is a notice that appears over the screen rather than inside it, built the same `popover` way as `.menu`: give it an `id`, open it with `popovertarget="ese-id"` on the button that triggers it, and close it with a `.close` button carrying `popovertargetaction="hide"` pointed at the same id. Its tones are `ok`, `info`, `warn` and `danger`, same meaning as `.alert`.
+
+`.modal`, `.drawer`, `.menu` and `.toast` are `popover`s: the browser draws them in a layer of its own, and they are written as **siblings of the screen's container, not inside it**. A rule of yours that begins with that container --`.pantalla .field-control { … }`-- therefore reaches nothing inside them: the modal quietly keeps the catalogue's own measurements while the rest of the screen carries yours, and nothing warns you. A rule that has to reach both is written without the prefix.
 
 A small status dot that pulses --something changed and has not been looked at yet-- is `.badge-success` / `.badge-warning` / `.badge-error` added beside an icon or a button, not a tag of its own.
 
@@ -413,25 +437,23 @@ The platform already loads an icon font in the document. **Do not draw SVG and d
 ```
 
 - **Never emojis.** An emoji is drawn differently on every system, does not take the theme's colour, and turns any screen into a draft.
-- Being type, an icon inherits `color` and `font-size` from wherever it sits. To make it bigger, `font-size`; to paint it, `color`. No `width`, `height` or `fill`.
-- An icon accompanies, it does not lead: beside the text, the same size as its line, in `var(--ink-soft)`.
+- Being type, an icon takes `color` and `font-size` from wherever it sits: on its own it measures a little more than the text of its line (`1.2em`), so inside a title it already grows with the title. To make it bigger, `font-size`; to paint it, `color`. No `width`, `height` or `fill`, and never a size in `px`.
+- **Size it by what it does, not by habit.** The most common mistake is an icon left at text size where it has to be seen from afar:
+
+| Where it sits | Size |
+|---|---|
+| beside a label, in a row, a tag, a menu item | leave it: it follows its line |
+| inside a heading (`h1`–`h3`), before the title | leave it: it follows the heading |
+| the icon of a section or a card, alone in its own tile beside the title | `var(--type-xl)`, centred in a square of `var(--space-10)` with `border-radius: var(--radius-card)` and the brand's soft version behind (`color-mix(in oklab, var(--color-primary) 12%, var(--surface-card))`) |
+| the icon of a feature or a shortcut, above its text | `var(--type-2xl)` |
+| an empty state, a welcome, a confirmation, a hero | `var(--type-3xl)` or `calc(var(--type-3xl) * 1.5)` |
+
+- Buttons, `.kpi-ico`, `.alert`, `.tag` and the rest of the catalogue already size their icon: do not touch it there.
+- Beside text, an icon accompanies in `var(--ink-soft)`; where it leads --a tile, an empty state-- it may carry the brand in `var(--color-primary-text)`.
 - If something has no obvious icon, give it none.
-- **An invented name does not fail visibly: it leaves a blank gap**, and nobody notices anything is missing. Hence the list below: these are the names we know exist. The font holds thousands more, and any of them is fine if that really is its name, but do not guess one --if what you want is not in the list, take the closest one that is.
+- **An invented name does not fail visibly: it leaves a blank gap**, and nobody notices anything is missing. The font holds more than six thousand names and none of them is listed here: **find them with "buscar_iconos"**, searching with English keywords (`user`, `invoice`, `calendar`, `shopping cart`), and use only names it returned. Never guess one.
+- **Write every icon name literally in the document**, as `hgi-<name>` or as a quoted string holding the exact name (for example inside a map from a state to its icon). Never build a name by joining pieces of text: the frame only loads the icons it finds written in the page.
 - The markup of an icon is never escaped. If you insert it with `innerHTML`, it goes in as it is: escaping what you wrote yourself turns it into the visible text `<i class=...>`. Escaping is only for what comes from the tables or from the viewer.
-
-The safe names, by family (they go after `hgi-`):
-
-- **Navigation and actions:** home-01, dashboard-square-01, sidebar-left, menu-01, more-horizontal, more-vertical, arrow-left-01, arrow-right-01, arrow-up-01, arrow-down-01, arrow-up-right-01, arrow-expand, arrow-shrink, cancel-01, cancel-circle, tick-01, tick-02, tick-double-01, checkmark-circle-01, add-01, add-circle, minus-sign, remove-circle, search-01, search-remove, filter, filter-reset, sorting-a-z-01, sorting-z-a-01, sorting-one-9, sorting-nine-1, refresh, reload, settings-01, settings-02, preference-horizontal, login-01, logout-01, link-01, link-square-02, unlink-01, share-01, copy-01, clipboard, view, view-off, grid-view, list-view, layout-01, sidebar-left, toggle-on, toggle-off, drag-drop, move, repeat, loading-03
-- **Data and charts:** database, database-01, database-add, database-export, database-import, file-spreadsheet, csv-01, xls-01, google-sheet, grid-table, chart, chart-bar-line, chart-line-data-01, chart-column, pie-chart, analytics-01, analytics-up, presentation-bar-chart-01, percent, calculator, abacus, layers-01
-- **Documents and files:** file-01, file-02, file-add, file-edit, file-remove, file-validation, file-attachment, file-export, file-import, file-search, file-upload, folder-01, folder-02, folder-add, folder-open, document-validation, note, note-edit, task-01, task-done-01, checkmark-badge-01, pdf-01, printer, floppy-disk, download-01, upload-01, cloud-upload, cloud-download, delete-02, delete-put-back, edit-02, pencil-edit-02, text-font, paragraph, attachment-01, inbox
-- **People:** user, user-account, user-circle, user-multiple, user-group, user-add-01, user-remove-01, user-settings-01, user-search-01, user-lock-01, user-star-01, user-switch, manager, contact-01, id-verified, profile, teacher, permanent-job, customer-service-01, customer-support
-- **Communication:** mail-01, mail-02, mail-open, mail-send-01, mail-add-01, bubble-chat, bubble-chat-add, message-01, comment-01, notification-01, notification-off-01, call, telephone, smart-phone-01, whatsapp-business, translate
-- **Time:** calendar-01, calendar-02, calendar-03, calendar-add-01, calendar-check-in-01, calendar-remove-01, clock-01, clock-02, alarm-clock, time-schedule, timer-01, time-half-pass, work-history
-- **Alerts and status:** alert-01, alert-02, alert-circle, alert-diamond, information-circle, help-circle, question, star, favourite, bookmark-01, flag-01, pin, pin-off, idea-01, target-01, zap
-- **Security:** lock, lock-key, square-lock-01, security, security-check, shield-01, shield-key, key-01, key-02, password-validation, fingerprint-scan, qr-code, bar-code-01
-- **Money and commerce:** shopping-cart-01, shopping-bag-01, package, package-delivered, package-open, delivery-truck-01, delivery-box-01, delivery-tracking-01, invoice-01, invoice-02, money-bag-01, dollar-circle, dollar-square, coins-01, credit-card, wallet-01, payment-success-01, tag-01, discount, discount-tag-01, label, store-01, shop-sign
-- **Places and organisation:** building-01, building-02, building-03, office, factory-01, hospital-01, school, warehouse, location-01, location-04, maps, location-user-01, route-01, navigation-03, global, globe-02, briefcase-01, job-search, workflow-square-01, hierarchy-square-01, strategy
-- **Media and system:** image-01, camera-01, video-01, play, mic-01, headphones, code, source-code, code-square, bug-01, command, computer, laptop, cloud, wifi-01, connect, rocket-01, ai-magic, magic-wand-01, artificial-intelligence-04, robotic, ai-brain-01, sun-01, moon-02, book-01, book-open-01, notebook-01, leaf-01, recycle-01, medicine-01, stethoscope, thermometer
 
 #### Tables and lists
 
@@ -480,7 +502,11 @@ var r = await plane.listar("equipos", {
   limite: 50,
   pagina: 1
 });
-// r = { filas: [...], total: 120, pagina: 1, paginas: 3 }
+// r = { filas: [...], total: 120, pagina: 1, paginas: 3, limite: 50, recortado: false }
+
+// Contar, sin traerse ninguna fila. Toma el mismo filtro y la misma busqueda.
+var cuantos = await plane.contar("equipos", { filtro: { estado: "Operativo" } });
+// cuantos = { total: 120 }
 
 var uno   = await plane.obtener("equipos", "id-del-registro");
 var nuevo = await plane.crear("equipos", { nombre: "Turbina", estado: "Operativo" });
@@ -494,6 +520,17 @@ Rules:
 
 - Only the declared sources and columns can be named. Any other one is rejected without ever being queried.
 - The permissions are those of whoever is looking at the screen. An operation can fail for lack of permission: wrap the calls in `try / catch` and show `error.message`.
+
+#### How many there are
+
+**`limite` has a ceiling of 200, and one call never brings back more than that.** Asking for more is not an error: you get 200 rows, `limite` says how many really came, and `recortado` comes back `true`. There is no way to pull a whole table down in one go, and there is not meant to be.
+
+That is why counting has one rule with no exceptions:
+
+- **`r.total` is how many rows there are. `r.filas.length` is how many arrived.** They are the same number only while the table is smaller than one page. Writing `filas.length` into a "total" figure paints the page size, and on a table of 410 rows the screen says 200 and looks right.
+- **To count anything the filter can express, use `plane.contar`.** How many are operativo, how many this month, how many of one person: a filter and a count, with nothing travelling. It is exact whatever the table's size.
+- **To count something the filter cannot express** --distinct values, a grouping, a deduplication-- walk the pages with `pagina` until `pagina === paginas`, accumulating as you go. Do it because the figure needs it, never to paint: what gets painted is one page at a time.
+- **Never explain a figure that does not add up by guessing at the data.** If a number looks short, it is the page size before it is anything else. Rows that were saved do not vanish, and an import that did not finish is not something you can tell from here.
 - Wait for `plane` before asking for anything:
 
 ```js
@@ -669,5 +706,9 @@ A single complete HTML file, with its `<head>` and its `<body>`, and its `<style
 The stylesheet goes in a single `<style>`, in this order: the few values of your own that you need, then the layout of the screen, then each piece. Classes are named in Spanish and with meaning --`cabecera`, `lista-citas`, `tarjeta-total`--, never `div1` or `col-md-6`.
 
 Do not repeat what the platform already provides: the `box-sizing`, the typeface, the text colour and the starting look of buttons, fields and tables arrive in Planer's stylesheet. Write only what changes.
+
+The type scale is the clearest case. **Do not rewrite the size of a field, a label, a button or a table cell**, neither with a literal (`font-size: 1.0625rem`) nor with a token: the catalogue already sizes them all, together. If the screen reads too small, the control for that is the app's own *Tamaño de letra*, which scales every rem at once; a size rewritten by hand stops answering to it. Type of your own belongs to what the catalogue does not dress --the screen's title, a figure that matters, a caption-- and even there it is written with `var(--type-*)`.
+
+The same goes for the height of a control: `.field-control` sets it with `height`, so adding `padding` to make a field taller changes nothing.
 
 <!-- fin de lo generado -->

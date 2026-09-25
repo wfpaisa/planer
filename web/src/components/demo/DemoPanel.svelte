@@ -114,7 +114,7 @@
     </article>
     <!-- Steps -->
     <article class="card gallery-item wide">
-      {@render head("Pasos", "El avance de un proceso. Ej.: la IA trabajando")}
+      {@render head("Pasos", "El avance de un proceso. Ej.: proceso en curso")}
       <div class="card-body">
         <ol class="steps">
           <li class="done">Carrito</li>

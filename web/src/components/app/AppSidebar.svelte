@@ -460,9 +460,9 @@
                   {#if builder && aiActivity.has(page.id)}
                     <span
                       role="img"
-                      data-tip="La inteligencia artificial está trabajando aquí"
+                      data-tip="Se está trabajando aquí"
                       data-tip-side="right"
-                      aria-label="La inteligencia artificial está trabajando aquí"
+                      aria-label="Se está trabajando aquí"
                       class="sidebar-page-ai"
                     >
                       <Icon name="ai-magic" size={18} />

@@ -1248,7 +1248,7 @@ export function buildHtmlDocs(): string {
 
 Una página es un archivo HTML completo que se dibuja aislado del panel: sin acceso a la sesión, a las cookies ni al almacenamiento del navegador. Todo lo que necesita del exterior se lo da \`window.plane\`.
 
-Esto es lo mismo que recibe la inteligencia artificial en cada petición, generado desde la misma fuente (\`shared/htmlContract.ts\`). Va en inglés porque es una instrucción para el modelo; lo que el modelo escribe --la pantalla y su respuesta-- sigue siendo español. A este texto se le añaden, en el momento, las tablas de la aplicación con sus columnas, y las columnas propias de su tabla de personas, que son las que llegan a \`plane.usuario\`.`;
+Esto es lo mismo que se recibe en cada petición, generado desde la misma fuente (\`shared/htmlContract.ts\`). Va en inglés porque es una instrucción para el modelo; la pantalla y la respuesta se escriben en español. A este texto se le añaden, en el momento, las tablas de la aplicación con sus columnas, y las columnas propias de su tabla de personas, que son las que llegan a \`plane.usuario\`.`;
 
   const parts = [
     intro,

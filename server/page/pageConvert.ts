@@ -311,7 +311,7 @@ export async function convertPageToHtml(opts: {
   const answer = await askAi(system, prompt, MAX_TOKENS);
   const html = unfence(answer);
   if (!/<html|<body|<div|<section/i.test(html)) {
-    throw new HttpError(502, "La IA no devolvió un documento HTML. Inténtalo de nuevo.");
+    throw new HttpError(502, "No se recibió un documento HTML. Inténtalo de nuevo.");
   }
 
   return {

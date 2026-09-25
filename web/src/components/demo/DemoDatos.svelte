@@ -129,7 +129,7 @@
     </article>
     <!-- Timeline -->
     <article class="card gallery-item wide">
-      {@render head("Cronología", "Eventos en orden. Ej.: los pasos de la IA")}
+      {@render head("Cronología", "Eventos en orden. Ej.: los pasos del proceso")}
       <div class="card-body">
         <ol class="timeline">
           <li class="done">
