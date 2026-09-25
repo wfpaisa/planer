@@ -93,7 +93,7 @@
               aria-label="Cerrar sesión"
               data-tip="Cerrar sesión"
             >
-              <i class="hgi-stroke hgi-logout-03"></i>
+              <i class="icon icon-logout-03"></i>
             </button>
           </div>
         </div>
@@ -107,7 +107,7 @@
         <div class="gallery-demo">
           <a class="link" href="/demo" target="_blank" rel="noopener noreferrer">
             Abrir en pestaña nueva
-            <i class="hgi-stroke hgi-link-square-02"></i>
+            <i class="icon icon-link-square-02"></i>
           </a>
         </div>
       </div>
@@ -144,17 +144,17 @@
       <div class="card-body">
         <div class="insights">
           <article class="insight a">
-            <i class="deco hgi-stroke hgi-ai-magic"></i>
+            <i class="deco icon icon-ai-magic"></i>
             <h3>Predecir la demanda del próximo trimestre</h3>
             <p>El modelo detectó estacionalidad estable en 4 categorías.</p>
           </article>
           <article class="insight b">
-            <i class="deco hgi-stroke hgi-target-02"></i>
+            <i class="deco icon icon-target-02"></i>
             <h3>Recuperar 312 carritos abandonados</h3>
             <p>Valor potencial estimado de 18 400 € en 7 días.</p>
           </article>
           <article class="insight c">
-            <i class="deco hgi-stroke hgi-rocket-01"></i>
+            <i class="deco icon icon-rocket-01"></i>
             <h3>Optimizar el embudo de registro</h3>
             <p>La caída principal ocurre en el paso de verificación.</p>
           </article>

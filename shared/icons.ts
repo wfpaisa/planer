@@ -2,7 +2,7 @@
  * Los iconos de la plataforma.
  *
  * Son una **fuente tipografica**, no trazados. La hoja declara una
- * regla por icono (`.hgi-stroke.hgi-<nombre>::before { content: "..." }`), así
+ * regla por icono (`.icon.icon-<nombre>::before { content: "..." }`), así
  * que dibujar uno es escribir su nombre en una clase: ni paquete, ni árbol de
  * SVG en el bundle, ni logica que elegir. El panel la carga en su `index.html`
  * y cada página publicada la recibe con el resto de lo que inyecta el puente
@@ -73,7 +73,32 @@ export function iconName(raw?: string | null): string {
 }
 
 /** Las clases con las que se dibuja un icono ya normalizado. */
-export const iconClass = (name: string) => `hgi-stroke hgi-${name}`;
+export const iconClass = (name: string) => `icon icon-${name}`;
+
+/**
+ * Traduce las clases de icono de antes a las de ahora.
+ *
+ * Un icono se escribia como la hoja original de Hugeicons,
+ * `hgi-stroke hgi-<nombre>`; ahora es `icon icon-<nombre>`. Los documentos
+ * se guardan por su huella y las versiones apuntan a ella, así que no se
+ * reescriben: se traducen al leerlos y al guardarlos.
+ *
+ * Los estilos que la fuente no trae --`hgi-solid`, `hgi-bulk`...--, que el
+ * modelo sacaba de la documentación pública, y el `hgi` suelto pasan a ser
+ * `icon`: antes dejaban el nombre sin familia y el navegador pintaba una caja
+ * en su lugar. El orden importa: primero el estilo, después el nombre, porque
+ * `hgi-solid-line-01` es un icono y no un estilo.
+ */
+export function upgradeIconClasses(html: string): string {
+  if (!html.includes("hgi")) return html;
+  return html
+    .replace(
+      /(?<![\w-])hgi(?:-(?:stroke|solid|bulk|duotone|twotone|rounded|sharp|standard))?(?![\w-])/g,
+      "icon",
+    )
+    .replace(/(?<![\w-])icon(?:\s+icon)+(?![\w-])/g, "icon")
+    .replace(/(?<![\w-])hgi-/g, "icon-");
+}
 
 /**
  * Los iconos que se le ofrecen a la inteligencia artificial.

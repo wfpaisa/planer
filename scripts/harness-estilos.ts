@@ -77,7 +77,7 @@ for (const m of contract.matchAll(/class="([^"]+)"/g)) {
  * anidados (`&.sm`, `&.info`) y por eso no aparecen como clase de primer nivel.
  */
 const OWN =
-  /^(?:hgi-[\w-]+|tint-\d+|b-(?:success|warning|error|wait)|num|sm|round|error|done|active|info|ok|warn|danger|left|right|wide)$/;
+  /^(?:icon(?:-[\w-]+)?|tint-\d+|b-(?:success|warning|error|wait)|num|sm|round|error|done|active|info|ok|warn|danger|left|right|wide)$/;
 /**
  * Las que el contrato inventa como ejemplo de "una clase tuya, descriptiva".
  * Van en espanol porque eso es justo lo que el contrato pide para ellas, y es
@@ -162,7 +162,7 @@ const BUENA = `<!doctype html>
       <h1 class="hero-title">Pedidos del mes</h1>
       <p class="hero-sub">Lo abierto, lo entregado y lo que ya pasó de fecha.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary"><i class="hgi-stroke hgi-add-01"></i>Nuevo pedido</button>
+        <button class="btn btn-primary"><i class="icon icon-add-01"></i>Nuevo pedido</button>
         <button class="btn">Ver atrasados</button>
       </div>
     </section>
@@ -171,8 +171,8 @@ const BUENA = `<!doctype html>
       <tbody><tr><td>Lucía Marín</td><td class="num">184,20 €</td></tr></tbody>
       <tfoot><tr><td colspan="2"><div class="table-foot"><span class="pg-info">248 pedidos</span></div></td></tr></tfoot></table>
     </div></div>
-    <button class="btn btn-primary"><i class="hgi-stroke hgi-add-01"></i>Nuevo pedido</button>
-    <label class="choice"><input type="checkbox"><i class="choice-box ico-nudge hgi-stroke hgi-tick-02"></i><span>Solo pagados</span></label>
+    <button class="btn btn-primary"><i class="icon icon-add-01"></i>Nuevo pedido</button>
+    <label class="choice"><input type="checkbox"><i class="choice-box ico-nudge icon icon-tick-02"></i><span>Solo pagados</span></label>
     <input class="field-control sm" type="search" placeholder="Buscar">
   </div>
 </body></html>`;
@@ -337,7 +337,9 @@ const repetidos = sugeridos.filter((n, i) => sugeridos.indexOf(n) !== i);
 check("y ninguno esta dos veces", repetidos.length === 0, repetidos.join(", "));
 
 const comunes = await Bun.file("web/public/iconos/comunes.css").text();
-const recortados = new Set([...comunes.matchAll(/\.hgi-([a-z0-9-]+)::before/g)].map((m) => m[1]));
+const recortados = new Set(
+  [...comunes.matchAll(/\.icon\.icon-([a-z0-9-]+)::before/g)].map((m) => m[1]),
+);
 const sinRecortar = SUBSET_ICONS.filter((n) => !recortados.has(n));
 check(
   "y el subconjunto del marco los lleva todos",

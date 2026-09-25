@@ -178,7 +178,7 @@
             </p>
             <div class="hero-actions">
               <button class="btn btn-primary">
-                <i class="hgi-stroke hgi-add-01"></i>
+                <i class="icon icon-add-01"></i>
                 Registrar chequeo
               </button>
               <button class="btn">Ver los de hoy</button>

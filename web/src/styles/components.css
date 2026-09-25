@@ -3282,7 +3282,7 @@ input[type="range"].field-control {
 }
 
 /* Mientras carga manda el icono de carga: el propio del botón cede el sitio */
-.is-loading > i:not(.hgi-loading-03) {
+.is-loading > i:not(.icon-loading-03) {
   display: none;
 }
 

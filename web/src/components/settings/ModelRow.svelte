@@ -183,7 +183,7 @@
             onchange={(e) => onChange({ vision: e.currentTarget.checked })}
             class="check-ai-model-control"
           />
-          <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+          <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
           Ve imágenes
         </label>
         <label class="check-ai-model choice">
@@ -193,7 +193,7 @@
             onchange={(e) => onChange({ thinking: e.currentTarget.checked })}
             class="check-ai-model-control"
           />
-          <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+          <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
           Piensa antes de responder
         </label>
       </div>

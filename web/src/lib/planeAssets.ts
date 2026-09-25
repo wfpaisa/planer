@@ -63,7 +63,7 @@ function glyphMap(): Promise<Map<string, string>> {
   glyphs ??= file(ICON_FONT_URL).then((css) => {
     const map = new Map<string, string>();
     for (const match of css.matchAll(
-      /\.hgi-stroke\.hgi-([a-z0-9-]+)::before\s*\{\s*content:\s*"\\([0-9a-f]+)"/g,
+      /\.icon\.icon-([a-z0-9-]+)::before\s*\{\s*content:\s*"\\([0-9a-f]+)"/g,
     ))
       map.set(match[1], match[2]);
     return map;
@@ -74,13 +74,13 @@ function glyphMap(): Promise<Map<string, string>> {
 
 /**
  * Los iconos que la página nombra y el subconjunto no trae: los que van como
- * clase (`hgi-nombre`) y los que van como texto entre comillas --un mapa de
+ * clase (`icon-nombre`) y los que van como texto entre comillas --un mapa de
  * estado a icono, por ejemplo--. Un nombre armado a trozos no se ve, y por eso
  * el contrato pide escribirlos enteros.
  */
 function extraIcons(html: string): string[] {
   const found = new Set<string>();
-  for (const match of html.matchAll(/hgi-([a-z0-9-]+)/g)) found.add(match[1]);
+  for (const match of html.matchAll(/icon-([a-z0-9-]+)/g)) found.add(match[1]);
   for (const match of html.matchAll(/["'`]([a-z0-9-]+)["'`]/g)) found.add(match[1]);
   return [...found].filter((name) => ICON_NAME_SET.has(name) && !SUBSET_SET.has(name));
 }
@@ -157,10 +157,10 @@ async function extraIconsCss(html: string): Promise<string> {
   const map = await glyphMap().catch(() => new Map<string, string>());
   const rules = names
     .filter((name) => map.has(name))
-    .map((name) => `.hgi-stroke.hgi-${name}::before{content:"\\${map.get(name)}"}`);
+    .map((name) => `.icon.icon-${name}::before{content:"\\${map.get(name)}"}`);
   if (!rules.length) return "";
   serveFonts();
-  return `.hgi-stroke{font-family:"${FULL_FAMILY}","hugeicons-stroke-rounded"!important}${rules.join("")}`;
+  return `.icon{font-family:"${FULL_FAMILY}","hugeicons-stroke-rounded"!important}${rules.join("")}`;
 }
 
 /** Lo que corre dentro del marco: pide la fuente y la registra al llegar. */

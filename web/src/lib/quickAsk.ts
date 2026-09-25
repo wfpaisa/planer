@@ -39,7 +39,7 @@ export const QUICK_ASK = {
       "(3) more air between sections and inside the cards; " +
       "(4) fewer boxes: group with space and type, and take out the cards inside cards; " +
       "(5) `--color-secondary` for the buttons, the links and anything that gets clicked, `--color-primary` only for what identifies, and the colour spent on one thing per screen with everything else in ink; " +
-      '(6) the emojis replaced by icons from the platform font (`<i class="hgi-stroke hgi-name"></i>`), with names taken from the safe list, never SVG paths and never an icon library; ' +
+      '(6) the emojis replaced by icons from the platform font (`<i class="icon icon-name"></i>`), with names taken from the safe list, never SVG paths and never an icon library; ' +
       '(7) the table with no vertical rules and a row hover, its figures in `class="number"` (never `class="num"`, which does not exist) with your own `style="text-align: right"` on the numeric column since the catalogue does not align it for you, and its row actions as `.mini-btn`; ' +
       "(8) the three states resolved: loading placeholder, empty and error; " +
       "(9) the screen holding up narrow: grids with `auto-fit`, no fixed `px` on a container, a wide table wrapped in `overflow-x: auto`; " +

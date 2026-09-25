@@ -25,28 +25,28 @@
       <div class="card-body">
         <div class="gallery-demo">
           <div class="alert info" role="status">
-            <i class="hgi-stroke hgi-information-circle"></i>
+            <i class="icon icon-information-circle"></i>
             <span>
               <strong>Sincronización programada</strong>
               Los datos se actualizarán esta noche a las 03:00.
             </span>
           </div>
           <div class="alert ok" role="status">
-            <i class="hgi-stroke hgi-checkmark-circle-02"></i>
+            <i class="icon icon-checkmark-circle-02"></i>
             <span>
               <strong>Todo correcto</strong>
               El informe se exportó sin incidencias.
             </span>
           </div>
           <div class="alert warn" role="status">
-            <i class="hgi-stroke hgi-alert-02"></i>
+            <i class="icon icon-alert-02"></i>
             <span>
               <strong>Cuota al 74 %</strong>
               Quedan 258 K eventos en el plan de este mes.
             </span>
           </div>
           <div class="alert danger" role="alert">
-            <i class="hgi-stroke hgi-cancel-circle"></i>
+            <i class="icon icon-cancel-circle"></i>
             <span>
               <strong>Pago rechazado</strong>
               Revisa el método de pago del cliente.
@@ -67,7 +67,7 @@
             <button class="btn" popovertarget="demoToast-danger">Error</button>
           </div>
           <div class="toast ok" id="demoToast-ok" popover>
-            <i class="ico hgi-stroke hgi-checkmark-circle-02"></i>
+            <i class="ico icon icon-checkmark-circle-02"></i>
             <span class="t-text">
               <span>Cambios guardados</span>
               <span class="t-sub">El informe se actualizó correctamente.</span>
@@ -78,11 +78,11 @@
               popovertargetaction="hide"
               aria-label="Cerrar"
             >
-              <i class="hgi-stroke hgi-cancel-01"></i>
+              <i class="icon icon-cancel-01"></i>
             </button>
           </div>
           <div class="toast info" id="demoToast-info" popover>
-            <i class="ico hgi-stroke hgi-information-circle"></i>
+            <i class="ico icon icon-information-circle"></i>
             <span class="t-text">
               <span>Sincronización en curso</span>
               <span class="t-sub">Terminará en menos de un minuto.</span>
@@ -93,11 +93,11 @@
               popovertargetaction="hide"
               aria-label="Cerrar"
             >
-              <i class="hgi-stroke hgi-cancel-01"></i>
+              <i class="icon icon-cancel-01"></i>
             </button>
           </div>
           <div class="toast warn" id="demoToast-warn" popover>
-            <i class="ico hgi-stroke hgi-alert-02"></i>
+            <i class="ico icon icon-alert-02"></i>
             <span class="t-text">
               <span>Cuota casi agotada</span>
               <span class="t-sub">Quedan 258 K eventos este mes.</span>
@@ -108,11 +108,11 @@
               popovertargetaction="hide"
               aria-label="Cerrar"
             >
-              <i class="hgi-stroke hgi-cancel-01"></i>
+              <i class="icon icon-cancel-01"></i>
             </button>
           </div>
           <div class="toast danger" id="demoToast-danger" popover>
-            <i class="ico hgi-stroke hgi-cancel-circle"></i>
+            <i class="ico icon icon-cancel-circle"></i>
             <span class="t-text">
               <span>No se pudo exportar</span>
               <span class="t-sub">Revisa la conexión e inténtalo de nuevo.</span>
@@ -123,7 +123,7 @@
               popovertargetaction="hide"
               aria-label="Cerrar"
             >
-              <i class="hgi-stroke hgi-cancel-01"></i>
+              <i class="icon icon-cancel-01"></i>
             </button>
           </div>
         </div>

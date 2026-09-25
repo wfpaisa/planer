@@ -106,7 +106,7 @@
 
     {#if pending}
       <div class="alert warn status-publish-panel">
-        <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
+        <i class="icon icon-alert-02" aria-hidden="true"></i>
         {#if app.published}
           <span>
             <strong>Cambios sin publicar</strong>

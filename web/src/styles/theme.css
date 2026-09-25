@@ -568,7 +568,7 @@ a {
 /* Iconos de la fuente Hugeicons: un tamaño de partida comun. Va en
    `:where()` para no pesar nada: cualquier clase que lo agrande --del
    catálogo o de una página-- le gana sin tener que subir la apuesta. */
-:where(i[class*="hgi-"]) {
+:where(i.icon) {
   font-size: var(--text-base);
   line-height: 1;
   flex: none;

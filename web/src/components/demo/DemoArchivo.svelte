@@ -31,16 +31,16 @@
             </p>
           <div class="demo-dropzones">
             <div class="dropzone">
-              <i class="hgi-stroke hgi-upload-01" aria-hidden="true"></i>
+              <i class="icon icon-upload-01" aria-hidden="true"></i>
               <span class="dropzone-hint">Estado vacío · CSV, Excel o JSON</span>
             </div>
             <div class="dropzone loaded">
-              <i class="hgi-stroke hgi-checkmark-circle-02" aria-hidden="true"></i>
+              <i class="icon icon-checkmark-circle-02" aria-hidden="true"></i>
               <span class="dropzone-lead">pedidos-marzo.csv</span>
               <span class="dropzone-hint">Archivo listo para importar</span>
             </div>
             <div class="dropzone rejected">
-              <i class="hgi-stroke hgi-alert-circle" aria-hidden="true"></i>
+              <i class="icon icon-alert-circle" aria-hidden="true"></i>
               <span class="dropzone-lead">informe.pdf</span>
               <span class="dropzone-hint">Formato no compatible. Usa CSV, Excel o JSON.</span>
             </div>

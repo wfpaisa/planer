@@ -41,7 +41,7 @@
                       "";
                   }}
                 >
-                  <i class="hgi-stroke hgi-dashboard-square-01"></i>
+                  <i class="icon icon-dashboard-square-01"></i>
                   Panel
                 </a>
               </li>
@@ -56,7 +56,7 @@
                       "";
                   }}
                 >
-                  <i class="hgi-stroke hgi-store-01"></i>
+                  <i class="icon icon-store-01"></i>
                   Comercio
                 </a>
               </li>
@@ -71,12 +71,12 @@
                       "";
                   }}
                 >
-                  <i class="hgi-stroke hgi-shopping-bag-01"></i>
+                  <i class="icon icon-shopping-bag-01"></i>
                   Pedidos
                 </a>
               </li>
               <li aria-current="page">
-                <i class="hgi-stroke hgi-invoice-01"></i>
+                <i class="icon icon-invoice-01"></i>
                 #AR-4821
               </li>
             </ol>
@@ -101,7 +101,7 @@
                   aria-label="Panel"
                   data-tip="Panel"
                 >
-                  <i class="hgi-stroke hgi-dashboard-square-01"></i>
+                  <i class="icon icon-dashboard-square-01"></i>
                 </a>
               </li>
               <li>
@@ -117,7 +117,7 @@
                   aria-label="Comercio"
                   data-tip="Comercio"
                 >
-                  <i class="hgi-stroke hgi-store-01"></i>
+                  <i class="icon icon-store-01"></i>
                 </a>
               </li>
               <li>
@@ -133,11 +133,11 @@
                   aria-label="Pedidos"
                   data-tip="Pedidos"
                 >
-                  <i class="hgi-stroke hgi-shopping-bag-01"></i>
+                  <i class="icon icon-shopping-bag-01"></i>
                 </a>
               </li>
               <li aria-current="page" aria-label="Pedido #AR-4821" data-tip="#AR-4821">
-                <i class="hgi-stroke hgi-invoice-01"></i>
+                <i class="icon icon-invoice-01"></i>
               </li>
             </ol>
           </nav>
@@ -159,7 +159,7 @@
         <div class="gallery-row">
           <button class="btn menu-btn" popovertarget="demoMenu">
             Acciones
-            <i class="caret hgi-stroke hgi-arrow-down-01"></i>
+            <i class="caret icon icon-arrow-down-01"></i>
           </button>
         </div>
         <p class="demo-feedback" aria-live="polite">
@@ -172,7 +172,7 @@
             popovertargetaction="hide"
             onclick={() => (action = "Editar")}
           >
-            <i class="hgi-stroke hgi-pencil-edit-02"></i>
+            <i class="icon icon-pencil-edit-02"></i>
             Editar
           </button>
           <button
@@ -181,7 +181,7 @@
             popovertargetaction="hide"
             onclick={() => (action = "Duplicar")}
           >
-            <i class="hgi-stroke hgi-copy-01"></i>
+            <i class="icon icon-copy-01"></i>
             Duplicar
           </button>
           <button
@@ -190,7 +190,7 @@
             popovertargetaction="hide"
             onclick={() => (action = "Exportar")}
           >
-            <i class="hgi-stroke hgi-download-04"></i>
+            <i class="icon icon-download-04"></i>
             Exportar
           </button>
           <div class="menu-sep"></div>
@@ -201,7 +201,7 @@
             popovertargetaction="hide"
             onclick={() => (action = "Eliminar")}
           >
-            <i class="hgi-stroke hgi-delete-02"></i>
+            <i class="icon icon-delete-02"></i>
             Eliminar
           </button>
         </div>
@@ -219,13 +219,13 @@
           <div class="gallery-row">
             <button type="button" class="trigger-quiet menu-btn" popovertarget="demoQuietMenu">
               <span class="trigger-quiet-soft">correo_cliente</span>
-              <i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i>
+              <i class="icon icon-arrow-right-01" aria-hidden="true"></i>
               <span>Correo</span>
-              <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i>
+              <i class="icon icon-arrow-down-01" aria-hidden="true"></i>
             </button>
             <button type="button" class="trigger-quiet menu-btn" popovertarget="demoQuietMenu">
               <span>{columnType}</span>
-              <i class="hgi-stroke hgi-arrow-down-01" aria-hidden="true"></i>
+              <i class="icon icon-arrow-down-01" aria-hidden="true"></i>
             </button>
           </div>
           <div class="menu" id="demoQuietMenu" popover>

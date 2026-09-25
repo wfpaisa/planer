@@ -98,7 +98,7 @@
   data-tip-side={tip ? tipSide : undefined}
 >
   {#if loading}
-    <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
+    <i class="icon icon-loading-03" aria-hidden="true"></i>
   {/if}
   {@render children?.()}
 </button>

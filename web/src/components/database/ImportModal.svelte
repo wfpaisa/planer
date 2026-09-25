@@ -713,7 +713,7 @@
         <!-- Lo que paso, ya escrito en la tabla. -->
         <div class={cx("alert", result.ok ? "ok" : "warn", "note-import-result")} role="status">
           <i
-            class={`hgi-stroke ${result.ok ? "hgi-checkmark-circle-02" : "hgi-alert-02"}`}
+            class={`icon ${result.ok ? "icon-checkmark-circle-02" : "icon-alert-02"}`}
             aria-hidden="true"
           ></i>
           <span>
@@ -731,7 +731,7 @@
         </div>
       {:else if nothingMapped}
         <div class="alert warn note-nothing-mapped" role="status">
-          <i class="hgi-stroke hgi-view-off-slash" aria-hidden="true"></i>
+          <i class="icon icon-view-off-slash" aria-hidden="true"></i>
           <span>
             <strong>Ninguna columna se va a importar</strong>
             No hay columnas seleccionadas. Activa las que quieras importar o restaura las sugerencias.
@@ -743,7 +743,7 @@
           no como recuento de filas perdidas al final.
         -->
         <div class="alert warn note-missing-account" role="status">
-          <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
+          <i class="icon icon-alert-02" aria-hidden="true"></i>
           <span>
             <strong>Falta decir cuál columna es el correo</strong>
             Cada persona se reconoce por su correo: sin él, ni se actualiza a quien ya está ni se crea
@@ -762,7 +762,7 @@
       -->
       {#if !result && requiredUnmet}
         <div class="alert danger note-import-required" role="status">
-          <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
+          <i class="icon icon-alert-02" aria-hidden="true"></i>
           <!-- prettier-ignore -->
           <span>
             <strong>
@@ -797,7 +797,7 @@
       -->
       {#if !result && ruleIssues.length > 0}
         <div class="alert danger note-import-rules" role="status">
-          <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
+          <i class="icon icon-alert-02" aria-hidden="true"></i>
           <span>
             <strong>
               {#if duplicateRows.size > 0 && missingRows.size > 0}
@@ -925,7 +925,7 @@
           {@const modifica = (peopleReport?.existen ?? 0) > 0}
           <div class={cx("alert", modifica ? "warn" : "info", "block-people-import")} role="status">
             <i
-              class={`hgi-stroke ${modifica ? "hgi-alert-02" : "hgi-information-circle"}`}
+              class={`icon ${modifica ? "icon-alert-02" : "icon-information-circle"}`}
               aria-hidden="true"
             ></i>
             <!-- prettier-ignore -->
@@ -1132,7 +1132,7 @@
                 data-tip="Marcada, las personas sin cuenta aquí se quedan fuera"
                 class="checkbox-toggle-create-accounts import-checkbox-control"
               />
-              <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+              <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
               {crearCuentas ? "Modificar y crear" : "Solo modificar"}
             </label>
           {/if}
@@ -1143,7 +1143,7 @@
               aria-label="Si una fila presenta un error, continuar procesando las demas filas"
               class="checkbox-toggle-continue-on-error import-checkbox-control"
             />
-            <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+            <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
             Si una fila presenta un error, continuar procesando las demás filas
           </label>
         </div>

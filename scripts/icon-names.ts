@@ -25,7 +25,7 @@ if (!(await hoja.exists())) {
 const css = await hoja.text();
 /* La hoja de `use.` escribe `::before` y la de `cdn.` escribia `:before`:
    las dos formas valen, así que el patron acepta las dos. */
-const names = [...css.matchAll(/\.hgi-stroke\.hgi-([a-z0-9-]+)::?before/g)].map((m) => m[1]);
+const names = [...css.matchAll(/\.icon\.icon-([a-z0-9-]+)::?before/g)].map((m) => m[1]);
 const unique = [...new Set(names)].sort();
 
 if (unique.length < 1000) {
@@ -37,7 +37,7 @@ const file = `/**
  * Los nombres de la fuente de iconos, tal como los declara su hoja de estilo.
  *
  * Se saca de \`${HOJA}\`, que trae una regla por icono
- * (\`.hgi-stroke.hgi-<nombre>::before\`). Esta aqui escrito y no leido de la
+ * (\`.icon.icon-<nombre>::before\`). Esta aqui escrito y no leido de la
  * hoja a propósito: el buscador de iconos y la comprobacion de un nombre
  * guardado corren en el navegador y tienen que responder sin esperar a
  * novecientos kilobytes de fuente. Son unos 100 KB de texto, la sesentava

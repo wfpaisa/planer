@@ -146,7 +146,7 @@
                   disabled={own}
                   onchange={() => toggle(app.id)}
                 />
-                <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+                <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
                 <AppIcon {app} size={16} class="icon-user-app" />
                 <span class="name-user-app">{app.name}</span>
                 <span class="note-user-app">{own ? "La creó" : `/${app.slug}`}</span>

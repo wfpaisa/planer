@@ -54,7 +54,7 @@
     <!-- En línea y no en la capa de avisos: es lo que hay que leer antes de
          aceptar, y tiene que seguir a la vista mientras se escribe el nombre. -->
     <p class="alert info note-import-app">
-      <i class="hgi-stroke hgi-information-circle" aria-hidden="true"></i>
+      <i class="icon icon-information-circle" aria-hidden="true"></i>
       <span>
         <strong>No se reemplaza ninguna aplicación.</strong>
         Se creará una aplicación sin publicar y con su propio enlace. Las aplicaciones actuales no cambiarán.
@@ -63,7 +63,7 @@
 
     {#if file}
       <p class="file-import-app">
-        <i class="hgi-stroke hgi-file-zip" aria-hidden="true"></i>
+        <i class="icon icon-file-zip" aria-hidden="true"></i>
         <span class="name-import-file">{file.name}</span>
       </p>
     {/if}

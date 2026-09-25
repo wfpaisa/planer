@@ -46,7 +46,7 @@
                 popovertargetaction="hide"
                 aria-label="Cerrar"
               >
-                <i class="hgi-stroke hgi-cancel-01"></i>
+                <i class="icon icon-cancel-01"></i>
               </button>
             </div>
             <div class="modal-body">
@@ -87,7 +87,7 @@
                 popovertargetaction="hide"
                 aria-label="Cerrar"
               >
-                <i class="hgi-stroke hgi-cancel-01"></i>
+                <i class="icon icon-cancel-01"></i>
               </button>
             </div>
             <div class="modal-body">
@@ -210,11 +210,11 @@
         <div class="gallery-demo">
           <div class="gallery-row">
             <button class="btn" popovertarget="demoDrawerL">
-              <i class="hgi-stroke hgi-sidebar-left"></i>
+              <i class="icon icon-sidebar-left"></i>
               Izquierda
             </button>
             <button class="btn" popovertarget="demoDrawerR">
-              <i class="hgi-stroke hgi-sidebar-right"></i>
+              <i class="icon icon-sidebar-right"></i>
               Derecha
             </button>
           </div>
@@ -237,7 +237,7 @@
                 popovertargetaction="hide"
                 aria-label="Cerrar"
               >
-                <i class="hgi-stroke hgi-cancel-01"></i>
+                <i class="icon icon-cancel-01"></i>
               </button>
             </div>
             <div class="modal-body">
@@ -246,7 +246,7 @@
                 <div class="join">
                   <input type="search" id="drwSearch" placeholder="Cliente o referencia" />
                   <button class="btn btn-primary" type="button" aria-label="Buscar">
-                    <i class="hgi-stroke hgi-search-01"></i>
+                    <i class="icon icon-search-01"></i>
                   </button>
                 </div>
               </div>
@@ -265,12 +265,12 @@
               </div>
               <label class="choice">
                 <input type="checkbox" checked />
-                <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+                <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
                 <span>Solo pedidos con incidencia</span>
               </label>
               <label class="choice">
                 <input type="checkbox" />
-                <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+                <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
                 <span>Incluir archivados</span>
               </label>
             </div>
@@ -307,7 +307,7 @@
                 popovertargetaction="hide"
                 aria-label="Cerrar"
               >
-                <i class="hgi-stroke hgi-cancel-01"></i>
+                <i class="icon icon-cancel-01"></i>
               </button>
             </div>
             <div class="modal-body">
@@ -387,7 +387,7 @@
         <div class="gallery-row">
           <button class="btn" data-tip="Se aplica al periodo actual">Pasa el cursor</button>
           <button class="btn-icon" data-tip="Descargar CSV" aria-label="Descargar CSV">
-            <i class="hgi-stroke hgi-download-04"></i>
+            <i class="icon icon-download-04"></i>
           </button>
           <button class="btn" data-tip="No cabe arriba" data-tip-side="bottom">Debajo</button>
           <button class="btn btn-danger" data-tip="Algo no cuadra" data-tip-tone="error">

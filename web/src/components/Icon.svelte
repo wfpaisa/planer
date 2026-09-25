@@ -44,7 +44,7 @@
 <style>
   /* Al ser letra hereda `currentColor` y escala con el texto que la rodea: sin
      `size`, `1em` la deja exactamente de la medida de ese texto. Le gana al
-     tamaño de partida de `theme.css` (`i[class*="hgi-"]`) a propósito; los
+     tamaño de partida de `theme.css` (`i.icon`) a propósito; los
      pocos sitios del catálogo que agrandan el icono con dos clases --`.btn.sm i`,
      `.btn-icon.sm i`-- siguen mandando, y son botones sin texto. */
   .icon-glyph {

@@ -186,7 +186,7 @@
             aria-label="Anterior"
             onclick={() => page--}
           >
-            <i class="hgi-stroke hgi-arrow-left-01" aria-hidden="true"></i>
+            <i class="icon icon-arrow-left-01" aria-hidden="true"></i>
           </button>
           {#each [1, 2, 3, 4, 5] as number (number)}
             <button
@@ -203,7 +203,7 @@
             aria-label="Siguiente"
             onclick={() => page++}
           >
-            <i class="hgi-stroke hgi-arrow-right-01" aria-hidden="true"></i>
+            <i class="icon icon-arrow-right-01" aria-hidden="true"></i>
           </button>
         </nav>
         <p class="demo-feedback" aria-live="polite">
@@ -300,10 +300,10 @@
                   <td>
                     <div class="row-act">
                       <button class="mini-btn" aria-label="Ver">
-                        <i class="hgi-stroke hgi-eye"></i>
+                        <i class="icon icon-eye"></i>
                       </button>
                       <button class="mini-btn" aria-label="Editar">
-                        <i class="hgi-stroke hgi-pencil-edit-02"></i>
+                        <i class="icon icon-pencil-edit-02"></i>
                       </button>
                     </div>
                   </td>
@@ -332,7 +332,7 @@
                       disabled={orderSafePage <= 1}
                       onclick={() => orderPage--}
                     >
-                      <i class="hgi-stroke hgi-arrow-left-01"></i>
+                      <i class="icon icon-arrow-left-01"></i>
                     </button>
                     <button
                       class="btn-icon sm"
@@ -340,7 +340,7 @@
                       disabled={orderSafePage >= orderPages}
                       onclick={() => orderPage++}
                     >
-                      <i class="hgi-stroke hgi-arrow-right-01"></i>
+                      <i class="icon icon-arrow-right-01"></i>
                     </button>
                   </div>
                 </div>

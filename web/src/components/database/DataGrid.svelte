@@ -1625,7 +1625,7 @@
               checked={(table.meta?.systemVisible ?? []).includes(name)}
               class="checkbox-toggle-system-column-visible"
             />
-            <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+            <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
             <span class="grid-db-toggle-label">{SYSTEM_COLUMN_LABELS[name]}</span>
           </button>
         {/each}
@@ -1642,7 +1642,7 @@
               checked={!hidden.includes(f.name)}
               class="checkbox-toggle-column-visibility"
             />
-            <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+            <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
             <FieldIcon type={f.type} system={f.system} class="grid-db-toggle-field-icon" />
             <span class="grid-db-toggle-name">{f.label}</span>
             {#if f.required}<span class="grid-db-toggle-required">*</span>{/if}
@@ -2020,7 +2020,7 @@
                   aria-label="Seleccionar todas las filas visibles"
                   class="checkbox-select-all-rows"
                 />
-                <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+                <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
               </label>
             </th>
             <th class="grid-db-expand-cell"><span class="sr-only">Abrir la fila</span></th>
@@ -2066,7 +2066,7 @@
                     aria-label="Seleccionar fila"
                     class="checkbox-select-row"
                   />
-                  <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+                  <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
                 </label>
               </td>
 

@@ -12,7 +12,7 @@
  * referencia solo se pone --y se repone-- en las páginas que la usan.
  */
 import { BRIDGE_PATH, CHARTS_PATH, STYLES_PATH } from "../../shared/htmlContract.ts";
-import { ICON_FONT_URL } from "../../shared/icons.ts";
+import { ICON_FONT_URL, upgradeIconClasses } from "../../shared/icons.ts";
 import { BRIDGE_SCRIPT } from "../html/htmlBridge.ts";
 import { CHART_ADAPTER, CHARTS_REF, USES_CHARTS } from "../html/htmlCharts.ts";
 import { PAGE_STYLES } from "./pageStyles.ts";
@@ -91,7 +91,7 @@ const REFS = {
      */
     find: /\/iconos\/iconos\.css/i,
     line:
-      `<!-- Iconos de Planer: escribe <i class="hgi-stroke hgi-nombre"></i> -->\n` +
+      `<!-- Iconos de Planer: escribe <i class="icon icon-nombre"></i> -->\n` +
       `<link rel="stylesheet" href="${ICON_FONT_URL}">`,
   },
   graficas: {
@@ -183,12 +183,13 @@ function afterBridge(content: string, block: string): string {
 }
 
 /**
- * Deja el documento con las referencias que le corresponden. Devuelve cuales
+ * Deja el documento con las referencias que le corresponden --y con las clases
+ * de icono de ahora, venga de donde venga el HTML--. Devuelve cuales
  * tuvo que reponer, para que el panel lo pueda avisar en vez de cambiarlo a
  * escondidas.
  */
 export function injectPageRefs(content: string): { content: string; restored: PageRef[] } {
-  let next = stripCdnIcons(stripInline(content));
+  let next = upgradeIconClasses(stripCdnIcons(stripInline(content)));
 
   const missing = (Object.keys(REFS) as PageRef[]).filter((name) => {
     const ref = REFS[name];

@@ -101,7 +101,7 @@
     <!-- En línea y no en la capa de avisos: es la advertencia de lo que se va
          a hacer, y tiene que seguir a la vista mientras se marca la lista. -->
     <p class="alert danger warn-clean-apps">
-      <i class="hgi-stroke hgi-alert-02" aria-hidden="true"></i>
+      <i class="icon icon-alert-02" aria-hidden="true"></i>
       <span>
         <strong>Esto no se puede deshacer.</strong>
         Se eliminarán las aplicaciones seleccionadas con sus tablas, páginas, accesos y datos. Los ajustes
@@ -120,7 +120,7 @@
       <div class="head-clean-apps flex items-center justify-between gap-3">
         <label class="choice check-clean-all">
           <input type="checkbox" checked={all} onchange={toggleAll} />
-          <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+          <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
           <span>Seleccionar todas</span>
         </label>
         <span class="count-clean-apps">
@@ -137,7 +137,7 @@
                 checked={chosen.includes(app.id)}
                 onchange={() => toggle(app.id)}
               />
-              <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+              <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
               <AppIcon {app} size={16} class="icon-clean-app" />
               <span class="name-clean-app">{app.name}</span>
               <span class="slug-clean-app">/{app.slug}</span>

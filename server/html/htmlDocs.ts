@@ -8,6 +8,7 @@
  * Como la huella depende solo del texto, dos documentos iguales comparten el
  * mismo guardado y treinta versiones sin cambios no ocupan treinta veces.
  */
+import { upgradeIconClasses } from "../../shared/icons.ts";
 import type { AppVersion, LegacyBlock, PageRecord } from "../../shared/types.ts";
 import { HttpError } from "../auth.ts";
 import { INTERNAL } from "../config.ts";
@@ -62,14 +63,19 @@ export async function saveDoc(
   return { hash, bytes, created: true };
 }
 
-/** El contenido de un documento, o `null` si esa huella ya no existe. */
+/**
+ * El contenido de un documento, o `null` si esa huella ya no existe.
+ *
+ * Sale con las clases de icono de ahora aunque se guardara con las de antes:
+ * así lo ve igual quien lo dibuja, quien lo edita y la IA que lo lee.
+ */
 export async function readDoc(appId: string, hash: string): Promise<string | null> {
   if (!hash) return null;
   const doc = await firstRecord<HtmlDoc>(
     INTERNAL.htmlDocs,
     `app = "${quote(appId)}" && hash = "${quote(hash)}"`,
   ).catch(() => null);
-  return doc?.content ?? null;
+  return doc ? upgradeIconClasses(doc.content) : null;
 }
 
 /** El contenido de un documento; falla con un mensaje claro si no esta. */

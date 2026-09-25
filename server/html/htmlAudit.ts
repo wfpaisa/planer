@@ -427,7 +427,7 @@ function checkIcons(html: string, out: StyleFinding[]): void {
   if (svgs.length) {
     out.push({
       regla: "hand-drawn-icon",
-      mensaje: `${svgs.length} <svg> in the page. The document already loads the icon font: an icon is <i class="hgi-stroke hgi-<name>"></i>, which takes the colour and the size of its line on its own. Charts are the exception --those are a <canvas> drawn by plane.grafica.`,
+      mensaje: `${svgs.length} <svg> in the page. The document already loads the icon font: an icon is <i class="icon icon-<name>"></i>, which takes the colour and the size of its line on its own. Charts are the exception --those are a <canvas> drawn by plane.grafica.`,
       donde: snip(svgs[0][0], 60),
     });
   }

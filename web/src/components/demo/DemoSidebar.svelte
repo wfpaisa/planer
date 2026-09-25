@@ -144,7 +144,7 @@
         data-tip="Elegir paleta"
         onclick={toggleDrawer}
       >
-        <i class="hgi-stroke hgi-paint-bucket"></i>
+        <i class="icon icon-paint-bucket"></i>
       </button>
       <ThemePicker class="btn-toggle-theme" />
     </div>
@@ -153,11 +153,11 @@
   <nav class="nav-demo nav" aria-label="Secciones de la demo">
     <p class="nav-label eyebrow">Cuenta</p>
     <a class="nav-item" href="/" use:link data-tip="Inicio">
-      <i class="hgi-stroke hgi-home-01"></i>
+      <i class="icon icon-home-01"></i>
       <span>Inicio</span>
     </a>
     <a class="nav-item" href="/ajustes" use:link data-tip="Ajustes">
-      <i class="hgi-stroke hgi-settings-04"></i>
+      <i class="icon icon-settings-04"></i>
       <span>Ajustes</span>
     </a>
 
@@ -169,9 +169,9 @@
       data-tip="Resumen"
       onclick={() => goTo(TOP)}
     >
-      <i class="hgi-stroke hgi-dashboard-square-01"></i>
+      <i class="icon icon-dashboard-square-01"></i>
       <span>Resumen</span>
-      <i class="hgi-stroke hgi-home-01 nav-end"></i>
+      <i class="icon icon-home-01 nav-end"></i>
     </button>
 
     <p class="nav-label eyebrow">Catálogo</p>
@@ -183,12 +183,12 @@
         data-tip={s.label}
         onclick={() => goTo(s.id)}
       >
-        <i class="hgi-stroke hgi-{s.icon}"></i>
+        <i class="icon icon-{s.icon}"></i>
         <span>{s.label}</span>
 
         <span class="nav-badge">{counts[s.id] ?? 0}</span>
         {#if "isSafe" in s && s.isSafe}
-          <i class="hgi hgi-stroke hgi-rounded hgi-security nav-end"></i>
+          <i class="icon icon-security nav-end"></i>
         {/if}
       </button>
     {/each}
@@ -210,7 +210,7 @@
         data-tip="Cerrar sesión"
         onclick={() => session.signOut()}
       >
-        <i class="hgi-stroke hgi-logout-03"></i>
+        <i class="icon icon-logout-03"></i>
       </button>
     {:else}
       <!-- Sin sesión no hay nada que cerrar, y un botón que no hace nada
@@ -222,7 +222,7 @@
         aria-label="Entrar"
         data-tip="Entrar"
       >
-        <i class="hgi-stroke hgi-login-03"></i>
+        <i class="icon icon-login-03"></i>
       </a>
     {/if}
   </div>
@@ -250,7 +250,7 @@
       popovertargetaction="hide"
       aria-label="Cerrar"
     >
-      <i class="hgi-stroke hgi-cancel-01"></i>
+      <i class="icon icon-cancel-01"></i>
     </button>
   </div>
   <div class="modal-body">

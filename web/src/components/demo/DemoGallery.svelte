@@ -163,7 +163,7 @@
         data-tip="Ver el código"
         aria-label={`Ver el código de ${title}`}
       >
-        <i class="hgi-stroke hgi-source-code"></i>
+        <i class="icon icon-source-code"></i>
       </button>
     </div>
   </div>
@@ -202,7 +202,7 @@
         popovertargetaction="hide"
         aria-label="Cerrar"
       >
-        <i class="hgi-stroke hgi-cancel-01"></i>
+        <i class="icon icon-cancel-01"></i>
       </button>
     </div>
     <div class="modal-body">
@@ -220,7 +220,7 @@
     <div class="modal-foot">
       <button class="btn" popovertarget="demoCode" popovertargetaction="hide">Cerrar</button>
       <button class="btn btn-primary" onclick={copyCode}>
-        <i class="hgi-stroke hgi-{codeCopied ? 'tick-02' : 'copy-01'}"></i>
+        <i class="icon icon-{codeCopied ? 'tick-02' : 'copy-01'}"></i>
         {codeCopied ? "Copiado" : "Copiar"}
       </button>
     </div>

@@ -105,7 +105,7 @@
             <span class="s-label">Ingresos netos</span>
             <span class="s-val number">
               $184.320 <span class="tag tag-success">
-                <i class="hgi-stroke hgi-arrow-up-right-01"></i>
+                <i class="icon icon-arrow-up-right-01"></i>
                 12,4 %
               </span>
             </span>
@@ -122,7 +122,7 @@
           <span class="s-label">Ingresos netos</span>
           <span class="s-val number">
             $184.320 <span class="tag tag-success">
-              <i class="hgi-stroke hgi-arrow-up-right-01"></i>
+              <i class="icon icon-arrow-up-right-01"></i>
               12,4 %
             </span>
           </span>
@@ -203,14 +203,14 @@
           {#each KPIS as k, i (k.label)}
             <article class="card kpi">
               <div class="kpi-head">
-                <span class="kpi-ico"><i class="hgi-stroke {k.ico}"></i></span>
+                <span class="kpi-ico"><i class="icon {k.ico}"></i></span>
                 <span class="kpi-label">{k.label}</span>
               </div>
               <div>
                 <div class="kpi-row">
                   <span class="kpi-val number">{k.val}</span>
                   <span class="tag {k.up ? 'tag-success' : 'tag-error'}">
-                    <i class="hgi-stroke hgi-arrow-{k.up ? 'up' : 'down'}-right-01"></i>
+                    <i class="icon icon-arrow-{k.up ? 'up' : 'down'}-right-01"></i>
                     {k.d}
                   </span>
                 </div>

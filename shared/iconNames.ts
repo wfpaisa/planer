@@ -2,8 +2,8 @@
  * Los nombres de la fuente de iconos, tal como los declara su hoja de estilo.
  *
  * Se saca de `web/public/iconos/iconos.css`, que trae una regla por icono
- * (`.hgi-stroke.hgi-<nombre>::before`). Esta aqui escrito y no leido de la
- * hoja a proposito: el buscador de iconos y la comprobacion de un nombre
+ * (`.icon.icon-<nombre>::before`). Esta aqui escrito y no leido de la
+ * hoja a propósito: el buscador de iconos y la comprobacion de un nombre
  * guardado corren en el navegador y tienen que responder sin esperar a
  * novecientos kilobytes de fuente. Son unos 100 KB de texto, la sesentava
  * parte de lo que pesaba traerse los trazados.

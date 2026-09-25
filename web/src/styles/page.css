@@ -80,7 +80,7 @@ body {
    gana sin más.
    ---------------------------------------------------------- */
 
-:where(i[class*="hgi-"]) {
+:where(i.icon) {
   font-size: 1.2em;
 }
 

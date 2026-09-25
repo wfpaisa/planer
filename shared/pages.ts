@@ -166,7 +166,7 @@ export function cleanPageIcon(value: unknown): string | null {
   const flat = String(value ?? "")
     .trim()
     .replace(/^["'“”«»]+|["'“”«»]+$/g, "")
-    .replace(/^hgi-/, "")
+    .replace(/^(?:icon|hgi)-/, "")
     .trim();
   if (!flat) return null;
 

@@ -51,7 +51,7 @@
               aria-describedby="demoInputErrMsg"
             />
             <span class="field-hint" id="demoInputErrMsg">
-              <i class="hgi-stroke hgi-alert-circle" aria-hidden="true"></i>
+              <i class="icon icon-alert-circle" aria-hidden="true"></i>
               Introduce un dominio completo, por ejemplo, empresa.com.
             </span>
           </div>
@@ -110,7 +110,7 @@
             <div class="join">
               <input type="search" id="demoJoinSearch" placeholder="#AR-4821" />
               <button class="btn btn-primary">
-                <i class="hgi-stroke hgi-search-01" aria-hidden="true"></i>
+                <i class="icon icon-search-01" aria-hidden="true"></i>
                 Buscar
               </button>
             </div>
@@ -134,7 +134,7 @@
             <div class="join">
               <input type="text" id="demoJoinUrl" value="plane.io/p/AR-4821" readonly />
               <button class="btn" aria-label="Copiar enlace">
-                <i class="hgi-stroke hgi-copy-01" aria-hidden="true"></i>
+                <i class="icon icon-copy-01" aria-hidden="true"></i>
               </button>
             </div>
           </div>
@@ -225,17 +225,17 @@
         <div class="gallery-demo">
           <label class="choice">
             <input type="checkbox" checked />
-            <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+            <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
             <span>Pedidos pagados</span>
           </label>
           <label class="choice">
             <input type="checkbox" />
-            <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+            <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
             <span>Pedidos pendientes</span>
           </label>
           <label class="choice">
             <input type="checkbox" disabled />
-            <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+            <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
             <span>Archivados</span>
           </label>
         </div>
@@ -295,7 +295,7 @@
               aria-label="5 estrellas"
             />
             <label for="demoRate5" data-tip="5 estrellas">
-              <i class="hgi-stroke hgi-star"></i>
+              <i class="icon icon-star"></i>
             </label>
             <input
               type="radio"
@@ -306,7 +306,7 @@
               aria-label="4 estrellas"
             />
             <label for="demoRate4" data-tip="4 estrellas">
-              <i class="hgi-stroke hgi-star"></i>
+              <i class="icon icon-star"></i>
             </label>
             <input
               type="radio"
@@ -317,7 +317,7 @@
               aria-label="3 estrellas"
             />
             <label for="demoRate3" data-tip="3 estrellas">
-              <i class="hgi-stroke hgi-star"></i>
+              <i class="icon icon-star"></i>
             </label>
             <input
               type="radio"
@@ -328,7 +328,7 @@
               aria-label="2 estrellas"
             />
             <label for="demoRate2" data-tip="2 estrellas">
-              <i class="hgi-stroke hgi-star"></i>
+              <i class="icon icon-star"></i>
             </label>
             <input
               type="radio"
@@ -339,7 +339,7 @@
               aria-label="1 estrella"
             />
             <label for="demoRate1" data-tip="1 estrella">
-              <i class="hgi-stroke hgi-star"></i>
+              <i class="icon icon-star"></i>
             </label>
           </div>
           <p class="demo-feedback" aria-live="polite">Tu valoración: {rating} de 5 estrellas</p>
@@ -448,12 +448,12 @@
           <p class="demo-variant-label">Principal, secundario y deshabilitado</p>
           <div class="gallery-row">
             <button class="btn btn-primary">
-              <i class="hgi-stroke hgi-checkmark-circle-02"></i>
+              <i class="icon icon-checkmark-circle-02"></i>
               Guardar cambios
             </button>
             <button class="btn">
               Cancelar
-              <i class="hgi-stroke hgi-arrow-right-01"></i>
+              <i class="icon icon-arrow-right-01"></i>
             </button>
             <button class="btn" disabled>Deshabilitado</button>
           </div>
@@ -465,7 +465,7 @@
           <p class="demo-variant-label">Acciones destructivas</p>
           <div class="gallery-row">
             <button class="btn btn-danger">
-              <i class="hgi-stroke hgi-delete-02"></i>
+              <i class="icon icon-delete-02"></i>
               Eliminar
             </button>
             <button class="btn btn-danger" disabled>Eliminar</button>
@@ -480,36 +480,36 @@
           <div class="gallery-row">
             <button class="btn btn-danger-quiet">Cerrar sesión</button>
             <button class="btn-icon sm btn-danger-quiet" aria-label="Cerrar sesión">
-              <i class="hgi-stroke hgi-logout-03"></i>
+              <i class="icon icon-logout-03"></i>
             </button>
           </div>
           <p class="demo-variant-label">Solo icono</p>
           <div class="gallery-row">
             <button class="btn-icon btn-rounded" aria-label="Más opciones">
-              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+              <i class="icon icon-settings-04"></i>
             </button>
             <button class="btn-icon btn-ghost btn-rounded" aria-label="Más opciones">
-              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+              <i class="icon icon-settings-04"></i>
             </button>
             <button class="btn-icon" aria-label="Más opciones">
-              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+              <i class="icon icon-settings-04"></i>
             </button>
             <button class="btn-icon btn-ghost" aria-label="Más opciones">
-              <i class="hgi hgi-stroke hgi-rounded hgi-settings-04"></i>
+              <i class="icon icon-settings-04"></i>
             </button>
           </div>
           <p class="demo-variant-label">Durante una operación</p>
           <div class="gallery-row">
             <button class="btn btn-primary is-loading" disabled aria-busy="true">
-              <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
+              <i class="icon icon-loading-03" aria-hidden="true"></i>
               Guardando…
             </button>
             <button class="btn is-loading" disabled aria-busy="true">
-              <i class="hgi-stroke hgi-loading-03" aria-hidden="true"></i>
+              <i class="icon icon-loading-03" aria-hidden="true"></i>
               Procesando…
             </button>
             <button class="btn-icon is-loading" disabled aria-busy="true" aria-label="Cargando">
-              <i class="hgi-stroke hgi-loading-03"></i>
+              <i class="icon icon-loading-03"></i>
             </button>
           </div>
         </div>
@@ -536,15 +536,15 @@
           </div>
           <div class="gallery-row">
             <span class="tag tag-success">
-              <i class="hgi-stroke hgi-checkmark-circle-02"></i>
+              <i class="icon icon-checkmark-circle-02"></i>
               Correcto
             </span>
             <span class="tag tag-warning">
-              <i class="hgi-stroke hgi-alert-02"></i>
+              <i class="icon icon-alert-02"></i>
               Aviso
             </span>
             <span class="tag tag-error">
-              <i class="hgi-stroke hgi-cancel-circle"></i>
+              <i class="icon icon-cancel-circle"></i>
               Error
             </span>
           </div>
@@ -559,7 +559,7 @@
                   aria-label="Quitar Filtro"
                   data-tip="Quitar"
                 >
-                  <i class="hgi-stroke hgi-cancel-01"></i>
+                  <i class="icon icon-cancel-01"></i>
                 </button>
               </span>
             {:else}
@@ -622,7 +622,7 @@
               aria-pressed={visibility === "publica"}
               onclick={() => (visibility = "publica")}
             >
-              <i class="hgi-stroke hgi-globe-02" aria-hidden="true"></i>
+              <i class="icon icon-globe-02" aria-hidden="true"></i>
               <span class="opt-body">
                 <span class="opt-label">Pública</span>
                 <span class="opt-hint">Cualquiera con el enlace entra</span>
@@ -635,14 +635,14 @@
               aria-pressed={visibility === "privada"}
               onclick={() => (visibility = "privada")}
             >
-              <i class="hgi-stroke hgi-user-lock-01" aria-hidden="true"></i>
+              <i class="icon icon-user-lock-01" aria-hidden="true"></i>
               <span class="opt-body">
                 <span class="opt-label">Requiere iniciar sesión</span>
                 <span class="opt-hint">Solo las personas invitadas</span>
               </span>
             </button>
             <button type="button" class="opt" disabled>
-              <i class="hgi-stroke hgi-building-03" aria-hidden="true"></i>
+              <i class="icon icon-building-03" aria-hidden="true"></i>
               <span class="opt-body">
                 <span class="opt-label">Solo mi organización</span>
                 <span class="opt-hint">Todavía no disponible</span>

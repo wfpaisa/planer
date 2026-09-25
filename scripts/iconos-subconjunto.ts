@@ -53,12 +53,14 @@ await needs("woff2_compress");
 
 /*
  * El código de cada icono sale de la hoja completa, que es donde esta escrito
- * (`.hgi-nombre::before { content: "\ea01" }`). No hay otra lista: inventarse
+ * (`.icon.icon-nombre::before { content: "\ea01" }`). No hay otra lista: inventarse
  * una aquí seria una segunda copia que se separaria de la fuente.
  */
 const css = await Bun.file(HOJA).text();
 const punto = new Map<string, string>();
-for (const m of css.matchAll(/\.hgi-([a-z0-9-]+):+before\s*\{\s*content:\s*"\\([0-9a-f]+)"/gi)) {
+for (const m of css.matchAll(
+  /\.icon\.icon-([a-z0-9-]+):+before\s*\{\s*content:\s*"\\([0-9a-f]+)"/gi,
+)) {
   punto.set(m[1], m[2]);
 }
 
@@ -92,13 +94,15 @@ try {
   const base64 = Buffer.from(woff2).toString("base64");
 
   /*
-   * `.hgi-stroke` se repite tal cual de la hoja completa: es la clase que
+   * `.icon` se repite tal cual de la hoja completa: es la clase que
    * pone la familia, y una página la lleva escrita en cada icono. El
    * `font-family` tiene el mismo nombre a propósito --si la hoja completa
    * también esta puesta, las dos declaran la misma familia y la que gane
    * dibuja lo mismo--.
    */
-  const reglas = nombres.map((n) => `.hgi-${n}::before{content:"\\${punto.get(n)}"}`).join("\n");
+  const reglas = nombres
+    .map((n) => `.icon.icon-${n}::before{content:"\\${punto.get(n)}"}`)
+    .join("\n");
 
   await Bun.write(
     SALIDA,
@@ -119,7 +123,7 @@ try {
   font-style: normal;
   font-display: block;
 }
-.hgi-stroke {
+.icon {
   font-family: "hugeicons-stroke-rounded" !important;
   font-style: normal;
   font-weight: 400;

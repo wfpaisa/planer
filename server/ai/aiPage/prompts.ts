@@ -61,7 +61,7 @@ const UNNAMED_PAGE = `This page still carries the name it was born with, which s
  * a mano puede no haberle tocado el icono, y entonces esto sigue ofreciendose y
  * lo otro no.
  */
-const UNICONED_PAGE = `This page still carries the icon it was born with, a generic file that says nothing. When you write it with "escribir_pagina", send \`icono\` as well: one name returned by "buscar_iconos", without the \`hgi-\` prefix, saying what the screen holds --\`user-group\` for people, \`invoice-01\` for billing, \`analytics-01\` for a dashboard, \`calendar-01\` for a diary--. It is read beside the name in the sidebar, at the size of its line, so what matters is that it is recognisable at a glance. Never invent a name: one outside the font is dropped and the page keeps its filler icon.`;
+const UNICONED_PAGE = `This page still carries the icon it was born with, a generic file that says nothing. When you write it with "escribir_pagina", send \`icono\` as well: one name returned by "buscar_iconos", without the \`icon-\` prefix, saying what the screen holds --\`user-group\` for people, \`invoice-01\` for billing, \`analytics-01\` for a dashboard, \`calendar-01\` for a diary--. It is read beside the name in the sidebar, at the size of its line, so what matters is that it is recognisable at a glance. Never invent a name: one outside the font is dropped and the page keeps its filler icon.`;
 
 /**
  * La guia que se agrega mientras el modo Plan esta activo (D3 de

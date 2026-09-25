@@ -79,7 +79,7 @@
       aria-label="Valor booleano"
       class="checkbox-toggle-bool-cell"
     />
-    <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+    <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
     {value ? "Si" : "No"}
   </label>
 {:else if field.type === "date"}

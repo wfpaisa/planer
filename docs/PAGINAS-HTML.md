@@ -46,10 +46,10 @@ Three rules for using it:
 <button class="btn btn-danger">Delete</button>
 <button class="btn btn-ghost">Not now</button>
 <button class="btn sm">Small</button>
-<button class="btn-icon" aria-label="More"><i class="hgi-stroke hgi-more-horizontal"></i></button>
-<button class="btn-icon sm btn-rounded" aria-label="Close"><i class="hgi-stroke hgi-cancel-01"></i></button>
+<button class="btn-icon" aria-label="More"><i class="icon icon-more-horizontal"></i></button>
+<button class="btn-icon sm btn-rounded" aria-label="Close"><i class="icon icon-cancel-01"></i></button>
 <button class="btn btn-primary is-loading" disabled aria-busy="true">
-  <i class="hgi-stroke hgi-loading-03"></i>Saving…
+  <i class="icon icon-loading-03"></i>Saving…
 </button>
 ```
 
@@ -82,7 +82,7 @@ The opening band of a screen: the app's brand colour filled solid, with the titl
   <h1 class="hero-title">Chequeo preoperacional</h1>
   <p class="hero-sub">Revisa el vehículo antes de salir. Queda a tu nombre.</p>
   <div class="hero-actions">
-    <button class="btn btn-primary"><i class="hgi-stroke hgi-add-01"></i>Registrar chequeo</button>
+    <button class="btn btn-primary"><i class="icon icon-add-01"></i>Registrar chequeo</button>
     <button class="btn">Ver los de hoy</button>
   </div>
 </section>
@@ -138,7 +138,7 @@ One hero per screen, at the top. For a section heading inside the page use a pla
 
 <div class="join">
   <input type="search" placeholder="Customer or reference">
-  <button class="btn btn-primary"><i class="hgi-stroke hgi-search-01"></i>Search</button>
+  <button class="btn btn-primary"><i class="icon icon-search-01"></i>Search</button>
 </div>
 ```
 
@@ -149,20 +149,20 @@ Inside a `.field` the control needs no class. **Loose** --a search box in a bar,
 ```html
 <label class="choice">
   <input type="checkbox" checked>
-  <i class="choice-box ico-nudge hgi-stroke hgi-tick-02" aria-hidden="true"></i>
+  <i class="choice-box ico-nudge icon icon-tick-02" aria-hidden="true"></i>
   <span>Paid orders</span>
 </label>
 <label class="choice"><input type="radio" name="envio"><i class="choice-box round"></i><span>Standard</span></label>
 <label class="choice switch"><input type="checkbox"><span>Weekly report</span></label>
 ```
 
-The tick needs **both** classes, `hgi-stroke` and `hgi-tick-02`: with only one of them the box comes out empty and nothing warns you.
+The tick needs **both** classes, `icon` and `icon-tick-02`: with only one of them the box comes out empty and nothing warns you.
 
 #### Tags, states and figures
 
 ```html
 <span class="tag tint-1">Category</span>
-<span class="tag tag-success"><i class="hgi-stroke hgi-checkmark-circle-02"></i>Correct</span>
+<span class="tag tag-success"><i class="icon icon-checkmark-circle-02"></i>Correct</span>
 <span class="tag tag-warning">Warning</span>
 <span class="tag tag-error">Error</span>
 <span class="tag">Off</span>
@@ -184,7 +184,7 @@ The bare pill --`class="tag"` with no colour class-- is the **off** state, and t
 ```html
 <div class="insights">
   <article class="insight a">
-    <i class="deco hgi-stroke hgi-ai-magic"></i>
+    <i class="deco icon icon-ai-magic"></i>
     <h3>Predecir la demanda del próximo trimestre</h3>
     <p>El modelo detectó estacionalidad estable en 4 categorías.</p>
   </article>
@@ -195,13 +195,13 @@ The bare pill --`class="tag"` with no colour class-- is the **off** state, and t
 <div class="kpis">
   <article class="card kpi">
     <div class="kpi-head">
-      <span class="kpi-ico"><i class="hgi-stroke hgi-dollar-circle"></i></span>
+      <span class="kpi-ico"><i class="icon icon-dollar-circle"></i></span>
       <span class="kpi-label">Ingresos netos</span>
     </div>
     <div>
       <div class="kpi-row">
         <span class="kpi-val number">184.320 €</span>
-        <span class="tag tag-success"><i class="hgi-stroke hgi-arrow-up-right-01"></i>12,4 %</span>
+        <span class="tag tag-success"><i class="icon icon-arrow-up-right-01"></i>12,4 %</span>
       </div>
       <div class="kpi-foot number">vs. 163.980 € anterior</div>
     </div>
@@ -249,7 +249,7 @@ Same moving-pill mechanism, two names depending on what it does. `.chips`/`.chip
 <!-- Tabs with panels: no JavaScript, hidden radios -->
 <div class="tabs">
   <div class="tab-list" style="--n: 3">
-    <input type="radio" name="vista" id="v1" checked><label class="tab" for="v1"><i class="hgi-stroke hgi-sidebar-left"></i>Summary</label>
+    <input type="radio" name="vista" id="v1" checked><label class="tab" for="v1"><i class="icon icon-sidebar-left"></i>Summary</label>
     <input type="radio" name="vista" id="v2"><label class="tab" for="v2">Activity</label>
     <input type="radio" name="vista" id="v3"><label class="tab" for="v3">Settings</label>
   </div>
@@ -268,8 +268,8 @@ Same moving-pill mechanism, two names depending on what it does. `.chips`/`.chip
 ```html
 <div class="skeleton" style="width: 70%"></div>   <!-- while it loads -->
 <span class="spinner" role="status" aria-label="Loading"></span>
-<div class="alert info" role="status"><i class="hgi-stroke hgi-information-circle"></i><span><strong>Nothing yet</strong>Create the first one to see it here.</span></div>
-<div class="alert danger" role="alert"><i class="hgi-stroke hgi-cancel-circle"></i><span><strong>Could not load</strong>Try again in a moment.</span></div>
+<div class="alert info" role="status"><i class="icon icon-information-circle"></i><span><strong>Nothing yet</strong>Create the first one to see it here.</span></div>
+<div class="alert danger" role="alert"><i class="icon icon-cancel-circle"></i><span><strong>Could not load</strong>Try again in a moment.</span></div>
 ```
 
 The alert has four tones: `info`, `ok`, `warn`, `danger`.
@@ -433,7 +433,7 @@ This is the most common mistake: shutting every thing into a bordered card, and 
 The platform already loads an icon font in the document. **Do not draw SVG and do not bring in any library**: an icon is an empty element with two classes.
 
 ```html
-<i class="hgi-stroke hgi-user-multiple"></i>
+<i class="icon icon-user-multiple"></i>
 ```
 
 - **Never emojis.** An emoji is drawn differently on every system, does not take the theme's colour, and turns any screen into a draft.
@@ -452,7 +452,7 @@ The platform already loads an icon font in the document. **Do not draw SVG and d
 - Beside text, an icon accompanies in `var(--ink-soft)`; where it leads --a tile, an empty state-- it may carry the brand in `var(--color-primary-text)`.
 - If something has no obvious icon, give it none.
 - **An invented name does not fail visibly: it leaves a blank gap**, and nobody notices anything is missing. The font holds more than six thousand names and none of them is listed here: **find them with "buscar_iconos"**, searching with English keywords (`user`, `invoice`, `calendar`, `shopping cart`), and use only names it returned. Never guess one.
-- **Write every icon name literally in the document**, as `hgi-<name>` or as a quoted string holding the exact name (for example inside a map from a state to its icon). Never build a name by joining pieces of text: the frame only loads the icons it finds written in the page.
+- **Write every icon name literally in the document**, as `icon-<name>` or as a quoted string holding the exact name (for example inside a map from a state to its icon). Never build a name by joining pieces of text: the frame only loads the icons it finds written in the page.
 - The markup of an icon is never escaped. If you insert it with `innerHTML`, it goes in as it is: escaping what you wrote yourself turns it into the visible text `<i class=...>`. Escaping is only for what comes from the tables or from the viewer.
 
 #### Tables and lists
